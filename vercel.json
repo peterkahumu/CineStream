@@ -1,8 +1,8 @@
 {
-    "git": {
-        "deploymentEnabled": {
-            "master": true,
-            "*": false
-        }
+  "git": {
+    "deploymentEnabled": {
+      "master": true,
+      "*": false
     }
+  }
 }
