@@ -10,7 +10,7 @@ import {
   getMovieDetails, getTVDetails, ShowDetails,
   posterUrl, backdropUrl, mediaTitle,
 } from '@/lib/tmdb'
-import { buildEmbedUrl } from '@/lib/vidsrc'
+import { buildEmbedUrl } from '@/lib/streamingProvider'
 import styles from './page.module.css'
 
 function WatchContent() {

@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  env: {
+    STREAMING_PROVIDER: process.env.STREAMING_PROVIDER,
+  },
 }
 
 export default nextConfig
