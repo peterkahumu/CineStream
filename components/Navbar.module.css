@@ -179,7 +179,23 @@
 @media (max-width: 768px) {
   .links { display: none; }
   .hamburger { display: flex; }
-  .searchForm { display: none; }
+  
+  /* Make the search form absolute to overlay the nav on small screens */
+  .searchForm {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 90px;
+    z-index: 10;
+    background: var(--nav-bg); /* Covers logo slightly if it gets wide */
+    border-color: transparent;
+  }
+  .searchForm.searchOpen {
+    width: calc(100vw - 110px);
+    max-width: 280px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
   .mobileMenu { display: flex; }
   .kbdHint { display: none; }
 }
