@@ -1,6 +1,6 @@
-# 💻 CineStream — Developer Guide
+# 💻 CinemaPhora — Developer Guide
 
-Welcome to the CineStream codebase! This document outlines the architecture, tech stack, and instructions for running and modifying the application.
+Welcome to the CinemaPhora codebase! This document outlines the architecture, tech stack, and instructions for running and modifying the application.
 
 ## 🚀 Tech Stack
 * **Framework:** [Next.js 16](https://nextjs.org/) (App Router)

@@ -3,12 +3,12 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
-  title: { default: 'CineStream', template: '%s | CineStream' },
+  title: { default: 'CinemaPhora', template: '%s | CinemaPhora' },
   description: 'Discover, search and stream movies & TV shows — powered by TMDB.',
   keywords: ['movies', 'tv shows', 'streaming', 'discover', 'watch online'],
   openGraph: {
     type: 'website',
-    title: 'CineStream',
+    title: 'CinemaPhora',
     description: 'Discover, search and stream movies & TV shows.',
   },
 }

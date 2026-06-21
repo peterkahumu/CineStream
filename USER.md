@@ -1,11 +1,11 @@
-# 🍿 CineStream — User Guide
+# 🍿 CinemaPhora — User Guide
 
-Welcome to CineStream! This guide will help you navigate the platform and get the most out of your movie and TV show viewing experience.
+Welcome to CinemaPhora! This guide will help you navigate the platform and get the most out of your movie and TV show viewing experience.
 
 ## ✨ Features
 
 ### 1. Home Page & Trending Content
-When you first land on CineStream, you are greeted with our dynamic **Home Page**.
+When you first land on CinemaPhora, you are greeted with our dynamic **Home Page**.
 * **Hero Banner:** Highlights top trending content right now.
 * **Categories:** Scroll down to browse dedicated rows for *Trending This Week*, *Now Playing*, *Popular*, and *Top Rated* movies and TV shows. 
 * **Quick Navigation:** Click "See All" on any row to dive deeper into that specific category.
