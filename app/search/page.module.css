@@ -1,0 +1,95 @@
+.form {
+  display: flex;
+  gap: var(--space-md);
+  align-items: stretch;
+  margin-bottom: var(--space-xl);
+}
+
+.inputWrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  padding: 12px 40px 12px 42px;
+  font-size: 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.input::placeholder { color: var(--text-muted); }
+
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+.clearBtn:hover { color: var(--text-primary); }
+
+/* Filter tabs */
+.tabs {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-md);
+}
+.tab {
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+.tabActive {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.error {
+  background: var(--red-light);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  color: var(--red);
+  font-size: 0.875rem;
+  margin-bottom: var(--space-lg);
+}
+
+.resultInfo {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+@media (max-width: 480px) {
+  .form { flex-direction: column; }
+}

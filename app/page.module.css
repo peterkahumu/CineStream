@@ -1,0 +1,17 @@
+.sections {
+  padding-top: var(--space-xl);
+}
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  background: var(--red-light);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  margin-top: var(--space-lg);
+  color: var(--red);
+  font-size: 0.875rem;
+}

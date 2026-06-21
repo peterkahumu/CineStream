@@ -1,0 +1,24 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+}
+
+.spinner {
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.65s linear infinite;
+}
+
+.sm  { width: 18px; height: 18px; }
+.md  { width: 32px; height: 32px; }
+.lg  { width: 48px; height: 48px; border-width: 3px; }
+
+.text {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

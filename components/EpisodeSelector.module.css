@@ -1,0 +1,114 @@
+.container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-muted);
+}
+
+.heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.seasonSelect {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  font-size: 0.825rem;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+.seasonSelect:focus { border-color: var(--accent); }
+
+.episodeList {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-sm);
+  gap: 2px;
+}
+
+.episode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+.episode:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.episode.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.epNum {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.episode.active .epNum {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.epInfo { flex: 1; min-width: 0; }
+
+.epTitle {
+  font-size: 0.825rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.episode.active .epTitle { font-weight: 600; }
+
+.epDate {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.epRating {
+  font-size: 0.72rem;
+  flex-shrink: 0;
+  color: var(--green);
+}
+
+.epSkeleton {
+  height: 48px;
+  border-radius: var(--radius-md);
+}

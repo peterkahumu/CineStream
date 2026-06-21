@@ -1,0 +1,34 @@
+.header { margin-bottom: var(--space-xl); }
+
+.title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.error {
+  background: var(--red-light);
+  border: 1px solid rgba(220,38,38,0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  color: var(--red);
+  font-size: 0.875rem;
+  margin-bottom: var(--space-lg);
+}
+
+.resultCount {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+  text-align: right;
+}
+
+.loadMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+}
