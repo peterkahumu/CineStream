@@ -43,9 +43,9 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: '/',         label: 'Home',     icon: '🏠' },
+    { href: '/', label: 'Home', icon: '🏠' },
     { href: '/discover', label: 'Discover', icon: '🧭' },
-    { href: '/search',   label: 'Search',   icon: '🔍' },
+    { href: '/search', label: 'Search', icon: '🔍' },
   ]
 
   return (
@@ -55,7 +55,7 @@ export default function Navbar() {
         <Link href="/" className={styles.logo} onClick={() => setMenuOpen(false)}>
           <span className={styles.logoIcon}>🎬</span>
           <span className={styles.logoText}>
-            Cine<span className={styles.logoDot}>Stream</span>
+            Cinema<span className={styles.logoDot}>Phora</span>
           </span>
         </Link>
 

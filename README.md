@@ -1,6 +1,6 @@
-# 🎬 CineStream
+# 🎬 CinemaPhora
 
-Welcome to **CineStream**! A sleek, modern, and high-performance web application for discovering and watching your favorite movies and TV shows. Built as a proof-of-concept to demonstrate a premium, ad-free streaming user experience.
+Welcome to **CinemaPhora**! A sleek, modern, and high-performance web application for discovering and watching your favorite movies and TV shows. Built as a proof-of-concept to demonstrate a premium, ad-free streaming user experience.
 
 ---
 
@@ -25,4 +25,4 @@ Are you looking to run this project locally, contribute to the codebase, or unde
 
 ---
 
-*CineStream — Elevating your viewing experience.*
+*CinemaPhora — Elevating your viewing experience.*

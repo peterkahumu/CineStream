@@ -1,13 +1,13 @@
-# 💻 CineStream — Developer Guide
+# 💻 CinemaPhora — Developer Guide
 
-Welcome to the CineStream codebase! This document outlines the architecture, tech stack, and instructions for running and modifying the application.
+Welcome to the CinemaPhora codebase! This document outlines the architecture, tech stack, and instructions for running and modifying the application.
 
 ## 🚀 Tech Stack
 * **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
 * **Language:** TypeScript
 * **Styling:** Vanilla CSS Modules (`.module.css`) + Global CSS Variables (No Tailwind)
 * **Metadata API:** [The Movie Database (TMDB)](https://www.themoviedb.org/)
-* **Video Provider:** VidLink (via `lib/vidsrc.ts`)
+* **Video Provider:** Configurable iframe provider via `STREAMING_PROVIDER` and `lib/streamingProvider.ts`
 
 ---
 
@@ -17,7 +17,7 @@ Welcome to the CineStream codebase! This document outlines the architecture, tec
 Ensure you have `Node.js` (v18+) and `npm` installed.
 
 ### 2. Environment Variables
-To fetch data, you need a TMDB API Key.
+To fetch data and load watch embeds, you need a TMDB API Key and a streaming provider host.
 1. Create an account at [TMDB](https://www.themoviedb.org/).
 2. Generate an API Key in your account settings.
 3. In the root of the project, copy the example environment file:
@@ -27,7 +27,9 @@ To fetch data, you need a TMDB API Key.
 4. Open `.env.local` and add your key:
    ```env
    TMDB_API_KEY=your_v3_api_key_here
+   STREAMING_PROVIDER=your-streaming-provider.example.com
    ```
+   `STREAMING_PROVIDER` should be the hostname only, without `https://`.
    *(Note: `.env.local` is ignored by Git to keep your secrets safe).*
 
 ### 3. Run the Development Server
@@ -50,7 +52,7 @@ Instead of making requests directly from React components to TMDB, the client ca
 * **Client Fetcher:** `lib/tmdb.ts` automatically formats requests to point to `/api/tmdb/...` instead of the public internet.
 
 ### Ad-Free Video Integration
-To fulfill the "Premium UI" proof-of-concept, the app utilizes `vidlink.pro` as its primary video iframe provider in `lib/vidsrc.ts`. This provider is favored because it strips away the aggressive pop-unders and ad-overlays commonly found in free embeds (like `vidsrc.su`), ensuring standard Fullscreen API behavior works without ad-blocking sandboxes breaking the player.
+The watch page builds its iframe URL from `STREAMING_PROVIDER` in `lib/streamingProvider.ts`. That keeps the embed target configurable per environment and avoids hardcoding provider-specific hostnames in the client.
 
 ---
 
@@ -96,7 +98,7 @@ export default function MyComponent() {
 │   └── Navbar.tsx           # Top navigation bar
 ├── lib/
 │   ├── tmdb.ts              # API types and fetch helper functions
-│   └── vidsrc.ts            # Video iframe URL generator
+│   └── streamingProvider.ts # Video iframe URL generator
 └── public/                  # Static assets
 ```
 
@@ -110,4 +112,6 @@ The easiest way to deploy this Next.js app is using [Vercel](https://vercel.com/
 3. In the Vercel Environment Variables configuration, add:
    * Key: `TMDB_API_KEY`
    * Value: `your_v3_api_key_here`
+   * Key: `STREAMING_PROVIDER`
+   * Value: your streaming provider hostname
 4. Deploy! Next.js App Router API Routes work seamlessly out of the box on Vercel.
