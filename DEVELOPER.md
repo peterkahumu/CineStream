@@ -7,7 +7,7 @@ Welcome to the CinemaPhora codebase! This document outlines the architecture, te
 * **Language:** TypeScript
 * **Styling:** Vanilla CSS Modules (`.module.css`) + Global CSS Variables (No Tailwind)
 * **Metadata API:** [The Movie Database (TMDB)](https://www.themoviedb.org/)
-* **Video Provider:** Configurable iframe provider via `STREAMING_PROVIDER` and `lib/streamingProvider.ts`
+* **Video Provider:** Managed via `lib/streamingProvider.ts`
 
 ---
 
@@ -27,9 +27,7 @@ To fetch data and load watch embeds, you need a TMDB API Key and a streaming pro
 4. Open `.env.local` and add your key:
    ```env
    TMDB_API_KEY=your_v3_api_key_here
-   STREAMING_PROVIDER=your-streaming-provider.example.com
    ```
-   `STREAMING_PROVIDER` should be the hostname only, without `https://`.
    *(Note: `.env.local` is ignored by Git to keep your secrets safe).*
 
 ### 3. Run the Development Server
@@ -52,7 +50,7 @@ Instead of making requests directly from React components to TMDB, the client ca
 * **Client Fetcher:** `lib/tmdb.ts` automatically formats requests to point to `/api/tmdb/...` instead of the public internet.
 
 ### Ad-Free Video Integration
-The watch page builds its iframe URL from `STREAMING_PROVIDER` in `lib/streamingProvider.ts`. That keeps the embed target configurable per environment and avoids hardcoding provider-specific hostnames in the client.
+The watch page builds its iframe URL using `lib/streamingProvider.ts`. We support multiple streaming servers (like Vidlink and Multiembed) which can be toggled by the user.
 
 ---
 
@@ -117,6 +115,4 @@ The easiest way to deploy this Next.js app is using [Vercel](https://vercel.com/
 3. In the Vercel Environment Variables configuration, add:
    * Key: `TMDB_API_KEY`
    * Value: `your_v3_api_key_here`
-   * Key: `STREAMING_PROVIDER`
-   * Value: your streaming provider hostname
 4. Deploy! Next.js App Router API Routes work seamlessly out of the box on Vercel.
