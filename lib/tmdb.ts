@@ -23,7 +23,7 @@ export interface MediaItem {
   popularity?: number
 }
 
-export interface Genre   { id: number; name: string }
+export interface Genre { id: number; name: string }
 export interface Country { iso_3166_1: string; english_name: string; native_name: string }
 
 export interface Season {
@@ -100,23 +100,23 @@ export async function tmdbFetch<T>(
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
-export const getTrending  = (media: 'movie' | 'tv' | 'all' = 'all', window: 'day' | 'week' = 'week') =>
-  tmdbFetch<TMDBPage<MediaItem>>(`/trending/${media}/${window}`)
+export const getTrending = (media: 'movie' | 'tv' | 'all' = 'all', window: 'day' | 'week' = 'week') =>
+  tmdbFetch<TMDBPage<MediaItem>>(`/trending/${media}/${window}`, { with_original_language: 'en' })
 
-export const getPopular   = (media: 'movie' | 'tv') =>
-  tmdbFetch<TMDBPage<MediaItem>>(`/${media}/popular`)
+export const getPopular = (media: 'movie' | 'tv') =>
+  tmdbFetch<TMDBPage<MediaItem>>(`/${media}/popular`, { with_original_language: 'en' })
 
-export const getTopRated  = (media: 'movie' | 'tv') =>
-  tmdbFetch<TMDBPage<MediaItem>>(`/${media}/top_rated`)
+export const getTopRated = (media: 'movie' | 'tv') =>
+  tmdbFetch<TMDBPage<MediaItem>>(`/${media}/top_rated`, { with_original_language: 'en' })
 
 export const getNowPlaying = () =>
-  tmdbFetch<TMDBPage<MediaItem>>('/movie/now_playing')
+  tmdbFetch<TMDBPage<MediaItem>>('/movie/now_playing', { with_original_language: 'en' })
 
 export const getOnAir = () =>
-  tmdbFetch<TMDBPage<MediaItem>>('/tv/on_the_air')
+  tmdbFetch<TMDBPage<MediaItem>>('/tv/on_the_air', { with_original_language: 'en' })
 
 export const searchMulti = (query: string, page = 1) =>
-  tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false })
+  tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false, with_original_language: 'en' })
 
 export const getMovieDetails = (id: number) =>
   tmdbFetch<ShowDetails>(`/movie/${id}`, { append_to_response: 'credits,similar,videos' })
@@ -151,7 +151,7 @@ export interface DiscoverParams {
 export const discover = ({ media, ...rest }: DiscoverParams) =>
   tmdbFetch<TMDBPage<MediaItem>>(
     `/discover/${media}`,
-    rest as Record<string, string | number | boolean>
+    { ...rest, with_original_language: 'en' } as Record<string, string | number | boolean>
   )
 
 // ─── Image helpers ────────────────────────────────────────────────────────────
@@ -165,9 +165,9 @@ export function backdropUrl(path: string | null, size: 'w300' | 'w780' | 'w1280'
 }
 
 export function mediaTitle(item: MediaItem) { return item.title || item.name || 'Untitled' }
-export function mediaYear(item: MediaItem)  { return (item.release_date || item.first_air_date || '').slice(0, 4) }
+export function mediaYear(item: MediaItem) { return (item.release_date || item.first_air_date || '').slice(0, 4) }
 export function mediaType(item: MediaItem): 'movie' | 'tv' {
   if (item.media_type === 'movie') return 'movie'
-  if (item.media_type === 'tv')    return 'tv'
+  if (item.media_type === 'tv') return 'tv'
   return item.first_air_date ? 'tv' : 'movie'
 }
