@@ -1,5 +1,18 @@
 import type { NextConfig } from 'next'
 
+// Streaming provider origins that need fullscreen delegation
+const streamingOrigins = [
+  'https://vidlink.pro',
+  'https://multiembed.mov',
+  'https://vidsrc-embed.su',
+]
+
+const permissionsPolicy = [
+  `fullscreen=(self ${streamingOrigins.map((o) => `"${o}"`).join(' ')})`,
+  `autoplay=(self ${streamingOrigins.map((o) => `"${o}"`).join(' ')})`,
+  `picture-in-picture=(self ${streamingOrigins.map((o) => `"${o}"`).join(' ')})`,
+].join(', ')
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -16,11 +29,12 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/watch/:path*',
+        // Apply to every page so the browser's frame-permission chain is never broken
+        source: '/:path*',
         headers: [
           {
             key: 'Permissions-Policy',
-            value: 'fullscreen=*, autoplay=*, picture-in-picture=*',
+            value: permissionsPolicy,
           },
         ],
       },
