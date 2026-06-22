@@ -116,7 +116,7 @@ export const getOnAir = () =>
   tmdbFetch<TMDBPage<MediaItem>>('/tv/on_the_air', { with_original_language: 'en' })
 
 export const searchMulti = (query: string, page = 1) =>
-  tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false, with_original_language: 'en' })
+  tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false })
 
 export const getMovieDetails = (id: number) =>
   tmdbFetch<ShowDetails>(`/movie/${id}`, { append_to_response: 'credits,similar,videos' })
@@ -148,11 +148,16 @@ export interface DiscoverParams {
   [key: string]: string | number | boolean | undefined
 }
 
-export const discover = ({ media, ...rest }: DiscoverParams) =>
-  tmdbFetch<TMDBPage<MediaItem>>(
+export const discover = ({ media, ...rest }: DiscoverParams) => {
+  // Drop the 'en' restriction if the user selects a specific country or language filter
+  const hasLanguageOrCountryFilter = rest.with_original_language || rest.with_origin_country;
+  const defaultParams = hasLanguageOrCountryFilter ? {} : { with_original_language: 'en' };
+
+  return tmdbFetch<TMDBPage<MediaItem>>(
     `/discover/${media}`,
-    { ...rest, with_original_language: 'en' } as Record<string, string | number | boolean>
+    { ...defaultParams, ...rest } as Record<string, string | number | boolean>
   )
+}
 
 // ─── Image helpers ────────────────────────────────────────────────────────────
 
