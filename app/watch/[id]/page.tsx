@@ -31,6 +31,7 @@ function WatchContent() {
 
   const fetchDetails = useCallback(async () => {
     if (!id) return
+    await Promise.resolve() // Defer state update to avoid cascading render in effects
     setLoading(true)
     setError(null)
     try {
@@ -45,7 +46,10 @@ function WatchContent() {
     }
   }, [id, mediaType])
 
-  useEffect(() => { fetchDetails() }, [fetchDetails])
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchDetails() 
+  }, [fetchDetails])
 
   const handleEpisodeSelect = (s: number, e: number) => {
     setSeason(s)
