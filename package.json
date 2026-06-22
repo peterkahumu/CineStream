@@ -19,9 +19,12 @@
     "vidsrc-utils": "github:heyitswit/vidsrc-bypass"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
     "typescript": "^5.7.0"
   }
 }
