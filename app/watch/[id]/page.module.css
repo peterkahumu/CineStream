@@ -50,6 +50,38 @@
   border: none;
 }
 
+.fullscreenBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-md);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+.playerWrapper:hover .fullscreenBtn {
+  opacity: 1;
+}
+.fullscreenBtn:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+/* Keep visible when in fullscreen mode */
+:fullscreen .fullscreenBtn,
+:-webkit-full-screen .fullscreenBtn {
+  opacity: 1;
+}
+
+
 /* Quick episode nav */
 .quickEp {
   display: flex;
