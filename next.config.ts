@@ -26,20 +26,6 @@ const nextConfig: NextConfig = {
   env: {
     STREAMING_PROVIDER: process.env.STREAMING_PROVIDER,
   },
-  async headers() {
-    return [
-      {
-        // Apply to every page so the browser's frame-permission chain is never broken
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Permissions-Policy',
-            value: permissionsPolicy,
-          },
-        ],
-      },
-    ]
-  },
 }
 
 export default nextConfig
