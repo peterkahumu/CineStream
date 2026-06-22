@@ -1,3 +1,6 @@
+'use client'
+
+import { useRef } from 'react'
 import Link from 'next/link'
 import MediaCard from './MediaCard'
 import { MediaItem } from '@/lib/tmdb'
@@ -13,6 +16,16 @@ interface Props {
 }
 
 export default function MediaRow({ title, emoji, items, loading, seeAllHref, forcedType }: Props) {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollerRef.current) {
+      const { clientWidth } = scrollerRef.current
+      const scrollAmount = direction === 'left' ? -clientWidth * 0.75 : clientWidth * 0.75
+      scrollerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
+
   return (
     <section className={styles.section}>
       <div className="section-header">
@@ -27,16 +40,34 @@ export default function MediaRow({ title, emoji, items, loading, seeAllHref, for
         )}
       </div>
 
-      <div className={styles.scroller}>
-        {loading
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className={`${styles.skeletonCard} skeleton`} />
-            ))
-          : items.slice(0, 20).map(item => (
-              <div key={`${item.media_type ?? forcedType}-${item.id}`} className={styles.cardWrap}>
-                <MediaCard item={item} forcedType={forcedType} />
-              </div>
-            ))}
+      <div className={styles.rowContainer}>
+        <button 
+          className={`${styles.scrollBtn} ${styles.scrollLeft}`} 
+          onClick={() => scroll('left')}
+          aria-label="Scroll left"
+        >
+          ‹
+        </button>
+
+        <div className={styles.scroller} ref={scrollerRef}>
+          {loading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className={`${styles.skeletonCard} skeleton`} />
+              ))
+            : items.slice(0, 20).map(item => (
+                <div key={`${item.media_type ?? forcedType}-${item.id}`} className={styles.cardWrap}>
+                  <MediaCard item={item} forcedType={forcedType} />
+                </div>
+              ))}
+        </div>
+
+        <button 
+          className={`${styles.scrollBtn} ${styles.scrollRight}`} 
+          onClick={() => scroll('right')}
+          aria-label="Scroll right"
+        >
+          ›
+        </button>
       </div>
     </section>
   )
