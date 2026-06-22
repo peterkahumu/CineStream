@@ -70,17 +70,25 @@
 
 /* Layout */
 .layout {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xl);
 }
 @media (min-width: 1024px) {
-  .layout { grid-template-columns: 1fr 320px; }
+  .layout { 
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    align-items: flex-start;
+  }
 }
 
-.sidebar { position: relative; }
+.sidebar { 
+  position: relative;
+  order: -1;
+}
 @media (min-width: 1024px) {
   .sidebar {
+    order: 0;
     position: sticky;
     top: calc(var(--nav-height) + var(--space-md));
     max-height: calc(100vh - var(--nav-height) - var(--space-xl));
@@ -256,3 +264,40 @@
 .castInfo { display: flex; flex-direction: column; gap: 1px; }
 .castName { font-size: 0.775rem; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
 .castChar { font-size: 0.7rem; color: var(--text-muted); }
+
+/* Server Selector */
+.serverSelector {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--bg-muted);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+@media (max-width: 600px) {
+  .serverSelector {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+.serverSelector span {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.serverBtn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+/* Ep Nav Buttons */
+.epNavBtn {
+  padding: 6px 14px;
+  font-size: 0.825rem;
+}

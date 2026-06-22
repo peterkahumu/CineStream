@@ -10,7 +10,7 @@ import {
   getMovieDetails, getTVDetails, ShowDetails,
   posterUrl, backdropUrl, mediaTitle,
 } from '@/lib/tmdb'
-import { buildEmbedUrl } from '@/lib/streamingProvider'
+import { buildEmbedUrl, STREAMING_SERVERS } from '@/lib/streamingProvider'
 import styles from './page.module.css'
 
 function WatchContent() {
@@ -26,8 +26,9 @@ function WatchContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [iframeKey, setIframeKey] = useState(0)
+  const [server, setServer] = useState(STREAMING_SERVERS[0].id)
 
-  const embedUrl = buildEmbedUrl(mediaType, id, season, episode)
+  const embedUrl = buildEmbedUrl(server, mediaType, id, season, episode)
 
   const fetchDetails = useCallback(async () => {
     if (!id) return
@@ -91,6 +92,19 @@ function WatchContent() {
               allow="fullscreen"
             />
           </div>
+          
+          <div className={styles.serverSelector}>
+            <span>If the video fails to load, try switching servers:</span>
+            {STREAMING_SERVERS.map(s => (
+              <button
+                key={s.id}
+                className={`btn ${server === s.id ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
+                onClick={() => { setServer(s.id); setIframeKey(k => k + 1); }}
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* TV episode quick nav */}
@@ -101,20 +115,18 @@ function WatchContent() {
             </span>
             <div className={styles.epNav}>
               <button
-                className="btn btn-secondary"
+                className={`btn btn-secondary ${styles.epNavBtn}`}
                 disabled={season === 1 && episode === 1}
                 onClick={() => {
                   if (episode > 1) handleEpisodeSelect(season, episode - 1)
                   else if (season > 1) handleEpisodeSelect(season - 1, 1)
                 }}
-                style={{ padding: '6px 14px', fontSize: '0.825rem' }}
               >
                 ← Prev
               </button>
               <button
-                className="btn btn-secondary"
+                className={`btn btn-secondary ${styles.epNavBtn}`}
                 onClick={() => handleEpisodeSelect(season, episode + 1)}
-                style={{ padding: '6px 14px', fontSize: '0.825rem' }}
               >
                 Next →
               </button>
@@ -201,18 +213,6 @@ function WatchContent() {
                   </div>
                 )}
 
-                {/* Sidebar */}
-                {mediaType === 'tv' && seasons.length > 0 && (
-                  <aside className={styles.sidebar}>
-                    <EpisodeSelector
-                      seasons={seasons}
-                      tvId={Number(id)}
-                      activeSeason={season}
-                      activeEpisode={episode}
-                      onSelect={handleEpisodeSelect}
-                    />
-                  </aside>
-                )}
 
                 {cast.length > 0 && (
                   <div className={styles.section}>
@@ -256,6 +256,19 @@ function WatchContent() {
               </>
             )}
           </div>
+
+          {/* Sidebar (Moved out of mainCol to fit the CSS grid) */}
+          {details && mediaType === 'tv' && seasons.length > 0 && (
+            <aside className={styles.sidebar}>
+              <EpisodeSelector
+                seasons={seasons}
+                tvId={Number(id)}
+                activeSeason={season}
+                activeEpisode={episode}
+                onSelect={handleEpisodeSelect}
+              />
+            </aside>
+          )}
         </div>
       </div>
     </main>
