@@ -144,7 +144,7 @@ export default function FilterBar({ filters, onChange }: Props) {
             <label className={styles.filterLabel}>Country</label>
             <select className={styles.select} value={filters.country} onChange={e => set('country', e.target.value)}>
               <option value="">All Countries</option>
-              {countries.slice(0, 80).map(c => (
+              {countries.map(c => (
                 <option key={c.iso_3166_1} value={c.iso_3166_1}>{c.english_name}</option>
               ))}
             </select>
