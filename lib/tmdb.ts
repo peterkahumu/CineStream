@@ -78,7 +78,8 @@ export interface TMDBPage<T> {
 }
 
 // ─── Core fetcher ─────────────────────────────────────────────────────────────
-// Calls our own /api/tmdb/* proxy — the API key is injected server-side.
+// Server Components → hits TMDB directly (no proxy hop needed).
+// Client Components → hits /api/tmdb/* proxy (API key stays hidden).
 
 export async function tmdbFetch<T>(
   endpoint: string,
@@ -87,7 +88,18 @@ export async function tmdbFetch<T>(
   const qs = new URLSearchParams(
     Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
   )
-  const res = await fetch(`/api/tmdb${endpoint}?${qs}`)
+
+  const isServer = typeof window === 'undefined'
+  let url: string
+
+  if (isServer) {
+    qs.set('api_key', process.env.TMDB_API_KEY || '')
+    url = `https://api.themoviedb.org/3${endpoint}?${qs}`
+  } else {
+    url = `/api/tmdb${endpoint}?${qs}`
+  }
+
+  const res = await fetch(url)
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))

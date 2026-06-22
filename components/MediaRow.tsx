@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 import MediaCard from './MediaCard'
 import { MediaItem } from '@/lib/tmdb'

@@ -1,21 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { Genre, Country, getMovieGenres, getTVGenres, getCountries } from '@/lib/tmdb'
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Genre, Country } from '@/lib/tmdb'
 import styles from './FilterBar.module.css'
 
-export interface FilterState {
-  media: 'movie' | 'tv'
-  sort_by: string
-  genreId: string
-  country: string
-  year: string
-  minRating: string
-  language: string
-}
-
 interface Props {
-  filters: FilterState
-  onChange: (f: FilterState) => void
+  movieGenres: Genre[]
+  tvGenres: Genre[]
+  countries: Country[]
 }
 
 const SORT_OPTIONS = [
@@ -57,27 +49,46 @@ const LANGUAGES = [
   { code: 'it', label: 'Italian' },
 ]
 
-export default function FilterBar({ filters, onChange }: Props) {
-  const [genres, setGenres] = useState<Genre[]>([])
-  const [countries, setCountries] = useState<Country[]>([])
+export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [expanded, setExpanded] = useState(false)
 
-  useEffect(() => {
-    const fetchFn = filters.media === 'movie' ? getMovieGenres : getTVGenres
-    fetchFn().then(d => setGenres(d.genres)).catch(console.error)
-    getCountries().then(d => setCountries(d.sort((a, b) => a.english_name.localeCompare(b.english_name)))).catch(console.error)
-  }, [filters.media])
+  const media = (searchParams.get('media') as 'movie' | 'tv') || 'movie'
+  const sort_by = searchParams.get('sort') || 'popularity.desc'
+  const genreId = searchParams.get('genre') || ''
+  const country = searchParams.get('country') || ''
+  const year = searchParams.get('year') || ''
+  const minRating = searchParams.get('minRating') || ''
+  const language = searchParams.get('language') || ''
 
-  const set = (key: keyof FilterState, value: string) =>
-    onChange({ ...filters, [key]: value })
+  const genres = media === 'movie' ? movieGenres : tvGenres
+  const sortOptions = media === 'movie' ? SORT_OPTIONS : SORT_TV
+  const hasFilters = genreId || country || year || minRating || language
 
-  const reset = () => onChange({
-    media: 'movie', sort_by: 'popularity.desc',
-    genreId: '', country: '', year: '', minRating: '', language: '',
-  })
+  const setFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value) params.set(key, value)
+    else params.delete(key)
+    
+    // Always reset to page 1 when changing filters
+    params.delete('page')
+    
+    // If we changed media, we should probably reset genre since IDs don't match
+    if (key === 'media') {
+      params.delete('genre')
+      // Reset sort if the new media type doesn't support the current sort
+      if (value === 'tv' && params.get('sort') === 'revenue.desc') {
+        params.delete('sort')
+      }
+    }
+    
+    router.push(`/discover?${params.toString()}`)
+  }
 
-  const sortOptions = filters.media === 'movie' ? SORT_OPTIONS : SORT_TV
-  const hasFilters = filters.genreId || filters.country || filters.year || filters.minRating || filters.language
+  const reset = () => {
+    router.push(`/discover?media=movie&sort=popularity.desc`)
+  }
 
   return (
     <div className={`${styles.bar} glass`}>
@@ -86,14 +97,14 @@ export default function FilterBar({ filters, onChange }: Props) {
         {/* Media type toggle */}
         <div className={styles.typeToggle}>
           <button
-            className={`${styles.typeBtn} ${filters.media === 'movie' ? styles.typeBtnActive : ''}`}
-            onClick={() => set('media', 'movie')}
+            className={`${styles.typeBtn} ${media === 'movie' ? styles.typeBtnActive : ''}`}
+            onClick={() => setFilter('media', 'movie')}
           >
             🎬 Movies
           </button>
           <button
-            className={`${styles.typeBtn} ${filters.media === 'tv' ? styles.typeBtnActive : ''}`}
-            onClick={() => set('media', 'tv')}
+            className={`${styles.typeBtn} ${media === 'tv' ? styles.typeBtnActive : ''}`}
+            onClick={() => setFilter('media', 'tv')}
           >
             📺 TV Shows
           </button>
@@ -104,8 +115,8 @@ export default function FilterBar({ filters, onChange }: Props) {
           <span className={styles.selectIcon}>↕️</span>
           <select
             className={styles.select}
-            value={filters.sort_by}
-            onChange={e => set('sort_by', e.target.value)}
+            value={sort_by}
+            onChange={e => setFilter('sort', e.target.value)}
           >
             {sortOptions.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -133,7 +144,7 @@ export default function FilterBar({ filters, onChange }: Props) {
           {/* Genre */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Genre</label>
-            <select className={styles.select} value={filters.genreId} onChange={e => set('genreId', e.target.value)}>
+            <select className={styles.select} value={genreId} onChange={e => setFilter('genre', e.target.value)}>
               <option value="">All Genres</option>
               {genres.map(g => <option key={g.id} value={String(g.id)}>{g.name}</option>)}
             </select>
@@ -142,7 +153,7 @@ export default function FilterBar({ filters, onChange }: Props) {
           {/* Country */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Country</label>
-            <select className={styles.select} value={filters.country} onChange={e => set('country', e.target.value)}>
+            <select className={styles.select} value={country} onChange={e => setFilter('country', e.target.value)}>
               <option value="">All Countries</option>
               {countries.map(c => (
                 <option key={c.iso_3166_1} value={c.iso_3166_1}>{c.english_name}</option>
@@ -153,7 +164,7 @@ export default function FilterBar({ filters, onChange }: Props) {
           {/* Year */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Year</label>
-            <select className={styles.select} value={filters.year} onChange={e => set('year', e.target.value)}>
+            <select className={styles.select} value={year} onChange={e => setFilter('year', e.target.value)}>
               <option value="">Any Year</option>
               {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
@@ -162,7 +173,7 @@ export default function FilterBar({ filters, onChange }: Props) {
           {/* Min rating */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Rating</label>
-            <select className={styles.select} value={filters.minRating} onChange={e => set('minRating', e.target.value)}>
+            <select className={styles.select} value={minRating} onChange={e => setFilter('minRating', e.target.value)}>
               {RATINGS.map(r => <option key={r} value={r}>{RATING_LABELS[r]}</option>)}
             </select>
           </div>
@@ -170,7 +181,7 @@ export default function FilterBar({ filters, onChange }: Props) {
           {/* Language */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Language</label>
-            <select className={styles.select} value={filters.language} onChange={e => set('language', e.target.value)}>
+            <select className={styles.select} value={language} onChange={e => setFilter('language', e.target.value)}>
               {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
             </select>
           </div>
