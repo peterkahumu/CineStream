@@ -86,16 +86,21 @@ export default function MyComponent() {
 │   ├── discover/            # /discover page
 │   ├── search/              # /search page
 │   ├── watch/[id]/          # /watch page (Dynamic route)
-│   ├── layout.tsx           # Global HTML layout & Navbar inclusion
+│   ├── layout.tsx           # Global HTML layout, Navbar & Footer inclusion
 │   ├── page.tsx             # Home page (Hero, Media Rows)
 │   └── globals.css          # CSS Variables, resets, and utility classes
 ├── components/
+│   ├── ApiKeyModal.tsx      # Modal for entering TMDB API key
 │   ├── EpisodeSelector.tsx  # Sidebar for selecting TV episodes
 │   ├── FilterBar.tsx        # Discovery filtering UI
+│   ├── Footer.tsx           # Global footer
 │   ├── HeroBanner.tsx       # Homepage top banner
+│   ├── LoadingSpinner.tsx   # Generic loading indicator
 │   ├── MediaCard.tsx        # Movie/TV poster cards
 │   ├── MediaRow.tsx         # Horizontal scrolling rows
 │   └── Navbar.tsx           # Top navigation bar
+├── hooks/
+│   └── useApiKey.ts         # Custom hook for managing TMDB API key
 ├── lib/
 │   ├── tmdb.ts              # API types and fetch helper functions
 │   └── streamingProvider.ts # Video iframe URL generator
