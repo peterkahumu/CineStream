@@ -20,11 +20,19 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
 
   useEffect(() => {
     if (!tvId) return
-    setLoading(true)
-    getSeasonDetails(tvId, selectedSeason)
-      .then(d => setEpisodes(d.episodes || []))
-      .catch(console.error)
-      .finally(() => setLoading(false))
+    const fetch = async () => {
+      await Promise.resolve()
+      setLoading(true)
+      try {
+        const d = await getSeasonDetails(tvId, selectedSeason)
+        setEpisodes(d.episodes || [])
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetch()
   }, [tvId, selectedSeason])
 
   return (

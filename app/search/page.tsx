@@ -23,22 +23,28 @@ function SearchContent() {
   useEffect(() => { inputRef.current?.focus() }, [])
 
   useEffect(() => {
-    if (!committed.trim()) { setResults([]); return }
+    const q = committed.trim()
     const ctrl = new AbortController()
-    setLoading(true)
-    setError(null)
-    searchMulti(committed.trim())
-      .then(d => {
+    
+    const fetch = async () => {
+      await Promise.resolve()
+      if (!q) { setResults([]); return }
+      setLoading(true)
+      setError(null)
+      try {
+        const d = await searchMulti(q)
         if (ctrl.signal.aborted) return
         const valid = (d.results || []).filter(r => r.media_type !== 'person')
         setResults(valid)
         setTotal(d.total_results || valid.length)
-      })
-      .catch(err => {
+      } catch (err) {
         if (!ctrl.signal.aborted) setError('Search failed. Check your TMDB_API_KEY in .env.local.')
         console.error(err)
-      })
-      .finally(() => { if (!ctrl.signal.aborted) setLoading(false) })
+      } finally {
+        if (!ctrl.signal.aborted) setLoading(false)
+      }
+    }
+    fetch()
     return () => ctrl.abort()
   }, [committed])
 

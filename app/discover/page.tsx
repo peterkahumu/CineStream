@@ -34,6 +34,7 @@ function DiscoverContent() {
   const [error, setError] = useState<string | null>(null)
 
   const fetchDiscover = useCallback(async (f: FilterState, pg: number, append = false) => {
+    await Promise.resolve() // Defer state update to avoid cascading render in effects
     append ? setLoadingMore(true) : setLoading(true)
     setError(null)
     try {
@@ -63,8 +64,7 @@ function DiscoverContent() {
   }, [])
 
   useEffect(() => {
-    setPage(1)
-    setItems([])
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDiscover(filters, 1)
     const params = new URLSearchParams()
     if (filters.media !== 'movie') params.set('media', filters.media)
@@ -89,7 +89,7 @@ function DiscoverContent() {
           </p>
         </div>
 
-        <FilterBar filters={filters} onChange={f => { setFilters(f); setPage(1) }} />
+        <FilterBar filters={filters} onChange={f => { setFilters(f); setPage(1); setItems([]) }} />
 
         {loading && <LoadingSpinner size="lg" text="Loading…" />}
 

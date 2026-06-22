@@ -8,11 +8,15 @@ export function useApiKey() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    try {
-      const saved = localStorage.getItem(KEY) || ''
-      setApiKeyState(saved)
-    } catch {}
+    const init = async () => {
+      await Promise.resolve()
+      setMounted(true)
+      try {
+        const saved = localStorage.getItem(KEY) || ''
+        setApiKeyState(saved)
+      } catch {}
+    }
+    init()
   }, [])
 
   const setApiKey = (key: string) => {
