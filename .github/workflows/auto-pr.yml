@@ -1,0 +1,26 @@
+name: Auto Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Try to create a PR, but don't fail if one already exists for this branch
+          gh pr create -B master -H ${{ github.ref_name }} \
+            --title "Auto PR: ${{ github.ref_name }}" \
+            --body "Created automatically by Auto PR workflow." || echo "PR already exists"
