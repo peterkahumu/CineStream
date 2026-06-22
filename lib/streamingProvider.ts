@@ -1,7 +1,16 @@
-export const STREAMING_SERVERS = [
-  { id: 'vidlink', name: 'Server 1 (Vidlink)' },
-  { id: 'vsembed', name: 'Server 2 (VSEmbed)' }
-]
+const servers = []
+
+if (process.env.NEXT_PUBLIC_VIDLINK_URL) {
+  servers.push({ id: 'vidlink', name: 'Server 1 (Vidlink)' })
+}
+if (process.env.NEXT_PUBLIC_MULTIEMBED_URL) {
+  servers.push({ id: 'multiembed', name: 'Server 2 (Multiembed)' })
+}
+if (process.env.NEXT_PUBLIC_VSEMBED_URL) {
+  servers.push({ id: 'vsembed', name: 'Server 3 (VSEmbed)' })
+}
+
+export const STREAMING_SERVERS = servers
 
 export function buildEmbedUrl(
   serverId: string,
@@ -13,13 +22,20 @@ export function buildEmbedUrl(
   const s = season ?? 1
   const e = episode ?? 1
 
+  if (serverId === 'multiembed') {
+    const base = process.env.NEXT_PUBLIC_MULTIEMBED_URL
+    if (type === 'movie') return `${base}?video_id=${id}&tmdb=1`
+    return `${base}?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+  }
+
   if (serverId === 'vsembed') {
-    if (type === 'movie') return `https://vidsrc-embed.ru/embed/movie?tmdb=${id}`
-    return `https://vidsrc-embed.ru/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+    const base = process.env.NEXT_PUBLIC_VSEMBED_URL
+    if (type === 'movie') return `${base}/movie?tmdb=${id}`
+    return `${base}/tv?tmdb=${id}&season=${s}&episode=${e}`
   }
 
   // Default to vidlink
-  const domain = process.env.STREAMING_PROVIDER || 'vidlink.pro'
-  if (type === 'movie') return `https://${domain}/movie/${id}`
-  return `https://${domain}/tv/${id}/${s}/${e}`
+  const base = process.env.NEXT_PUBLIC_VIDLINK_URL
+  if (type === 'movie') return `${base}/movie/${id}`
+  return `${base}/tv/${id}/${s}/${e}`
 }
