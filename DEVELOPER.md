@@ -27,6 +27,11 @@ To fetch data and load watch embeds, you need a TMDB API Key and a streaming pro
 4. Open `.env.local` and add your key:
    ```env
    TMDB_API_KEY=your_v3_api_key_here
+
+   # Optional: Override the default streaming provider base URLs
+   NEXT_PUBLIC_VIDLINK_URL=https://vidlink.pro
+   NEXT_PUBLIC_MULTIEMBED_URL=https://multiembed.mov/directstream.php
+   NEXT_PUBLIC_VSEMBED_URL=https://vidsrc-embed.ru/embed
    ```
    *(Note: `.env.local` is ignored by Git to keep your secrets safe).*
 
