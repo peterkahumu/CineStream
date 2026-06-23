@@ -1,4 +1,4 @@
-name: CI & Auto-Merge
+name: CI
 
 on:
   pull_request:
@@ -6,8 +6,7 @@ on:
       - master
 
 permissions:
-  pull-requests: write
-  contents: write
+  contents: read
 
 jobs:
   test-and-build:
@@ -31,15 +30,3 @@ jobs:
 
       - name: Build Next.js
         run: npm run build
-
-  auto-merge:
-    needs: test-and-build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Enable Auto-Merge
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge --auto --merge "${{ github.event.pull_request.number }}"
