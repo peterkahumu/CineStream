@@ -3,13 +3,7 @@ name: Back-merge — Master to Develop (post-release)
 # Triggers when a release/* PR is merged into master.
 # Checks for diffs; if any exist, opens a PR from master → develop
 # and enables auto-merge so it lands once CI is green.
-#
-# Prerequisites for auto-merge to work:
-#   1. Enable "Allow auto-merge" in repo Settings → General.
-#   2. Set branch protection on `develop` with required status checks
-#      (the CI workflow must pass before merge is allowed).
-#   Without these, the auto-merge step will fail gracefully and you
-#   can merge the PR manually.
+
 
 on:
   pull_request:
