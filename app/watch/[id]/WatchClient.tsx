@@ -33,10 +33,10 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
           key={`${embedUrl}-${iframeKey}`}
           src={embedUrl}
           className={styles.player}
-          allowFullScreen
-          loading="lazy"
+          loading="eager"
           title={`${title} player`}
-          allow="fullscreen"
+          allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; web-share *"
+          allowFullScreen
         />
       </div>
 
