@@ -28,10 +28,13 @@ To fetch data and load watch embeds, you need a TMDB API Key and a streaming pro
    ```env
    TMDB_API_KEY=your_v3_api_key_here
 
-   # Optional: Override the default streaming provider base URLs
-   NEXT_PUBLIC_VIDLINK_URL=https://vidlink.pro
-   NEXT_PUBLIC_MULTIEMBED_URL=https://multiembed.mov/directstream.php
-   NEXT_PUBLIC_VSEMBED_URL=https://vidsrc-embed.ru/embed
+   # Streaming provider base URLs — only configure the servers you want active.
+   # AutoEmbed is the default (Server 1) and loads automatically on the Watch page.
+   NEXT_PUBLIC_AUTOEMBED_URL=
+   NEXT_PUBLIC_MOVIESAPI_URL=
+   NEXT_PUBLIC_PRIMESRC_URL=
+   NEXT_PUBLIC_VIDLINK_URL=
+   NEXT_PUBLIC_MULTIEMBED_URL=
    ```
    *(Note: `.env.local` is ignored by Git to keep your secrets safe).*
 
@@ -55,7 +58,17 @@ Instead of making requests directly from React components to TMDB, the client ca
 * **Client Fetcher:** `lib/tmdb.ts` automatically formats requests to point to `/api/tmdb/...` instead of the public internet.
 
 ### Ad-Free Video Integration
-The watch page builds its iframe URL using `lib/streamingProvider.ts`. We support multiple streaming servers (like Vidlink and Multiembed) which can be toggled by the user.
+The watch page builds its iframe URL using `lib/streamingProvider.ts`. We support up to five streaming servers, each enabled by setting its corresponding `NEXT_PUBLIC_*` environment variable:
+
+| Server | Env Variable | Default? |
+|---|---|---|
+| AutoEmbed | `NEXT_PUBLIC_AUTOEMBED_URL` | ✅ Yes (Server 1) |
+| MoviesAPI | `NEXT_PUBLIC_MOVIESAPI_URL` | No |
+| PrimeSrc | `NEXT_PUBLIC_PRIMESRC_URL` | No |
+| Vidlink | `NEXT_PUBLIC_VIDLINK_URL` | No |
+| Multiembed | `NEXT_PUBLIC_MULTIEMBED_URL` | No |
+
+Only servers whose env variable is set will appear in the UI. The user can switch between active servers from the Watch page. AutoEmbed loads immediately on page render (no click required).
 
 ---
 
