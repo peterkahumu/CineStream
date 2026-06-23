@@ -1,0 +1,71 @@
+name: Back-merge — Master to Develop (post-release)
+
+# Triggers when a release/* PR is merged into master.
+# Checks for diffs; if any exist, opens a PR from master → develop
+# and enables auto-merge so it lands once CI is green.
+#
+# Prerequisites for auto-merge to work:
+#   1. Enable "Allow auto-merge" in repo Settings → General.
+#   2. Set branch protection on `develop` with required status checks
+#      (the CI workflow must pass before merge is allowed).
+#   Without these, the auto-merge step will fail gracefully and you
+#   can merge the PR manually.
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  backmerge:
+    # Only act when a release/* branch is actually merged (not just closed).
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for diffs between master and develop
+        id: diff-check
+        run: |
+          git fetch origin develop
+          DIFF=$(git log origin/develop..origin/master --oneline)
+          if [ -n "$DIFF" ]; then
+            echo "Diffs found — back-merge PR will be created."
+            echo "has_diff=true" >> $GITHUB_OUTPUT
+          else
+            echo "No diffs between master and develop — skipping back-merge."
+            echo "has_diff=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create back-merge PR (master → develop)
+        if: steps.diff-check.outputs.has_diff == 'true'
+        id: create-pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_URL=$(gh pr create \
+            --base develop \
+            --head master \
+            --title "chore: back-merge master into develop after ${{ github.event.pull_request.head.ref }}" \
+            --body "Automated back-merge of \`master\` → \`develop\` following release \`${{ github.event.pull_request.head.ref }}\`. Auto-merge is enabled — will land once CI is green." \
+          2>/dev/null) && echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT \
+          || echo "Back-merge PR already exists or could not be created — skipping."
+
+      - name: Enable auto-merge on back-merge PR
+        if: steps.diff-check.outputs.has_diff == 'true' && steps.create-pr.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr merge --auto --merge "${{ steps.create-pr.outputs.pr_url }}" \
+          || echo "Auto-merge could not be enabled (check repo settings and branch protection). Merge manually."
