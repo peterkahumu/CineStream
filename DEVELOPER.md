@@ -29,8 +29,7 @@ To fetch data and load watch embeds, you need a TMDB API Key and a streaming pro
    TMDB_API_KEY=your_v3_api_key_here
 
    # Streaming provider base URLs — only configure the servers you want active.
-   # AutoEmbed is the default (Server 1) and loads automatically on the Watch page.
-   NEXT_PUBLIC_AUTOEMBED_URL=
+   # MoviesAPI is the default (Server 1) and loads automatically on the Watch page.
    NEXT_PUBLIC_MOVIESAPI_URL=
    NEXT_PUBLIC_PRIMESRC_URL=
    NEXT_PUBLIC_VIDLINK_URL=
@@ -58,17 +57,16 @@ Instead of making requests directly from React components to TMDB, the client ca
 * **Client Fetcher:** `lib/tmdb.ts` automatically formats requests to point to `/api/tmdb/...` instead of the public internet.
 
 ### Ad-Free Video Integration
-The watch page builds its iframe URL using `lib/streamingProvider.ts`. We support up to five streaming servers, each enabled by setting its corresponding `NEXT_PUBLIC_*` environment variable:
+The watch page builds its iframe URL using `lib/streamingProvider.ts`. We support up to four streaming servers, each enabled by setting its corresponding `NEXT_PUBLIC_*` environment variable:
 
 | Server | Env Variable | Default? |
 |---|---|---|
-| AutoEmbed | `NEXT_PUBLIC_AUTOEMBED_URL` | ✅ Yes (Server 1) |
-| MoviesAPI | `NEXT_PUBLIC_MOVIESAPI_URL` | No |
+| MoviesAPI | `NEXT_PUBLIC_MOVIESAPI_URL` | ✅ Yes (Server 1) |
 | PrimeSrc | `NEXT_PUBLIC_PRIMESRC_URL` | No |
 | Vidlink | `NEXT_PUBLIC_VIDLINK_URL` | No |
 | Multiembed | `NEXT_PUBLIC_MULTIEMBED_URL` | No |
 
-Only servers whose env variable is set will appear in the UI. The user can switch between active servers from the Watch page. AutoEmbed loads immediately on page render (no click required).
+Only servers whose env variable is set will appear in the UI. The user can switch between active servers from the Watch page. MoviesAPI loads immediately on page render (no click required).
 
 ---
 
