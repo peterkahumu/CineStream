@@ -21,6 +21,8 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
 
+    let immersiveInterval: NodeJS.Timeout | null = null
+
     const handleFullscreenChange = async () => {
       try {
         if (document.fullscreenElement) {
@@ -33,6 +35,13 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
             // transiently (Immersive Sticky) when swiped down by the user
             await StatusBar.setOverlaysWebView({ overlay: true })
             await StatusBar.hide()
+
+            // ensures the status bar auto-hides again after being pulled down.
+            immersiveInterval = setInterval(() => {
+              if (document.fullscreenElement) {
+                StatusBar.hide().catch(() => {})
+              }
+            }, 2500)
           }, 300)
         } else {
           setTimeout(async () => {
@@ -40,6 +49,10 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
             // Restore overlay to false so it doesn't overlap the app's navbar
             await StatusBar.setOverlaysWebView({ overlay: false })
             await StatusBar.show()
+            if (immersiveInterval) {
+              clearInterval(immersiveInterval)
+              immersiveInterval = null
+            }
           }, 300)
         }
       } catch (error) {
@@ -48,7 +61,10 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
     }
 
     document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      if (immersiveInterval) clearInterval(immersiveInterval)
+    }
   }, [])
 
   if (STREAMING_SERVERS.length === 0) {
