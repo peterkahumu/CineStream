@@ -24,11 +24,16 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
     const handleFullscreenChange = async () => {
       try {
         if (document.fullscreenElement) {
-          await ScreenOrientation.lock({ orientation: 'landscape' })
-          await StatusBar.hide()
+          // Add a tiny delay before forcing rotation. This prevents a race condition
+          // where the WebView calculates the fullscreen video boundaries using portrait dimensions,
+          // which causes the video to look zoomed-in or cropped.
+          setTimeout(async () => {
+            await ScreenOrientation.lock({ orientation: 'landscape' })
+          }, 300)
         } else {
-          await ScreenOrientation.unlock()
-          await StatusBar.show()
+          setTimeout(async () => {
+            await ScreenOrientation.unlock()
+          }, 300)
         }
       } catch (error) {
         console.error('Failed to change screen orientation:', error)
