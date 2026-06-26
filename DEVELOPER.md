@@ -4,6 +4,7 @@ Welcome to the CinemaPhora codebase! This document outlines the architecture, te
 
 ## 🚀 Tech Stack
 * **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+* **Progressive Web App:** Powered by `@ducanh2912/next-pwa` with custom Workbox runtime caching.
 * **Language:** TypeScript
 * **Styling:** Vanilla CSS Modules (`.module.css`) + Global CSS Variables (No Tailwind)
 * **Metadata API:** [The Movie Database (TMDB)](https://www.themoviedb.org/)
@@ -43,6 +44,8 @@ npm install
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+*(Note: The PWA service worker is disabled in development mode. To test PWA features and offline caching, run a production build using `npm run build` followed by `npm run start`.)*
 
 ---
 

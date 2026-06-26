@@ -20,6 +20,7 @@ Are you looking to run this project locally, contribute to the codebase, or unde
 
 ## 🌟 Quick Highlights
 * **Premium UI/UX:** A minimalist blue, white, and green aesthetic designed to maximize content visibility and reduce negative space.
+* **Installable PWA:** Install directly to your device from the browser, featuring offline image caching for lightning-fast loads.
 * **Ad-Free Concept:** Designed as a proof-of-concept for a premium subscription market, featuring clean integrations that block intrusive pop-unders.
 * **Powered by TMDB:** Real-time, expansive database of the latest movies, TV shows, genres, and cast details.
 
