@@ -1,5 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { buildEmbedUrl, STREAMING_SERVERS } from '@/lib/streamingProvider'
 import styles from './page.module.css'
 
@@ -14,6 +16,25 @@ interface Props {
 export default function WatchClient({ mediaType, id, season, episode, title }: Props) {
   const [server, setServer] = useState(STREAMING_SERVERS[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+
+    const handleFullscreenChange = async () => {
+      try {
+        if (document.fullscreenElement) {
+          await ScreenOrientation.lock({ orientation: 'landscape' })
+        } else {
+          await ScreenOrientation.unlock()
+        }
+      } catch (error) {
+        console.error('Failed to change screen orientation:', error)
+      }
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
 
   if (STREAMING_SERVERS.length === 0) {
     return (

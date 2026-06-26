@@ -9,6 +9,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/screen-orientation": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.1",
     "@definisi/vidsrc-scraper": "^2.0.2",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@usm0n/stream-utils": "^1.0.0",
@@ -21,6 +26,7 @@
     "vidsrc-utils": "github:heyitswit/vidsrc-bypass"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/eslintrc": "^3.3.5",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
