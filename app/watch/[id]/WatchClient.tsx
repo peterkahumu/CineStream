@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
+import { StatusBar } from '@capacitor/status-bar'
 import { buildEmbedUrl, STREAMING_SERVERS } from '@/lib/streamingProvider'
 import styles from './page.module.css'
 
@@ -24,8 +25,10 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
       try {
         if (document.fullscreenElement) {
           await ScreenOrientation.lock({ orientation: 'landscape' })
+          await StatusBar.hide()
         } else {
           await ScreenOrientation.unlock()
+          await StatusBar.show()
         }
       } catch (error) {
         console.error('Failed to change screen orientation:', error)
