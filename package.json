@@ -9,6 +9,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "@definisi/vidsrc-scraper": "^2.0.2",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@usm0n/stream-utils": "^1.0.0",
