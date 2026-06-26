@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
+import { StatusBar } from '@capacitor/status-bar'
 import { buildEmbedUrl, STREAMING_SERVERS } from '@/lib/streamingProvider'
 import styles from './page.module.css'
 
@@ -23,9 +24,16 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
     const handleFullscreenChange = async () => {
       try {
         if (document.fullscreenElement) {
-          await ScreenOrientation.lock({ orientation: 'landscape' })
+          // Add a tiny delay before forcing rotation. This prevents a race condition
+          // where the WebView calculates the fullscreen video boundaries using portrait dimensions,
+          // which causes the video to look zoomed-in or cropped.
+          setTimeout(async () => {
+            await ScreenOrientation.lock({ orientation: 'landscape' })
+          }, 300)
         } else {
-          await ScreenOrientation.unlock()
+          setTimeout(async () => {
+            await ScreenOrientation.unlock()
+          }, 300)
         }
       } catch (error) {
         console.error('Failed to change screen orientation:', error)
