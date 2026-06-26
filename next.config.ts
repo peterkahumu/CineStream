@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import withPWA from '@ducanh2912/next-pwa'
 
 const nextConfig: NextConfig = {
   images: {
@@ -11,6 +12,31 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Optional: Disable PWA in development if you're having issues
+  // devIndicators: process.env.NODE_ENV === 'development',
 }
 
-export default nextConfig
+const withPWAConfig = withPWA({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  extendDefaultRuntimeCaching: true,
+  workboxOptions: {
+    // Optional: Increase cache size for large assets
+    // maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+    runtimeCaching: [
+      {
+        urlPattern: /^https?:\/\/image\.tmdb\.org\/.*/,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'tmdb-images',
+          expiration: {
+            maxEntries: 200,
+            maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+          },
+        },
+      },
+    ],
+  },
+})
+
+export default withPWAConfig(nextConfig)

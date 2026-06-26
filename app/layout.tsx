@@ -1,9 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
+}
 
 export const metadata: Metadata = {
   title: { default: 'CinemaPhora', template: '%s | CinemaPhora' },
