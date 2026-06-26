@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import CapacitorInit from '@/components/CapacitorInit'
 
 export const viewport: Viewport = {
   themeColor: '#0f172a',
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
+        <CapacitorInit />
         <Navbar />
         {children}
         <Footer />
