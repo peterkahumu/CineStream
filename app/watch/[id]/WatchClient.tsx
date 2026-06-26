@@ -29,11 +29,16 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
           // which causes the video to look zoomed-in or cropped.
           setTimeout(async () => {
             await ScreenOrientation.lock({ orientation: 'landscape' })
+            // Set overlay to true during fullscreen so the status bar behaves
+            // transiently (Immersive Sticky) when swiped down by the user
+            await StatusBar.setOverlaysWebView({ overlay: true })
             await StatusBar.hide()
           }, 300)
         } else {
           setTimeout(async () => {
             await ScreenOrientation.unlock()
+            // Restore overlay to false so it doesn't overlap the app's navbar
+            await StatusBar.setOverlaysWebView({ overlay: false })
             await StatusBar.show()
           }, 300)
         }
