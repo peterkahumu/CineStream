@@ -11,6 +11,7 @@
   "dependencies": {
     "@definisi/vidsrc-scraper": "^2.0.2",
     "@usm0n/stream-utils": "^1.0.0",
+    "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "hls.js": "^1.6.16",
     "next": "16.2.9",
