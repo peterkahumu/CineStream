@@ -28,6 +28,11 @@ Once you click on a title, you'll be taken to the Watch page.
 * **TV Show Navigation:** If you are watching a series, a sleek sidebar (or bottom section on mobile) allows you to easily jump between Seasons and Episodes.
 * **Rich Metadata:** Read the overview, see the cast list (complete with photos), and find "More Like This" recommendations below the player.
 
+### 5. Installable App (PWA)
+CinemaPhora is a Progressive Web App (PWA), meaning you can install it directly to your phone or computer without going through an app store!
+* **How to Install:** When browsing CinemaPhora in Chrome, Edge, or Safari, look for the "Install App" icon in the URL bar, or open your browser menu and select "Add to Home Screen".
+* **Benefits:** Once installed, the app opens in a full-screen native window. It also caches images and data locally so the app loads instantly, even on a slow connection.
+
 ---
 
 ## 🛠️ Troubleshooting
