@@ -29,10 +29,12 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
           // which causes the video to look zoomed-in or cropped.
           setTimeout(async () => {
             await ScreenOrientation.lock({ orientation: 'landscape' })
+            await StatusBar.hide()
           }, 300)
         } else {
           setTimeout(async () => {
             await ScreenOrientation.unlock()
+            await StatusBar.show()
           }, 300)
         }
       } catch (error) {

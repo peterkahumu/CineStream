@@ -10,8 +10,9 @@ export default function CapacitorInit() {
     // Hide the splash screen only when the React component tree is mounted.
     if (Capacitor.isNativePlatform()) {
       SplashScreen.hide().catch((err) => console.error('Failed to hide splash screen:', err))
-      // Hide the status bar globally for a true full-screen immersive app experience
-      StatusBar.hide().catch((err) => console.error('Failed to hide status bar:', err))
+      // Keep the status bar visible, but prevent it from overlapping the app UI
+      StatusBar.setOverlaysWebView({ overlay: false }).catch((err) => console.log(err))
+      StatusBar.setBackgroundColor({ color: '#0f172a' }).catch((err) => console.log(err))
     }
   }, [])
 
