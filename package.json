@@ -12,6 +12,7 @@
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
+    "@capacitor/screen-orientation": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.1",
     "@definisi/vidsrc-scraper": "^2.0.2",
     "@ducanh2912/next-pwa": "^10.2.9",
