@@ -20,6 +20,11 @@ const withPWAConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
   extendDefaultRuntimeCaching: true,
+  publicExcludes: [
+    '!noprecache/**/*',
+    '!_headers',
+    '!_routes.json',
+  ],
   workboxOptions: {
     exclude: [
       /_headers$/,
