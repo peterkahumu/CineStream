@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import EpisodeSelector from '@/components/EpisodeSelector'
 import WatchClient from './WatchClient'
+import { getStreamingServers } from '@/lib/streamingProvider'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   mediaTitle,
@@ -64,6 +65,7 @@ export default async function WatchPage(props: {
               season={season}
               episode={episode}
               title={title}
+              servers={getStreamingServers()}
             />
 
             {/* TV episode quick nav */}

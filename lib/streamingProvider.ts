@@ -1,24 +1,37 @@
-const servers = []
-
-if (process.env.NEXT_PUBLIC_MOVIESAPI_URL) {
-  servers.push({ id: 'moviesapi', name: 'Server 1 (MoviesAPI)' })
+export interface StreamingServer {
+  id: string
+  name: string
+  url: string
 }
 
-if (process.env.NEXT_PUBLIC_PRIMESRC_URL) {
-  servers.push({ id: 'primesrc', name: 'Server 2 (PrimeSrc)' })
-}
+export function getStreamingServers(): StreamingServer[] {
+  const servers: StreamingServer[] = []
 
-if (process.env.NEXT_PUBLIC_VIDLINK_URL) {
-  servers.push({ id: 'vidlink', name: 'Server 3 (Vidlink)' })
-}
+  const moviesApi = process.env.MOVIESAPI_URL || process.env.NEXT_PUBLIC_MOVIESAPI_URL
+  if (moviesApi) {
+    servers.push({ id: 'moviesapi', name: 'Server 1 (MoviesAPI)', url: moviesApi })
+  }
 
-if (process.env.NEXT_PUBLIC_MULTIEMBED_URL) {
-  servers.push({ id: 'multiembed', name: 'Server 4 (Multiembed)' })
-}
+  const primeSrc = process.env.PRIMESRC_URL || process.env.NEXT_PUBLIC_PRIMESRC_URL
+  if (primeSrc) {
+    servers.push({ id: 'primesrc', name: 'Server 2 (PrimeSrc)', url: primeSrc })
+  }
 
-export const STREAMING_SERVERS = servers
+  const vidlink = process.env.VIDLINK_URL || process.env.NEXT_PUBLIC_VIDLINK_URL
+  if (vidlink) {
+    servers.push({ id: 'vidlink', name: 'Server 3 (Vidlink)', url: vidlink })
+  }
+
+  const multiembed = process.env.MULTIEMBED_URL || process.env.NEXT_PUBLIC_MULTIEMBED_URL
+  if (multiembed) {
+    servers.push({ id: 'multiembed', name: 'Server 4 (Multiembed)', url: multiembed })
+  }
+
+  return servers
+}
 
 export function buildEmbedUrl(
+  serverUrl: string,
   serverId: string,
   type: 'movie' | 'tv',
   id: number | string,
@@ -27,34 +40,24 @@ export function buildEmbedUrl(
 ): string {
   const s = season ?? 1
   const e = episode ?? 1
+  const base = serverUrl
 
   if (serverId === 'primesrc') {
-    // base/embed/movie?tmdb=tt011035
-    // base/embed/tv?tmdb=32726&season=1&episode=1
-    const base = process.env.NEXT_PUBLIC_PRIMESRC_URL
     if (type === 'movie') return `${base}/embed/movie?tmdb=${id}`
     return `${base}/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
   }
 
   if (serverId === 'vidlink') {
-    const base = process.env.NEXT_PUBLIC_VIDLINK_URL
     if (type === 'movie') return `${base}/movie/${id}`
     return `${base}/tv/${id}/${s}/${e}`
   }
 
   if (serverId === 'multiembed') {
-    // base/?video_id=123123&tmdb=1
-    // base/?video_id=123123&tmdb=1&s=1&e=1
-    const base = process.env.NEXT_PUBLIC_MULTIEMBED_URL
     if (type === 'movie') return `${base}/?video_id=${id}&tmdb=1`
     return `${base}/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
   }
 
-  // Default to MoviesAPI.
-  // base/movie/$id
-  // base/tv/$id/$season/$episode
-  const base = process.env.NEXT_PUBLIC_MOVIESAPI_URL
-  if (!base) return ''
+  // moviesapi
   if (type === 'movie') return `${base}/movie/${id}`
   return `${base}/tv/${id}/${s}/${e}`
 }

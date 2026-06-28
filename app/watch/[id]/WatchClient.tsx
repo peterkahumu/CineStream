@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
-import { buildEmbedUrl, STREAMING_SERVERS } from '@/lib/streamingProvider'
+import { buildEmbedUrl, type StreamingServer } from '@/lib/streamingProvider'
 import styles from './page.module.css'
 
 interface Props {
@@ -12,10 +12,11 @@ interface Props {
   season: number
   episode: number
   title: string
+  servers: StreamingServer[]
 }
 
-export default function WatchClient({ mediaType, id, season, episode, title }: Props) {
-  const [server, setServer] = useState(STREAMING_SERVERS[0]?.id || '')
+export default function WatchClient({ mediaType, id, season, episode, title, servers }: Props) {
+  const [server, setServer] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
     }
   }, [])
 
-  if (STREAMING_SERVERS.length === 0) {
+  if (servers.length === 0) {
     return (
       <div className={`${styles.playerSection} empty-state`}>
         <h3>No Streaming Servers Configured</h3>
@@ -76,7 +77,8 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
     )
   }
 
-  const embedUrl = buildEmbedUrl(server, mediaType, id, season, episode)
+  const activeServerObj = servers.find(s => s.id === server) || servers[0]
+  const embedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, season, episode)
 
   return (
     <div className={styles.playerWrapper}>
@@ -94,7 +96,7 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
 
       <div className={styles.serverSelector}>
         <span>If the video fails to load, try switching servers:</span>
-        {STREAMING_SERVERS.map(s => (
+        {servers.map(s => (
           <button
             key={s.id}
             className={`btn ${server === s.id ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
