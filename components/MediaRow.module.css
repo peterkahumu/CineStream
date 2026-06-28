@@ -1,4 +1,4 @@
-.section { margin-bottom: var(--space-2xl); }
+.section { margin-bottom: 0; }
 
 .rowContainer {
   position: relative;
