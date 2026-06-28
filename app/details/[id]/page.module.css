@@ -180,12 +180,6 @@
 }
 
 /* ── CONTENT SECTIONS ─────────────────────────────────────────────────────── */
-.contentWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xl);
-  padding-top: var(--space-2xl);
-}
 
 .tabSection {
   display: flex;
@@ -465,13 +459,12 @@
   color: var(--text-secondary);
 }
 
-/* ── LAYOUT ────────────────────────────────────────────────────────────────── */
+/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
 .contentWrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg); /* Reduced gap */
-  padding-top: calc(var(--nav-height) + var(--space-lg));
-
+  gap: var(--space-lg);
+  padding-top: var(--space-lg);
   padding-bottom: var(--space-2xl);
 }
 
