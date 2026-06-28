@@ -99,7 +99,12 @@ export async function tmdbFetch<T>(
     url = `/api/tmdb${endpoint}?${qs}`
   }
 
-  const res = await fetch(url)
+  // cache server-side requests for 1 hour (3600 seconds) to heavily reduce TMDB API hits.
+  const fetchOptions: RequestInit = isServer 
+    ? { next: { revalidate: 3600 } } 
+    : {}
+
+  const res = await fetch(url, fetchOptions)
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))

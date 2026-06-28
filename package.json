@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --webpack",
-    "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "build:worker": "npx @opennextjs/cloudflare build",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && npm run build:worker && npx wrangler deploy"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@eslint/eslintrc": "^3.3.5",
+    "@opennextjs/cloudflare": "^1.20.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
