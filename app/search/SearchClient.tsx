@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import MediaCard from '@/components/MediaCard'
 import { MediaItem } from '@/lib/tmdb'
@@ -15,23 +15,30 @@ export default function SearchClient({
   total: number
 }) {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const [query, setQuery] = useState(initialQ)
   const [filter, setFilter] = useState<'all' | 'movie' | 'tv'>('all')
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const q = query.trim()
-      if (q !== initialQ) {
+  const triggerSearch = useCallback(() => {
+    const q = query.trim()
+    if (q !== initialQ) {
+      startTransition(() => {
         if (!q) {
           router.replace('/search')
         } else {
           router.replace(`/search?q=${encodeURIComponent(q)}`)
         }
-      }
+      })
+    }
+  }, [query, initialQ, router])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerSearch()
     }, 500)
     return () => clearTimeout(timer)
-  }, [query, initialQ, router])
+  }, [triggerSearch])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,7 +122,7 @@ export default function SearchClient({
           <p className={styles.resultInfo}>
             {filtered.length} of {total.toLocaleString()} results for &ldquo;<strong>{initialQ}</strong>&rdquo;
           </p>
-          <div className="media-grid animate-fadeIn">
+          <div className="media-grid animate-fadeIn" style={{ opacity: isPending ? 0.6 : 1, transition: 'opacity 0.2s' }}>
             {filtered.map(item => (
               <MediaCard key={`${item.media_type}-${item.id}`} item={item} />
             ))}
