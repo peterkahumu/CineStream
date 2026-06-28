@@ -1,9 +1,10 @@
 .hero {
   position: relative;
   width: 100%;
-  height: clamp(420px, 55vh, 640px);
+  min-height: clamp(420px, 55vh, 640px);
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
   overflow: hidden;
   transition: opacity 0.35s ease;
   background: var(--nav-bg);
@@ -21,7 +22,7 @@
 .bg {
   object-fit: cover;
   object-position: center 20%;
-  filter: brightness(0.6) saturate(0.9);
+  filter: brightness(0.5) saturate(0.9);
   transition: opacity 0.35s ease;
 }
 
@@ -54,7 +55,7 @@
   position: relative;
   z-index: 2;
   padding-bottom: clamp(32px, 5vh, 64px);
-  padding-top: var(--nav-height);
+  padding-top: calc(var(--nav-height) + var(--space-2xl));
   max-width: 600px;
 }
 
@@ -68,19 +69,29 @@
 
 .year {
   font-size: 0.8rem;
-  color: rgba(248,250,252,0.7);
-  background: rgba(255,255,255,0.1);
-  padding: 2px 8px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 3px 10px;
   border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .ratingHero {
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #4ade80;
+  background: rgba(22, 163, 74, 0.25);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   gap: 3px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .title {
@@ -90,18 +101,21 @@
   margin-bottom: var(--space-md);
   color: #fff;
   letter-spacing: -0.03em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .overview {
-  font-size: clamp(0.85rem, 1.4vw, 0.95rem);
-  color: rgba(248,250,252,0.8);
-  line-height: 1.65;
+  font-size: clamp(0.9rem, 1.4vw, 1rem);
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+  font-weight: 400;
   margin-bottom: var(--space-lg);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   max-width: 520px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .actions {

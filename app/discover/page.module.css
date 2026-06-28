@@ -32,3 +32,18 @@
   justify-content: center;
   margin-top: var(--space-xl);
 }
+
+.sentinel {
+  height: 1px;
+  margin-top: var(--space-xl);
+}
+
+.endMessage {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+  padding: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  gap: 6px;
+}

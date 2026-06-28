@@ -1,7 +1,7 @@
 .main {
   padding-top: calc(var(--nav-height) + var(--space-lg));
   padding-bottom: var(--space-2xl);
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 .container {
@@ -10,30 +10,34 @@
   gap: var(--space-md);
 }
 
+/* ── HEADER ──────────────────────────────────────────────────────────────── */
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
 }
 
 .backBtn {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
+  gap: 4px;
+  width: fit-content;
   transition: color var(--transition-fast);
 }
-.backBtn:hover {
-  color: var(--text-primary);
-}
+.backBtn:hover { color: var(--text-primary); }
 
 .title {
-  font-size: 1.5rem;
-  line-height: 1.2;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  line-height: 1.25;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
+/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
 .layout {
   display: flex;
   flex-direction: column;
@@ -41,13 +45,14 @@
 }
 
 @media (min-width: 1024px) {
-  .layout { 
+  .layout {
     display: grid;
     grid-template-columns: 1fr 320px;
     align-items: flex-start;
   }
 }
 
+/* ── PLAYER WRAPPER ──────────────────────────────────────────────────────── */
 .playerWrapper {
   width: 100%;
   display: flex;
@@ -55,7 +60,57 @@
   gap: var(--space-md);
 }
 
-/* Quick episode nav */
+.playerSection {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ── SERVER SELECTOR ─────────────────────────────────────────────────────── */
+.serverSelector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--bg-card);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 600px) {
+  .serverSelector {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+.serverSelector span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.serverBtn {
+  padding: 6px 14px;
+  font-size: 0.825rem;
+}
+
+/* ── QUICK EPISODE NAV ───────────────────────────────────────────────────── */
 .quickEp {
   display: flex;
   align-items: center;
@@ -64,13 +119,13 @@
   border-radius: var(--radius-lg);
   flex-wrap: wrap;
   gap: var(--space-sm);
-  background: var(--bg-surface);
+  background: var(--bg-card);
   border: 1px solid var(--border);
 }
 .quickLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 .epNav { display: flex; gap: var(--space-sm); }
 .epNavBtn {
@@ -78,9 +133,11 @@
   font-size: 0.825rem;
 }
 
-.sidebar { 
+/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+.sidebar {
   position: relative;
 }
+
 @media (min-width: 1024px) {
   .sidebar {
     position: sticky;

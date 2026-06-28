@@ -1,0 +1,39 @@
+.main {
+  padding-top: calc(var(--nav-height) + var(--space-lg));
+  padding-bottom: var(--space-2xl);
+  min-height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.backSkeleton {
+  width: 110px;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.titleSkeleton {
+  width: 55%;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.playerSkeleton {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}

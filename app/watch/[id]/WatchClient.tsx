@@ -79,15 +79,15 @@ export default function WatchClient({ mediaType, id, season, episode, title }: P
   const embedUrl = buildEmbedUrl(server, mediaType, id, season, episode)
 
   return (
-    <div className={styles.playerSection}>
-      <div className={styles.playerWrapper}>
+    <div className={styles.playerWrapper}>
+      <div className={styles.playerSection}>
         <iframe
           key={`${embedUrl}-${iframeKey}`}
           src={embedUrl}
           className={styles.player}
           loading="eager"
           title={`${title} player`}
-          allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; web-share *"
+          allow="autoplay; picture-in-picture; encrypted-media"
           allowFullScreen
         />
       </div>

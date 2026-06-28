@@ -48,7 +48,7 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
               <div className="rating">⭐ {rating}</div>
             )}
             <button className={`btn btn-primary ${styles.watchBtn}`}>
-              ℹ Details
+              ▶ View
             </button>
           </div>
         </div>

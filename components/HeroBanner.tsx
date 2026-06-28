@@ -74,7 +74,7 @@ export default function HeroBanner({ items, loading }: Props) {
 
         <div className={styles.actions}>
           <Link href={href} className="btn btn-primary" style={{ fontSize: '1rem', padding: '12px 28px' }}>
-            ℹ Details
+            ▶ View Details
           </Link>
           <div className={styles.dots}>
             {items.slice(0, 8).map((_, i) => (
