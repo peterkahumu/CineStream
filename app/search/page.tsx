@@ -19,7 +19,7 @@ export default async function SearchPage(props: { searchParams: Promise<any> | a
   return (
     <main className="page-content">
       <div className="page-container">
-        <SearchClient key={q || 'empty'} initialQ={q} results={results} total={total} />
+        <SearchClient initialQ={q} results={results} total={total} />
       </div>
     </main>
   )

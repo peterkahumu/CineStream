@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MediaCard from '@/components/MediaCard'
 import { MediaItem } from '@/lib/tmdb'
@@ -15,11 +15,23 @@ export default function SearchClient({
   total: number
 }) {
   const router = useRouter()
-  // No useEffect sync needed — parent passes key={initialQ} so this
-  // component remounts when the query changes, resetting state naturally.
   const [query, setQuery] = useState(initialQ)
   const [filter, setFilter] = useState<'all' | 'movie' | 'tv'>('all')
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const q = query.trim()
+      if (q !== initialQ) {
+        if (!q) {
+          router.replace('/search')
+        } else {
+          router.replace(`/search?q=${encodeURIComponent(q)}`)
+        }
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [query, initialQ, router])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
