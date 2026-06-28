@@ -18,7 +18,9 @@ interface Props {
 export default function WatchClient({ mediaType, id, season, episode, title, servers }: Props) {
   const [server, setServer] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
+  const [lightsOut, setLightsOut] = useState(false)
 
+  // ... (keep useEffect as is)
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
 
@@ -82,7 +84,11 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
 
   return (
     <div className={styles.playerWrapper}>
-      <div className={styles.playerSection}>
+      {lightsOut && (
+        <div className={styles.lightsOutOverlay} onClick={() => setLightsOut(false)} />
+      )}
+      
+      <div className={`${styles.playerSection} ${lightsOut ? styles.playerSectionLightsOut : ''}`}>
         <iframe
           key={`${embedUrl}-${iframeKey}`}
           src={embedUrl}
@@ -105,6 +111,14 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
             {s.name}
           </button>
         ))}
+        
+        <button 
+          className={`btn ${styles.lightsOutBtn} ${lightsOut ? styles.lightsOutBtnActive : ''}`}
+          onClick={() => setLightsOut(!lightsOut)}
+          title="Toggle Theatre Mode"
+        >
+          {lightsOut ? '💡 Turn Lights On' : '🎬 Lights Out'}
+        </button>
       </div>
     </div>
   )
