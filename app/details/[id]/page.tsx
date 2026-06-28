@@ -111,7 +111,7 @@ export default async function DetailsPage(props: {
         </div>
       </div>
 
-      {/* ── CONTENT (Light Mode) ───────────────────────────────────────────────── */}
+      {/* ── CAST (Light Mode) ───────────────────────────────────────────────── */}
       <div className={`page-container ${styles.content}`}>
         {cast.length > 0 && (
           <section className={styles.section}>
