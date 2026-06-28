@@ -124,7 +124,7 @@ export default function Navbar() {
                 {results.map(item => (
                   <Link 
                     key={item.id} 
-                    href={`/watch/${item.id}?type=${mediaType(item)}`} 
+                    href={`/details/${item.id}?type=${mediaType(item)}`} 
                     className={styles.searchResultItem}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >

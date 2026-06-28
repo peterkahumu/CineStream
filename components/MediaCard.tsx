@@ -18,7 +18,7 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
   const year = mediaYear(item)
   const rating = item.vote_average?.toFixed(1)
   const poster = posterUrl(item.poster_path, 'w342')
-  const href = `/watch/${item.id}?type=${type}`
+  const href = `/details/${item.id}?type=${type}`
 
   return (
     <Link href={href} className={styles.card}>
@@ -48,7 +48,7 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
               <div className="rating">⭐ {rating}</div>
             )}
             <button className={`btn btn-primary ${styles.watchBtn}`}>
-              ▶ Watch
+              ℹ Details
             </button>
           </div>
         </div>

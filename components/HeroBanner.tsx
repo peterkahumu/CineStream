@@ -34,7 +34,7 @@ export default function HeroBanner({ items, loading }: Props) {
 
   const backdrop = backdropUrl(featured.backdrop_path, 'original')
   const type = getType(featured)
-  const href = `/watch/${featured.id}?type=${type}`
+  const href = `/details/${featured.id}?type=${type}`
 
   return (
     <div className={`${styles.hero} ${fading ? styles.fading : ''}`}>
@@ -74,7 +74,7 @@ export default function HeroBanner({ items, loading }: Props) {
 
         <div className={styles.actions}>
           <Link href={href} className="btn btn-primary" style={{ fontSize: '1rem', padding: '12px 28px' }}>
-            ▶ Watch Now
+            ℹ Details
           </Link>
           <div className={styles.dots}>
             {items.slice(0, 8).map((_, i) => (
