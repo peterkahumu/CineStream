@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import EpisodeSelector from '@/components/EpisodeSelector'
 import WatchClient from './WatchClient'
 import { getStreamingServers } from '@/lib/streamingProvider'
 import {
@@ -102,46 +101,33 @@ export default async function WatchPage(props: {
               episode={episode}
               title={title}
               servers={getStreamingServers()}
-            />
-
-            {/* TV episode quick nav */}
-            {mediaType === 'tv' && (
-              <div className={styles.quickEp}>
-                <span className={styles.quickLabel}>
-                  📺 Season {season}, Episode {episode}
-                </span>
-                <div className={styles.epNav}>
-                  {(season > 1 || episode > 1) && (
+            >
+              {/* TV episode quick nav */}
+              {mediaType === 'tv' && (
+                <div className={styles.quickEp}>
+                  <span className={styles.quickLabel}>
+                    📺 Season {season}, Episode {episode}
+                  </span>
+                  <div className={styles.epNav}>
+                    {(season > 1 || episode > 1) && (
+                      <Link
+                        href={`/watch/${id}?type=tv&s=${episode > 1 ? season : season - 1}&e=${episode > 1 ? episode - 1 : 1}`}
+                        className={`btn btn-secondary ${styles.epNavBtn}`}
+                      >
+                        ← Prev
+                      </Link>
+                    )}
                     <Link
-                      href={`/watch/${id}?type=tv&s=${episode > 1 ? season : season - 1}&e=${episode > 1 ? episode - 1 : 1}`}
+                      href={`/watch/${id}?type=tv&s=${season}&e=${episode + 1}`}
                       className={`btn btn-secondary ${styles.epNavBtn}`}
                     >
-                      ← Prev
+                      Next →
                     </Link>
-                  )}
-                  <Link
-                    href={`/watch/${id}?type=tv&s=${season}&e=${episode + 1}`}
-                    className={`btn btn-secondary ${styles.epNavBtn}`}
-                  >
-                    Next →
-                  </Link>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </WatchClient>
           </div>
-          
-          {/* Sidebar — episodes pre-fetched server-side */}
-          {mediaType === 'tv' && seasons.length > 0 && (
-            <aside className={styles.sidebar}>
-              <EpisodeSelector
-                seasons={seasons}
-                tvId={Number(id)}
-                activeSeason={season}
-                activeEpisode={episode}
-                episodes={episodes}
-              />
-            </aside>
-          )}
         </div>
       </div>
     </main>

@@ -13,15 +13,26 @@ interface Props {
   episode: number
   title: string
   servers: StreamingServer[]
+  children?: React.ReactNode
 }
 
-export default function WatchClient({ mediaType, id, season, episode, title, servers }: Props) {
+export default function WatchClient({ mediaType, id, season, episode, title, servers, children }: Props) {
   const [server, setServer] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [lightsOut, setLightsOut] = useState(false)
 
   // ... (keep useEffect as is)
   useEffect(() => {
+    // Clean the URL bar so the user only sees /watch/[id]?type=tv
+    if (typeof window !== 'undefined' && window.history.replaceState) {
+      const url = new URL(window.location.href)
+      if (url.searchParams.has('s') || url.searchParams.has('e')) {
+        url.searchParams.delete('s')
+        url.searchParams.delete('e')
+        window.history.replaceState({}, '', url.toString())
+      }
+    }
+
     if (!Capacitor.isNativePlatform()) return
 
     let immersiveInterval: NodeJS.Timeout | null = null
@@ -99,6 +110,8 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
           allowFullScreen
         />
       </div>
+
+      {children}
 
       <div className={styles.serverSelector}>
         <span>If the video fails to load, try switching servers:</span>

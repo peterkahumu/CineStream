@@ -59,9 +59,11 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
               {seasons.map(s => (
                 <Link
                   key={s.season_number}
-                  href={`/watch/${tvId}?type=tv&s=${s.season_number}&e=1`}
+                  href={`/details/${tvId}?type=tv&tab=watch&s=${s.season_number}`}
                   className={`${styles.dropdownItem} ${s.season_number === activeSeason ? styles.dropdownItemActive : ''}`}
                   onClick={() => setIsDropdownOpen(false)}
+                  replace={true}
+                  scroll={false}
                 >
                   <div className={styles.seasonName}>{s.name || `Season ${s.season_number}`}</div>
                   {s.episode_count ? <div className={styles.seasonEps}>{s.episode_count} Episodes</div> : null}
@@ -81,8 +83,6 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
             <Link
               key={ep.id}
               href={`/watch/${tvId}?type=tv&s=${activeSeason}&e=${ep.episode_number}`}
-              replace={true}
-              scroll={false}
               className={`${styles.episode} ${isActive ? styles.active : ''}`}
             >
               <div className={styles.epMainRow}>
