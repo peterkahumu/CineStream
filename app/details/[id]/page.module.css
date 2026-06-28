@@ -253,7 +253,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-lg);
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .trailerCard {
@@ -297,12 +297,15 @@
 
 /* ── SEASONS ──────────────────────────────────────────────────────────────── */
 .seasonGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-md);
+  justify-content: flex-start;
 }
 
 .seasonCard {
+  flex: 1 1 140px;
+  max-width: 200px;
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
@@ -357,12 +360,15 @@
 
 /* ── REVIEWS ──────────────────────────────────────────────────────────────── */
 .reviewGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-md);
+  justify-content: flex-start;
 }
 
 .reviewCard {
+  flex: 1 1 300px;
+  max-width: 600px;
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
@@ -403,26 +409,73 @@
   overflow: hidden;
 }
 
+/* ── CAST ─────────────────────────────────────────────────────────────────── */
+.castGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: flex-start;
+}
+.castCard {
+  flex: 1 1 120px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  text-align: center;
+}
+.castAvatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--bg-muted);
+  margin: 0 auto var(--space-xs) auto;
+}
+.castImg {
+  object-fit: cover;
+}
+.castPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.castInfo {
+  display: flex;
+  flex-direction: column;
+}
+.castName {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.castChar {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 /* ── LAYOUT ────────────────────────────────────────────────────────────────── */
 .contentWrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2xl);
-  padding-top: calc(var(--nav-height) + var(--space-xl));
+  gap: var(--space-lg); /* Reduced gap */
+  padding-top: calc(var(--nav-height) + var(--space-lg));
+
   padding-bottom: var(--space-2xl);
 }
 
 /* ── MOBILE HORIZONTAL SCROLL ──────────────────────────────────────────────── */
 @media (max-width: 1023px) {
-  .trailerGrid, .seasonGrid, .reviewGrid, .castGrid, .contentWrapper :global(.media-grid) {
+  .trailerGrid, .seasonGrid, .reviewGrid, .contentWrapper :global(.media-grid) {
     display: flex;
     flex-wrap: nowrap;
+    justify-content: flex-start !important;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     padding-bottom: var(--space-md);
-    margin: 0 calc(-1 * var(--page-px));
-    padding-left: var(--page-px);
-    padding-right: var(--page-px);
     /* Hide scrollbar for cleaner look */
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -431,7 +484,6 @@
   .trailerGrid::-webkit-scrollbar,
   .seasonGrid::-webkit-scrollbar,
   .reviewGrid::-webkit-scrollbar,
-  .castGrid::-webkit-scrollbar,
   .contentWrapper :global(.media-grid::-webkit-scrollbar) {
     display: none;
   }
@@ -446,10 +498,6 @@
   }
   .reviewCard {
     flex: 0 0 85%;
-    scroll-snap-align: start;
-  }
-  .castCard {
-    flex: 0 0 120px;
     scroll-snap-align: start;
   }
   .contentWrapper :global(.media-grid > *) {
