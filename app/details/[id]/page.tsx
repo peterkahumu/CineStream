@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import MediaCard from '@/components/MediaCard'
+import MediaRow from '@/components/MediaRow'
+import ScrollToTop from '@/components/ScrollToTop'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
@@ -149,8 +151,10 @@ export default async function DetailsPage(props: {
         </div>
       </div>
 
-      {/* ── Trailers (Light Mode) ───────────────────────────────────────────────── */}
-      <div className={`page-container ${styles.content}`}>
+      {/* ── Cinematic Flex Layout ───────────────────────────────────────────────── */}
+      <ScrollToTop />
+      <div className={`page-container ${styles.contentWrapper}`}>
+        {/* Trailers */}
         <section className={styles.section}>
           <h2 className={styles.sectionH}>Trailers</h2>
           {trailers.length > 0 ? (
@@ -259,26 +263,22 @@ export default async function DetailsPage(props: {
 
         {/* Recommendations */}
         {recommendations.length > 0 && (
-          <section className={styles.section}>
-            <h2 className={styles.sectionH}>Recommendations</h2>
-            <div className="media-grid">
-              {recommendations.map((item: any) => (
-                <MediaCard key={item.id} item={item} forcedType={mediaType} />
-              ))}
-            </div>
-          </section>
+          <MediaRow
+            title="Recommendations"
+            emoji="✨"
+            items={recommendations}
+            forcedType={mediaType}
+          />
         )}
 
         {/* Similar */}
         {similar.length > 0 && (
-          <section className={styles.section}>
-            <h2 className={styles.sectionH}>More Like This</h2>
-            <div className="media-grid">
-              {similar.map((item: any) => (
-                <MediaCard key={item.id} item={item} forcedType={mediaType} />
-              ))}
-            </div>
-          </section>
+          <MediaRow
+            title="More Like This"
+            emoji="🔄"
+            items={similar}
+            forcedType={mediaType}
+          />
         )}
       </div>
     </main>
