@@ -180,10 +180,11 @@
 }
 
 /* ── CONTENT SECTIONS ─────────────────────────────────────────────────────── */
-.content {
+.contentWrapper {
   display: flex;
   flex-direction: column;
-  padding-top: var(--space-xl);
+  gap: var(--space-2xl);
+  padding-top: var(--space-2xl);
 }
 
 .section {

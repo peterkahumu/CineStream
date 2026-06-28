@@ -221,7 +221,11 @@ export default async function DetailsPage(props: {
             <h2 className={styles.sectionH}>Cast</h2>
             <div className={styles.castGrid}>
               {cast.map((c: any) => (
-                <div key={c.id} className={styles.castCard}>
+                <Link 
+                  key={c.id} 
+                  href={`/person/${c.id}`}
+                  className={styles.castCard}
+                >
                   <div className={styles.castAvatar}>
                     {c.profile_path ? (
                       <Image
@@ -239,7 +243,7 @@ export default async function DetailsPage(props: {
                     <span className={styles.castName}>{c.name}</span>
                     {c.character && <span className={styles.castChar}>{c.character}</span>}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </section>
