@@ -30,6 +30,9 @@ export default async function DetailsPage(props: {
   const genres = details.genres || []
   const cast = (details.credits?.cast || details.aggregate_credits?.cast || []).slice(0, 12)
   const similar = (details.similar?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
+  const trailers = (details.videos?.results || [])
+    .filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
+    .slice(0, 2)
 
   return (
     <main className={styles.main}>
@@ -113,6 +116,27 @@ export default async function DetailsPage(props: {
 
       {/* ── CAST (Light Mode) ───────────────────────────────────────────────── */}
       <div className={`page-container ${styles.content}`}>
+        <section className={styles.section}>
+          <h2 className={styles.sectionH}>Trailers</h2>
+          {trailers.length > 0 ? (
+            <div className={styles.trailerGrid}>
+              {trailers.map((trailer: any) => (
+                <div key={trailer.key} className={styles.trailerWrapper}>
+                  <iframe
+                    className={styles.trailerIframe}
+                    src={`https://www.youtube.com/embed/${trailer.key}`}
+                    title={trailer.name}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.noTrailers}>No trailers available for this title.</p>
+          )}
+        </section>
+
         {cast.length > 0 && (
           <section className={styles.section}>
             <h2 className={styles.sectionH}>Cast</h2>

@@ -1,7 +1,7 @@
 .hero {
   position: relative;
   width: 100%;
-  min-height: clamp(420px, 55vh, 640px);
+  min-height: clamp(350px, 45vh, 550px);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -55,7 +55,7 @@
   position: relative;
   z-index: 2;
   padding-bottom: clamp(32px, 5vh, 64px);
-  padding-top: calc(var(--nav-height) + var(--space-2xl));
+  padding-top: calc(var(--nav-height) + var(--space-md));
   max-width: 600px;
 }
 
@@ -110,10 +110,6 @@
   line-height: 1.7;
   font-weight: 400;
   margin-bottom: var(--space-lg);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   max-width: 520px;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
