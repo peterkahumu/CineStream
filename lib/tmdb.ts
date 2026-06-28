@@ -55,6 +55,17 @@ export interface CastMember {
   order: number
 }
 
+export interface Review {
+  id: string
+  author: string
+  content: string
+  created_at: string
+  author_details?: {
+    rating?: number
+    avatar_path?: string
+  }
+}
+
 export interface ShowDetails extends MediaItem {
   genres: Genre[]
   seasons?: Season[]
@@ -68,6 +79,8 @@ export interface ShowDetails extends MediaItem {
   similar?: { results: MediaItem[] }
   videos?: { results: { key: string; site: string; type: string }[] }
   aggregate_credits?: { cast: CastMember[] }
+  reviews?: { results: Review[] }
+  recommendations?: { results: MediaItem[] }
 }
 
 export interface TMDBPage<T> {
@@ -136,13 +149,13 @@ export const searchMulti = (query: string, page = 1) =>
   tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false })
 
 export const getMovieDetails = (id: number) =>
-  tmdbFetch<ShowDetails>(`/movie/${id}`, { append_to_response: 'credits,similar,videos' })
+  tmdbFetch<ShowDetails>(`/movie/${id}`, { append_to_response: 'credits,similar,videos,reviews,recommendations' })
 
 export const getTVDetails = (id: number) =>
-  tmdbFetch<ShowDetails>(`/tv/${id}`, { append_to_response: 'aggregate_credits,similar,videos' })
+  tmdbFetch<ShowDetails>(`/tv/${id}`, { append_to_response: 'aggregate_credits,similar,videos,reviews,recommendations' })
 
 export const getSeasonDetails = (tvId: number, season: number) =>
-  tmdbFetch<{ episodes: Episode[] }>(`/tv/${tvId}/season/${season}`)
+  tmdbFetch<{ episodes: Episode[]; videos?: { results: { key: string; site: string; type: string; name: string }[] } }>(`/tv/${tvId}/season/${season}`, { append_to_response: 'videos' })
 
 export const getMovieGenres = () =>
   tmdbFetch<{ genres: Genre[] }>('/genre/movie/list')
