@@ -21,9 +21,20 @@ const withPWAConfig = withPWA({
   disable: process.env.NODE_ENV === 'development',
   extendDefaultRuntimeCaching: true,
   workboxOptions: {
-    // Optional: Increase cache size for large assets
-    // maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+    exclude: [
+      /_headers$/,
+      /_routes\.json$/,
+      /_vercel.*/,
+    ],
     runtimeCaching: [
+      {
+        urlPattern: /^\/_vercel\/.*/,
+        handler: 'NetworkOnly',
+      },
+      {
+        urlPattern: /^https:\/\/static\.cloudflareinsights\.com\/.*/,
+        handler: 'NetworkOnly',
+      },
       {
         urlPattern: /^https?:\/\/image\.tmdb\.org\/.*/,
         handler: 'CacheFirst',
