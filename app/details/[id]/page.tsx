@@ -7,9 +7,45 @@ import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
 } from '@/lib/tmdb'
+import type { Metadata } from 'next'
 import styles from './page.module.css'
 
 export const revalidate = 3600
+
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ type?: string }> }
+): Promise<Metadata> {
+  const params = await props.params
+  const searchParams = await props.searchParams
+  const id = params.id
+  const mediaType = searchParams.type === 'tv' ? 'tv' : 'movie'
+  
+  const details = mediaType === 'movie' 
+    ? await getMovieDetails(Number(id)).catch(() => null)
+    : await getTVDetails(Number(id)).catch(() => null)
+
+  if (!details) return { title: 'Not Found | CinemaPhora' }
+
+  const title = mediaTitle(details)
+  const description = details.overview || `Watch ${title} on CinemaPhora.`
+  const ogImage = backdropUrl(details.backdrop_path, 'w1280') || posterUrl(details.poster_path, 'w500')
+
+  return {
+    title: `${title} | CinemaPhora`,
+    description,
+    openGraph: {
+      title: `${title} | CinemaPhora`,
+      description,
+      images: ogImage ? [{ url: ogImage }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | CinemaPhora`,
+      description,
+      images: ogImage ? [ogImage] : [],
+    }
+  }
+}
 
 export default async function DetailsPage(props: {
   params: Promise<{ id: string }>

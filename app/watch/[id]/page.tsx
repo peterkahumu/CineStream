@@ -6,9 +6,45 @@ import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   mediaTitle,
 } from '@/lib/tmdb'
+import type { Metadata } from 'next'
 import styles from './page.module.css'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ type?: string; s?: string; e?: string }> }
+): Promise<Metadata> {
+  const params = await props.params
+  const searchParams = await props.searchParams
+  const id = params.id
+  const mediaType = searchParams.type === 'tv' ? 'tv' : 'movie'
+  const season = searchParams.s || '1'
+  const episode = searchParams.e || '1'
+  
+  const details = mediaType === 'movie' 
+    ? await getMovieDetails(Number(id)).catch(() => null)
+    : await getTVDetails(Number(id)).catch(() => null)
+
+  if (!details) return { title: 'Watch | CinemaPhora' }
+
+  const baseTitle = mediaTitle(details)
+  const title = mediaType === 'tv' ? `Watch ${baseTitle} - Season ${season} Episode ${episode}` : `Watch ${baseTitle}`
+  const description = details.overview || `Watch ${baseTitle} instantly on CinemaPhora.`
+
+  return {
+    title: `${title} | CinemaPhora`,
+    description,
+    openGraph: {
+      title: `${title} | CinemaPhora`,
+      description,
+    },
+    twitter: {
+      card: 'summary',
+      title: `${title} | CinemaPhora`,
+      description,
+    }
+  }
+}
 
 export default async function WatchPage(props: {
   params: Promise<{ id: string }>

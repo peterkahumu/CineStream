@@ -1,9 +1,41 @@
 import Image from 'next/image'
 import MediaCard from '@/components/MediaCard'
 import { getPersonDetails, posterUrl } from '@/lib/tmdb'
+import type { Metadata } from 'next'
 import styles from './page.module.css'
 
 export const revalidate = 3600
+
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const params = await props.params
+  const id = params.id
+  
+  const person = await getPersonDetails(Number(id)).catch(() => null)
+
+  if (!person) return { title: 'Person Not Found | CinemaPhora' }
+
+  const title = person.name
+  const description = person.biography || `Discover movies and TV shows starring ${person.name}.`
+  const ogImage = posterUrl(person.profile_path, 'w500')
+
+  return {
+    title: `${title} | CinemaPhora`,
+    description,
+    openGraph: {
+      title: `${title} | CinemaPhora`,
+      description,
+      images: ogImage ? [{ url: ogImage }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | CinemaPhora`,
+      description,
+      images: ogImage ? [ogImage] : [],
+    }
+  }
+}
 
 export default async function PersonPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
