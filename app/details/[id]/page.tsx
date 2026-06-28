@@ -185,7 +185,11 @@ export default async function DetailsPage(props: {
             <h2 className={styles.sectionH}>Seasons</h2>
             <div className={styles.seasonGrid}>
               {details.seasons.filter((s: any) => s.season_number > 0).map((season: any) => (
-                <div key={season.id} className={styles.seasonCard}>
+                <Link 
+                  key={season.id} 
+                  href={`/watch/${id}?type=tv&s=${season.season_number}&e=1`}
+                  className={styles.seasonCard}
+                >
                   <div className={styles.seasonPoster}>
                     {season.poster_path ? (
                       <Image
@@ -205,7 +209,7 @@ export default async function DetailsPage(props: {
                       {season.air_date ? season.air_date.slice(0, 4) : ''} • {season.episode_count} Episodes
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </section>

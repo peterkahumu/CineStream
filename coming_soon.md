@@ -37,3 +37,4 @@ Instead of showing just one movie in the hero banner on the homepage, we could b
 
 **4. "My List" / Watchlist (Local Storage)**
 We could add a simple "Bookmark" or "Add to List" button on the details page. We can save this list to the user's browser (using `localStorage`) and create a dedicated `/watchlist` page where they can see all the movies and shows they plan to watch.
+
