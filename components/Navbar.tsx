@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { searchMulti, MediaItem, posterUrl } from '@/lib/tmdb'
+import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
 import styles from './Navbar.module.css'
 
 export default function Navbar() {
@@ -124,7 +124,7 @@ export default function Navbar() {
                 {results.map(item => (
                   <Link 
                     key={item.id} 
-                    href={`/watch/${item.id}`} 
+                    href={`/watch/${item.id}?type=${mediaType(item)}`} 
                     className={styles.searchResultItem}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >
