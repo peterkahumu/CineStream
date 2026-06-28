@@ -36,7 +36,7 @@ export default function SearchClient({
   useEffect(() => {
     const timer = setTimeout(() => {
       triggerSearch()
-    }, 1500)
+    }, 300)
     return () => clearTimeout(timer)
   }, [triggerSearch])
 
@@ -53,7 +53,7 @@ export default function SearchClient({
   const typeOf = (r: MediaItem) => r.media_type || (r.first_air_date ? 'tv' : 'movie')
   const filtered = filter === 'all' ? results : results.filter(r => typeOf(r) === filter)
   const movieCount = results.filter(r => typeOf(r) === 'movie').length
-  const tvCount    = results.filter(r => typeOf(r) === 'tv').length
+  const tvCount = results.filter(r => typeOf(r) === 'tv').length
 
   return (
     <>
@@ -86,9 +86,9 @@ export default function SearchClient({
       {results.length > 0 && (
         <div className={styles.tabs}>
           {([
-            ['all',   `All (${results.length})`],
+            ['all', `All (${results.length})`],
             ['movie', `Movies (${movieCount})`],
-            ['tv',    `TV Shows (${tvCount})`],
+            ['tv', `TV Shows (${tvCount})`],
           ] as [typeof filter, string][]).map(([val, label]) => (
             <button
               key={val}
