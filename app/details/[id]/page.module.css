@@ -135,10 +135,6 @@
   line-height: 1.7;
   font-weight: 400;
   margin-bottom: var(--space-lg);
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
