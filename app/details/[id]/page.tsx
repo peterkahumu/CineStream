@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import MediaCard from '@/components/MediaCard'
 import {
-  getMovieDetails, getTVDetails,
+  getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
 } from '@/lib/tmdb'
 import styles from './page.module.css'
@@ -30,6 +30,44 @@ export default async function DetailsPage(props: {
   const genres = details.genres || []
   const cast = (details.credits?.cast || details.aggregate_credits?.cast || []).slice(0, 12)
   const similar = (details.similar?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
+  const recommendations = (details.recommendations?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
+  const reviews = (details.reviews?.results || []).slice(0, 3)
+
+  let trailers: { key: string; name: string; label?: string }[] = []
+
+  if (mediaType === 'tv' && details.seasons) {
+    const validSeasons = details.seasons.filter((s: any) => s.season_number > 0)
+    
+    if (validSeasons.length === 1) {
+      try {
+        const seasonRes = await getSeasonDetails(Number(id), validSeasons[0].season_number)
+        const vids = (seasonRes.videos?.results || []).filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
+        trailers = vids.slice(0, 3).map((v: any) => ({ key: v.key, name: v.name, label: `${validSeasons[0].name} Trailer` }))
+      } catch (e) {
+        console.error('Failed to fetch season trailers', e)
+      }
+    } else if (validSeasons.length > 1) {
+      const seasonsToFetch = validSeasons.slice(-5).reverse()
+      const seasonData = await Promise.all(
+        seasonsToFetch.map((s: any) => getSeasonDetails(Number(id), s.season_number).catch(() => null))
+      )
+
+      seasonData.forEach((sd, index) => {
+        const season = seasonsToFetch[index]
+        const t = (sd?.videos?.results || []).find((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
+        if (t) trailers.push({ key: t.key, name: t.name, label: `${season.name} Trailer` })
+      })
+    }
+    
+    // Fallback if no season trailers
+    if (trailers.length === 0) {
+      const vids = (details.videos?.results || []).filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
+      trailers = vids.slice(0, 2).map((v: any) => ({ key: v.key, name: v.name, label: 'Series Trailer' }))
+    }
+  } else {
+    const vids = (details.videos?.results || []).filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
+    trailers = vids.slice(0, 2).map((v: any) => ({ key: v.key, name: v.name, label: 'Trailer' }))
+  }
 
   return (
     <main className={styles.main}>
@@ -111,8 +149,65 @@ export default async function DetailsPage(props: {
         </div>
       </div>
 
-      {/* ── CAST (Light Mode) ───────────────────────────────────────────────── */}
+      {/* ── Trailers (Light Mode) ───────────────────────────────────────────────── */}
       <div className={`page-container ${styles.content}`}>
+        <section className={styles.section}>
+          <h2 className={styles.sectionH}>Trailers</h2>
+          {trailers.length > 0 ? (
+            <div className={styles.trailerGrid}>
+              {trailers.map((trailer: any) => (
+                <div key={trailer.key} className={styles.trailerCard}>
+                  {trailer.label && <div className={styles.trailerLabel}>{trailer.label}</div>}
+                  <div className={styles.trailerWrapper}>
+                    <iframe
+                      className={styles.trailerIframe}
+                      src={`https://www.youtube.com/embed/${trailer.key}`}
+                      title={trailer.name}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.noTrailers}>No trailers available for this title.</p>
+          )}
+        </section>
+
+        {/* Seasons */}
+        {mediaType === 'tv' && details.seasons && details.seasons.length > 0 && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionH}>Seasons</h2>
+            <div className={styles.seasonGrid}>
+              {details.seasons.filter((s: any) => s.season_number > 0).map((season: any) => (
+                <div key={season.id} className={styles.seasonCard}>
+                  <div className={styles.seasonPoster}>
+                    {season.poster_path ? (
+                      <Image
+                        src={`https://image.tmdb.org/t/p/w185${season.poster_path}`}
+                        alt={season.name}
+                        fill
+                        sizes="100px"
+                        className={styles.seasonImg}
+                      />
+                    ) : (
+                      <span className={styles.seasonPlaceholder}>📺</span>
+                    )}
+                  </div>
+                  <div className={styles.seasonInfo}>
+                    <span className={styles.seasonName}>{season.name}</span>
+                    <span className={styles.seasonMeta}>
+                      {season.air_date ? season.air_date.slice(0, 4) : ''} • {season.episode_count} Episodes
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Cast */}
         {cast.length > 0 && (
           <section className={styles.section}>
             <h2 className={styles.sectionH}>Cast</h2>
@@ -142,6 +237,39 @@ export default async function DetailsPage(props: {
           </section>
         )}
 
+        {/* Reviews */}
+        {reviews.length > 0 && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionH}>Reviews</h2>
+            <div className={styles.reviewGrid}>
+              {reviews.map((review: any) => (
+                <div key={review.id} className={styles.reviewCard}>
+                  <div className={styles.reviewHeader}>
+                    <span className={styles.reviewAuthor}>{review.author}</span>
+                    {review.author_details?.rating && (
+                      <span className={styles.reviewRating}>⭐ {review.author_details.rating.toFixed(1)}</span>
+                    )}
+                  </div>
+                  <p className={styles.reviewContent}>{review.content}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionH}>Recommendations</h2>
+            <div className="media-grid">
+              {recommendations.map((item: any) => (
+                <MediaCard key={item.id} item={item} forcedType={mediaType} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Similar */}
         {similar.length > 0 && (
           <section className={styles.section}>
             <h2 className={styles.sectionH}>More Like This</h2>
