@@ -157,6 +157,24 @@ export const getTVDetails = (id: number) =>
 export const getSeasonDetails = (tvId: number, season: number) =>
   tmdbFetch<{ episodes: Episode[]; videos?: { results: { key: string; site: string; type: string; name: string }[] } }>(`/tv/${tvId}/season/${season}`, { append_to_response: 'videos' })
 
+export interface PersonDetails {
+  id: number
+  name: string
+  biography: string
+  birthday: string | null
+  deathday: string | null
+  place_of_birth: string | null
+  profile_path: string | null
+  known_for_department: string
+  combined_credits?: {
+    cast: MediaItem[]
+    crew: MediaItem[]
+  }
+}
+
+export const getPersonDetails = (id: number) =>
+  tmdbFetch<PersonDetails>(`/person/${id}`, { append_to_response: 'combined_credits' })
+
 export const getMovieGenres = () =>
   tmdbFetch<{ genres: Genre[] }>('/genre/movie/list')
 
