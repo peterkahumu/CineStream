@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --webpack",
+    "build": "next build --webpack && npx @opennextjs/cloudflare",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "deploy": "npm run build && npx wrangler deploy"
