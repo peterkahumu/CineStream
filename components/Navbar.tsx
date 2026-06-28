@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { searchMulti, MediaItem, posterUrl } from '@/lib/tmdb'
 import styles from './Navbar.module.css'
 
 export default function Navbar() {
@@ -9,9 +10,35 @@ export default function Navbar() {
   const router = useRouter()
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const [results, setResults] = useState<MediaItem[]>([])
+  const [isFetching, setIsFetching] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const fetchSearchResults = useCallback(async () => {
+    const q = query.trim()
+    if (!q) {
+      setResults([])
+      return
+    }
+    setIsFetching(true)
+    try {
+      const data = await searchMulti(q)
+      setResults((data.results || []).filter(r => r.media_type !== 'person').slice(0, 5))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsFetching(false)
+    }
+  }, [query])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchSearchResults()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [fetchSearchResults])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -74,22 +101,57 @@ export default function Navbar() {
 
         {/* Right controls */}
         <div className={styles.controls}>
-          <form
-            onSubmit={submit}
-            className={`${styles.searchForm} ${searchOpen ? styles.searchOpen : ''}`}
-          >
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search movies, TV shows…"
-              className={styles.searchInput}
-              onBlur={() => { if (!query) setSearchOpen(false) }}
-            />
-            {query && (
-              <button type="submit" className={styles.searchSubmit} aria-label="Search">⏎</button>
+          <div className={styles.searchContainer}>
+            <form
+              onSubmit={submit}
+              className={`${styles.searchForm} ${searchOpen ? styles.searchOpen : ''}`}
+            >
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search movies, TV shows…"
+                className={styles.searchInput}
+                onBlur={() => { setTimeout(() => { if (!query) setSearchOpen(false) }, 200) }}
+              />
+              {query && (
+                <button type="submit" className={styles.searchSubmit} aria-label="Search">⏎</button>
+              )}
+            </form>
+            
+            {searchOpen && query && (
+              <div className={styles.searchResults}>
+                {results.map(item => (
+                  <Link 
+                    key={item.id} 
+                    href={`/watch/${item.id}`} 
+                    className={styles.searchResultItem}
+                    onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
+                  >
+                    <img src={posterUrl(item.poster_path, 'w92') || 'https://via.placeholder.com/40x60?text=No+Image'} alt={item.title || item.name} />
+                    <div>
+                      <div className={styles.searchResultTitle}>{item.title || item.name}</div>
+                      <div className={styles.searchResultMeta}>
+                        {item.media_type} • {(item.release_date || item.first_air_date || '').slice(0,4)}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {results.length > 0 && (
+                  <Link 
+                    href={`/search?q=${encodeURIComponent(query)}`} 
+                    className={styles.searchResultMore}
+                    onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
+                  >
+                    View all results
+                  </Link>
+                )}
+                {results.length === 0 && !isFetching && (
+                  <div className={styles.searchResultEmpty}>No results found.</div>
+                )}
+              </div>
             )}
-          </form>
+          </div>
 
           <button
             className={styles.iconBtn}
@@ -124,15 +186,6 @@ export default function Navbar() {
               <span>{l.icon}</span> {l.label}
             </Link>
           ))}
-          <form onSubmit={submit} className={styles.mobileSearch}>
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search…"
-              className={styles.searchInput}
-            />
-            <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px', flexShrink: 0 }}>Go</button>
-          </form>
         </div>
       )}
     </nav>
