@@ -36,7 +36,7 @@ export default function SearchClient({
   useEffect(() => {
     const timer = setTimeout(() => {
       triggerSearch()
-    }, 500)
+    }, 1500)
     return () => clearTimeout(timer)
   }, [triggerSearch])
 
