@@ -4,7 +4,23 @@ import {
   getTrending, getPopular, getTopRated, getNowPlaying, getOnAir,
   MediaItem, TMDBPage,
 } from '@/lib/tmdb'
+import type { Metadata } from 'next'
 import styles from './page.module.css'
+
+export const metadata: Metadata = {
+  title: 'CinemaPhora | Your Ultimate Movie & TV Show Hub',
+  description: 'Discover trending movies, popular TV shows, and watch instantly on CinemaPhora.',
+  openGraph: {
+    title: 'CinemaPhora | Your Ultimate Movie & TV Show Hub',
+    description: 'Discover trending movies, popular TV shows, and watch instantly on CinemaPhora.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CinemaPhora | Your Ultimate Movie & TV Show Hub',
+    description: 'Discover trending movies, popular TV shows, and watch instantly on CinemaPhora.',
+  }
+}
 
 export const revalidate = 300 // Revalidate home page every 5 minutes
 

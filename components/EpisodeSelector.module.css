@@ -3,6 +3,9 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--nav-height) - var(--space-xl));
 }
 
 .header {
@@ -12,103 +15,278 @@
   padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--border);
   background: var(--bg-muted);
+  position: relative;
+  z-index: 10;
 }
 
 .heading {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-.seasonSelect {
+/* ── Custom Dropdown ──────────────────────────────────────────────────────── */
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: var(--bg-surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  padding: 6px 12px;
-  font-size: 0.825rem;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
-.seasonSelect:focus { border-color: var(--accent); }
 
+.dropdownToggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+}
+
+.chevron {
+  transition: transform var(--transition-fast);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: max-content;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 20;
+}
+
+.dropdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.dropdownItem:hover {
+  background: var(--bg-hover);
+}
+
+.dropdownItemActive {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.seasonName {
+  font-size: 0.9rem;
+}
+
+.seasonEps {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ── Episode List ─────────────────────────────────────────────────────────── */
 .episodeList {
-  max-height: 400px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: var(--space-sm);
-  gap: 2px;
+  /* Scrollbar styles for a sleeker look */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
 }
+.episodeList::-webkit-scrollbar { width: 6px; }
+.episodeList::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
 
 .episode {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
-  text-align: left;
-  background: none;
-  border: 1px solid transparent;
+  flex-direction: column;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-left: 3px solid transparent;
+  border-right: none;
+  border-top: none;
   cursor: pointer;
-  color: var(--text-secondary);
+  text-align: left;
   transition: all var(--transition-fast);
   width: 100%;
 }
+
+.episode:last-child {
+  border-bottom: none;
+}
+
 .episode:hover {
   background: var(--bg-hover);
-  color: var(--text-primary);
 }
+
 .episode.active {
-  background: var(--accent-light);
-  color: var(--accent);
-  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  border-left-color: var(--accent);
+}
+
+.epMainRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
 }
 
 .epNum {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 24px;
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  text-align: right;
+}
+.episode.active .epNum {
+  color: var(--accent);
+}
+
+/* ── Thumbnail ───────────────────────────────────────────────────────────── */
+.thumbnailContainer {
+  position: relative;
+  width: 130px;
+  aspect-ratio: 16 / 9;
+  flex-shrink: 0;
   border-radius: var(--radius-md);
-  background: var(--bg-muted);
-  border: 1px solid var(--border);
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow-sm);
+}
+
+.thumbnail {
+  object-fit: cover;
+  transition: opacity var(--transition-fast), transform var(--transition-normal);
+}
+
+.episode:hover .thumbnail {
+  opacity: 0.7;
+  transform: scale(1.05);
+}
+
+.thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.5);
+  background: var(--nav-bg);
 }
-.episode.active .epNum {
-  background: var(--accent);
-  border-color: var(--accent);
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
   color: #fff;
 }
 
-.epInfo { flex: 1; min-width: 0; }
+.episode:hover .playOverlay,
+.episode.active .playOverlay {
+  opacity: 1;
+}
+
+.playingText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── Episode Info ─────────────────────────────────────────────────────────── */
+.epHeader {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
 
 .epTitle {
-  font-size: 0.825rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
 }
-.episode.active .epTitle { font-weight: 600; }
+.episode.active .epTitle {
+  color: var(--accent);
+}
 
-.epDate {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 1px;
+.epMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 .epRating {
-  font-size: 0.72rem;
-  flex-shrink: 0;
   color: var(--green);
+  font-weight: 500;
 }
 
-.epSkeleton {
-  height: 48px;
-  border-radius: var(--radius-md);
+/* ── Overview ─────────────────────────────────────────────────────────────── */
+.epOverview {
+  margin-top: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  /* Removed -webkit-line-clamp to show full description */
+  width: 100%;
+}
+
+/* ── Responsiveness ───────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .epMainRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  
+  .epNum {
+    display: none;
+  }
+  
+  .thumbnailContainer {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+  
+  .epOverview {
+    margin-top: var(--space-md);
+  }
 }

@@ -180,10 +180,17 @@
 }
 
 /* ── CONTENT SECTIONS ─────────────────────────────────────────────────────── */
-.content {
+.contentWrapper {
   display: flex;
   flex-direction: column;
-  padding-top: var(--space-xl);
+  gap: var(--space-2xl);
+  padding-top: var(--space-2xl);
+}
+
+.tabSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
 }
 
 .section {
@@ -405,6 +412,7 @@
   color: var(--text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

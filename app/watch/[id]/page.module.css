@@ -42,14 +42,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-}
-
-@media (min-width: 1024px) {
-  .layout {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    align-items: flex-start;
-  }
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* ── PLAYER WRAPPER ──────────────────────────────────────────────────────── */
@@ -110,6 +104,47 @@
   font-size: 0.825rem;
 }
 
+/* ── LIGHTS OUT MODE ─────────────────────────────────────────────────────── */
+.lightsOutOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.98);
+  z-index: 9998;
+  animation: fadeBg 0.3s ease-out;
+}
+
+@keyframes fadeBg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.playerSectionLightsOut {
+  z-index: 9999;
+  position: relative;
+  box-shadow: 0 0 100px rgba(0,0,0,1);
+}
+
+.lightsOutBtn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  font-size: 0.825rem;
+  z-index: 9999;
+}
+.lightsOutBtn:hover {
+  background: var(--bg-hover);
+}
+.lightsOutBtnActive {
+  background: var(--bg-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ── QUICK EPISODE NAV ───────────────────────────────────────────────────── */
 .quickEp {
   display: flex;
@@ -133,16 +168,4 @@
   font-size: 0.825rem;
 }
 
-/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
-.sidebar {
-  position: relative;
-}
 
-@media (min-width: 1024px) {
-  .sidebar {
-    position: sticky;
-    top: calc(var(--nav-height) + var(--space-md));
-    max-height: calc(100vh - var(--nav-height) - var(--space-xl));
-    overflow-y: auto;
-  }
-}
