@@ -7,7 +7,7 @@
 .hero {
   position: relative;
   width: 100%;
-  min-height: clamp(520px, 65vh, 800px);
+  min-height: clamp(400px, 45vh, 600px);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -51,10 +51,9 @@
   position: relative;
   z-index: 2;
   padding-bottom: clamp(32px, 5vh, 64px);
-  padding-top: calc(var(--nav-height) + var(--space-2xl));
+  padding-top: calc(var(--nav-height) + var(--space-md));
   width: 100%;
   max-width: 700px;
-
 }
 
 /* ── BREADCRUMB ──────────────────────────────────────────────────────────── */
