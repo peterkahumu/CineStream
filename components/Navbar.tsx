@@ -60,12 +60,11 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyGlobal)
   }, [handleKeyGlobal])
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const submit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     if (!query.trim()) return
     router.push(`/search?q=${encodeURIComponent(query.trim())}`)
     setSearchOpen(false)
-    setQuery('')
     setMenuOpen(false)
   }
 
@@ -155,7 +154,14 @@ export default function Navbar() {
 
           <button
             className={styles.iconBtn}
-            onClick={() => { setSearchOpen(s => !s); setTimeout(() => inputRef.current?.focus(), 50) }}
+            onClick={() => { 
+              if (searchOpen && query.trim()) {
+                submit()
+              } else {
+                setSearchOpen(s => !s)
+                setTimeout(() => inputRef.current?.focus(), 50)
+              }
+            }}
             aria-label="Search"
           >
             🔍

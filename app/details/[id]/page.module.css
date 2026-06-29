@@ -482,7 +482,7 @@
 
 /* ── MOBILE HORIZONTAL SCROLL ──────────────────────────────────────────────── */
 @media (max-width: 1023px) {
-  .seasonGrid, .reviewGrid, .contentWrapper :global(.media-grid) {
+  .seasonGrid, .contentWrapper :global(.media-grid) {
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start !important;
@@ -495,17 +495,12 @@
   }
   
   .seasonGrid::-webkit-scrollbar,
-  .reviewGrid::-webkit-scrollbar,
   .contentWrapper :global(.media-grid::-webkit-scrollbar) {
     display: none;
   }
   
   .seasonCard {
     flex: 0 0 140px;
-    scroll-snap-align: start;
-  }
-  .reviewCard {
-    flex: 0 0 85%;
     scroll-snap-align: start;
   }
   .contentWrapper :global(.media-grid > *) {

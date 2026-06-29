@@ -295,6 +295,11 @@ export default async function DetailsPage(props: {
                     </div>
                   ))}
                 </div>
+                <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center' }}>
+                  <a href={`https://www.themoviedb.org/${mediaType}/${id}/reviews`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                    See all reviews on TMDB ↗
+                  </a>
+                </div>
               ) : (
                 <p>No reviews available yet.</p>
               )}

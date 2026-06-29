@@ -73,7 +73,11 @@ export default function SearchClient({
       if (res.ok) {
         const data = await res.json()
         const newResults = (data.results || []).filter((r: any) => r.media_type !== 'person')
-        setAllResults(prev => [...prev, ...newResults])
+        setAllResults(prev => {
+          const existingIds = new Set(prev.map(item => `${item.media_type}-${item.id}`))
+          const uniqueNew = newResults.filter((item: any) => !existingIds.has(`${item.media_type}-${item.id}`))
+          return [...prev, ...uniqueNew]
+        })
         setPage(nextPage)
       }
     } catch (err) {
