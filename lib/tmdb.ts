@@ -180,6 +180,7 @@ export const getProviderContent = (providerId: number, mediaType: 'movie' | 'tv'
 
   const params: Record<string, string | number> = {
     with_watch_providers: providerId,
+    watch_region: 'US',
     sort_by: 'popularity.desc',
     with_original_language: 'en',
   }
