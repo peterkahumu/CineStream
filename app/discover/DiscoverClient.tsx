@@ -41,7 +41,11 @@ export default function DiscoverClient({
       }
 
       const data = await discover({ media, ...params } as any)
-      setItems(prev => [...prev, ...data.results])
+      setItems(prev => {
+        const existingIds = new Set(prev.map(item => item.id))
+        const uniqueNew = data.results.filter(item => !existingIds.has(item.id))
+        return [...prev, ...uniqueNew]
+      })
       setPage(next)
       if (next >= Math.min(totalPages, 20)) setExhausted(true)
     } catch (e) {
