@@ -78,6 +78,13 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
       if (immersiveInterval) clearInterval(immersiveInterval)
+      
+      // Ensure we restore portrait orientation and status bar on component unmount
+      if (Capacitor.isNativePlatform()) {
+        ScreenOrientation.unlock().catch(console.error)
+        StatusBar.setOverlaysWebView({ overlay: false }).catch(console.error)
+        StatusBar.show().catch(console.error)
+      }
     }
   }, [])
 
