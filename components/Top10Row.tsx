@@ -51,7 +51,7 @@ export default function Top10Row() {
 
   if (error || (!loading && movieItems.length === 0 && tvItems.length === 0)) return null
 
-  const scroll = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+  const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
     if (ref.current) {
       const { clientWidth } = ref.current
       const scrollAmount = direction === 'left' ? -clientWidth * 0.75 : clientWidth * 0.75
@@ -59,7 +59,7 @@ export default function Top10Row() {
     }
   }
 
-  const renderScroller = (items: MediaItem[], type: 'movie' | 'tv', ref: React.RefObject<HTMLDivElement>) => (
+  const renderScroller = (items: MediaItem[], type: 'movie' | 'tv', ref: React.RefObject<HTMLDivElement | null>) => (
     <div className={baseStyles.rowContainer}>
       <button 
         className={`${baseStyles.scrollBtn} ${baseStyles.scrollLeft}`} 
@@ -104,12 +104,7 @@ export default function Top10Row() {
         <div className="section-header">
           <h2 className="section-title">
             <span style={{ marginRight: 4 }}>📈</span>
-            Top 10 Movies Today
-            {country && (
-              <span className={styles.countrySubtitle}>
-                showing results for {country} (autodetected)
-              </span>
-            )}
+            Top 10 Movies in {country} Today
           </h2>
         </div>
         {renderScroller(movieItems, 'movie', scrollerMovieRef)}
@@ -119,12 +114,7 @@ export default function Top10Row() {
         <div className="section-header">
           <h2 className="section-title">
             <span style={{ marginRight: 4 }}>📈</span>
-            Top 10 TV Shows Today
-            {country && (
-              <span className={styles.countrySubtitle}>
-                showing results for {country} (autodetected)
-              </span>
-            )}
+            Top 10 TV Shows in {country} Today
           </h2>
         </div>
         {renderScroller(tvItems, 'tv', scrollerTvRef)}
