@@ -173,13 +173,25 @@ export const getUpcomingTV = () => {
   })
 }
 
-export const getProviderContent = (providerId: number, mediaType: 'movie' | 'tv') =>
-  tmdbFetch<TMDBPage<MediaItem>>(`/discover/${mediaType}`, { 
-    with_watch_providers: providerId, 
-    watch_region: 'US', 
-    sort_by: 'popularity.desc', 
-    with_original_language: 'en' 
-  })
+export const getProviderContent = (providerId: number, mediaType: 'movie' | 'tv') => {
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+  const gteDate = sixMonthsAgo.toISOString().split('T')[0]
+
+  const params: Record<string, string | number> = {
+    with_watch_providers: providerId,
+    sort_by: 'popularity.desc',
+    with_original_language: 'en',
+  }
+
+  if (mediaType === 'movie') {
+    params['primary_release_date.gte'] = gteDate
+  } else {
+    params['first_air_date.gte'] = gteDate
+  }
+
+  return tmdbFetch<TMDBPage<MediaItem>>(`/discover/${mediaType}`, params)
+}
 
 export const searchMulti = (query: string, page = 1) =>
   tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false })
