@@ -145,6 +145,42 @@ export const getNowPlaying = () =>
 export const getOnAir = () =>
   tmdbFetch<TMDBPage<MediaItem>>('/tv/on_the_air', { with_original_language: 'en' })
 
+export const getUpcomingMovies = () => {
+  const date = new Date()
+  const todayStr = date.toISOString().split('T')[0]
+  date.setMonth(date.getMonth() + 3)
+  const threeMonths = date.toISOString().split('T')[0]
+  
+  return tmdbFetch<TMDBPage<MediaItem>>('/discover/movie', { 
+    'primary_release_date.gte': todayStr,
+    'primary_release_date.lte': threeMonths,
+    sort_by: 'popularity.desc', 
+    with_original_language: 'en' 
+  })
+}
+
+export const getUpcomingTV = () => {
+  const date = new Date()
+  const todayStr = date.toISOString().split('T')[0]
+  date.setMonth(date.getMonth() + 3)
+  const threeMonths = date.toISOString().split('T')[0]
+  
+  return tmdbFetch<TMDBPage<MediaItem>>('/discover/tv', { 
+    'first_air_date.gte': todayStr, 
+    'first_air_date.lte': threeMonths,
+    sort_by: 'popularity.desc', 
+    with_original_language: 'en' 
+  })
+}
+
+export const getProviderContent = (providerId: number, mediaType: 'movie' | 'tv') =>
+  tmdbFetch<TMDBPage<MediaItem>>(`/discover/${mediaType}`, { 
+    with_watch_providers: providerId, 
+    watch_region: 'US', 
+    sort_by: 'popularity.desc', 
+    with_original_language: 'en' 
+  })
+
 export const searchMulti = (query: string, page = 1) =>
   tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false })
 

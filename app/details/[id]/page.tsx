@@ -202,23 +202,36 @@ export default async function DetailsPage(props: {
           )}
           
           <div className={styles.actionsRow}>
-            {mediaType === 'movie' ? (
-              <Link 
-                href={`/watch/${id}?type=movie`} 
-                className={`btn btn-primary ${styles.watchBtn}`}
-              >
-                ▶ Watch Now
-              </Link>
-            ) : (
-              <Link 
-                href={`/details/${id}?type=tv&tab=watch&s=1`} 
-                className={`btn btn-primary ${styles.watchBtn}`}
-                replace={true}
-                scroll={false}
-              >
-                ▶ View Episodes
-              </Link>
-            )}
+            {(() => {
+              const releaseDateStr = details.release_date || details.first_air_date || ''
+              const isUpcoming = releaseDateStr ? new Date(releaseDateStr) > new Date() : false
+
+              if (isUpcoming) {
+                return (
+                  <span className={`btn btn-primary ${styles.watchBtn}`} style={{ opacity: 0.8, cursor: 'default' }}>
+                    📅 Coming {new Date(releaseDateStr).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )
+              }
+
+              return mediaType === 'movie' ? (
+                <Link 
+                  href={`/watch/${id}?type=movie`} 
+                  className={`btn btn-primary ${styles.watchBtn}`}
+                >
+                  ▶ Watch Now
+                </Link>
+              ) : (
+                <Link 
+                  href={`/details/${id}?type=tv&tab=watch&s=1`} 
+                  className={`btn btn-primary ${styles.watchBtn}`}
+                  replace={true}
+                  scroll={false}
+                >
+                  ▶ View Episodes
+                </Link>
+              )
+            })()}
           </div>
         </div>
       </div>

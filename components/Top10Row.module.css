@@ -1,0 +1,99 @@
+.top10CardWrap {
+  display: flex;
+  align-items: flex-end; /* Align to bottom so we can easily offset */
+  position: relative;
+  flex: 0 0 200px;
+  scroll-snap-align: start;
+}
+
+.numberContainer {
+  position: absolute;
+  left: -20px;
+  bottom: 60px; /* Shift up so it doesn't overlap the title text */
+  z-index: 1; /* Place behind the card poster */
+  font-family: var(--font-display, sans-serif);
+  font-size: 140px;
+  font-weight: 900;
+  color: #000;
+  -webkit-text-stroke: 4px #fff;
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -10px;
+}
+
+.cardInner {
+  margin-left: 35px;
+  flex: 1;
+  z-index: 2; /* Place on top of the number */
+}
+
+@media (max-width: 768px) {
+  .top10CardWrap {
+    flex: 0 0 160px;
+  }
+  .numberContainer {
+    font-size: 110px;
+    left: -15px;
+    bottom: 50px;
+    -webkit-text-stroke: 3px #fff;
+  }
+  .cardInner {
+    margin-left: 25px;
+  }
+}
+
+.countrySubtitle {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted, #9ca3af);
+  margin-top: 4px;
+  text-transform: none;
+}
+
+@media (min-width: 768px) {
+  .countrySubtitle {
+    display: inline-block;
+    margin-left: 12px;
+    margin-top: 0;
+  }
+}
+
+.locationToast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #111; /* Very dark background for high contrast */
+  color: #fff; /* White text */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+.locationToast button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.8;
+}
+
+.locationToast button:hover {
+  opacity: 1;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
