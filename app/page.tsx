@@ -64,6 +64,9 @@ export default async function HomePage() {
         
         <Top10Row />
         
+        <MediaRow title="Now Playing" emoji="🎬" items={ok(nowPlaying)} seeAllHref="/discover?media=movie&sort=primary_release_date.desc" forcedType="movie" />
+        <MediaRow title="Currently On Air" emoji="📡" items={ok(onAir)} seeAllHref="/discover?media=tv&sort=first_air_date.desc" forcedType="tv" />
+        
         <MediaRow title="New on Netflix (Movies)" emoji="🔴" items={ok(netflixM)} seeAllHref="/discover?media=movie&with_watch_providers=8&watch_region=US" forcedType="movie" />
         <MediaRow title="New on Netflix (TV Shows)" emoji="🔴" items={ok(netflixTV)} seeAllHref="/discover?media=tv&with_watch_providers=8&watch_region=US" forcedType="tv" />
         
