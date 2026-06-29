@@ -60,11 +60,10 @@ export default async function DetailsPage(props: {
   
   // Enforce valid tab types
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
-  const tab: 'details' | 'watch' | 'trailers' | 'cast' | 'reviews' = 
+  const tab: 'watch' | 'trailers' | 'cast' | 'reviews' = 
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :
-    tabRaw === 'trailers' ? 'trailers' :
     tabRaw === 'cast' ? 'cast' :
-    tabRaw === 'reviews' ? 'reviews' : 'details'
+    tabRaw === 'reviews' ? 'reviews' : 'trailers'
 
   const activeSeason = Number(searchParams.s || 1)
 
@@ -228,15 +227,6 @@ export default async function DetailsPage(props: {
 
       <div className={`page-container ${styles.contentWrapper}`}>
         <DetailsTabs activeTab={tab} mediaType={mediaType} id={id}>
-          
-          {/* TAB: MORE DETAILS */}
-          {tab === 'details' && (
-            <div className={styles.tabSection}>
-              <div className="empty-state" style={{ marginTop: '2rem' }}>
-                <p>Additional details coming soon...</p>
-              </div>
-            </div>
-          )}
 
           {/* TAB: CAST */}
           {tab === 'cast' && (
