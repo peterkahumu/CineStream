@@ -1,0 +1,42 @@
+.top10CardWrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex: 0 0 200px;
+  scroll-snap-align: start;
+}
+
+.numberContainer {
+  position: absolute;
+  left: -20px;
+  bottom: -10px;
+  z-index: 2;
+  font-family: var(--font-display, sans-serif);
+  font-size: 120px;
+  font-weight: 900;
+  color: #000;
+  -webkit-text-stroke: 4px #fff;
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -10px;
+}
+
+.cardInner {
+  margin-left: 30px;
+  flex: 1;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .top10CardWrap {
+    flex: 0 0 160px;
+  }
+  .numberContainer {
+    font-size: 100px;
+    left: -15px;
+    -webkit-text-stroke: 3px #fff;
+  }
+  .cardInner {
+    margin-left: 25px;
+  }
+}
