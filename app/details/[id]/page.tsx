@@ -279,27 +279,29 @@ export default async function DetailsPage(props: {
           {tab === 'reviews' && (
             <div className={styles.tabSection}>
               {reviews.length > 0 ? (
-                <div className={styles.reviewGrid}>
-                  {reviews.map((review: any) => (
-                    <div key={review.id} className={styles.reviewCard}>
-                      <div className={styles.reviewHeader}>
-                        <span className={styles.reviewAuthor}>{review.author}</span>
-                        {review.author_details?.rating && (
-                          <span className={styles.reviewRating}>⭐ {review.author_details.rating.toFixed(1)}</span>
-                        )}
+                <>
+                  <div className={styles.reviewGrid}>
+                    {reviews.map((review: any) => (
+                      <div key={review.id} className={styles.reviewCard}>
+                        <div className={styles.reviewHeader}>
+                          <span className={styles.reviewAuthor}>{review.author}</span>
+                          {review.author_details?.rating && (
+                            <span className={styles.reviewRating}>⭐ {review.author_details.rating.toFixed(1)}</span>
+                          )}
+                        </div>
+                        <p className={styles.reviewContent}>{review.content}</p>
+                        <a href={`https://www.themoviedb.org/review/${review.id}`} target="_blank" rel="noopener noreferrer" className={styles.fullReviewLink}>
+                          Read full review ↗
+                        </a>
                       </div>
-                      <p className={styles.reviewContent}>{review.content}</p>
-                      <a href={`https://www.themoviedb.org/review/${review.id}`} target="_blank" rel="noopener noreferrer" className={styles.fullReviewLink}>
-                        Read full review ↗
-                      </a>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center' }}>
-                  <a href={`https://www.themoviedb.org/${mediaType}/${id}/reviews`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
-                    See all reviews on TMDB ↗
-                  </a>
-                </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center' }}>
+                    <a href={`https://www.themoviedb.org/${mediaType}/${id}/reviews`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                      See all reviews on TMDB ↗
+                    </a>
+                  </div>
+                </>
               ) : (
                 <p>No reviews available yet.</p>
               )}
