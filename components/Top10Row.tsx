@@ -104,7 +104,12 @@ export default function Top10Row() {
         <div className="section-header">
           <h2 className="section-title">
             <span style={{ marginRight: 4 }}>📈</span>
-            Top 10 Movies in {country || 'Your Country'} Today
+            Top 10 Movies Today
+            {country && (
+              <span className={styles.countrySubtitle}>
+                showing results for {country} (autodetected)
+              </span>
+            )}
           </h2>
         </div>
         {renderScroller(movieItems, 'movie', scrollerMovieRef)}
@@ -114,7 +119,12 @@ export default function Top10Row() {
         <div className="section-header">
           <h2 className="section-title">
             <span style={{ marginRight: 4 }}>📈</span>
-            Top 10 TV Shows in {country || 'Your Country'} Today
+            Top 10 TV Shows Today
+            {country && (
+              <span className={styles.countrySubtitle}>
+                showing results for {country} (autodetected)
+              </span>
+            )}
           </h2>
         </div>
         {renderScroller(tvItems, 'tv', scrollerTvRef)}

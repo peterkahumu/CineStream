@@ -71,15 +71,13 @@ export default async function HomePage() {
         <MediaRow title="New on Netflix (TV Shows)" emoji="🔴" items={ok(netflixTV)} seeAllHref="/discover?media=tv&with_watch_providers=8&watch_region=US" forcedType="tv" />
         
         <MediaRow title="Popular Movies" emoji="🎞️" items={ok(popularMovies)} seeAllHref="/discover?media=movie" forcedType="movie" />
-        
-        <MediaRow title="Coming Soon to Theaters" emoji="🍿" items={ok(upcomingMovies)} seeAllHref="/discover?media=movie&sort=primary_release_date.desc" forcedType="movie" />
+        <MediaRow title="Popular TV Shows" emoji="📺" items={ok(popularTV)} seeAllHref="/discover?media=tv" forcedType="tv" />
+
+        <MediaRow title="Upcoming Movies" emoji="🍿" items={ok(upcomingMovies)} seeAllHref="/discover?media=movie&sort=primary_release_date.desc" forcedType="movie" />
+        <MediaRow title="Upcoming TV Shows" emoji="📅" items={ok(upcomingTV)} seeAllHref="/discover?media=tv&sort=first_air_date.desc" forcedType="tv" />
         
         <MediaRow title="New on Apple TV+ (Movies)" emoji="🍏" items={ok(appleM)} seeAllHref="/discover?media=movie&with_watch_providers=350&watch_region=US" forcedType="movie" />
         <MediaRow title="New on Apple TV+ (TV Shows)" emoji="🍏" items={ok(appleTV)} seeAllHref="/discover?media=tv&with_watch_providers=350&watch_region=US" forcedType="tv" />
-        
-        <MediaRow title="Popular TV Shows" emoji="📺" items={ok(popularTV)} seeAllHref="/discover?media=tv" forcedType="tv" />
-        
-        <MediaRow title="Upcoming TV Shows" emoji="📅" items={ok(upcomingTV)} seeAllHref="/discover?media=tv&sort=first_air_date.desc" forcedType="tv" />
         
         <MediaRow title="New on Disney+ (Movies)" emoji="✨" items={ok(disneyM)} seeAllHref="/discover?media=movie&with_watch_providers=337&watch_region=US" forcedType="movie" />
         <MediaRow title="New on Disney+ (TV Shows)" emoji="✨" items={ok(disneyTV)} seeAllHref="/discover?media=tv&with_watch_providers=337&watch_region=US" forcedType="tv" />
