@@ -8,17 +8,31 @@ import styles from './page.module.css'
 export default function SearchClient({
   initialQ,
   results,
-  total
+  total,
+  totalPages
 }: {
   initialQ: string
   results: MediaItem[]
   total: number
+  totalPages: number
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [query, setQuery] = useState(initialQ)
   const [filter, setFilter] = useState<'all' | 'movie' | 'tv'>('all')
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Infinite Scroll State
+  const [allResults, setAllResults] = useState<MediaItem[]>(results)
+  const [page, setPage] = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const observerTarget = useRef<HTMLDivElement>(null)
+
+  // Reset infinite scroll state when initialQ changes (e.g. from SSR)
+  useEffect(() => {
+    setAllResults(results)
+    setPage(1)
+  }, [initialQ, results])
 
   const triggerSearch = useCallback(() => {
     const q = query.trim()
@@ -50,10 +64,46 @@ export default function SearchClient({
     router.push(`/search?q=${encodeURIComponent(q)}`)
   }
 
+  const loadMore = useCallback(async () => {
+    if (loadingMore || page >= totalPages) return
+    setLoadingMore(true)
+    try {
+      const nextPage = page + 1
+      const res = await fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(initialQ)}&page=${nextPage}&include_adult=false`)
+      if (res.ok) {
+        const data = await res.json()
+        const newResults = (data.results || []).filter((r: any) => r.media_type !== 'person')
+        setAllResults(prev => [...prev, ...newResults])
+        setPage(nextPage)
+      }
+    } catch (err) {
+      console.error('Failed to load more results', err)
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [initialQ, page, totalPages, loadingMore])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          loadMore()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current)
+    }
+
+    return () => observer.disconnect()
+  }, [loadMore])
+
   const typeOf = (r: MediaItem) => r.media_type || (r.first_air_date ? 'tv' : 'movie')
-  const filtered = filter === 'all' ? results : results.filter(r => typeOf(r) === filter)
-  const movieCount = results.filter(r => typeOf(r) === 'movie').length
-  const tvCount = results.filter(r => typeOf(r) === 'tv').length
+  const filtered = filter === 'all' ? allResults : allResults.filter(r => typeOf(r) === filter)
+  const movieCount = allResults.filter(r => typeOf(r) === 'movie').length
+  const tvCount = allResults.filter(r => typeOf(r) === 'tv').length
 
   return (
     <>
@@ -83,10 +133,10 @@ export default function SearchClient({
       </form>
 
       {/* Filter tabs */}
-      {results.length > 0 && (
+      {allResults.length > 0 && (
         <div className={styles.tabs}>
           {([
-            ['all', `All (${results.length})`],
+            ['all', `All (${allResults.length})`],
             ['movie', `Movies (${movieCount})`],
             ['tv', `TV Shows (${tvCount})`],
           ] as [typeof filter, string][]).map(([val, label]) => (
@@ -127,6 +177,20 @@ export default function SearchClient({
               <MediaCard key={`${item.media_type}-${item.id}`} item={item} />
             ))}
           </div>
+
+          {/* Infinite Scroll Trigger */}
+          {page < totalPages && (
+            <div ref={observerTarget} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              {loadingMore ? 'Loading more...' : 'Scroll for more'}
+            </div>
+          )}
+
+          {/* End of Results */}
+          {page >= totalPages && filtered.length > 0 && (
+            <div style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <p>End of results</p>
+            </div>
+          )}
         </>
       )}
     </>

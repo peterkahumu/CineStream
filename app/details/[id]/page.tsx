@@ -60,9 +60,11 @@ export default async function DetailsPage(props: {
   
   // Enforce valid tab types
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
-  const tab: 'details' | 'watch' | 'trailers' = 
+  const tab: 'details' | 'watch' | 'trailers' | 'cast' | 'reviews' = 
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :
-    tabRaw === 'trailers' ? 'trailers' : 'details'
+    tabRaw === 'trailers' ? 'trailers' :
+    tabRaw === 'cast' ? 'cast' :
+    tabRaw === 'reviews' ? 'reviews' : 'details'
 
   const activeSeason = Number(searchParams.s || 1)
 
@@ -79,7 +81,7 @@ export default async function DetailsPage(props: {
   const cast = (details.credits?.cast || details.aggregate_credits?.cast || []).slice(0, 12)
   const similar = (details.similar?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
   const recommendations = (details.recommendations?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
-  const reviews = (details.reviews?.results || []).slice(0, 3)
+  const reviews = (details.reviews?.results || [])
 
   let trailers: { key: string; name: string; label?: string }[] = []
   let tvSeasons: any[] = []
@@ -230,56 +232,71 @@ export default async function DetailsPage(props: {
           {/* TAB: MORE DETAILS */}
           {tab === 'details' && (
             <div className={styles.tabSection}>
-              {cast.length > 0 && (
-                <section className={styles.section}>
-                  <h2 className={styles.sectionH}>Cast</h2>
-                  <div className={styles.castGrid}>
-                    {cast.map((c: any) => (
-                      <Link 
-                        key={c.id} 
-                        href={`/person/${c.id}`}
-                        className={styles.castCard}
-                      >
-                        <div className={styles.castAvatar}>
-                          {c.profile_path ? (
-                            <Image
-                              src={`https://image.tmdb.org/t/p/w185${c.profile_path}`}
-                              alt={c.name}
-                              fill
-                              sizes="68px"
-                              className={styles.castImg}
-                            />
-                          ) : (
-                            <span className={styles.castPlaceholder}>👤</span>
-                          )}
-                        </div>
-                        <div className={styles.castInfo}>
-                          <span className={styles.castName}>{c.name}</span>
-                          {c.character && <span className={styles.castChar}>{c.character}</span>}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              )}
+              <div className="empty-state" style={{ marginTop: '2rem' }}>
+                <p>Additional details coming soon...</p>
+              </div>
+            </div>
+          )}
 
-              {reviews.length > 0 && (
-                <section className={styles.section}>
-                  <h2 className={styles.sectionH}>Reviews</h2>
-                  <div className={styles.reviewGrid}>
-                    {reviews.map((review: any) => (
-                      <div key={review.id} className={styles.reviewCard}>
-                        <div className={styles.reviewHeader}>
-                          <span className={styles.reviewAuthor}>{review.author}</span>
-                          {review.author_details?.rating && (
-                            <span className={styles.reviewRating}>⭐ {review.author_details.rating.toFixed(1)}</span>
-                          )}
-                        </div>
-                        <p className={styles.reviewContent}>{review.content}</p>
+          {/* TAB: CAST */}
+          {tab === 'cast' && (
+            <div className={styles.tabSection}>
+              {cast.length > 0 ? (
+                <div className={styles.castGrid}>
+                  {cast.map((c: any) => (
+                    <Link 
+                      key={c.id} 
+                      href={`/person/${c.id}`}
+                      className={styles.castCard}
+                    >
+                      <div className={styles.castAvatar}>
+                        {c.profile_path ? (
+                          <Image
+                            src={`https://image.tmdb.org/t/p/w185${c.profile_path}`}
+                            alt={c.name}
+                            fill
+                            sizes="68px"
+                            className={styles.castImg}
+                          />
+                        ) : (
+                          <span className={styles.castPlaceholder}>👤</span>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </section>
+                      <div className={styles.castInfo}>
+                        <span className={styles.castName}>{c.name}</span>
+                        {c.character && <span className={styles.castChar}>{c.character}</span>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p>No cast information available.</p>
+              )}
+            </div>
+          )}
+
+          {/* TAB: REVIEWS */}
+          {tab === 'reviews' && (
+            <div className={styles.tabSection}>
+              {reviews.length > 0 ? (
+                <div className={styles.reviewGrid}>
+                  {reviews.map((review: any) => (
+                    <div key={review.id} className={styles.reviewCard}>
+                      <div className={styles.reviewHeader}>
+                        <span className={styles.reviewAuthor}>{review.author}</span>
+                        {review.author_details?.rating && (
+                          <span className={styles.reviewRating}>⭐ {review.author_details.rating.toFixed(1)}</span>
+                        )}
+                      </div>
+                      <p className={styles.reviewContent}>{review.content}</p>
+                      <a href={`https://www.themoviedb.org/review/${review.id}`} target="_blank" rel="noopener noreferrer" className={styles.fullReviewLink}>
+                        Read full review ↗
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>No reviews available yet.</p>
               )}
             </div>
           )}

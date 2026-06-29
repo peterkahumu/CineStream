@@ -9,17 +9,19 @@ export default async function SearchPage(props: { searchParams: Promise<any> | a
 
   let results: any[] = []
   let total = 0
+  let totalPages = 0
 
   if (q) {
     const data = await searchMulti(q)
     results = (data.results || []).filter((r: any) => r.media_type !== 'person')
     total = data.total_results || results.length
+    totalPages = data.total_pages || 1
   }
 
   return (
     <main className="page-content">
       <div className="page-container">
-        <SearchClient initialQ={q} results={results} total={total} />
+        <SearchClient initialQ={q} results={results} total={total} totalPages={totalPages} />
       </div>
     </main>
   )
