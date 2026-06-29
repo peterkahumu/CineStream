@@ -33,52 +33,7 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
       }
     }
 
-    if (!Capacitor.isNativePlatform()) return
-
-    let immersiveInterval: NodeJS.Timeout | null = null
-
-    const handleFullscreenChange = async () => {
-      try {
-        if (document.fullscreenElement) {
-          // Add a tiny delay before forcing rotation. This prevents a race condition
-          // where the WebView calculates the fullscreen video boundaries using portrait dimensions,
-          // which causes the video to look zoomed-in or cropped.
-          setTimeout(async () => {
-            await ScreenOrientation.lock({ orientation: 'landscape' })
-            // Set overlay to true during fullscreen so the status bar behaves
-            // transiently (Immersive Sticky) when swiped down by the user
-            await StatusBar.setOverlaysWebView({ overlay: true })
-            await StatusBar.hide()
-
-            // ensures the status bar auto-hides again after being pulled down.
-            immersiveInterval = setInterval(() => {
-              if (document.fullscreenElement) {
-                StatusBar.hide().catch(() => {})
-              }
-            }, 2500)
-          }, 300)
-        } else {
-          setTimeout(async () => {
-            await ScreenOrientation.unlock()
-            // Restore overlay to false so it doesn't overlap the app's navbar
-            await StatusBar.setOverlaysWebView({ overlay: false })
-            await StatusBar.show()
-            if (immersiveInterval) {
-              clearInterval(immersiveInterval)
-              immersiveInterval = null
-            }
-          }, 300)
-        }
-      } catch (error) {
-        console.error('Failed to change screen orientation:', error)
-      }
-    }
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
-      if (immersiveInterval) clearInterval(immersiveInterval)
-      
       // Ensure we restore portrait orientation and status bar on component unmount
       if (Capacitor.isNativePlatform()) {
         ScreenOrientation.unlock().catch(console.error)
