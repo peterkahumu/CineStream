@@ -4,7 +4,7 @@ import Link from 'next/link'
 import styles from './DetailsTabs.module.css'
 
 interface Props {
-  activeTab: 'watch' | 'trailers' | 'details'
+  activeTab: 'watch' | 'trailers' | 'cast' | 'reviews'
   mediaType: 'movie' | 'tv'
   id: string
   children: React.ReactNode
@@ -14,7 +14,8 @@ export default function DetailsTabs({ activeTab, mediaType, id, children }: Prop
   const tabs = [
     ...(mediaType === 'tv' ? [{ id: 'watch', label: 'Watch' }] : []),
     { id: 'trailers', label: 'Trailers' },
-    { id: 'details', label: 'More Details' }
+    { id: 'cast', label: 'Cast' },
+    { id: 'reviews', label: 'Reviews' }
   ]
 
   return (

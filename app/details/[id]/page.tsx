@@ -60,9 +60,10 @@ export default async function DetailsPage(props: {
   
   // Enforce valid tab types
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
-  const tab: 'details' | 'watch' | 'trailers' = 
+  const tab: 'watch' | 'trailers' | 'cast' | 'reviews' = 
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :
-    tabRaw === 'trailers' ? 'trailers' : 'details'
+    tabRaw === 'cast' ? 'cast' :
+    tabRaw === 'reviews' ? 'reviews' : 'trailers'
 
   const activeSeason = Number(searchParams.s || 1)
 
@@ -79,7 +80,7 @@ export default async function DetailsPage(props: {
   const cast = (details.credits?.cast || details.aggregate_credits?.cast || []).slice(0, 12)
   const similar = (details.similar?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
   const recommendations = (details.recommendations?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
-  const reviews = (details.reviews?.results || []).slice(0, 3)
+  const reviews = (details.reviews?.results || [])
 
   let trailers: { key: string; name: string; label?: string }[] = []
   let tvSeasons: any[] = []
@@ -226,46 +227,49 @@ export default async function DetailsPage(props: {
 
       <div className={`page-container ${styles.contentWrapper}`}>
         <DetailsTabs activeTab={tab} mediaType={mediaType} id={id}>
-          
-          {/* TAB: MORE DETAILS */}
-          {tab === 'details' && (
-            <div className={styles.tabSection}>
-              {cast.length > 0 && (
-                <section className={styles.section}>
-                  <h2 className={styles.sectionH}>Cast</h2>
-                  <div className={styles.castGrid}>
-                    {cast.map((c: any) => (
-                      <Link 
-                        key={c.id} 
-                        href={`/person/${c.id}`}
-                        className={styles.castCard}
-                      >
-                        <div className={styles.castAvatar}>
-                          {c.profile_path ? (
-                            <Image
-                              src={`https://image.tmdb.org/t/p/w185${c.profile_path}`}
-                              alt={c.name}
-                              fill
-                              sizes="68px"
-                              className={styles.castImg}
-                            />
-                          ) : (
-                            <span className={styles.castPlaceholder}>👤</span>
-                          )}
-                        </div>
-                        <div className={styles.castInfo}>
-                          <span className={styles.castName}>{c.name}</span>
-                          {c.character && <span className={styles.castChar}>{c.character}</span>}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              )}
 
-              {reviews.length > 0 && (
-                <section className={styles.section}>
-                  <h2 className={styles.sectionH}>Reviews</h2>
+          {/* TAB: CAST */}
+          {tab === 'cast' && (
+            <div className={styles.tabSection}>
+              {cast.length > 0 ? (
+                <div className={styles.castGrid}>
+                  {cast.map((c: any) => (
+                    <Link 
+                      key={c.id} 
+                      href={`/person/${c.id}`}
+                      className={styles.castCard}
+                    >
+                      <div className={styles.castAvatar}>
+                        {c.profile_path ? (
+                          <Image
+                            src={`https://image.tmdb.org/t/p/w185${c.profile_path}`}
+                            alt={c.name}
+                            fill
+                            sizes="68px"
+                            className={styles.castImg}
+                          />
+                        ) : (
+                          <span className={styles.castPlaceholder}>👤</span>
+                        )}
+                      </div>
+                      <div className={styles.castInfo}>
+                        <span className={styles.castName}>{c.name}</span>
+                        {c.character && <span className={styles.castChar}>{c.character}</span>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p>No cast information available.</p>
+              )}
+            </div>
+          )}
+
+          {/* TAB: REVIEWS */}
+          {tab === 'reviews' && (
+            <div className={styles.tabSection}>
+              {reviews.length > 0 ? (
+                <>
                   <div className={styles.reviewGrid}>
                     {reviews.map((review: any) => (
                       <div key={review.id} className={styles.reviewCard}>
@@ -276,10 +280,20 @@ export default async function DetailsPage(props: {
                           )}
                         </div>
                         <p className={styles.reviewContent}>{review.content}</p>
+                        <a href={`https://www.themoviedb.org/review/${review.id}`} target="_blank" rel="noopener noreferrer" className={styles.fullReviewLink}>
+                          Read full review ↗
+                        </a>
                       </div>
                     ))}
                   </div>
-                </section>
+                  <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center' }}>
+                    <a href={`https://www.themoviedb.org/${mediaType}/${id}/reviews`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                      See all reviews on TMDB ↗
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <p>No reviews available yet.</p>
               )}
             </div>
           )}
