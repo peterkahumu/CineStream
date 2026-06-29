@@ -145,13 +145,29 @@ export const getNowPlaying = () =>
 export const getOnAir = () =>
   tmdbFetch<TMDBPage<MediaItem>>('/tv/on_the_air', { with_original_language: 'en' })
 
-export const getUpcomingMovies = () =>
-  tmdbFetch<TMDBPage<MediaItem>>('/movie/upcoming', { with_original_language: 'en' })
+export const getUpcomingMovies = () => {
+  const date = new Date()
+  const todayStr = date.toISOString().split('T')[0]
+  date.setMonth(date.getMonth() + 3)
+  const threeMonths = date.toISOString().split('T')[0]
+  
+  return tmdbFetch<TMDBPage<MediaItem>>('/discover/movie', { 
+    'primary_release_date.gte': todayStr,
+    'primary_release_date.lte': threeMonths,
+    sort_by: 'popularity.desc', 
+    with_original_language: 'en' 
+  })
+}
 
 export const getUpcomingTV = () => {
-  const today = new Date().toISOString().split('T')[0]
+  const date = new Date()
+  const todayStr = date.toISOString().split('T')[0]
+  date.setMonth(date.getMonth() + 3)
+  const threeMonths = date.toISOString().split('T')[0]
+  
   return tmdbFetch<TMDBPage<MediaItem>>('/discover/tv', { 
-    'first_air_date.gte': today, 
+    'first_air_date.gte': todayStr, 
+    'first_air_date.lte': threeMonths,
     sort_by: 'popularity.desc', 
     with_original_language: 'en' 
   })
