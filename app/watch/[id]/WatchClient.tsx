@@ -16,31 +16,32 @@ interface Props {
   children?: React.ReactNode
 }
 
+function cleanWatchUrlParams() {
+  if (typeof window === 'undefined' || !window.history.replaceState) return
+  const url = new URL(window.location.href)
+  if (url.searchParams.has('s') || url.searchParams.has('e')) {
+    url.searchParams.delete('s')
+    url.searchParams.delete('e')
+    window.history.replaceState({}, '', url.toString())
+  }
+}
+
+function restorePortraitOrientation() {
+  if (Capacitor.isNativePlatform()) {
+    ScreenOrientation.unlock().catch(console.error)
+    StatusBar.setOverlaysWebView({ overlay: false }).catch(console.error)
+    StatusBar.show().catch(console.error)
+  }
+}
+
 export default function WatchClient({ mediaType, id, season, episode, title, servers, children }: Props) {
   const [server, setServer] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [lightsOut, setLightsOut] = useState(false)
 
-  // ... (keep useEffect as is)
   useEffect(() => {
-    // Clean the URL bar so the user only sees /watch/[id]?type=tv
-    if (typeof window !== 'undefined' && window.history.replaceState) {
-      const url = new URL(window.location.href)
-      if (url.searchParams.has('s') || url.searchParams.has('e')) {
-        url.searchParams.delete('s')
-        url.searchParams.delete('e')
-        window.history.replaceState({}, '', url.toString())
-      }
-    }
-
-    return () => {
-      // Ensure we restore portrait orientation and status bar on component unmount
-      if (Capacitor.isNativePlatform()) {
-        ScreenOrientation.unlock().catch(console.error)
-        StatusBar.setOverlaysWebView({ overlay: false }).catch(console.error)
-        StatusBar.show().catch(console.error)
-      }
-    }
+    cleanWatchUrlParams()
+    return () => restorePortraitOrientation()
   }, [])
 
   if (servers.length === 0) {

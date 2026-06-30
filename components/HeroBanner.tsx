@@ -10,6 +10,21 @@ interface Props {
   loading?: boolean
 }
 
+function startAutoAdvance(
+  itemCount: number,
+  setFading: (v: boolean) => void,
+  setIdx: (fn: (i: number) => number) => void,
+) {
+  if (itemCount < 2) return undefined
+  return setInterval(() => {
+    setFading(true)
+    setTimeout(() => {
+      setIdx(i => (i + 1) % itemCount)
+      setFading(false)
+    }, 400)
+  }, 7000)
+}
+
 export default function HeroBanner({ items, loading }: Props) {
   const [idx, setIdx] = useState(0)
   const [fading, setFading] = useState(false)
@@ -17,15 +32,8 @@ export default function HeroBanner({ items, loading }: Props) {
   const featured = items[idx]
 
   useEffect(() => {
-    if (items.length < 2) return
-    const t = setInterval(() => {
-      setFading(true)
-      setTimeout(() => {
-        setIdx(i => (i + 1) % items.length)
-        setFading(false)
-      }, 400)
-    }, 7000)
-    return () => clearInterval(t)
+    const t = startAutoAdvance(items.length, setFading, setIdx)
+    return () => { if (t) clearInterval(t) }
   }, [items.length])
 
   if (loading || !featured) {

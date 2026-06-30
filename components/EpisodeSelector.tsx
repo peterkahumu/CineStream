@@ -15,6 +15,17 @@ interface Props {
   episodes: Episode[]
 }
 
+function createOutsideClickHandler(
+  ref: React.RefObject<HTMLDivElement | null>,
+  onClose: () => void,
+) {
+  return (event: MouseEvent) => {
+    if (ref.current && !ref.current.contains(event.target as Node)) {
+      onClose()
+    }
+  }
+}
+
 export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpisode, episodes }: Props) {
   const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -22,13 +33,9 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    const handler = createOutsideClickHandler(dropdownRef, () => setIsDropdownOpen(false))
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   const activeSeasonData = seasons.find(s => s.season_number === activeSeason)
