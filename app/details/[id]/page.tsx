@@ -5,6 +5,7 @@ import MediaRow from '@/components/MediaRow'
 import ScrollToTop from '@/components/ScrollToTop'
 import DetailsTabs from '@/components/DetailsTabs'
 import EpisodeSelector from '@/components/EpisodeSelector'
+import WatchTvButton from '@/components/WatchTvButton'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
@@ -133,9 +134,9 @@ export default async function DetailsPage(props: {
   }
 
   // Hoist upcoming detection to component scope so both hero button and DetailsTabs can use it
-  // For TV: first_air_date is historical; use next_episode_to_air instead
+  // For TV: if first_air_date is in the future, the show hasn't premiered yet.
   const upcomingDateStr = mediaType === 'tv'
-    ? (details.next_episode_to_air?.air_date || '')
+    ? (details.first_air_date || '')
     : (details.release_date || '')
   const isUpcoming = upcomingDateStr ? new Date(upcomingDateStr) > new Date() : false
 
@@ -221,14 +222,7 @@ export default async function DetailsPage(props: {
                 ▶ Watch Now
               </Link>
             ) : (
-              <Link
-                href={`/details/${id}?type=tv&tab=watch&s=1`}
-                className={`btn btn-primary ${styles.watchBtn}`}
-                replace={true}
-                scroll={false}
-              >
-                ▶ View Episodes
-              </Link>
+              <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
             )}
           </div>
         </div>
@@ -236,7 +230,7 @@ export default async function DetailsPage(props: {
 
       <ScrollToTop />
 
-      <div className={`page-container ${styles.contentWrapper}`}>
+      <div className={`page-container ${styles.contentWrapper}`} id="media-tabs">
         <DetailsTabs activeTab={tab} mediaType={mediaType} id={id} isUpcoming={isUpcoming}>
 
           {/* TAB: CAST */}
