@@ -1,50 +1,99 @@
 # 🍿 CinemaPhora — User Guide
 
-Welcome to CinemaPhora! This guide will help you navigate the platform and get the most out of your movie and TV show viewing experience.
+Welcome to CinemaPhora! This guide will help you navigate the platform and get the most out of your movie and TV show experience.
+
+---
 
 ## ✨ Features
 
-### 1. Home Page & Trending Content
-When you first land on CinemaPhora, you are greeted with our dynamic **Home Page**.
-* **Hero Banner:** Highlights top trending content right now.
-* **Categories:** Scroll down to browse dedicated rows for *Trending This Week*, *Now Playing*, *Popular*, and *Top Rated* movies and TV shows. 
-* **Quick Navigation:** Click "See All" on any row to dive deeper into that specific category.
+### 1. Home Page
+When you first land on CinemaPhora you are greeted with a dynamic home page.
 
-### 2. Powerful Discovery
-Click on **Discover** in the top navigation bar to access our advanced filtering engine.
-* **Filter by Media:** Toggle effortlessly between Movies and TV Shows.
-* **Refine your search:** Use the filters to narrow down by **Genre** (e.g., Action, Comedy), **Country of Origin**, **Release Year**, and **Minimum Rating**.
-* **Sort:** Arrange your results by Popularity, Release Date, Rating, or Title.
+- **Hero Banner:** Auto-rotating carousel of top trending content with smooth fade transitions.
+- **Trending This Week:** What the world is watching right now. Click "See All →" to browse the full trending grid.
+- **Top 10 in Your Country:** The 10 most popular movies and TV shows in your region, detected automatically from your IP. Your location is shown briefly as a pill at the top (auto-dismisses). If detection fails this row is hidden.
+- **Now Playing / Currently On Air:** Movies in theatres and TV shows actively airing right now.
+- **Streaming Platform Rows:** Dedicated sections for **Netflix**, **Prime Video**, and **Disney+**, showing the latest releases from the last 6 months on each platform.
+- **Popular, Top Rated:** Browse what audiences love most.
+- **Upcoming Movies & TV Shows:** Titles releasing in the next 3 months. Click "See All →" to open the dedicated Coming Soon page.
 
-### 3. Instant Search
-Looking for something specific? Click **Search** in the navigation bar.
-* As you type, the platform queries thousands of titles instantly.
-* You can filter your search results to show *All*, just *Movies*, or just *TV Shows* using the pill tabs below the search bar.
+### 2. Coming Soon
+Click **"See All →"** on either Upcoming row, or navigate directly to `/upcoming`.
 
-### 4. Premium Watch Experience
-Once you click on a title, you'll be taken to the Watch page.
-* **Cinematic Layout:** Enjoy a massive, edge-to-edge video player with no wasted negative space.
-* **Ad-Free Proof of Concept:** We utilize a clean video provider integration that blocks aggressive pop-ups and redirects, ensuring an uninterrupted viewing experience. 
-* **TV Show Navigation:** If you are watching a series, a sleek sidebar (or bottom section on mobile) allows you to easily jump between Seasons and Episodes.
-* **Rich Metadata:** Read the overview, see the cast list (complete with photos), and find "More Like This" recommendations below the player.
+- Switches between movies and TV shows using the toggle at the top.
+- Loads more titles as you scroll (infinite scroll).
+- Titles shown match exactly what's on the homepage row.
 
-### 5. Installable App (PWA)
-CinemaPhora is a Progressive Web App (PWA), meaning you can install it directly to your phone or computer without going through an app store!
-* **How to Install:** When browsing CinemaPhora in Chrome, Edge, or Safari, look for the "Install App" icon in the URL bar, or open your browser menu and select "Add to Home Screen".
-* **Benefits:** Once installed, the app opens in a full-screen native window. It also caches images and data locally so the app loads instantly, even on a slow connection.
+### 3. Trending
+Click **"See All →"** on the Trending row, or navigate directly to `/trending`.
+
+- Filter between All, Movies, and TV Shows using the tabs at the top.
+- Infinite scroll through the week's global trending content.
+
+### 4. Provider Pages (Netflix / Prime Video / Disney+)
+Click **"See All →"** on any platform row.
+
+- Shows all movies or TV shows from that platform released in the last 6 months.
+- Toggle between Movies and TV Shows at the top.
+- Infinite scroll for deeper browsing.
+
+### 5. Discover
+Click **Discover** in the top navigation bar to access the full filtering engine.
+
+- **Filter by Media:** Toggle between Movies and TV Shows.
+- **Refine:** Narrow by Genre, Country of Origin, Release Year, and Minimum Rating.
+- **Sort:** By Popularity, Release Date, Rating, or Title.
+- Results load more automatically as you scroll.
+
+### 6. Instant Search
+Click **Search** in the navigation bar.
+
+- Results update dynamically as you type (300ms debounce).
+- Filter results to *All*, *Movies*, or *TV Shows* using the tabs below the search bar.
+- Infinite scroll loads additional pages automatically.
+
+### 7. Details Page
+Click any title card to open its detail page.
+
+- **Hero:** Backdrop art, rating chip, runtime/seasons count, and status badge.
+- **"Coming on [date]":** For upcoming movies or TV shows with a known air date, the Watch button is replaced with a date label so you know when to come back.
+- **Watch / View Episodes:** For available content, jump straight to the player. TV shows open an episode selector tab.
+- **Tabs:** *Watch* (TV only, hidden for upcoming shows), *Trailers*, *Cast*, *Reviews*.
+- **Recommendations & Similar:** Scroll down to discover more titles you might enjoy.
+
+### 8. Watch Page
+- **Cinematic player:** Edge-to-edge video player.
+- **Multiple Servers:** If one server fails to load, switch using the server buttons below the player.
+- **🎬 Lights Out:** Click to dim the surrounding UI for a focused viewing experience.
+- **TV Episode Navigation:** Season/episode selector to jump between episodes.
+
+### 9. Actor / Person Pages
+Click any cast member on a details page to see their full filmography and biography.
+
+### 10. Installable App (PWA)
+CinemaPhora is a Progressive Web App — install it directly to your device from the browser.
+
+- **How to Install:** In Chrome/Edge look for the install icon in the URL bar, or use *Add to Home Screen* in your browser menu.
+- **Benefits:** Launches in full-screen native mode. Images and data are cached locally for instant loads even on a slow connection.
 
 ---
 
 ## 🛠️ Troubleshooting
 
 **The video player isn't loading!**
-* Give it a few seconds. The player is fetching the highest quality stream available. 
-* Try disabling strict tracking prevention in your browser, as it can sometimes block the third-party video embed.
+- Give it a few seconds — the player fetches the highest quality stream available.
+- Try disabling strict tracking prevention in your browser; it can sometimes block the third-party video embed.
+- Switch to a different server using the buttons below the player.
 
 **Why does my mouse disappear when watching a video?**
-* This is a standard, intentional feature! To give you a distraction-free, immersive cinematic experience, the video player will hide your mouse cursor and the play controls after a few seconds of inactivity. Just wiggle your mouse to bring them back.
+- This is intentional. The player hides the cursor and controls after a few seconds of inactivity for an immersive experience. Wiggle your mouse to bring them back.
 
-**I'm seeing a red warning banner about a missing API key.**
-* This means the server hasn't been configured properly by the developer. Please contact the administrator of the site to ensure the `TMDB_API_KEY` is set.
+**The Top 10 row is not showing.**
+- This row requires a geo-location lookup. If your network blocks the geo service, or if the lookup fails, the row is hidden automatically.
+
+**I'm seeing a warning about a missing API key.**
+- The server hasn't been configured properly. Contact the site administrator to ensure `TMDB_API_KEY` is set.
+
+---
 
 Enjoy the show! 🍿

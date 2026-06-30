@@ -1,40 +1,69 @@
-# 🚀 Coming Soon: CinemaPhora Features
+# 🚀 CinemaPhora — Roadmap
 
-Here is a roadmap of upcoming features for CinemaPhora based on our recent brainstorming sessions.
+What's been shipped and what's planned next.
 
-## Personalization & State (The "Netflix" Experience)
-- [ ] **"Continue Watching" Row:** Track viewing progress and surface incomplete episodes/movies on the Home Page.
-- [ ] **Watchlists & Favorites:** Allow users to save titles for later (initially via `localStorage`).
-- [ ] **Watch History:** A dedicated tab showing previously watched content.
+---
 
-## Immersive UX & Content Enhancements
-- [ ] **Auto-playing Trailers:** Silently auto-play trailers in the background on the Home Page or Watch Page.
+## ✅ Shipped
+
+### Discovery & Navigation
+- [x] **Homepage Hero Carousel:** Auto-rotating banner cycling through top trending content with smooth fade transitions and indicator dots.
+- [x] **Trending This Week page** (`/trending`): Dedicated route hitting the TMDB trending endpoint — filterable by All / Movies / TV, with infinite scroll.
+- [x] **Coming Soon page** (`/upcoming`): Movies and TV shows releasing in the next 3 months. Matches the homepage row exactly.
+- [x] **Provider pages** (`/provider/[id]`): Dedicated routes for Netflix, Prime Video, and Disney+ showing releases from the last 6 months.
+- [x] **Correct "See All →" links:** Every homepage row links to its own purpose-built route (not a generic discover fallback).
+- [x] **Discover page deep-linking:** Supports `with_watch_providers`, date range, and all other TMDB filter params via URL.
+
+### Content Sections
+- [x] **Top 10 in Your Country:** Two rows (Movies + TV) built from geo-IP detection. Toast notification on detection. Hidden gracefully on failure.
+- [x] **Now Playing / Currently On Air:** Dedicated rows for theatrical releases and actively airing shows.
+- [x] **Netflix / Prime Video / Disney+ rows:** Six rows (movie + TV per provider), linked to correct provider pages.
+- [x] **Upcoming Movies & TV Shows:** Date-bounded to the next 3 months, sorted by popularity.
+- [x] **Popular Movies / TV Shows & Top Rated:** Standard discovery rows.
+
+### Details Page
+- [x] **"Coming on [date]" label:** For movies with a future `release_date`, and for TV shows with a future `next_episode_to_air.air_date`, the Watch button is replaced with a non-clickable date label.
+- [x] **Watch tab hidden for upcoming TV shows:** No episodes to stream yet — the tab is suppressed automatically.
+- [x] **Breadcrumb navigation:** Home → Media Type → Title.
+- [x] **Tabs:** Trailers, Cast, Reviews (Watch tab for TV when available).
+- [x] **Recommendations & Similar:** Scrollable rows below the player.
+
+### Player & Watch
+- [x] **Multi-server support:** Up to four streaming servers; user can switch if one fails.
+- [x] **🎬 Lights Out mode:** Dims surrounding UI for focused viewing.
+- [x] **TV Episode Selector:** Season/episode picker sidebar on the watch page.
+- [x] **URL cleanup:** Season/episode params stripped from the URL bar after load.
+
+### Search
+- [x] **Realtime search:** Debounced — results update as you type.
+- [x] **Type filter tabs:** All / Movies / TV Shows.
+- [x] **Infinite scroll:** Loads more pages automatically.
+
+### Technical
+- [x] **API key never exposed:** All TMDB calls from the client go through a server-side proxy route (`/api/tmdb/...`).
+- [x] **`Promise.allSettled` on homepage:** A single failing row never breaks the page.
+- [x] **Conditional sentinel:** IntersectionObserver sentinel is removed from the DOM when exhausted, preventing footer flash.
+- [x] **No function definitions inside `useEffect`:** Enforced across all components.
+- [x] **Dead code removed:** `ApiKeyModal`, `useApiKey`, `vercel.json`, scratch test files.
+- [x] **Installable PWA:** Offline image caching, service worker, manifest.
+- [x] **Native mobile support (Capacitor):** Back-button handling, fullscreen orientation, status bar management.
+- [x] **SEO metadata:** Dynamic `<title>` and Open Graph tags on all pages.
+
+---
+
+## 🔜 Planned
+
+### Personalisation & State
+- [ ] **"Continue Watching" Row:** Track viewing progress, surface incomplete episodes/movies on the homepage.
+- [ ] **Watchlists / Favourites:** Save titles for later (initially `localStorage`, migrated to DB when users grow).
+- [ ] **Watch History:** Dedicated page showing previously watched content.
+
+### Immersive UX
+- [ ] **Auto-playing Trailers:** Silent auto-play on the details page hero.
 - [ ] **Next Episode Auto-Play:** 10-second countdown to the next TV episode.
-- [ ] **Dedicated Actor/Director Pages:** Clickable cast lists leading to full filmography and biographies.
-- [ ] **Skeleton Loaders:** Replace generic loading spinners with animated Skeleton UI cards.
+- [ ] **Skeleton Loaders:** Replace spinners with animated skeleton cards.
 
-## Advanced Player Controls
-- [ ] **Picture-in-Picture (PiP):** Pop-out floating video window.
-- [ ] **Theatre Mode / Lights Out:** Dim the surrounding UI for focused viewing.
-- [ ] **Keyboard Shortcuts:** Standard media controls (Space to pause, F for fullscreen, etc.).
-
-## Technical & Platform Upgrades
-- [x] **Realtime Search:** The search page now updates results dynamically as you type.
-- [ ] **True OLED Dark Mode:** "True Black" theme for battery saving and low-light viewing.
-- [ ] **Dynamic Open Graph (SEO):** Rich previews when sharing links on social media and messaging apps.
-- [ ] **Offline Downloads:** Caching/downloading media for offline viewing (Capacitor/Android).
-
-# Brainstorming 2
-
-**1. The "Binge-Watcher" Episode Selector (You mentioned this earlier!)**
-Right now, watching a TV show requires manually entering the season and episode. We have all the season data now, so we could build a sleek sidebar (or dropdown) on the `/watch` page that lists all seasons and episodes. Users could just click an episode and immediately start watching, just like Netflix.
-
-**2. A "Theater Mode" or "Lights Out" Toggle**
-When a user is on the watch page, we could add a toggle that dims the rest of the UI (or makes it completely black) so the embedded video player pops out, creating a true cinematic experience.
-
-**3. Homepage Hero Carousel**
-Instead of showing just one movie in the hero banner on the homepage, we could build an auto-rotating carousel that cycles through the top 3-5 trending movies of the week, with smooth fade transitions and clickable indicator dots.
-
-**4. "My List" / Watchlist (Local Storage)**
-We could add a simple "Bookmark" or "Add to List" button on the details page. We can save this list to the user's browser (using `localStorage`) and create a dedicated `/watchlist` page where they can see all the movies and shows they plan to watch.
-
+### Technical
+- [ ] **True OLED Dark Mode:** "True Black" theme (`#000000`) for battery savings and low-light.
+- [ ] **Offline Downloads (Capacitor/Android):** Cache media for offline viewing on native builds.
+- [ ] **User accounts / database:** Required before any server-side personalisation features can ship.
