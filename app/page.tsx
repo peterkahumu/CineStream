@@ -10,7 +10,7 @@ import type { Metadata } from 'next'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
-  title: 'CinemaPhora | Your Ultimate Movie & TV Show Hub',
+  title: 'CinemaPhora',
   description: 'Discover trending movies, popular TV shows, and watch instantly on CinemaPhora.',
   openGraph: {
     title: 'CinemaPhora | Your Ultimate Movie & TV Show Hub',
@@ -99,17 +99,17 @@ export default async function HomePage() {
         />
 
         {/* Provider rows → dedicated /provider/[id] route */}
-        <MediaRow title="New Movies on Netflix"   emoji="🔴" items={ok(netflixM)}  seeAllHref="/provider/8?media=movie"   forcedType="movie" />
-        <MediaRow title="New TV Shows on Netflix"  emoji="🔴" items={ok(netflixTV)} seeAllHref="/provider/8?media=tv"      forcedType="tv" />
+        <MediaRow title="New Movies on Netflix" emoji="🔴" items={ok(netflixM)} seeAllHref="/provider/8?media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Netflix" emoji="🔴" items={ok(netflixTV)} seeAllHref="/provider/8?media=tv" forcedType="tv" />
 
-        <MediaRow title="New Movies on Prime Video"  emoji="🔵" items={ok(primeM)}   seeAllHref="/provider/9?media=movie" forcedType="movie" />
-        <MediaRow title="New TV Shows on Prime Video" emoji="🔵" items={ok(primeTV)}  seeAllHref="/provider/9?media=tv"    forcedType="tv" />
+        <MediaRow title="New Movies on Prime Video" emoji="🔵" items={ok(primeM)} seeAllHref="/provider/9?media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Prime Video" emoji="🔵" items={ok(primeTV)} seeAllHref="/provider/9?media=tv" forcedType="tv" />
 
-        <MediaRow title="New Movies on Disney+"    emoji="✨"  items={ok(disneyM)}  seeAllHref="/provider/337?media=movie" forcedType="movie" />
-        <MediaRow title="New TV Shows on Disney+"  emoji="✨"  items={ok(disneyTV)} seeAllHref="/provider/337?media=tv"    forcedType="tv" />
+        <MediaRow title="New Movies on Disney+" emoji="✨" items={ok(disneyM)} seeAllHref="/provider/337?media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Disney+" emoji="✨" items={ok(disneyTV)} seeAllHref="/provider/337?media=tv" forcedType="tv" />
 
-        <MediaRow title="Popular Movies"   emoji="🎞️" items={ok(popularMovies)} seeAllHref="/discover?media=movie&sort=popularity.desc" forcedType="movie" />
-        <MediaRow title="Popular TV Shows" emoji="📺" items={ok(popularTV)}    seeAllHref="/discover?media=tv&sort=popularity.desc"    forcedType="tv" />
+        <MediaRow title="Popular Movies" emoji="🎞️" items={ok(popularMovies)} seeAllHref="/discover?media=movie&sort=popularity.desc" forcedType="movie" />
+        <MediaRow title="Popular TV Shows" emoji="📺" items={ok(popularTV)} seeAllHref="/discover?media=tv&sort=popularity.desc" forcedType="tv" />
 
         {/* Upcoming → dedicated /upcoming route (same data as homepage rows) */}
         <MediaRow
@@ -127,8 +127,8 @@ export default async function HomePage() {
           forcedType="tv"
         />
 
-        <MediaRow title="Top Rated Movies"   emoji="⭐" items={ok(topMovies)} seeAllHref="/discover?media=movie&sort=vote_average.desc" forcedType="movie" />
-        <MediaRow title="Top Rated TV Shows" emoji="🏆" items={ok(topTV)}    seeAllHref="/discover?media=tv&sort=vote_average.desc"    forcedType="tv" />
+        <MediaRow title="Top Rated Movies" emoji="⭐" items={ok(topMovies)} seeAllHref="/discover?media=movie&sort=vote_average.desc" forcedType="movie" />
+        <MediaRow title="Top Rated TV Shows" emoji="🏆" items={ok(topTV)} seeAllHref="/discover?media=tv&sort=vote_average.desc" forcedType="tv" />
       </div>
     </main>
   )
