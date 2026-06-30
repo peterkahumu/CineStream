@@ -29,6 +29,15 @@ export default async function DiscoverPage(props: {
   if (searchParams.country)  apiParams['with_origin_country']    = searchParams.country
   if (searchParams.language) apiParams['with_original_language'] = searchParams.language
   if (searchParams.minRating) apiParams['vote_average.gte']      = searchParams.minRating
+  if (searchParams.with_watch_providers) {
+    apiParams['with_watch_providers'] = searchParams.with_watch_providers
+    apiParams['watch_region'] = searchParams.watch_region || 'US'
+  }
+  // Date range filters (used by upcoming / provider deep-links)
+  if (searchParams['primary_release_date.gte']) apiParams['primary_release_date.gte'] = searchParams['primary_release_date.gte']
+  if (searchParams['primary_release_date.lte']) apiParams['primary_release_date.lte'] = searchParams['primary_release_date.lte']
+  if (searchParams['first_air_date.gte'])       apiParams['first_air_date.gte']       = searchParams['first_air_date.gte']
+  if (searchParams['first_air_date.lte'])       apiParams['first_air_date.lte']       = searchParams['first_air_date.lte']
   if (searchParams.year) {
     if (media === 'movie') apiParams['primary_release_year'] = searchParams.year
     else                   apiParams['first_air_date_year']  = searchParams.year

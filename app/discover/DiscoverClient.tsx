@@ -35,6 +35,14 @@ export default function DiscoverClient({
       if (searchParams.country)   params['with_origin_country']    = searchParams.country
       if (searchParams.language)  params['with_original_language'] = searchParams.language
       if (searchParams.minRating) params['vote_average.gte']       = searchParams.minRating
+      if (searchParams.with_watch_providers) {
+        params['with_watch_providers'] = searchParams.with_watch_providers
+        params['watch_region'] = searchParams.watch_region || 'US'
+      }
+      if (searchParams['primary_release_date.gte']) params['primary_release_date.gte'] = searchParams['primary_release_date.gte']
+      if (searchParams['primary_release_date.lte']) params['primary_release_date.lte'] = searchParams['primary_release_date.lte']
+      if (searchParams['first_air_date.gte'])       params['first_air_date.gte']       = searchParams['first_air_date.gte']
+      if (searchParams['first_air_date.lte'])       params['first_air_date.lte']       = searchParams['first_air_date.lte']
       if (searchParams.year) {
         if (media === 'movie') params['primary_release_year'] = searchParams.year
         else                   params['first_air_date_year']  = searchParams.year
