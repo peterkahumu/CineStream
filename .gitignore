@@ -55,3 +55,4 @@ public/workbox*.js
 
 !.env.example
 
+proxy-worker/wrangler.toml

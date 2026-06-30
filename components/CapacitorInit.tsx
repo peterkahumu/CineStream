@@ -7,74 +7,99 @@ import { StatusBar } from '@capacitor/status-bar'
 import { App } from '@capacitor/app'
 import { useRouter } from 'next/navigation'
 
+// ─── Helper functions (defined outside useEffect) ─────────────────────────────
+
+async function setupSplashAndStatusBar() {
+  await SplashScreen.hide().catch((err) => console.error('Failed to hide splash screen:', err))
+  await StatusBar.setOverlaysWebView({ overlay: false }).catch((err) => console.log(err))
+  await StatusBar.setBackgroundColor({ color: '#0f172a' }).catch((err) => console.log(err))
+}
+
+function registerBackButton(router: ReturnType<typeof useRouter>) {
+  return App.addListener('backButton', () => {
+    if (window.location.pathname === '/') {
+      App.exitApp()
+    } else {
+      router.back()
+    }
+  })
+}
+
+async function handleFullscreenEnter(immersiveRef: { interval: NodeJS.Timeout | null }) {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    await import('@capacitor/screen-orientation')
+      .then(m => m.ScreenOrientation.lock({ orientation: 'landscape' }))
+      .catch(() => {})
+    await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {})
+    await StatusBar.hide().catch(() => {})
+
+    immersiveRef.interval = setInterval(() => {
+      if (document.fullscreenElement) {
+        StatusBar.hide().catch(() => {})
+      }
+    }, 2500)
+  } catch (error) {
+    console.error('Failed to enter fullscreen orientation:', error)
+  }
+}
+
+async function handleFullscreenExit(immersiveRef: { interval: NodeJS.Timeout | null }) {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    await import('@capacitor/screen-orientation')
+      .then(m => m.ScreenOrientation.unlock())
+      .catch(() => {})
+    await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+    await StatusBar.show().catch(() => {})
+    if (immersiveRef.interval) {
+      clearInterval(immersiveRef.interval)
+      immersiveRef.interval = null
+    }
+  } catch (error) {
+    console.error('Failed to exit fullscreen orientation:', error)
+  }
+}
+
+function createFullscreenHandler(immersiveRef: { interval: NodeJS.Timeout | null }) {
+  return () => {
+    if (document.fullscreenElement) {
+      handleFullscreenEnter(immersiveRef)
+    } else {
+      handleFullscreenExit(immersiveRef)
+    }
+  }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function CapacitorInit() {
   const router = useRouter()
 
   useEffect(() => {
-    // Hide the splash screen only when the React component tree is mounted.
-    if (Capacitor.isNativePlatform()) {
-      SplashScreen.hide().catch((err) => console.error('Failed to hide splash screen:', err))
-      // Keep the status bar visible, but prevent it from overlapping the app UI
-      StatusBar.setOverlaysWebView({ overlay: false }).catch((err) => console.log(err))
-      StatusBar.setBackgroundColor({ color: '#0f172a' }).catch((err) => console.log(err))
-      
-      // Handle the Android hardware back button
-      const backListener = App.addListener('backButton', () => {
-        if (window.location.pathname === '/') {
-          // If on the homepage, exit the app natively
-          App.exitApp()
-        } else {
-          // Otherwise, use Next.js routing to go back
-          router.back()
-        }
-      })
+    if (!Capacitor.isNativePlatform()) return
 
-      // Handle global fullscreen events (e.g. video player or trailers)
-      let immersiveInterval: NodeJS.Timeout | null = null
-      const handleFullscreenChange = async () => {
-        try {
-          if (document.fullscreenElement) {
-            setTimeout(async () => {
-              await import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.lock({ orientation: 'landscape' })).catch(() => {})
-              await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {})
-              await StatusBar.hide().catch(() => {})
+    // Object ref so the interval can be mutated across handler calls
+    const immersiveRef: { interval: NodeJS.Timeout | null } = { interval: null }
 
-              immersiveInterval = setInterval(() => {
-                if (document.fullscreenElement) {
-                  StatusBar.hide().catch(() => {})
-                }
-              }, 2500)
-            }, 300)
-          } else {
-            setTimeout(async () => {
-              await import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.unlock()).catch(() => {})
-              await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
-              await StatusBar.show().catch(() => {})
-              if (immersiveInterval) {
-                clearInterval(immersiveInterval)
-                immersiveInterval = null
-              }
-            }, 300)
-          }
-        } catch (error) {
-          console.error('Failed to change screen orientation:', error)
-        }
-      }
-      
-      document.addEventListener('fullscreenchange', handleFullscreenChange)
+    setupSplashAndStatusBar()
 
-      return () => {
-        backListener.then(l => l.remove()).catch(() => {})
-        document.removeEventListener('fullscreenchange', handleFullscreenChange)
-        if (immersiveInterval) clearInterval(immersiveInterval)
-        
-        // Failsafe on global unmount (though this rarely unmounts)
-        import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.unlock()).catch(() => {})
-        StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
-        StatusBar.show().catch(() => {})
-      }
+    const backListenerPromise = registerBackButton(router)
+
+    const handleFullscreenChange = createFullscreenHandler(immersiveRef)
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+
+    return () => {
+      backListenerPromise.then(l => l.remove()).catch(() => {})
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      if (immersiveRef.interval) clearInterval(immersiveRef.interval)
+
+      // Failsafe on unmount
+      import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.unlock()).catch(() => {})
+      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+      StatusBar.show().catch(() => {})
     }
   }, [router])
 
-  return null // This is a logic-only component
+  return null // Logic-only component
 }

@@ -5,6 +5,19 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import { discover, MediaItem } from '@/lib/tmdb'
 import styles from './page.module.css'
 
+function createScrollObserver(
+  sentinel: HTMLDivElement | null,
+  onIntersect: () => void,
+): (() => void) {
+  if (!sentinel) return () => {}
+  const observer = new IntersectionObserver(
+    entries => { if (entries[0].isIntersecting) onIntersect() },
+    { rootMargin: '300px' },
+  )
+  observer.observe(sentinel)
+  return () => observer.disconnect()
+}
+
 export default function DiscoverClient({
   initialItems,
   totalPages,
@@ -20,6 +33,9 @@ export default function DiscoverClient({
   const [exhausted, setExhausted] = useState(page >= Math.min(totalPages, 20))
   const sentinelRef = useRef<HTMLDivElement>(null)
 
+  // Upcoming pages have a future date filter — skip vote_count guard for those
+  const isUpcoming = !!(searchParams['primary_release_date.gte'] || searchParams['first_air_date.gte'])
+
   const loadMore = useCallback(async () => {
     const next = page + 1
     if (loadingMore || next > Math.min(totalPages, 20)) return
@@ -29,12 +45,20 @@ export default function DiscoverClient({
       const params: Record<string, string | number | boolean> = {
         sort_by: searchParams.sort || 'popularity.desc',
         page: next,
-        'vote_count.gte': 10,
+        ...(!isUpcoming && { 'vote_count.gte': 10 }),
       }
       if (searchParams.genre)     params['with_genres']            = searchParams.genre
       if (searchParams.country)   params['with_origin_country']    = searchParams.country
       if (searchParams.language)  params['with_original_language'] = searchParams.language
       if (searchParams.minRating) params['vote_average.gte']       = searchParams.minRating
+      if (searchParams.with_watch_providers) {
+        params['with_watch_providers'] = searchParams.with_watch_providers
+        params['watch_region'] = searchParams.watch_region || 'US'
+      }
+      if (searchParams['primary_release_date.gte']) params['primary_release_date.gte'] = searchParams['primary_release_date.gte']
+      if (searchParams['primary_release_date.lte']) params['primary_release_date.lte'] = searchParams['primary_release_date.lte']
+      if (searchParams['first_air_date.gte'])       params['first_air_date.gte']       = searchParams['first_air_date.gte']
+      if (searchParams['first_air_date.lte'])       params['first_air_date.lte']       = searchParams['first_air_date.lte']
       if (searchParams.year) {
         if (media === 'movie') params['primary_release_year'] = searchParams.year
         else                   params['first_air_date_year']  = searchParams.year
@@ -53,25 +77,13 @@ export default function DiscoverClient({
     } finally {
       setLoadingMore(false)
     }
-  }, [page, loadingMore, totalPages, searchParams])
+  }, [page, loadingMore, totalPages, searchParams, isUpcoming])
 
-  // IntersectionObserver — triggers loadMore when the sentinel scrolls into view
+  // Re-attach observer only when there is more to load
   useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loadingMore && !exhausted) {
-          loadMore()
-        }
-      },
-      { rootMargin: '300px' } // start loading 300px before the sentinel is visible
-    )
-
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [loadMore, loadingMore, exhausted])
+    if (exhausted) return
+    return createScrollObserver(sentinelRef.current, loadMore)
+  }, [loadMore, exhausted])
 
   if (items.length === 0) {
     return (
@@ -92,8 +104,10 @@ export default function DiscoverClient({
         ))}
       </div>
 
-      {/* Sentinel — observed by IntersectionObserver to trigger loadMore */}
-      <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
+      {/* Sentinel — only in DOM while there is more to load; prevents footer flash */}
+      {!exhausted && (
+        <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
+      )}
 
       {loadingMore && (
         <div className={styles.loadMoreWrap}>

@@ -5,6 +5,7 @@ import MediaRow from '@/components/MediaRow'
 import ScrollToTop from '@/components/ScrollToTop'
 import DetailsTabs from '@/components/DetailsTabs'
 import EpisodeSelector from '@/components/EpisodeSelector'
+import WatchTvButton from '@/components/WatchTvButton'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
@@ -132,6 +133,13 @@ export default async function DetailsPage(props: {
     trailers = vids.slice(0, 2).map((v: any) => ({ key: v.key, name: v.name, label: 'Trailer' }))
   }
 
+  // Hoist upcoming detection to component scope so both hero button and DetailsTabs can use it
+  // For TV: if first_air_date is in the future, the show hasn't premiered yet.
+  const upcomingDateStr = mediaType === 'tv'
+    ? (details.first_air_date || '')
+    : (details.release_date || '')
+  const isUpcoming = upcomingDateStr ? new Date(upcomingDateStr) > new Date() : false
+
   return (
     <main className={styles.main}>
       {/* ── HERO ──────────────────────────────────────────────────── */}
@@ -202,44 +210,28 @@ export default async function DetailsPage(props: {
           )}
           
           <div className={styles.actionsRow}>
-            {(() => {
-              const releaseDateStr = details.release_date || details.first_air_date || ''
-              const isUpcoming = releaseDateStr ? new Date(releaseDateStr) > new Date() : false
-
-              if (isUpcoming) {
-                return (
-                  <span className={`btn btn-primary ${styles.watchBtn}`} style={{ opacity: 0.8, cursor: 'default' }}>
-                    📅 Coming {new Date(releaseDateStr).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </span>
-                )
-              }
-
-              return mediaType === 'movie' ? (
-                <Link 
-                  href={`/watch/${id}?type=movie`} 
-                  className={`btn btn-primary ${styles.watchBtn}`}
-                >
-                  ▶ Watch Now
-                </Link>
-              ) : (
-                <Link 
-                  href={`/details/${id}?type=tv&tab=watch&s=1`} 
-                  className={`btn btn-primary ${styles.watchBtn}`}
-                  replace={true}
-                  scroll={false}
-                >
-                  ▶ View Episodes
-                </Link>
-              )
-            })()}
+            {isUpcoming ? (
+              <span className={`btn btn-primary ${styles.watchBtn}`} style={{ opacity: 0.8, cursor: 'default' }}>
+                📅 Coming {new Date(upcomingDateStr).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+              </span>
+            ) : mediaType === 'movie' ? (
+              <Link
+                href={`/watch/${id}?type=movie`}
+                className={`btn btn-primary ${styles.watchBtn}`}
+              >
+                ▶ Watch Now
+              </Link>
+            ) : (
+              <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
+            )}
           </div>
         </div>
       </div>
 
       <ScrollToTop />
 
-      <div className={`page-container ${styles.contentWrapper}`}>
-        <DetailsTabs activeTab={tab} mediaType={mediaType} id={id}>
+      <div className={`page-container ${styles.contentWrapper}`} id="media-tabs">
+        <DetailsTabs activeTab={tab} mediaType={mediaType} id={id} isUpcoming={isUpcoming}>
 
           {/* TAB: CAST */}
           {tab === 'cast' && (

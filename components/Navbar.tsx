@@ -5,6 +5,10 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
 import styles from './Navbar.module.css'
 
+function handleScrolled(setScrolled: (v: boolean) => void) {
+  setScrolled(window.scrollY > 10)
+}
+
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
@@ -41,7 +45,7 @@ export default function Navbar() {
   }, [fetchSearchResults])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
+    const onScroll = () => handleScrolled(setScrolled)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])

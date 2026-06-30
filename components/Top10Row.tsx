@@ -1,10 +1,46 @@
 'use client'
 
-import { useState, useEffect, useRef, Fragment } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import MediaCard from './MediaCard'
 import { MediaItem } from '@/lib/tmdb'
 import baseStyles from './MediaRow.module.css'
 import styles from './Top10Row.module.css'
+
+async function fetchTop10Data(
+  setCountry: (v: string) => void,
+  setMovieItems: (v: MediaItem[]) => void,
+  setTvItems: (v: MediaItem[]) => void,
+  setShowToast: (v: boolean) => void,
+  setError: (v: boolean) => void,
+  setLoading: (v: boolean) => void,
+) {
+  try {
+    const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json')
+    if (!geoRes.ok) throw new Error('Geo failed')
+    const geo = await geoRes.json()
+    setCountry(geo.country)
+
+    const [movieRes, tvRes] = await Promise.all([
+      fetch(`/api/tmdb/discover/movie?region=${geo.country_code}&sort_by=popularity.desc&page=1`),
+      fetch(`/api/tmdb/discover/tv?region=${geo.country_code}&sort_by=popularity.desc&page=1`),
+    ])
+
+    if (!movieRes.ok || !tvRes.ok) throw new Error('TMDB failed')
+
+    const movieData = await movieRes.json()
+    const tvData = await tvRes.json()
+
+    setMovieItems(movieData.results.slice(0, 10))
+    setTvItems(tvData.results.slice(0, 10))
+
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 5000)
+  } catch {
+    setError(true)
+  } finally {
+    setLoading(false)
+  }
+}
 
 export default function Top10Row() {
   const [movieItems, setMovieItems] = useState<MediaItem[]>([])
@@ -13,40 +49,12 @@ export default function Top10Row() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [showToast, setShowToast] = useState(false)
-  
+
   const scrollerMovieRef = useRef<HTMLDivElement>(null)
   const scrollerTvRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    async function fetchTop10() {
-      try {
-        const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json')
-        if (!geoRes.ok) throw new Error('Geo failed')
-        const geo = await geoRes.json()
-        setCountry(geo.country)
-
-        const [movieRes, tvRes] = await Promise.all([
-          fetch(`/api/tmdb/discover/movie?region=${geo.country_code}&sort_by=popularity.desc&page=1`),
-          fetch(`/api/tmdb/discover/tv?region=${geo.country_code}&sort_by=popularity.desc&page=1`)
-        ])
-        
-        if (!movieRes.ok || !tvRes.ok) throw new Error('TMDB failed')
-        
-        const movieData = await movieRes.json()
-        const tvData = await tvRes.json()
-        
-        setMovieItems(movieData.results.slice(0, 10))
-        setTvItems(tvData.results.slice(0, 10))
-        
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 5000) // auto dismiss after 5s
-      } catch (err) {
-        setError(true)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchTop10()
+    fetchTop10Data(setCountry, setMovieItems, setTvItems, setShowToast, setError, setLoading)
   }, [])
 
   if (error || (!loading && movieItems.length === 0 && tvItems.length === 0)) return null

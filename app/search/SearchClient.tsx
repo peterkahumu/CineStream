@@ -87,21 +87,20 @@ export default function SearchClient({
     }
   }, [initialQ, page, totalPages, loadingMore])
 
-  useEffect(() => {
+  function setupInfiniteScroll(target: HTMLDivElement | null, onIntersect: () => void) {
+    if (!target) return () => {}
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting) {
-          loadMore()
-        }
+        if (entries[0].isIntersecting) onIntersect()
       },
       { threshold: 0.1 }
     )
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current)
-    }
-
+    observer.observe(target)
     return () => observer.disconnect()
+  }
+
+  useEffect(() => {
+    return setupInfiniteScroll(observerTarget.current, loadMore)
   }, [loadMore])
 
   const typeOf = (r: MediaItem) => r.media_type || (r.first_air_date ? 'tv' : 'movie')
