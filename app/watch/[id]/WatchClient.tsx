@@ -20,15 +20,7 @@ interface Props {
   children?: React.ReactNode
 }
 
-function cleanWatchUrlParams() {
-  if (typeof window === 'undefined' || !window.history.replaceState) return
-  const url = new URL(window.location.href)
-  if (url.searchParams.has('s') || url.searchParams.has('e')) {
-    url.searchParams.delete('s')
-    url.searchParams.delete('e')
-    window.history.replaceState({}, '', url.toString())
-  }
-}
+// URL param cleaner removed to prevent Next.js soft navigation state bugs
 
 function restorePortraitOrientation() {
   if (Capacitor.isNativePlatform()) {
@@ -50,7 +42,6 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
 
   useEffect(() => {
-    cleanWatchUrlParams()
     return () => restorePortraitOrientation()
   }, [])
 

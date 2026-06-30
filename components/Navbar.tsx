@@ -9,6 +9,16 @@ function handleScrolled(setScrolled: (v: boolean) => void) {
   setScrolled(window.scrollY > 10)
 }
 
+const CATEGORY_LINKS = [
+  { href: '/trending',    label: 'Trending',       icon: '🔥' },
+  { href: '/popular',     label: 'Popular',         icon: '🎞️' },
+  { href: '/top-rated',   label: 'Top Rated',       icon: '⭐' },
+  { href: '/now-playing', label: 'Now Playing',     icon: '🎬' },
+  { href: '/upcoming',    label: 'Coming Soon',     icon: '🍿' },
+  { href: '/providers',   label: 'Providers',       icon: '📺' },
+  { href: '/discover',    label: 'Discover',        icon: '🧭' },
+]
+
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
@@ -18,7 +28,9 @@ export default function Navbar() {
   const [isFetching, setIsFetching] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const categoriesRef = useRef<HTMLDivElement>(null)
 
   const fetchSearchResults = useCallback(async () => {
     const q = query.trim()
@@ -50,13 +62,24 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Close categories dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
+        setCategoriesOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
   const handleKeyGlobal = useCallback((e: KeyboardEvent) => {
     if (e.key === '/' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
       e.preventDefault()
       setSearchOpen(true)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-    if (e.key === 'Escape') { setSearchOpen(false); setQuery('') }
+    if (e.key === 'Escape') { setSearchOpen(false); setQuery(''); setCategoriesOpen(false) }
   }, [])
 
   useEffect(() => {
@@ -72,10 +95,9 @@ export default function Navbar() {
     setMenuOpen(false)
   }
 
-  const navLinks = [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/discover', label: 'Discover', icon: '🧭' },
-    { href: '/search', label: 'Search', icon: '🔍' },
+  const primaryLinks = [
+    { href: '/', label: 'Home' },
+    { href: '/search', label: 'Search' },
   ]
 
   return (
@@ -91,7 +113,7 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <div className={styles.links}>
-          {navLinks.map(l => (
+          {primaryLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}
@@ -100,6 +122,40 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+
+          {/* Categories dropdown */}
+          <div className={styles.categoriesWrapper} ref={categoriesRef}>
+            <button
+              className={`${styles.link} ${styles.categoriesBtn} ${CATEGORY_LINKS.some(l => pathname.startsWith(l.href)) ? styles.active : ''}`}
+              onClick={() => setCategoriesOpen(o => !o)}
+              aria-expanded={categoriesOpen}
+            >
+              Browse
+              <svg
+                className={`${styles.chevron} ${categoriesOpen ? styles.chevronOpen : ''}`}
+                width="12" height="12" viewBox="0 0 12 12"
+                fill="none" stroke="currentColor" strokeWidth="2"
+              >
+                <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {categoriesOpen && (
+              <div className={styles.categoriesDropdown}>
+                {CATEGORY_LINKS.map(l => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className={`${styles.categoryItem} ${pathname.startsWith(l.href) && l.href !== '/' ? styles.active : ''}`}
+                    onClick={() => setCategoriesOpen(false)}
+                  >
+                    <span>{l.icon}</span>
+                    <span>{l.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right controls */}
@@ -183,14 +239,31 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — full category list */}
       {menuOpen && (
         <div className={styles.mobileMenu}>
-          {navLinks.map(l => (
+          <Link
+            href="/"
+            className={`${styles.mobileLink} ${pathname === '/' ? styles.active : ''}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            <span>🏠</span> Home
+          </Link>
+          <Link
+            href="/search"
+            className={`${styles.mobileLink} ${pathname === '/search' ? styles.active : ''}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            <span>🔍</span> Search
+          </Link>
+
+          <div className={styles.mobileSectionLabel}>Browse</div>
+
+          {CATEGORY_LINKS.map(l => (
             <Link
               key={l.href}
               href={l.href}
-              className={`${styles.mobileLink} ${pathname === l.href ? styles.active : ''}`}
+              className={`${styles.mobileLink} ${pathname.startsWith(l.href) ? styles.active : ''}`}
               onClick={() => setMenuOpen(false)}
             >
               <span>{l.icon}</span> {l.label}

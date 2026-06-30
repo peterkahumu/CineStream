@@ -60,6 +60,18 @@
   --space-lg:  24px;
   --space-xl:  40px;
   --space-2xl: 64px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  24px;
+    --space-2xl: 32px;
+  }
+}
+
+:root {
 
   /* Radius */
   --radius-sm:   4px;
@@ -73,9 +85,11 @@
   --transition-normal: 200ms ease;
 
   /* Layout */
-  --nav-height: 60px;
-  --max-w:      1600px;
-  --page-px:    clamp(16px, 4vw, 48px);
+  --nav-height:          60px;
+  --mobile-nav-height:   60px;
+  --mobile-header-height: 96px; /* 52px top bar + 44px pills */
+  --max-w:               1600px;
+  --page-px:             clamp(16px, 4vw, 48px);
 
   /* Z-index */
   --z-nav:   100;
@@ -135,6 +149,17 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 .page-content {
   padding-top: calc(var(--nav-height) + var(--space-xl));
   padding-bottom: var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding-top: calc(var(--mobile-header-height) + var(--space-lg));
+    padding-bottom: calc(var(--mobile-nav-height) + var(--space-xl));
+  }
+  /* Push footer above the mobile bottom nav */
+  footer {
+    margin-bottom: var(--mobile-nav-height);
+  }
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────────── */
@@ -253,7 +278,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
   margin-bottom: var(--space-md);
 }
 .section-title {
-  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
   font-weight: 700;
   color: var(--text-primary);
   display: flex;
@@ -267,6 +292,11 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
   height: 1em;
   background: var(--accent);
   border-radius: var(--radius-full);
+}
+
+@media (max-width: 768px) {
+  .section-header { margin-bottom: 10px; }
+  .section-title { font-size: 0.95rem; }
 }
 
 /* ─── Empty state ────────────────────────────────────────────────────────────── */
@@ -287,8 +317,8 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 /* ─── Media grid ─────────────────────────────────────────────────────────────── */
 .media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
 }
 @media (min-width: 640px)  { .media-grid { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); } }
 @media (min-width: 1024px) { .media-grid { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); } }

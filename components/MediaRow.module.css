@@ -8,7 +8,7 @@
 
 .scroller {
   display: flex;
-  gap: var(--space-md);
+  gap: 10px;
   overflow-x: auto;
   padding-bottom: var(--space-sm);
   scroll-snap-type: x mandatory;
@@ -21,17 +21,19 @@
 }
 
 .cardWrap {
-  flex: 0 0 148px;
+  flex: 0 0 100px;
   scroll-snap-align: start;
 }
+@media (min-width: 420px)  { .cardWrap { flex: 0 0 134px; } }
 @media (min-width: 640px)  { .cardWrap { flex: 0 0 168px; } }
 @media (min-width: 1024px) { .cardWrap { flex: 0 0 185px; } }
 
 .skeletonCard {
-  flex: 0 0 148px;
+  flex: 0 0 100px;
   aspect-ratio: 2/3;
   border-radius: var(--radius-lg);
 }
+@media (min-width: 420px)  { .skeletonCard { flex: 0 0 134px; } }
 @media (min-width: 640px)  { .skeletonCard { flex: 0 0 168px; } }
 @media (min-width: 1024px) { .skeletonCard { flex: 0 0 185px; } }
 

@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { Suspense } from 'react'
 import Navbar from '@/components/Navbar'
+import MobileHeader from '@/components/MobileHeader'
 import Footer from '@/components/Footer'
+import MobileNav from '@/components/MobileNav'
 import CapacitorInit from '@/components/CapacitorInit'
 
 export const viewport: Viewport = {
@@ -36,8 +39,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <CapacitorInit />
         <Navbar />
+        <Suspense fallback={<header style={{ height: 'var(--mobile-header-height)' }} />}>
+          <MobileHeader />
+        </Suspense>
         <div className="site-main">{children}</div>
         <Footer />
+        <MobileNav />
       </body>
     </html>
   )

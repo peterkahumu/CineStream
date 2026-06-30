@@ -10,10 +10,28 @@ export default function Footer() {
       <div className={styles.content}>
         <div className={styles.brand}>CinemaPhora</div>
         
-        <div className={styles.links}>
-          <Link href="/" className={styles.link}>Home</Link>
-          <Link href="/discover" className={styles.link}>Discover</Link>
-          <Link href="/search" className={styles.link}>Search</Link>
+        <div className={styles.linkGroups}>
+          <div className={styles.linkGroup}>
+            <div className={styles.groupLabel}>Browse</div>
+            <Link href="/" className={styles.link}>Home</Link>
+            <Link href="/trending" className={styles.link}>Trending</Link>
+            <Link href="/popular" className={styles.link}>Popular</Link>
+            <Link href="/top-rated" className={styles.link}>Top Rated</Link>
+          </div>
+          <div className={styles.linkGroup}>
+            <div className={styles.groupLabel}>Discover</div>
+            <Link href="/now-playing" className={styles.link}>Now Playing</Link>
+            <Link href="/upcoming" className={styles.link}>Coming Soon</Link>
+            <Link href="/discover" className={styles.link}>Discover</Link>
+            <Link href="/search" className={styles.link}>Search</Link>
+          </div>
+          <div className={styles.linkGroup}>
+            <div className={styles.groupLabel}>Providers</div>
+            <Link href="/providers" className={styles.link}>All Providers</Link>
+            <Link href="/provider/8" className={styles.link}>Netflix</Link>
+            <Link href="/provider/9" className={styles.link}>Prime Video</Link>
+            <Link href="/provider/337" className={styles.link}>Disney+</Link>
+          </div>
         </div>
 
         <p className={styles.disclaimer}>
