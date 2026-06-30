@@ -111,19 +111,19 @@ export default async function HomePage() {
         <MediaRow title="Popular Movies"   emoji="🎞️" items={ok(popularMovies)} seeAllHref="/discover?media=movie&sort=popularity.desc" forcedType="movie" />
         <MediaRow title="Popular TV Shows" emoji="📺" items={ok(popularTV)}    seeAllHref="/discover?media=tv&sort=popularity.desc"    forcedType="tv" />
 
-        {/* Upcoming — date-bounded discover with correct params */}
+        {/* Upcoming → dedicated /upcoming route (same data as homepage rows) */}
         <MediaRow
           title="Upcoming Movies"
           emoji="🍿"
           items={ok(upcomingMovies)}
-          seeAllHref={`/discover?media=movie&primary_release_date.gte=${todayStr}&primary_release_date.lte=${futureStr}&sort=primary_release_date.asc`}
+          seeAllHref="/upcoming?media=movie"
           forcedType="movie"
         />
         <MediaRow
           title="Upcoming TV Shows"
           emoji="📅"
           items={ok(upcomingTV)}
-          seeAllHref={`/discover?media=tv&first_air_date.gte=${todayStr}&first_air_date.lte=${futureStr}&sort=first_air_date.asc`}
+          seeAllHref="/upcoming?media=tv"
           forcedType="tv"
         />
 

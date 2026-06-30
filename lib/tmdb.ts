@@ -81,6 +81,7 @@ export interface ShowDetails extends MediaItem {
   aggregate_credits?: { cast: CastMember[] }
   reviews?: { results: Review[] }
   recommendations?: { results: MediaItem[] }
+  next_episode_to_air?: { air_date: string; episode_number: number; season_number: number } | null
 }
 
 export interface TMDBPage<T> {

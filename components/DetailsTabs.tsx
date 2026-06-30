@@ -7,12 +7,14 @@ interface Props {
   activeTab: 'watch' | 'trailers' | 'cast' | 'reviews'
   mediaType: 'movie' | 'tv'
   id: string
+  isUpcoming?: boolean
   children: React.ReactNode
 }
 
-export default function DetailsTabs({ activeTab, mediaType, id, children }: Props) {
+export default function DetailsTabs({ activeTab, mediaType, id, isUpcoming, children }: Props) {
   const tabs = [
-    ...(mediaType === 'tv' ? [{ id: 'watch', label: 'Watch' }] : []),
+    // Hide Watch tab for upcoming TV shows — there are no episodes to stream yet
+    ...(mediaType === 'tv' && !isUpcoming ? [{ id: 'watch', label: 'Watch' }] : []),
     { id: 'trailers', label: 'Trailers' },
     { id: 'cast', label: 'Cast' },
     { id: 'reviews', label: 'Reviews' }
