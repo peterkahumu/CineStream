@@ -4,9 +4,9 @@ import ProviderClient from './ProviderClient'
 
 // Static map of known provider IDs to display names and logos
 const PROVIDER_META: Record<number, { name: string; emoji: string; color: string }> = {
-  8:   { name: 'Netflix',   emoji: '🔴', color: '#e50914' },
-  350: { name: 'Apple TV+', emoji: '🍏', color: '#555555' },
-  337: { name: 'Disney+',   emoji: '✨', color: '#113ccf' },
+  8:   { name: 'Netflix',     emoji: '🔴', color: '#e50914' },
+  9:   { name: 'Prime Video', emoji: '🔵', color: '#00a8e1' },
+  337: { name: 'Disney+',    emoji: '✨', color: '#113ccf' },
 }
 
 export async function generateMetadata(props: {

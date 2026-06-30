@@ -42,7 +42,7 @@ export default async function HomePage() {
     trendingAll, popularMovies, popularTV, topMovies, topTV, nowPlaying, onAir,
     upcomingMovies, upcomingTV,
     netflixM, netflixTV,
-    appleM, appleTV,
+    primeM, primeTV,
     disneyM, disneyTV
   ] = await Promise.allSettled([
     getTrending('all', 'week'),
@@ -54,10 +54,10 @@ export default async function HomePage() {
     getOnAir(),
     getUpcomingMovies(),
     getUpcomingTV(),
-    getProviderContent(8, 'movie'), // Netflix
+    getProviderContent(8, 'movie'),   // Netflix
     getProviderContent(8, 'tv'),
-    getProviderContent(350, 'movie'), // Apple TV+
-    getProviderContent(350, 'tv'),
+    getProviderContent(9, 'movie'),   // Prime Video (US)
+    getProviderContent(9, 'tv'),
     getProviderContent(337, 'movie'), // Disney+
     getProviderContent(337, 'tv')
   ])
@@ -102,8 +102,8 @@ export default async function HomePage() {
         <MediaRow title="New Movies on Netflix"   emoji="🔴" items={ok(netflixM)}  seeAllHref="/provider/8?media=movie"   forcedType="movie" />
         <MediaRow title="New TV Shows on Netflix"  emoji="🔴" items={ok(netflixTV)} seeAllHref="/provider/8?media=tv"      forcedType="tv" />
 
-        <MediaRow title="New Movies on Apple TV+"  emoji="🍏" items={ok(appleM)}   seeAllHref="/provider/350?media=movie" forcedType="movie" />
-        <MediaRow title="New TV Shows on Apple TV+" emoji="🍏" items={ok(appleTV)}  seeAllHref="/provider/350?media=tv"    forcedType="tv" />
+        <MediaRow title="New Movies on Prime Video"  emoji="🔵" items={ok(primeM)}   seeAllHref="/provider/9?media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Prime Video" emoji="🔵" items={ok(primeTV)}  seeAllHref="/provider/9?media=tv"    forcedType="tv" />
 
         <MediaRow title="New Movies on Disney+"    emoji="✨"  items={ok(disneyM)}  seeAllHref="/provider/337?media=movie" forcedType="movie" />
         <MediaRow title="New TV Shows on Disney+"  emoji="✨"  items={ok(disneyTV)} seeAllHref="/provider/337?media=tv"    forcedType="tv" />
