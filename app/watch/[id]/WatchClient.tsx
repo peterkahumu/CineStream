@@ -16,6 +16,7 @@ interface Props {
   season: number
   episode: number
   title: string
+  backdrop?: string | null
   servers: StreamingServer[]
   children?: React.ReactNode
 }
@@ -70,56 +71,59 @@ export default function WatchClient({ mediaType, id, season, episode, title, ser
   }
 
   return (
-    <div className={styles.playerWrapper}>
-      {lightsOut && (
-        <div className={styles.lightsOutOverlay} onClick={() => setLightsOut(false)} />
-      )}
-      
-      <div className={`${styles.playerSection} ${lightsOut ? styles.playerSectionLightsOut : ''}`}>
-        <iframe
-          key={`${embedUrl}-${iframeKey}`}
-          src={embedUrl}
-          className={styles.player}
-          loading="eager"
-          title={`${title} player`}
-          allow="autoplay; picture-in-picture; encrypted-media"
-          allowFullScreen
-        />
-      </div>
-
-      {children}
-
-      <div className={styles.serverSelector}>
-        <span>If the video fails to load, try switching servers:</span>
-        {servers.map(s => (
-          <button
-            key={s.id}
-            className={`btn ${server === s.id ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
-            onClick={() => switchServer(s.id)}
-          >
-            {s.name}
-          </button>
-        ))}
-        
-        <button 
-          className={`btn ${styles.lightsOutBtn} ${lightsOut ? styles.lightsOutBtnActive : ''}`}
-          onClick={() => setLightsOut(!lightsOut)}
-          title="Toggle Theatre Mode"
-        >
-          {lightsOut ? '💡 Turn Lights On' : '🎬 Lights Out'}
-        </button>
-
-        {/* Escape hatch: bypass proxy if provider detects and blocks it */}
-        {PROXY_BASE && (
-          <button
-            className={`btn btn-secondary ${styles.serverBtn}`}
-            onClick={toggleDirectEmbed}
-            title={useDirectEmbed ? 'Switch back to ad-filtered mode' : 'Bypass the ad filter for this server'}
-          >
-            {useDirectEmbed ? '🛡️ Enable Filter' : '⚡ Direct Mode'}
-          </button>
+    <>
+      <div className={styles.playerWrapper}>
+        {lightsOut && (
+          <div className={styles.lightsOutOverlay} onClick={() => setLightsOut(false)} />
         )}
+        
+        <div className={`${styles.playerSection} ${lightsOut ? styles.playerSectionLightsOut : ''}`}>
+          <iframe
+            key={`${embedUrl}-${iframeKey}`}
+            src={embedUrl}
+            className={styles.player}
+            loading="eager"
+            title={`${title} player`}
+            allow="autoplay; picture-in-picture; encrypted-media"
+            allowFullScreen
+          />
+        </div>
+
+        <div className={styles.controlsPanel}>
+          {children}
+
+          <div className={styles.serverSelector}>
+            <span className={styles.serverLabel}>Servers:</span>
+            {servers.map(s => (
+              <button
+                key={s.id}
+                className={`btn ${server === s.id ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
+                onClick={() => switchServer(s.id)}
+              >
+                {s.name}
+              </button>
+            ))}
+            
+            <button 
+              className={`btn ${styles.lightsOutBtn} ${lightsOut ? styles.lightsOutBtnActive : ''}`}
+              onClick={() => setLightsOut(!lightsOut)}
+              title="Toggle Theatre Mode"
+            >
+              {lightsOut ? '💡 Turn Lights On' : '🎬 Lights Out'}
+            </button>
+
+            {PROXY_BASE && (
+              <button
+                className={`btn btn-secondary ${styles.serverBtn}`}
+                onClick={toggleDirectEmbed}
+                title={useDirectEmbed ? 'Switch back to ad-filtered mode' : 'Bypass the ad filter for this server'}
+              >
+                {useDirectEmbed ? '🛡️ Filter' : '⚡ Direct'}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

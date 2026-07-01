@@ -11,6 +11,12 @@
   margin-top: auto;
 }
 
+@media (max-width: 768px) {
+  .footer {
+    display: none;
+  }
+}
+
 .content {
   display: flex;
   flex-direction: column;

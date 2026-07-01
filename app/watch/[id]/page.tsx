@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import WatchClient from './WatchClient'
+import ScrollToTop from '@/components/ScrollToTop'
 import { getStreamingServers } from '@/lib/streamingProvider'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
-  mediaTitle,
+  mediaTitle, backdropUrl
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import styles from './page.module.css'
@@ -66,6 +67,7 @@ export default async function WatchPage(props: {
   }
 
   const title = mediaTitle(details)
+  const backdrop = backdropUrl(details.backdrop_path, 'original')
   const seasons = (details.seasons || []).filter((s: any) => s.season_number > 0)
 
   // Pre-fetch episode data server-side so EpisodeSelector doesn't need useEffect
@@ -81,6 +83,7 @@ export default async function WatchPage(props: {
 
   return (
     <main className={styles.main}>
+      <ScrollToTop />
       <div className={`page-container ${styles.container}`}>
         
         <div className={styles.header}>
@@ -100,6 +103,7 @@ export default async function WatchPage(props: {
               season={season}
               episode={episode}
               title={title}
+              backdrop={backdrop}
               servers={getStreamingServers()}
             >
               {/* TV episode quick nav */}
