@@ -1,10 +1,17 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import MediaCard from '@/components/MediaCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { MediaItem, TMDBPage } from '@/lib/tmdb'
+import styles from './ProviderClient.module.css'
+
+const PROVIDERS = [
+  { id: 8,   name: 'Netflix',     emoji: '🔴', color: '#e50914' },
+  { id: 9,   name: 'Prime Video', emoji: '🔵', color: '#00a8e1' },
+  { id: 337, name: 'Disney+',     emoji: '✨', color: '#113ccf' },
+]
 
 interface Props {
   initialItems: MediaItem[]
@@ -31,12 +38,12 @@ export default function ProviderClient({ initialItems, totalPages, providerId, m
   const [items, setItems] = useState<MediaItem[]>(initialItems)
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [exhausted, setExhausted] = useState(page >= Math.min(totalPages, 20))
+  const [exhausted, setExhausted] = useState(page >= Math.min(totalPages, 500))
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const loadMore = useCallback(async () => {
     const next = page + 1
-    if (loadingMore || next > Math.min(totalPages, 20)) return
+    if (loadingMore || next > Math.min(totalPages, 500)) return
     setLoadingMore(true)
     try {
       const sixMonthsAgo = new Date()
@@ -62,7 +69,7 @@ export default function ProviderClient({ initialItems, totalPages, providerId, m
         return [...prev, ...data.results.filter(i => !seen.has(i.id))]
       })
       setPage(next)
-      if (next >= Math.min(totalPages, 20)) setExhausted(true)
+      if (next >= Math.min(totalPages, 500)) setExhausted(true)
     } catch (e) {
       console.error('Failed to load more', e)
     } finally {
@@ -78,8 +85,30 @@ export default function ProviderClient({ initialItems, totalPages, providerId, m
     router.push(`/provider/${providerId}?media=${type}`)
   }
 
+  const switchProvider = (id: number) => {
+    router.push(`/provider/${id}?media=${mediaType}`)
+  }
+
   return (
     <>
+      {/* Provider switcher */}
+      <div className={styles.providerSwitcher}>
+        <span className={styles.switcherLabel}>Provider:</span>
+        <div className={styles.providerTabs}>
+          {PROVIDERS.map(p => (
+            <button
+              key={p.id}
+              onClick={() => switchProvider(p.id)}
+              className={`${styles.providerTab} ${providerId === p.id ? styles.activeProvider : ''}`}
+              style={providerId === p.id ? { borderColor: p.color, color: p.color } : {}}
+            >
+              <span>{p.emoji}</span>
+              <span className={styles.providerTabName}>{p.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Media type toggle */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 'var(--space-lg)' }}>
         {(['movie', 'tv'] as const).map(t => (

@@ -482,6 +482,14 @@
 
 /* ── MOBILE HORIZONTAL SCROLL ──────────────────────────────────────────────── */
 @media (max-width: 1023px) {
+  .contentWrapper {
+    gap: 16px;
+    padding-top: var(--space-md);
+  }
+  .tabSection {
+    gap: 16px;
+  }
+  
   .seasonGrid, .contentWrapper :global(.media-grid) {
     display: flex;
     flex-wrap: nowrap;
@@ -500,11 +508,11 @@
   }
   
   .seasonCard {
-    flex: 0 0 140px;
+    flex: 0 0 120px;
     scroll-snap-align: start;
   }
   .contentWrapper :global(.media-grid > *) {
-    flex: 0 0 148px;
+    flex: 0 0 100px;
     scroll-snap-align: start;
   }
 }

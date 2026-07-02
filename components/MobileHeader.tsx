@@ -1,0 +1,207 @@
+'use client'
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
+import styles from './MobileHeader.module.css'
+
+const CATEGORIES = [
+  { href: '/popular',     label: 'Popular',     icon: '🔥' },
+  { href: '/top-rated',   label: 'Top Rated',   icon: '⭐' },
+  { href: '/now-playing', label: 'In Theatres', icon: '🎬' },
+  { href: '/discover?genre=28', label: 'Action', icon: '💥' },
+  { href: '/discover?genre=35', label: 'Comedy', icon: '😂' },
+  { href: '/discover?genre=27', label: 'Horror', icon: '👻' },
+  { href: '/discover?genre=878', label: 'Sci-Fi', icon: '🛸' },
+  { href: '/discover?genre=10749', label: 'Romance', icon: '❤️' },
+  { href: '/discover?genre=80,9648', label: 'Crime & Mystery', icon: '🕵️' },
+  { href: '/discover?genre=10751', label: 'Family', icon: '🧸' },
+  { href: '/discover?genre=16&country=JP', label: 'Anime', icon: '🌸' },
+  { href: '/discover?media=tv&country=KR', label: 'K-Drama', icon: '🇰🇷' },
+  { href: '/discover?media=tv&genre=10764', label: 'Reality TV', icon: '💅' },
+  { href: '/discover?media=movie&country=IN', label: 'Bollywood', icon: '🇮🇳' },
+  { href: '/discover?sort=revenue.desc', label: 'Blockbusters', icon: '🍿' },
+]
+
+export default function MobileHeader() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<MediaItem[]>([])
+  const [isFetching, setIsFetching] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  const [locationName, setLocationName] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    // Attempt to load persisted location first
+    const cached = localStorage.getItem('user_location')
+    if (cached) {
+      setLocationName(cached)
+      return
+    }
+    // Fetch if not present (simulates a slow load)
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.country_name) {
+          setLocationName(data.country_name)
+          localStorage.setItem('user_location', data.country_name)
+        } else {
+          setLocationName('Global')
+        }
+      })
+      .catch(() => setLocationName('Global'))
+  }, [])
+
+  const fetchSearchResults = useCallback(async () => {
+    const q = query.trim()
+    if (!q) { setResults([]); return }
+    setIsFetching(true)
+    try {
+      const data = await searchMulti(q)
+      setResults((data.results || []).filter(r => r.media_type !== 'person').slice(0, 5))
+    } catch { /* ignore */ } finally { setIsFetching(false) }
+  }, [query])
+
+  useEffect(() => {
+    const timer = setTimeout(fetchSearchResults, 300)
+    return () => clearTimeout(timer)
+  }, [fetchSearchResults])
+
+  const submit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!query.trim()) return
+    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+    setShowResults(false)
+    setQuery('')
+    inputRef.current?.blur()
+  }
+
+  return (
+    <header className={styles.header}>
+      {/* Top bar: logo + search */}
+      <div className={styles.topBar}>
+        <Link href="/" className={styles.logo}>
+          <span className={styles.logoIcon}>🎬</span>
+          <span className={styles.logoText}>
+            Cinema<span className={styles.logoDot}>Phora</span>
+          </span>
+        </Link>
+
+        <div className={styles.searchWrap}>
+          <form onSubmit={submit} className={styles.searchForm}>
+            <span className={styles.searchIcon}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={e => { setQuery(e.target.value); setShowResults(true) }}
+              onFocus={() => setShowResults(true)}
+              onBlur={() => setTimeout(() => setShowResults(false), 200)}
+              placeholder="Search movies, TV shows…"
+              className={styles.searchInput}
+              id="mobile-search"
+            />
+            {query && (
+              <button
+                type="button"
+                className={styles.clearBtn}
+                onMouseDown={() => { setQuery(''); setResults([]) }}
+              >✕</button>
+            )}
+          </form>
+
+          {showResults && query && (
+            <div className={styles.searchDropdown}>
+              {results.map(item => (
+                <Link
+                  key={item.id}
+                  href={`/details/${item.id}?type=${mediaType(item)}`}
+                  className={styles.resultItem}
+                  onClick={() => { setShowResults(false); setQuery('') }}
+                >
+                  <img
+                    src={posterUrl(item.poster_path, 'w92') || ''}
+                    alt={item.title || item.name}
+                    className={styles.resultThumb}
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                  />
+                  <div>
+                    <div className={styles.resultTitle}>{item.title || item.name}</div>
+                    <div className={styles.resultMeta}>
+                      {item.media_type} · {(item.release_date || item.first_air_date || '').slice(0, 4)}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              {results.length > 0 && (
+                <button
+                  className={styles.resultViewAll}
+                  onMouseDown={() => submit()}
+                >
+                  See all results for &ldquo;{query}&rdquo; →
+                </button>
+              )}
+              {results.length === 0 && !isFetching && (
+                <div className={styles.resultEmpty}>No results found</div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Horizontally scrollable category pills */}
+      <nav className={styles.pillsNav} aria-label="Categories">
+        {CATEGORIES.map(cat => {
+          let active = false
+          if (cat.href.includes('?')) {
+            const currentUrl = `${pathname}?${searchParams.toString()}`
+            // We do a simple includes check because searchParams ordering might differ slightly, 
+            // but for our hardcoded links it's usually safe to check if the URL contains the query
+            active = pathname === cat.href.split('?')[0] && currentUrl.includes(cat.href.split('?')[1])
+          } else {
+            active = cat.href === '/' ? pathname === '/' : pathname.startsWith(cat.href)
+          }
+
+          return (
+            <Link
+              key={cat.href}
+              href={cat.href}
+              className={`${styles.pill} ${active ? styles.pillActive : ''}`}
+            >
+              <span className={styles.pillIcon}>{cat.icon}</span>
+              <span>{cat.label}</span>
+            </Link>
+          )
+        })}
+        {/* Dynamic Location Pill at the very end */}
+        <button
+          className={styles.pill}
+          onClick={() => {
+            // Future enhancement: Open location modal
+            localStorage.removeItem('user_location')
+            setLocationName('Locating...')
+            fetch('https://ipapi.co/json/')
+              .then(res => res.json())
+              .then(data => {
+                if (data.country_name) {
+                  setLocationName(data.country_name)
+                  localStorage.setItem('user_location', data.country_name)
+                } else { setLocationName('Global') }
+              })
+              .catch(() => setLocationName('Global'))
+          }}
+          title="Click to refresh location"
+        >
+          <span className={styles.pillIcon}>📍</span>
+          <span>{locationName || 'Locating...'}</span>
+        </button>
+      </nav>
+    </header>
+  )
+}

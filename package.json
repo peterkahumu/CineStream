@@ -17,18 +17,12 @@
     "@capacitor/screen-orientation": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.0",
-    "@definisi/vidsrc-scraper": "^2.0.2",
     "@ducanh2912/next-pwa": "^10.2.9",
-    "@usm0n/stream-utils": "^1.0.0",
-    "hls.js": "^1.6.16",
     "next": "16.2.9",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "vidsrc-utils": "github:heyitswit/vidsrc-bypass"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5",
-    "@eslint/eslintrc": "^3.3.5",
     "@opennextjs/cloudflare": "^1.20.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",

@@ -1,0 +1,124 @@
+/* Shown only on mobile — desktop gets no featured strip (hero covers it) */
+.strip {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .strip {
+    display: block;
+    position: relative;
+    z-index: 10;
+    margin-top: var(--space-md);
+    padding-bottom: var(--space-sm);
+  }
+
+  .scroller {
+    display: flex;
+    gap: 12px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  .scroller::-webkit-scrollbar { display: none; }
+
+  /* ── Each card ── */
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 calc(80% - 12px);
+    max-width: 280px;
+    scroll-snap-align: center;
+    padding: 8px;
+    background: #1e293b;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--transition-fast);
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .card:active { transform: scale(0.98); }
+
+  .cardActive {
+    border-color: rgba(255,255,255,0.2);
+    background: #283548;
+  }
+
+  /* ── Poster thumbnail ── */
+  .thumb {
+    position: relative;
+    width: 48px;
+    height: 68px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0f172a;
+    flex-shrink: 0;
+  }
+  .thumbImg { object-fit: cover; }
+  .thumbFallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ── Info ── */
+  .info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .cardType {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cardYear {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .cardTitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--font-sans);
+  }
+
+  .cardRating {
+    display: none; /* Hide rating to keep it clean like reference */
+  }
+
+  /* ── Play button ── */
+  .playBtn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #10b981; /* Green play button matching reference */
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin-right: 4px;
+  }
+  .playBtn svg { width: 16px; height: 16px; margin-left: 2px; }
+}

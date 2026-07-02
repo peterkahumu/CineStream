@@ -2,7 +2,8 @@
 // All calls go to /api/tmdb/* — the actual API key lives only in .env.local
 // and is never sent to the browser.
 
-export const IMG_BASE = 'https://image.tmdb.org/t/p'
+export const BASE_URL = 'https://api.themoviedb.org/3'
+const IMG_BASE = 'https://image.tmdb.org/t/p'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,7 +48,7 @@ export interface Episode {
   vote_average: number
 }
 
-export interface CastMember {
+interface CastMember {
   id: number
   name: string
   character: string
@@ -55,7 +56,7 @@ export interface CastMember {
   order: number
 }
 
-export interface Review {
+interface Review {
   id: string
   author: string
   content: string

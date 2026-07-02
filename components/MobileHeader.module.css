@@ -1,0 +1,202 @@
+/* Mobile-only — hidden on desktop */
+.header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .header {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-nav);
+    background: var(--nav-bg);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* ── Top bar ── */
+  .topBar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px 6px;
+    height: 52px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logoIcon { font-size: 1.1rem; }
+  .logoText {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .logoDot { color: var(--accent); }
+
+  /* ── Search ── */
+  .searchWrap {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+  }
+
+  .searchForm {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-full);
+    padding: 7px 12px 7px 10px;
+    gap: 6px;
+  }
+
+  .searchIcon {
+    color: rgba(255,255,255,0.4);
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 0.875rem;
+    min-width: 0;
+  }
+  .searchInput::placeholder { color: rgba(255,255,255,0.35); }
+
+  .clearBtn {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Search dropdown ── */
+  .searchDropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    animation: slideDown 0.15s ease both;
+  }
+
+  .resultItem {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    transition: background var(--transition-fast);
+  }
+  .resultItem:hover { background: rgba(255,255,255,0.06); }
+
+  .resultThumb {
+    width: 32px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #1e293b;
+    flex-shrink: 0;
+  }
+
+  .resultTitle {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .resultMeta {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: capitalize;
+  }
+
+  .resultViewAll {
+    padding: 12px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--accent);
+    background: none;
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .resultEmpty {
+    padding: 14px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* ── Category pills ── */
+  .pillsNav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 6px 14px 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .pillsNav::-webkit-scrollbar { display: none; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid transparent;
+    scroll-snap-align: start;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+  }
+  .pill:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+  }
+  .pillActive {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .pillIcon { font-size: 0.85rem; }
+}

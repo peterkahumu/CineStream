@@ -344,7 +344,7 @@ export default async function DetailsPage(props: {
         </DetailsTabs>
 
         {/* RECOMMENDATIONS (Always visible) */}
-        <div style={{ marginTop: 'var(--space-2xl)' }}>
+        <div style={{ marginTop: 'var(--space-2xl)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {recommendations.length > 0 && (
             <MediaRow
               title="Recommendations"

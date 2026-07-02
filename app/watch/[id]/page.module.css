@@ -1,7 +1,9 @@
 .main {
+  position: relative;
   padding-top: calc(var(--nav-height) + var(--space-lg));
   padding-bottom: var(--space-2xl);
-  min-height: 100%;
+  min-height: 100vh;
+  z-index: 1;
 }
 
 .container {
@@ -42,7 +44,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  max-width: 1200px;
+  max-width: 1400px; /* Wider for immersive player */
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -73,7 +76,14 @@
   border: none;
 }
 
-/* ── SERVER SELECTOR ─────────────────────────────────────────────────────── */
+/* ── CONTROLS PANEL ──────────────────────────────────────────────────────── */
+.controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  /* Removed the dark backdrop filter to maintain original legibility */
+}
+
 .serverSelector {
   display: flex;
   gap: 0.5rem;
@@ -87,16 +97,16 @@
 
 @media (max-width: 600px) {
   .serverSelector {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
+    flex-direction: row;
+    justify-content: center;
   }
 }
 
-.serverSelector span {
+.serverLabel {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
+  margin-right: 0.5rem;
 }
 
 .serverBtn {
@@ -162,10 +172,22 @@
   font-weight: 600;
   color: var(--text-primary);
 }
-.epNav { display: flex; gap: var(--space-sm); }
+.epNav { display: flex; gap: var(--space-md); flex-wrap: wrap; }
 .epNavBtn {
-  padding: 6px 14px;
-  font-size: 0.825rem;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-strong);
+  transition: all var(--transition-fast);
+}
+.epNavBtn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
 
 

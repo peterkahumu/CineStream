@@ -11,6 +11,12 @@ interface Props {
   priority?: boolean
 }
 
+function isUpcoming(item: MediaItem): boolean {
+  const dateStr = item.release_date || item.first_air_date
+  if (!dateStr) return false
+  return new Date(dateStr) > new Date()
+}
+
 export default function MediaCard({ item, forcedType, priority = false }: Props) {
   const [imgErr, setImgErr] = useState(false)
   const type = forcedType ?? getType(item)
@@ -19,6 +25,7 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
   const rating = item.vote_average?.toFixed(1)
   const poster = posterUrl(item.poster_path, 'w342')
   const href = `/details/${item.id}?type=${type}`
+  const upcoming = isUpcoming(item)
 
   return (
     <Link href={href} className={styles.card}>
@@ -48,16 +55,21 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
               <div className="rating">⭐ {rating}</div>
             )}
             <button className={`btn btn-primary ${styles.watchBtn}`}>
-              ▶ View
+              {upcoming ? '📅 View' : '▶ View'}
             </button>
           </div>
         </div>
 
-        {/* Rating badge (always visible) */}
+        {/* Rating badge (always visible) — hidden for upcoming with no rating */}
         {rating && Number(rating) > 0 && (
           <div className={styles.ratingBadge}>
             ⭐ {rating}
           </div>
+        )}
+
+        {/* Coming Soon badge for future releases */}
+        {upcoming && (
+          <div className={styles.comingSoonBadge}>🍿 Soon</div>
         )}
 
         {/* Type pill */}
