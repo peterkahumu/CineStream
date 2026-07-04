@@ -16,7 +16,8 @@ const WISHLIST_KEY = 'cinemaphora-wishlist'
 
 export default function ActionButtons({ id, mediaType, title, poster, backdrop }: Props) {
   const [inWishlist, setInWishlist] = useState(false)
-  const [showToast, setShowToast] = useState(false)
+  const [showWishlistToast, setShowWishlistToast] = useState(false)
+  const [showShareToast, setShowShareToast] = useState(false)
 
   // Avoid using inline functions in useEffect by wrapping with useCallback if needed,
   // but simple logic can be inside useEffect as long as dependencies are correct.
@@ -52,8 +53,8 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
           addedAt: Date.now()
         })
         setInWishlist(true)
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
+        setShowWishlistToast(true)
+        setTimeout(() => setShowWishlistToast(false), 3000)
       }
       
       localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
@@ -61,6 +62,29 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
       console.error('Failed to update wishlist', e)
     }
   }, [id, mediaType, title, poster, backdrop])
+
+  const handleShare = useCallback(async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Check out ${title}`,
+          text: `I found ${title} on CinemaPhora and thought you might like it!`,
+          url: url
+        })
+      } catch (err) {
+        // User might have cancelled the share, fail silently
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url)
+        setShowShareToast(true)
+        setTimeout(() => setShowShareToast(false), 3000)
+      } catch (err) {
+        console.error('Failed to copy', err)
+      }
+    }
+  }, [title])
 
   return (
     <div className={styles.actionsContainer}>
@@ -73,12 +97,27 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
         {inWishlist ? '💖' : '🤍'}
       </button>
 
-      {showToast && (
+      <button 
+        className={styles.iconBtn}
+        onClick={handleShare}
+        title="Share"
+        aria-label="Share media"
+      >
+        📤
+      </button>
+
+      {showWishlistToast && (
         <div className={styles.toast}>
           Added to Wishlist!
           <Link href="/wishlist" className={styles.toastLink}>
             View List
           </Link>
+        </div>
+      )}
+
+      {showShareToast && (
+        <div className={styles.toast}>
+          Copied link to clipboard!
         </div>
       )}
     </div>
