@@ -6,6 +6,7 @@ import ScrollToTop from '@/components/ScrollToTop'
 import DetailsTabs from '@/components/DetailsTabs'
 import EpisodeSelector from '@/components/EpisodeSelector'
 import WatchTvButton from '@/components/WatchTvButton'
+import ActionButtons from '@/components/ActionButtons'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
@@ -225,6 +226,13 @@ export default async function DetailsPage(props: {
             ) : (
               <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
             )}
+            <ActionButtons 
+              id={id} 
+              mediaType={mediaType} 
+              title={title} 
+              poster={details.poster_path} 
+              backdrop={details.backdrop_path} 
+            />
           </div>
         </div>
       </div>
