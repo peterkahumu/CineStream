@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function WishlistPage() {
   return (
-    <main style={{ paddingTop: '80px', minHeight: '100vh', paddingBottom: 'var(--space-2xl)' }}>
+    <main className="page-content">
       <ScrollToTop />
       <div className="page-container">
         <h1 style={{ fontSize: '2rem', marginBottom: 'var(--space-lg)' }}>
