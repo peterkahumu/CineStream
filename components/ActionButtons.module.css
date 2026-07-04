@@ -44,10 +44,27 @@
   box-shadow: var(--shadow-sm);
 }
 
-.iconBtn.active, .textBtn.active {
+.addBtn {
   color: #ffffff;
   border-color: var(--accent);
   background: var(--accent);
+}
+
+.addBtn:hover {
+  color: #ffffff;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.removeBtn {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--bg-surface);
+}
+
+.removeBtn:hover {
+  color: var(--red);
+  border-color: var(--red);
 }
 
 .toast {

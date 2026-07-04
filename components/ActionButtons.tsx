@@ -103,7 +103,7 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
     <>
       <div className={styles.actionsContainer}>
         <button 
-          className={`${styles.textBtn} ${inWishlist ? styles.active : ''}`}
+          className={`${styles.textBtn} ${inWishlist ? styles.removeBtn : styles.addBtn}`}
           onClick={toggleWishlist}
           title={inWishlist ? "Remove from My List" : "Add to My List"}
         >
