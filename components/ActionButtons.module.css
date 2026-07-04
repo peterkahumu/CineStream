@@ -45,9 +45,9 @@
 }
 
 .iconBtn.active, .textBtn.active {
-  color: var(--accent);
+  color: #ffffff;
   border-color: var(--accent);
-  background: var(--accent-subtle);
+  background: var(--accent);
 }
 
 .toast {

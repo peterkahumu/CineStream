@@ -48,7 +48,7 @@
 
 .poster {
   position: relative;
-  aspect-ratio: 2/3;
+  padding-bottom: 150%;
   width: 100%;
   background: var(--bg-muted);
   overflow: hidden;
