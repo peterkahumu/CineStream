@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Modal from './Modal'
 import styles from './ActionButtons.module.css'
 
 interface Props {
@@ -18,6 +19,7 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
   const [inWishlist, setInWishlist] = useState(false)
   const [showWishlistToast, setShowWishlistToast] = useState(false)
   const [showShareToast, setShowShareToast] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Avoid using inline functions in useEffect by wrapping with useCallback if needed,
   // but simple logic can be inside useEffect as long as dependencies are correct.
@@ -41,8 +43,7 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
       const exists = list.some((item: any) => String(item.id) === String(id))
       
       if (exists) {
-        list = list.filter((item: any) => String(item.id) !== String(id))
-        setInWishlist(false)
+        setIsModalOpen(true)
       } else {
         list.push({
           id,
@@ -55,13 +56,25 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
         setInWishlist(true)
         setShowWishlistToast(true)
         setTimeout(() => setShowWishlistToast(false), 3000)
+        localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
       }
-      
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
     } catch (e) {
       console.error('Failed to update wishlist', e)
     }
   }, [id, mediaType, title, poster, backdrop])
+
+  const confirmRemove = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(WISHLIST_KEY)
+      let list = stored ? JSON.parse(stored) : []
+      list = list.filter((item: any) => String(item.id) !== String(id))
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
+      setInWishlist(false)
+      setIsModalOpen(false)
+    } catch (e) {
+      console.error('Failed to remove from wishlist', e)
+    }
+  }, [id])
 
   const handleShare = useCallback(async () => {
     const url = window.location.href
@@ -87,39 +100,48 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
   }, [title])
 
   return (
-    <div className={styles.actionsContainer}>
-      <button 
-        className={`${styles.iconBtn} ${inWishlist ? styles.active : ''}`}
-        onClick={toggleWishlist}
-        title={inWishlist ? "Remove from My List" : "Add to My List"}
-        aria-label="Wishlist toggle"
-      >
-        {inWishlist ? '💖' : '🤍'}
-      </button>
+    <>
+      <div className={styles.actionsContainer}>
+        <button 
+          className={`${styles.textBtn} ${inWishlist ? styles.active : ''}`}
+          onClick={toggleWishlist}
+          title={inWishlist ? "Remove from My List" : "Add to My List"}
+        >
+          {inWishlist ? 'Remove from My List' : 'Add to My List'}
+        </button>
 
-      <button 
-        className={styles.iconBtn}
-        onClick={handleShare}
-        title="Share"
-        aria-label="Share media"
-      >
-        📤
-      </button>
+        <button 
+          className={styles.textBtn}
+          onClick={handleShare}
+          title="Share"
+        >
+          Share
+        </button>
 
-      {showWishlistToast && (
-        <div className={styles.toast}>
-          Added to Wishlist!
-          <Link href="/wishlist" className={styles.toastLink}>
-            View List
-          </Link>
-        </div>
-      )}
+        {showWishlistToast && (
+          <div className={styles.toast}>
+            Added to Wishlist!
+            <Link href="/wishlist" className={styles.toastLink}>
+              View List
+            </Link>
+          </div>
+        )}
 
-      {showShareToast && (
-        <div className={styles.toast}>
-          Copied link to clipboard!
-        </div>
-      )}
-    </div>
+        {showShareToast && (
+          <div className={styles.toast}>
+            Copied link to clipboard!
+          </div>
+        )}
+      </div>
+
+      <Modal 
+        isOpen={isModalOpen}
+        title="Remove from My List"
+        description={`Are you sure you want to remove "${title}" from your list?`}
+        confirmText="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setIsModalOpen(false)}
+      />
+    </>
   )
 }

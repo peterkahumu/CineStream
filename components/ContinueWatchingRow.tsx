@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import Modal from './Modal'
 import styles from './ContinueWatchingRow.module.css'
 
 interface SavedProgress {
@@ -21,6 +22,7 @@ interface SavedProgress {
 
 export default function ContinueWatchingRow() {
   const [items, setItems] = useState<SavedProgress[]>([])
+  const [itemToRemove, setItemToRemove] = useState<SavedProgress | null>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -47,11 +49,18 @@ export default function ContinueWatchingRow() {
     setItems(loaded)
   }
 
-  function removeItem(key: string, e: React.MouseEvent) {
+  function requestRemove(item: SavedProgress, e: React.MouseEvent) {
     e.preventDefault() // prevent link navigation
     e.stopPropagation()
-    localStorage.removeItem(key)
-    loadItems()
+    setItemToRemove(item)
+  }
+
+  function confirmRemove() {
+    if (itemToRemove) {
+      localStorage.removeItem(itemToRemove.key)
+      loadItems()
+      setItemToRemove(null)
+    }
   }
 
   const scroll = (direction: 'left' | 'right') => {
@@ -98,7 +107,7 @@ export default function ContinueWatchingRow() {
         </button>
 
         <div className={styles.scroller} ref={scrollerRef}>
-          {items.map(item => {
+          {items.map((item, i) => {
             const progress = item.duration ? Math.min(100, Math.max(0, (item.time / item.duration) * 100)) : 0
             const url = item.mediaType === 'movie' 
               ? `/watch/${item.id}?type=movie` 
@@ -118,13 +127,14 @@ export default function ContinueWatchingRow() {
                         fill 
                         className={styles.img} 
                         sizes="(max-width: 640px) 150px, (max-width: 1024px) 175px, 190px" 
+                        priority={i < 4}
                       />
                     ) : (
                       <div className={styles.noImg}>🎬</div>
                     )}
                     <button 
                       className={styles.removeBtn} 
-                      onClick={(e) => removeItem(item.key, e)} 
+                      onClick={(e) => requestRemove(item, e)} 
                       title="Remove from row"
                     >
                       ×
@@ -159,6 +169,15 @@ export default function ContinueWatchingRow() {
           ›
         </button>
       </div>
+
+      <Modal 
+        isOpen={!!itemToRemove}
+        title="Remove Continue Watching"
+        description={`Are you sure you want to remove "${itemToRemove?.title}" from your continue watching row?`}
+        confirmText="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setItemToRemove(null)}
+      />
     </section>
   )
 }

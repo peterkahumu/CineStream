@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Capacitor } from '@capacitor/core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
@@ -43,6 +44,8 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
   const [server, setServer] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [lightsOut, setLightsOut] = useState(false)
+  const [currentSeason, setCurrentSeason] = useState(season)
+  const [currentEpisode, setCurrentEpisode] = useState(episode)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
 
   // New state for CineSrc integration
@@ -94,10 +97,12 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
         }
         break
       case 'cinesrc:nextepisode':
-        if (data.internalNavigation) {
-          // Update the URL without reloading the page/iframe
-          window.history.replaceState(null, '', `/watch/${id}?type=tv&s=${data.season}&e=${data.episode}`)
-        }
+        // Update URL without full page reload
+        window.history.replaceState(null, '', `/watch/${id}?type=${mediaType}&s=${data.season}&e=${data.episode}`)
+        // Update local state to instantly reflect in UI
+        setCurrentSeason(data.season)
+        setCurrentEpisode(data.episode)
+        setStartTime(0) // Start the new episode from the beginning
         break
       case 'cinesrc:close':
         // Handle integrated back button
@@ -127,7 +132,7 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
   }
 
   const activeServerObj = servers.find(s => s.id === server) || servers[0]
-  const rawEmbedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, season, episode, {
+  const rawEmbedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, currentSeason, currentEpisode, {
     startTime,
     autoSkip,
     color: '%232563eb', // Matches --accent in globals.css
@@ -170,6 +175,30 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
         </div>
 
         <div className={styles.controlsPanel}>
+          {mediaType === 'tv' && (
+            <div className={styles.quickEp}>
+              <span className={styles.quickLabel}>
+                📺 Season {currentSeason}, Episode {currentEpisode}
+              </span>
+              <div className={styles.epNav}>
+                {(currentSeason > 1 || currentEpisode > 1) && (
+                  <Link
+                    href={`/watch/${id}?type=tv&s=${currentEpisode > 1 ? currentSeason : currentSeason - 1}&e=${currentEpisode > 1 ? currentEpisode - 1 : 1}`}
+                    className={`btn btn-secondary ${styles.epNavBtn}`}
+                  >
+                    ← Prev
+                  </Link>
+                )}
+                <Link
+                  href={`/watch/${id}?type=tv&s=${currentSeason}&e=${currentEpisode + 1}`}
+                  className={`btn btn-secondary ${styles.epNavBtn}`}
+                >
+                  Next →
+                </Link>
+              </div>
+            </div>
+          )}
+
           {children}
 
           <div className={styles.serverSelector}>

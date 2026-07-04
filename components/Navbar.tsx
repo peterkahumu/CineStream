@@ -98,6 +98,7 @@ export default function Navbar() {
   const primaryLinks = [
     { href: '/', label: 'Home' },
     { href: '/search', label: 'Search' },
+    { href: '/wishlist', label: 'My List' },
   ]
 
   return (
@@ -255,6 +256,13 @@ export default function Navbar() {
             onClick={() => setMenuOpen(false)}
           >
             <span>🔍</span> Search
+          </Link>
+          <Link
+            href="/wishlist"
+            className={`${styles.mobileLink} ${pathname === '/wishlist' ? styles.active : ''}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            <span>💖</span> My List
           </Link>
 
           <div className={styles.mobileSectionLabel}>Browse</div>

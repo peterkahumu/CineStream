@@ -20,14 +20,31 @@
   font-size: 1.25rem;
 }
 
-.iconBtn:hover {
+.textBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.95rem;
+  font-weight: 500;
+  gap: 8px;
+}
+
+.iconBtn:hover, .textBtn:hover {
   background: var(--bg-hover);
   border-color: var(--accent);
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
 
-.iconBtn.active {
+.iconBtn.active, .textBtn.active {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-subtle);
