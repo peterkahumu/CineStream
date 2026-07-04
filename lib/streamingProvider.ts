@@ -56,7 +56,13 @@ export function buildEmbedUrl(
   type: 'movie' | 'tv',
   id: number | string,
   season?: number,
-  episode?: number
+  episode?: number,
+  options?: {
+    startTime?: number
+    autoSkip?: boolean
+    color?: string
+    back?: string
+  }
 ): string {
   const s = season ?? 1
   const e = episode ?? 1
@@ -100,6 +106,20 @@ export function buildEmbedUrl(
   }
 
   // default to cinesrc
-  if (type == "movie") return `${base}/embed/movie/${id}`
-  return `${base}/embed/tv/${id}?s=${s}&e=${e}`
+  const url = type === 'movie' ? `${base}/embed/movie/${id}` : `${base}/embed/tv/${id}`
+  const params = new URLSearchParams()
+  if (type === 'tv') {
+    params.set('s', String(s))
+    params.set('e', String(e))
+  }
+  if (options?.startTime) {
+    params.set('t', String(Math.floor(options.startTime)))
+    params.set('continueprompt', 'false')
+  }
+  if (options?.autoSkip) params.set('autoskip', 'true')
+  if (options?.color) params.set('color', options.color)
+  if (options?.back) params.set('back', options.back)
+  
+  const qs = params.toString()
+  return qs ? `${url}?${qs}` : url
 }

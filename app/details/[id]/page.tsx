@@ -60,6 +60,7 @@ export default async function DetailsPage(props: {
   const mediaType = searchParams.type === 'tv' ? 'tv' : 'movie'
   
   // Enforce valid tab types
+  // tabs: default to watch for tv shows, trailers for movies
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
   const tab: 'watch' | 'trailers' | 'cast' | 'reviews' = 
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :

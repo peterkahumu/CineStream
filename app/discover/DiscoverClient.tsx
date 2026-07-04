@@ -9,7 +9,7 @@ function createScrollObserver(
   sentinel: HTMLDivElement | null,
   onIntersect: () => void,
 ): (() => void) {
-  if (!sentinel) return () => {}
+  if (!sentinel) return () => { }
   const observer = new IntersectionObserver(
     entries => { if (entries[0].isIntersecting) onIntersect() },
     { rootMargin: '300px' },
@@ -47,21 +47,21 @@ export default function DiscoverClient({
         page: next,
         ...(!isUpcoming && { 'vote_count.gte': 10 }),
       }
-      if (searchParams.genre)     params['with_genres']            = searchParams.genre
-      if (searchParams.country)   params['with_origin_country']    = searchParams.country
-      if (searchParams.language)  params['with_original_language'] = searchParams.language
-      if (searchParams.minRating) params['vote_average.gte']       = searchParams.minRating
+      if (searchParams.genre) params['with_genres'] = searchParams.genre
+      if (searchParams.country) params['with_origin_country'] = searchParams.country
+      if (searchParams.language) params['with_original_language'] = searchParams.language
+      if (searchParams.minRating) params['vote_average.gte'] = searchParams.minRating
       if (searchParams.with_watch_providers) {
         params['with_watch_providers'] = searchParams.with_watch_providers
         params['watch_region'] = searchParams.watch_region || 'US'
       }
       if (searchParams['primary_release_date.gte']) params['primary_release_date.gte'] = searchParams['primary_release_date.gte']
       if (searchParams['primary_release_date.lte']) params['primary_release_date.lte'] = searchParams['primary_release_date.lte']
-      if (searchParams['first_air_date.gte'])       params['first_air_date.gte']       = searchParams['first_air_date.gte']
-      if (searchParams['first_air_date.lte'])       params['first_air_date.lte']       = searchParams['first_air_date.lte']
+      if (searchParams['first_air_date.gte']) params['first_air_date.gte'] = searchParams['first_air_date.gte']
+      if (searchParams['first_air_date.lte']) params['first_air_date.lte'] = searchParams['first_air_date.lte']
       if (searchParams.year) {
         if (media === 'movie') params['primary_release_year'] = searchParams.year
-        else                   params['first_air_date_year']  = searchParams.year
+        else params['first_air_date_year'] = searchParams.year
       }
 
       const data = await discover({ media, ...params } as any)
@@ -104,7 +104,7 @@ export default function DiscoverClient({
         ))}
       </div>
 
-      {/* Sentinel — only in DOM while there is more to load; prevents footer flash */}
+      {/* Sentinel — only in DOM while tinhere is more to load; prevents footer flash */}
       {!exhausted && (
         <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
       )}
