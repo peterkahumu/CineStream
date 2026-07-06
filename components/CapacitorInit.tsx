@@ -42,8 +42,8 @@ async function handleFullscreenEnter(immersiveRef: { interval: NodeJS.Timeout | 
       }, 2500)
     } else {
       try {
-        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && window.screen.orientation.lock) {
-          await window.screen.orientation.lock('landscape').catch(() => {})
+        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).lock) {
+          await (window.screen.orientation as any).lock('landscape').catch(() => {})
         }
       } catch (err) {}
     }
@@ -67,8 +67,8 @@ async function handleFullscreenExit(immersiveRef: { interval: NodeJS.Timeout | n
       }
     } else {
       try {
-        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && window.screen.orientation.unlock) {
-          window.screen.orientation.unlock()
+        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
+          (window.screen.orientation as any).unlock()
         }
       } catch (err) {}
     }
@@ -113,8 +113,8 @@ function setupListeners(router: ReturnType<typeof useRouter>) {
       StatusBar.show().catch(() => {})
     } else {
       try {
-        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && window.screen.orientation.unlock) {
-          window.screen.orientation.unlock()
+        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
+          (window.screen.orientation as any).unlock()
         }
       } catch (e) {}
     }
