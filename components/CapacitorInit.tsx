@@ -28,17 +28,25 @@ function registerBackButton(router: ReturnType<typeof useRouter>) {
 async function handleFullscreenEnter(immersiveRef: { interval: NodeJS.Timeout | null }) {
   try {
     await new Promise(resolve => setTimeout(resolve, 300))
-    await import('@capacitor/screen-orientation')
-      .then(m => m.ScreenOrientation.lock({ orientation: 'landscape' }))
-      .catch(() => {})
-    await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {})
-    await StatusBar.hide().catch(() => {})
+    if (Capacitor.isNativePlatform()) {
+      await import('@capacitor/screen-orientation')
+        .then(m => m.ScreenOrientation.lock({ orientation: 'landscape' }))
+        .catch(() => {})
+      await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {})
+      await StatusBar.hide().catch(() => {})
 
-    immersiveRef.interval = setInterval(() => {
-      if (document.fullscreenElement) {
-        StatusBar.hide().catch(() => {})
-      }
-    }, 2500)
+      immersiveRef.interval = setInterval(() => {
+        if (document.fullscreenElement) {
+          StatusBar.hide().catch(() => {})
+        }
+      }, 2500)
+    } else {
+      try {
+        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).lock) {
+          await (window.screen.orientation as any).lock('landscape').catch(() => {})
+        }
+      } catch (err) {}
+    }
   } catch (error) {
     console.error('Failed to enter fullscreen orientation:', error)
   }
@@ -47,14 +55,22 @@ async function handleFullscreenEnter(immersiveRef: { interval: NodeJS.Timeout | 
 async function handleFullscreenExit(immersiveRef: { interval: NodeJS.Timeout | null }) {
   try {
     await new Promise(resolve => setTimeout(resolve, 300))
-    await import('@capacitor/screen-orientation')
-      .then(m => m.ScreenOrientation.unlock())
-      .catch(() => {})
-    await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
-    await StatusBar.show().catch(() => {})
-    if (immersiveRef.interval) {
-      clearInterval(immersiveRef.interval)
-      immersiveRef.interval = null
+    if (Capacitor.isNativePlatform()) {
+      await import('@capacitor/screen-orientation')
+        .then(m => m.ScreenOrientation.unlock())
+        .catch(() => {})
+      await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+      await StatusBar.show().catch(() => {})
+      if (immersiveRef.interval) {
+        clearInterval(immersiveRef.interval)
+        immersiveRef.interval = null
+      }
+    } else {
+      try {
+        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
+          (window.screen.orientation as any).unlock()
+        }
+      } catch (err) {}
     }
   } catch (error) {
     console.error('Failed to exit fullscreen orientation:', error)
@@ -71,34 +87,48 @@ function createFullscreenHandler(immersiveRef: { interval: NodeJS.Timeout | null
   }
 }
 
+function setupListeners(router: ReturnType<typeof useRouter>) {
+  const immersiveRef: { interval: NodeJS.Timeout | null } = { interval: null }
+  const handleFullscreenChange = createFullscreenHandler(immersiveRef)
+  
+  let backListenerPromise: Promise<import('@capacitor/core').PluginListenerHandle> | null = null
+
+  document.addEventListener('fullscreenchange', handleFullscreenChange)
+
+  if (Capacitor.isNativePlatform()) {
+    setupSplashAndStatusBar()
+    backListenerPromise = registerBackButton(router)
+  }
+
+  return () => {
+    if (backListenerPromise) {
+      backListenerPromise.then(l => l.remove()).catch(() => {})
+    }
+    document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    if (immersiveRef.interval) clearInterval(immersiveRef.interval)
+
+    if (Capacitor.isNativePlatform()) {
+      import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.unlock()).catch(() => {})
+      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+      StatusBar.show().catch(() => {})
+    } else {
+      try {
+        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
+          (window.screen.orientation as any).unlock()
+        }
+      } catch (e) {}
+    }
+  }
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CapacitorInit() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return
-
-    // Object ref so the interval can be mutated across handler calls
-    const immersiveRef: { interval: NodeJS.Timeout | null } = { interval: null }
-
-    setupSplashAndStatusBar()
-
-    const backListenerPromise = registerBackButton(router)
-
-    const handleFullscreenChange = createFullscreenHandler(immersiveRef)
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-
-    return () => {
-      backListenerPromise.then(l => l.remove()).catch(() => {})
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
-      if (immersiveRef.interval) clearInterval(immersiveRef.interval)
-
-      // Failsafe on unmount
-      import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.unlock()).catch(() => {})
-      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
-      StatusBar.show().catch(() => {})
-    }
+    const cleanup = setupListeners(router)
+    return cleanup
   }, [router])
 
   return null // Logic-only component

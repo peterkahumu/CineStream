@@ -6,6 +6,7 @@ import ScrollToTop from '@/components/ScrollToTop'
 import DetailsTabs from '@/components/DetailsTabs'
 import EpisodeSelector from '@/components/EpisodeSelector'
 import WatchTvButton from '@/components/WatchTvButton'
+import ActionButtons from '@/components/ActionButtons'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
@@ -60,6 +61,7 @@ export default async function DetailsPage(props: {
   const mediaType = searchParams.type === 'tv' ? 'tv' : 'movie'
   
   // Enforce valid tab types
+  // tabs: default to watch for tv shows, trailers for movies
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
   const tab: 'watch' | 'trailers' | 'cast' | 'reviews' = 
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :
@@ -224,6 +226,13 @@ export default async function DetailsPage(props: {
             ) : (
               <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
             )}
+            <ActionButtons 
+              id={id} 
+              mediaType={mediaType} 
+              title={title} 
+              poster={details.poster_path} 
+              backdrop={details.backdrop_path} 
+            />
           </div>
         </div>
       </div>

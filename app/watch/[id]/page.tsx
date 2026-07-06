@@ -84,7 +84,7 @@ export default async function WatchPage(props: {
   return (
     <main className={styles.main}>
       <ScrollToTop />
-      <div className={`page-container ${styles.container}`}>
+      <div className={styles.container}>
         
         <div className={styles.header}>
           <Link href={`/details/${id}?type=${mediaType}`} className={styles.backBtn}>
@@ -105,32 +105,7 @@ export default async function WatchPage(props: {
               title={title}
               backdrop={backdrop}
               servers={getStreamingServers()}
-            >
-              {/* TV episode quick nav */}
-              {mediaType === 'tv' && (
-                <div className={styles.quickEp}>
-                  <span className={styles.quickLabel}>
-                    📺 Season {season}, Episode {episode}
-                  </span>
-                  <div className={styles.epNav}>
-                    {(season > 1 || episode > 1) && (
-                      <Link
-                        href={`/watch/${id}?type=tv&s=${episode > 1 ? season : season - 1}&e=${episode > 1 ? episode - 1 : 1}`}
-                        className={`btn btn-secondary ${styles.epNavBtn}`}
-                      >
-                        ← Prev
-                      </Link>
-                    )}
-                    <Link
-                      href={`/watch/${id}?type=tv&s=${season}&e=${episode + 1}`}
-                      className={`btn btn-secondary ${styles.epNavBtn}`}
-                    >
-                      Next →
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </WatchClient>
+            />
           </div>
         </div>
       </div>
