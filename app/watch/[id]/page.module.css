@@ -1,71 +1,96 @@
 .main {
-  position: relative;
-  padding-top: calc(var(--nav-height) + var(--space-lg));
-  padding-bottom: var(--space-2xl);
-  min-height: 100vh;
-  z-index: 1;
+  position: fixed;
+  inset: 0;
+  z-index: 9999; /* Cover the entire site layout including navbars */
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding: 0;
+  overflow-y: auto;
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  gap: 0;
 }
 
 /* ── HEADER ──────────────────────────────────────────────────────────────── */
 .header {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-sm);
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: #000;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .backBtn {
-  color: var(--text-secondary);
+  color: white;
+  background: rgba(255,255,255,0.1);
   text-decoration: none;
   font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  width: fit-content;
-  transition: color var(--transition-fast);
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: background var(--transition-fast);
 }
-.backBtn:hover { color: var(--text-primary); }
+.backBtn:hover { background: rgba(255,255,255,0.2); }
 
 .title {
-  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-  line-height: 1.25;
-  color: var(--text-primary);
-  font-weight: 700;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.2;
+  color: white;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── LAYOUT ──────────────────────────────────────────────────────────────── */
 .layout {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  max-width: 1400px; /* Wider for immersive player */
+  flex: 1;
   width: 100%;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
+  gap: 0;
 }
 
 /* ── PLAYER WRAPPER ──────────────────────────────────────────────────────── */
 .playerWrapper {
   width: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: #000;
+  overflow: hidden; /* Prevent overflow if aspect-ratio goes out of bounds */
 }
 
 .playerSection {
   position: relative;
   width: 100%;
+  height: 100%;
+  max-height: 100%;
   aspect-ratio: 16 / 9;
   background: #000;
-  border-radius: var(--radius-xl);
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  border: none;
 }
 
 .player {
@@ -81,7 +106,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  /* Removed the dark backdrop filter to maintain original legibility */
+  padding: var(--space-md);
+  background: #0f172a; /* Dark background matching theme */
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .serverSelector {
@@ -89,71 +116,36 @@
   gap: 0.5rem;
   flex-wrap: wrap;
   align-items: center;
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.03);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 @media (max-width: 600px) {
   .serverSelector {
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 12px;
   }
 }
 
 .serverLabel {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.7);
   font-weight: 500;
   margin-right: 0.5rem;
+  white-space: nowrap;
 }
 
 .serverBtn {
   padding: 6px 14px;
   font-size: 0.825rem;
+  white-space: nowrap;
 }
 
-/* ── LIGHTS OUT MODE ─────────────────────────────────────────────────────── */
-.lightsOutOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.98);
-  z-index: 9998;
-  animation: fadeBg 0.3s ease-out;
-}
-
-@keyframes fadeBg {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.playerSectionLightsOut {
-  z-index: 9999;
-  position: relative;
-  box-shadow: 0 0 100px rgba(0,0,0,1);
-}
-
-.lightsOutBtn {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  padding: 6px 14px;
-  font-size: 0.825rem;
-  z-index: 9999;
-}
-.lightsOutBtn:hover {
-  background: var(--bg-hover);
-}
-.lightsOutBtnActive {
-  background: var(--bg-hover);
-  color: var(--accent);
-  border-color: var(--accent);
-}
+/* ── LIGHTS OUT MODE (Removed) ───────────────────────────────────────────── */
 
 /* ── QUICK EPISODE NAV ───────────────────────────────────────────────────── */
 .quickEp {
@@ -164,13 +156,13 @@
   border-radius: var(--radius-lg);
   flex-wrap: wrap;
   gap: var(--space-sm);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 .quickLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
 }
 .epNav { display: flex; gap: var(--space-md); flex-wrap: wrap; }
 .epNavBtn {

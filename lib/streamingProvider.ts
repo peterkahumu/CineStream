@@ -121,5 +121,7 @@ export function buildEmbedUrl(
   if (options?.back) params.set('back', options.back)
   
   const qs = params.toString()
-  return qs ? `${url}?${qs}` : url
+  // Append rotateprompt=false to try and disable CineSrc's portrait warning
+  const finalQs = qs ? `${qs}&rotateprompt=false&rotate=false` : `rotateprompt=false&rotate=false`
+  return `${url}?${finalQs}`
 }

@@ -43,15 +43,11 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
   const router = useRouter()
   const [server, setServer] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
-  const [lightsOut, setLightsOut] = useState(false)
-  const [currentSeason, setCurrentSeason] = useState(season)
-  const [currentEpisode, setCurrentEpisode] = useState(episode)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
 
   // New state for CineSrc integration
   const [isReady, setIsReady] = useState(false)
   const [startTime, setStartTime] = useState(0)
-  const [autoSkip, setAutoSkip] = useState(false)
 
   useEffect(() => {
     return () => restorePortraitOrientation()
@@ -67,10 +63,15 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
         // For TV, only resume if it's the same season and episode
         if (mediaType === 'movie' || (parsed.season === season && parsed.episode === episode)) {
           setStartTime(parsed.time || 0)
+        } else {
+          setStartTime(0)
         }
       } catch (e) {
         console.error('Failed to parse progress', e)
+        setStartTime(0)
       }
+    } else {
+      setStartTime(0)
     }
     setIsReady(true)
   }, [id, mediaType, season, episode])
@@ -97,22 +98,12 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
         }
         break
       case 'cinesrc:nextepisode':
-        // Update URL without full page reload
-        window.history.replaceState(null, '', `/watch/${id}?type=${mediaType}&s=${data.season}&e=${data.episode}`)
-        // Update local state to instantly reflect in UI
-        setCurrentSeason(data.season)
-        setCurrentEpisode(data.episode)
-        setStartTime(0) // Start the new episode from the beginning
+        // Update URL and trigger Next.js soft navigation so page title updates
+        router.replace(`/watch/${id}?type=${mediaType}&s=${data.season}&e=${data.episode}`)
         break
       case 'cinesrc:close':
         // Handle integrated back button
         router.push(`/details/${id}?type=${mediaType}`)
-        break
-      case 'cinesrc:play':
-        // setLightsOut(true) // Disabled per user request
-        break
-      case 'cinesrc:ended':
-        // setLightsOut(false) // Disabled per user request
         break
     }
   }, [id, mediaType, season, episode, title, backdrop, router])
@@ -132,9 +123,8 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
   }
 
   const activeServerObj = servers.find(s => s.id === server) || servers[0]
-  const rawEmbedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, currentSeason, currentEpisode, {
+  const rawEmbedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, season, episode, {
     startTime,
-    autoSkip,
     color: '%232563eb', // Matches --accent in globals.css
     back: 'close'
   })
@@ -154,11 +144,7 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
   return (
     <>
       <div className={styles.playerWrapper}>
-        {lightsOut && (
-          <div className={styles.lightsOutOverlay} onClick={() => setLightsOut(false)} />
-        )}
-        
-        <div className={`${styles.playerSection} ${lightsOut ? styles.playerSectionLightsOut : ''}`}>
+        <div className={styles.playerSection}>
           {isReady ? (
             <iframe
               key={`${embedUrl}-${iframeKey}`}
@@ -178,19 +164,19 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
           {mediaType === 'tv' && (
             <div className={styles.quickEp}>
               <span className={styles.quickLabel}>
-                📺 Season {currentSeason}, Episode {currentEpisode}
+                📺 Season {season}, Episode {episode}
               </span>
               <div className={styles.epNav}>
-                {(currentSeason > 1 || currentEpisode > 1) && (
+                {(season > 1 || episode > 1) && (
                   <Link
-                    href={`/watch/${id}?type=tv&s=${currentEpisode > 1 ? currentSeason : currentSeason - 1}&e=${currentEpisode > 1 ? currentEpisode - 1 : 1}`}
+                    href={`/watch/${id}?type=tv&s=${episode > 1 ? season : season - 1}&e=${episode > 1 ? episode - 1 : 1}`}
                     className={`btn btn-secondary ${styles.epNavBtn}`}
                   >
                     ← Prev
                   </Link>
                 )}
                 <Link
-                  href={`/watch/${id}?type=tv&s=${currentSeason}&e=${currentEpisode + 1}`}
+                  href={`/watch/${id}?type=tv&s=${season}&e=${episode + 1}`}
                   className={`btn btn-secondary ${styles.epNavBtn}`}
                 >
                   Next →
@@ -212,14 +198,6 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
                 {s.name}
               </button>
             ))}
-            
-            <button 
-              className={`btn ${styles.lightsOutBtn} ${lightsOut ? styles.lightsOutBtnActive : ''}`}
-              onClick={() => setLightsOut(!lightsOut)}
-              title="Toggle Theatre Mode"
-            >
-              {lightsOut ? '💡 Turn Lights On' : '🎬 Lights Out'}
-            </button>
 
             {PROXY_BASE && (
               <button
@@ -230,23 +208,13 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
                 {useDirectEmbed ? '🛡️ Filter' : '⚡ Direct'}
               </button>
             )}
-
-            {server === 'cinesrc' && (
-              <button
-                className={`btn ${autoSkip ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
-                onClick={() => setAutoSkip(!autoSkip)}
-                title="Automatically skip intros and recaps"
-              >
-                ⏭️ Auto-Skip {autoSkip ? 'On' : 'Off'}
-              </button>
-            )}
           </div>
           
           <div style={{ marginTop: 'var(--space-md)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             {server === 'cinesrc' ? (
-               <span>✨ <strong>Premium Features Enabled:</strong> Auto-Resume and Skip Intros are active for CineSRC.</span>
+               <span>✨ <strong>Premium Features Enabled:</strong> Auto-Resume is active for CineSRC.</span>
             ) : (
-               <span>Switch to <strong>CineSRC</strong> to unlock advanced features like Auto-Resume and Auto-Skip Intros.</span>
+               <span>Switch to <strong>CineSRC</strong> to unlock advanced features like Auto-Resume.</span>
             )}
           </div>
         </div>

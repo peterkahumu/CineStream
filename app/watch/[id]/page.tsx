@@ -84,7 +84,7 @@ export default async function WatchPage(props: {
   return (
     <main className={styles.main}>
       <ScrollToTop />
-      <div className={`page-container ${styles.container}`}>
+      <div className={styles.container}>
         
         <div className={styles.header}>
           <Link href={`/details/${id}?type=${mediaType}`} className={styles.backBtn}>
