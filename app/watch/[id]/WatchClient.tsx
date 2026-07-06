@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
 import { buildEmbedUrl, type StreamingServer } from '@/lib/streamingProvider'
+import CineSrcPlayer from '@/components/CineSrcPlayer'
 import styles from './page.module.css'
 
 // Set in .env.local / Cloudflare env. When present, all server embeds are
@@ -45,73 +46,9 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
   const [iframeKey, setIframeKey] = useState(0)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
 
-  // New state for CineSrc integration
-  const [isReady, setIsReady] = useState(false)
-  const [startTime, setStartTime] = useState(0)
-
   useEffect(() => {
     return () => restorePortraitOrientation()
   }, [])
-
-  useEffect(() => {
-    // Fetch saved progress to avoid hydration mismatch and start video at the right time
-    const key = `cinesrc-progress-${mediaType}-${id}`
-    const saved = localStorage.getItem(key)
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        // For TV, only resume if it's the same season and episode
-        if (mediaType === 'movie' || (parsed.season === season && parsed.episode === episode)) {
-          setStartTime(parsed.time || 0)
-        } else {
-          setStartTime(0)
-        }
-      } catch (e) {
-        console.error('Failed to parse progress', e)
-        setStartTime(0)
-      }
-    } else {
-      setStartTime(0)
-    }
-    setIsReady(true)
-  }, [id, mediaType, season, episode])
-
-  const handleMessage = useCallback((event: MessageEvent) => {
-    if (event.origin !== 'https://cinesrc.st') return
-    const { type, ...data } = event.data
-
-    switch (type) {
-      case 'cinesrc:timeupdate':
-        if (data.currentTime > 5) { // don't save immediately to avoid saving 0s
-          const key = `cinesrc-progress-${mediaType}-${id}`
-          localStorage.setItem(key, JSON.stringify({
-            id,
-            mediaType,
-            title,
-            backdrop,
-            season,
-            episode,
-            time: data.currentTime,
-            duration: data.duration || 0,
-            updatedAt: Date.now()
-          }))
-        }
-        break
-      case 'cinesrc:nextepisode':
-        // Update URL and trigger Next.js soft navigation so page title updates
-        router.replace(`/watch/${id}?type=${mediaType}&s=${data.season}&e=${data.episode}`)
-        break
-      case 'cinesrc:close':
-        // Handle integrated back button
-        router.push(`/details/${id}?type=${mediaType}`)
-        break
-    }
-  }, [id, mediaType, season, episode, title, backdrop, router])
-
-  useEffect(() => {
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [handleMessage])
 
   if (servers.length === 0) {
     return (
@@ -124,7 +61,6 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
 
   const activeServerObj = servers.find(s => s.id === server) || servers[0]
   const rawEmbedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, season, episode, {
-    startTime,
     color: '%232563eb', // Matches --accent in globals.css
     back: 'close'
   })
@@ -145,7 +81,19 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
     <>
       <div className={styles.playerWrapper}>
         <div className={styles.playerSection}>
-          {isReady ? (
+          {server === 'cinesrc' ? (
+            <CineSrcPlayer
+              serverObj={activeServerObj}
+              mediaType={mediaType}
+              id={id}
+              season={season}
+              episode={episode}
+              title={title}
+              backdrop={backdrop}
+              iframeKey={iframeKey}
+              transformUrl={(url) => useDirectEmbed ? url : applyProxy(url)}
+            />
+          ) : (
             <iframe
               key={`${embedUrl}-${iframeKey}`}
               src={embedUrl}
@@ -155,8 +103,6 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
               allow="autoplay; picture-in-picture; encrypted-media"
               allowFullScreen
             />
-          ) : (
-            <div className="skeleton" style={{ width: '100%', height: '100%', aspectRatio: '16/9', borderRadius: 'var(--radius-lg)' }} />
           )}
         </div>
 
@@ -210,7 +156,7 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
             )}
           </div>
           
-          <div style={{ marginTop: 'var(--space-md)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          <div className={styles.premiumNotice}>
             {server === 'cinesrc' ? (
                <span>✨ <strong>Premium Features Enabled:</strong> Auto-Resume is active for CineSRC.</span>
             ) : (

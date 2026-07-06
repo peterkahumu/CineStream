@@ -145,6 +145,12 @@
   white-space: nowrap;
 }
 
+.premiumNotice {
+  margin-top: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 /* ── LIGHTS OUT MODE (Removed) ───────────────────────────────────────────── */
 
 /* ── QUICK EPISODE NAV ───────────────────────────────────────────────────── */

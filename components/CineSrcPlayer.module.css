@@ -1,0 +1,25 @@
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #1e1e1e;
+  color: white;
+  aspect-ratio: 16/9;
+}
+
+.errorTitle {
+  margin-bottom: 1rem;
+}
+
+.errorText {
+  color: #aaa;
+  margin-bottom: 1.5rem;
+}
+
+.skeletonPlayer {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius-lg);
+}
