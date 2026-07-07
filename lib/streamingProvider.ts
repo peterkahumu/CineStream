@@ -71,8 +71,8 @@ export function buildEmbedUrl(
 
 
   if (serverId === 'primesrc') {
-    if (type === 'movie') return `${base}/embed/movie?tmdb=${id}`
-    return `${base}/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+    if (type === 'movie') return `${base}/movie?tmdb=${id}`
+    return `${base}/tv?tmdb=${id}&season=${s}&episode=${e}`
   }
 
   if (serverId === 'vidlink') {
@@ -106,7 +106,7 @@ export function buildEmbedUrl(
   }
 
   // default to cinesrc
-  const url = type === 'movie' ? `${base}/embed/movie/${id}` : `${base}/embed/tv/${id}`
+  const url = type === 'movie' ? `${base}/movie/${id}` : `${base}/tv/${id}`
   const params = new URLSearchParams()
   if (type === 'tv') {
     params.set('s', String(s))
