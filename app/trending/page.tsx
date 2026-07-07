@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import TrendingClient from './TrendingClient'
 
 export const metadata: Metadata = {
-  title: 'Trending This Week | CinemaPhora',
+  title: 'Trending This Week',
   description: 'Browse what is trending globally this week in movies and TV shows.',
 }
 

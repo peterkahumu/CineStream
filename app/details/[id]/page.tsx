@@ -28,14 +28,14 @@ export async function generateMetadata(
     ? await getMovieDetails(Number(id)).catch(() => null)
     : await getTVDetails(Number(id)).catch(() => null)
 
-  if (!details) return { title: 'Not Found | CinemaPhora' }
+  if (!details) return { title: 'Not Found' }
 
   const title = mediaTitle(details)
   const description = details.overview || `Watch ${title} on CinemaPhora.`
   const ogImage = backdropUrl(details.backdrop_path, 'w1280') || posterUrl(details.poster_path, 'w500')
 
   return {
-    title: `${title} | CinemaPhora`,
+    title: `${title}`,
     description,
     openGraph: {
       title: `${title} | CinemaPhora`,

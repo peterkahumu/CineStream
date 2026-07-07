@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import NowPlayingClient from './NowPlayingClient'
 
 export const metadata: Metadata = {
-  title: 'Now Playing | CinemaPhora',
+  title: 'Now Playing',
   description: 'Movies currently in theatres and TV shows currently on air.',
 }
 

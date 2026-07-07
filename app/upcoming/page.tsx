@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import UpcomingClient from './UpcomingClient'
 
 export const metadata: Metadata = {
-  title: 'Coming Soon | CinemaPhora',
+  title: 'Coming Soon',
   description: 'Movies and TV shows arriving in the next 3 months.',
 }
 

@@ -17,7 +17,7 @@ export async function generateMetadata(props: {
   const providerId = Number(id)
   const meta = PROVIDER_META[providerId] ?? { name: 'Provider', emoji: '🎬', color: '#000' }
   return {
-    title: `New on ${meta.name} | CinemaPhora`,
+    title: `New on ${meta.name}`,
     description: `Browse the latest movies and TV shows now streaming on ${meta.name}.`,
   }
 }

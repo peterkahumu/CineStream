@@ -25,14 +25,14 @@ export async function generateMetadata(
     ? await getMovieDetails(Number(id)).catch(() => null)
     : await getTVDetails(Number(id)).catch(() => null)
 
-  if (!details) return { title: 'Watch | CinemaPhora' }
+  if (!details) return { title: 'Watch' }
 
   const baseTitle = mediaTitle(details)
   const title = mediaType === 'tv' ? `Watch ${baseTitle} - Season ${season} Episode ${episode}` : `Watch ${baseTitle}`
   const description = details.overview || `Watch ${baseTitle} instantly on CinemaPhora.`
 
   return {
-    title: `${title} | CinemaPhora`,
+    title: `${title}`,
     description,
     openGraph: {
       title: `${title} | CinemaPhora`,
