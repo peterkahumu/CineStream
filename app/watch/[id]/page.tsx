@@ -68,6 +68,7 @@ export default async function WatchPage(props: {
 
   const title = mediaTitle(details)
   const backdrop = backdropUrl(details.backdrop_path, 'original')
+  const poster = details.poster_path ?? null
   const seasons = (details.seasons || []).filter((s: any) => s.season_number > 0)
 
   // Pre-fetch episode data server-side so EpisodeSelector doesn't need useEffect
@@ -104,6 +105,7 @@ export default async function WatchPage(props: {
               episode={episode}
               title={title}
               backdrop={backdrop}
+              poster={poster}
               servers={getStreamingServers()}
             />
           </div>

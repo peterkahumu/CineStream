@@ -143,10 +143,21 @@
   padding: 6px 14px;
   font-size: 0.825rem;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.premiumNotice {
-  margin-top: var(--space-md);
+.basicBadge {
+  font-size: 0.7rem;
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 2px;
+  letter-spacing: 0.02em;
+}
+
+.capabilityNotice {
   font-size: 0.85rem;
   color: var(--text-muted);
 }
