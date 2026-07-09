@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
+import { useSettings } from '@/components/SettingsProvider'
 import styles from './Navbar.module.css'
 
 function handleScrolled(setScrolled: (v: boolean) => void) {
@@ -22,6 +23,7 @@ const CATEGORY_LINKS = [
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { settings } = useSettings()
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<MediaItem[]>([])
@@ -40,7 +42,7 @@ export default function Navbar() {
     }
     setIsFetching(true)
     try {
-      const data = await searchMulti(q)
+      const data = await searchMulti(q, 1, !settings.safeSearch)
       setResults((data.results || []).filter(r => r.media_type !== 'person').slice(0, 5))
     } catch (err) {
       console.error(err)

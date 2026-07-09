@@ -196,8 +196,8 @@ export const getProviderContent = (providerId: number, mediaType: 'movie' | 'tv'
   return tmdbFetch<TMDBPage<MediaItem>>(`/discover/${mediaType}`, params)
 }
 
-export const searchMulti = (query: string, page = 1) =>
-  tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: false })
+export const searchMulti = (query: string, page = 1, includeAdult = false) =>
+  tmdbFetch<TMDBPage<MediaItem>>('/search/multi', { query, page, include_adult: includeAdult })
 
 export const getMovieDetails = (id: number) =>
   tmdbFetch<ShowDetails>(`/movie/${id}`, { append_to_response: 'credits,similar,videos,reviews,recommendations' })
