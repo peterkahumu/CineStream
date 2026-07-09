@@ -21,9 +21,11 @@ Looking to run this locally, contribute, or understand the architecture?
 ## 🌟 Quick Highlights
 
 - **Premium UI/UX:** Minimalist dark/light design, glassmorphism accents, and smooth micro-animations.
-- **Installable PWA:** Install directly from the browser with offline image caching for instant loads.
+- **Installable PWA & Native:** Install directly from the browser or build natively for Android via Capacitor.
 - **Ad-Free Concept:** Clean video provider integration with pop-under blocking.
 - **Powered by TMDB:** Real-time database of movies, TV shows, genres, cast, and more.
+- **Continue Watching:** Tracks your viewing progress locally across sessions.
+- **Legal Compliance:** Built-in Terms of Use agreement checks out of the box.
 - **Provider Rows:** Dedicated sections for Netflix, Prime Video, and Disney+.
 - **Top 10 by Country:** Geo-detected trending content for your region.
 - **Coming Soon:** Upcoming movies and TV shows with "Coming on [date]" labels on detail pages.

@@ -32,6 +32,12 @@ export default function Footer() {
             <Link href="/provider/9" className={styles.link}>Prime Video</Link>
             <Link href="/provider/337" className={styles.link}>Disney+</Link>
           </div>
+          <div className={styles.linkGroup}>
+            <div className={styles.groupLabel}>Legal</div>
+            <Link href="/terms" className={styles.link}>Terms of Use</Link>
+            <Link href="/privacy" className={styles.link}>Privacy Policy</Link>
+            <Link href="/settings" className={styles.link}>Settings</Link>
+          </div>
         </div>
 
         <p className={styles.disclaimer}>

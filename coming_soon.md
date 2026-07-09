@@ -39,6 +39,10 @@ What's been shipped and what's planned next.
 - [x] **Type filter tabs:** All / Movies / TV Shows.
 - [x] **Infinite scroll:** Loads more pages automatically.
 
+### Personalisation & State
+- [x] **"Continue Watching" Row:** Tracks viewing progress locally, surfacing incomplete episodes/movies on the homepage.
+- [x] **Legal & Compliance:** Mandatory Terms of Use / Privacy Policy modal agreement. Settings page to manage agreement.
+
 ### Technical
 - [x] **API key never exposed:** All TMDB calls from the client go through a server-side proxy route (`/api/tmdb/...`).
 - [x] **`Promise.allSettled` on homepage:** A single failing row never breaks the page.
@@ -54,7 +58,6 @@ What's been shipped and what's planned next.
 ## 🔜 Planned
 
 ### Personalisation & State
-- [ ] **"Continue Watching" Row:** Track viewing progress, surface incomplete episodes/movies on the homepage.
 - [ ] **Watchlists / Favourites:** Save titles for later (initially `localStorage`, migrated to DB when users grow).
 - [ ] **Watch History:** Dedicated page showing previously watched content.
 

@@ -7,6 +7,8 @@ import styles from './MobileHeader.module.css'
 
 const CATEGORIES = [
   { href: '/popular',     label: 'Popular',     icon: '🔥' },
+  { href: '/trending',    label: 'Trending',    icon: '📈' },
+  { href: '/upcoming',    label: 'Coming Soon', icon: '⏳' },
   { href: '/top-rated',   label: 'Top Rated',   icon: '⭐' },
   { href: '/now-playing', label: 'In Theatres', icon: '🎬' },
   { href: '/discover?genre=28', label: 'Action', icon: '💥' },

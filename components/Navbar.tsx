@@ -229,6 +229,15 @@ export default function Navbar() {
             {!searchOpen && <span className={styles.kbdHint}>/</span>}
           </button>
 
+          <Link
+            href="/settings"
+            className={styles.iconBtn}
+            aria-label="Settings"
+            title="Settings"
+          >
+            ⚙️
+          </Link>
+
           {/* Hamburger (mobile) */}
           <button
             className={`${styles.iconBtn} ${styles.hamburger}`}

@@ -12,8 +12,9 @@ Welcome to the CinemaPhora codebase! This document covers architecture, tech sta
 | Language | TypeScript |
 | Styling | Vanilla CSS Modules + Global CSS Variables (no Tailwind) |
 | PWA | `@ducanh2912/next-pwa` with custom Workbox runtime caching |
+| Native (Android) | [Capacitor](https://capacitorjs.com/) |
 | Metadata / Discovery | [TMDB API v3](https://www.themoviedb.org/) |
-| Video Embeds | Managed via `lib/streamingProvider.ts` |
+| Video Embeds | Managed via `lib/streamingProvider.ts` and `lib/providers/` |
 | Deployment | [Cloudflare Workers](https://workers.cloudflare.com/) via `@opennextjs/cloudflare` |
 
 ---
@@ -63,6 +64,9 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Homepage Data Strategy
 All homepage rows are fetched in a single `Promise.allSettled()` on the server, so a failure in one row never blocks the rest. The `ok()` helper extracts results, returning `[]` on rejection — rows with no data simply don't render.
 
+### Progress Tracking (Continue Watching)
+`lib/progressTracker.ts` handles saving media watch progress to `localStorage`. The `ContinueWatchingRow` component reads this data to display partially watched content on the homepage.
+
 ### Route Architecture
 Each content category now has its own purpose-built route so "See All →" links show exactly the same content as the homepage row:
 
@@ -86,7 +90,8 @@ All infinite scroll pages (`/trending`, `/upcoming`, `/provider/[id]`, `/discove
 - The sentinel `<div>` is **conditionally rendered** — it's removed from the DOM once all pages are loaded to prevent the observer from re-triggering (this eliminates the "footer flash" anti-pattern).
 
 ### Streaming Providers
-`lib/streamingProvider.ts` builds iframe embed URLs for up to four video servers. Only servers whose `NEXT_PUBLIC_*` env var is set appear in the UI.
+`lib/streamingProvider.ts` and the `lib/providers/` directory handle video embedding. 
+The new `PlayerIframe` component orchestrates these providers and provides a seamless viewing experience with error fallback mechanisms.
 
 | Server ID | Env Variable |
 |---|---|
@@ -94,6 +99,17 @@ All infinite scroll pages (`/trending`, `/upcoming`, `/provider/[id]`, `/discove
 | primesrc | `NEXT_PUBLIC_PRIMESRC_URL` |
 | vidlink | `NEXT_PUBLIC_VIDLINK_URL` |
 | multiembed | `NEXT_PUBLIC_MULTIEMBED_URL` |
+
+---
+
+## ⚖️ Legal & Compliance
+
+CinemaPhora enforces a strict Terms of Use agreement due to its nature as an indexing service.
+
+- **TermsAgreementModal**: A global modal injected in `app/layout.tsx` checks `localStorage.getItem('termsAccepted')`.
+- **Enforcement**: If the user has not accepted the terms, the modal blocks all interactions. The modal links to `/terms` and `/privacy`.
+- **Settings Page**: Users can view their agreement status and revoke it at `/settings`. Revoking clears the flag and re-triggers the modal.
+- **Capacitor (Android)**: The app uses the same `localStorage` mechanism natively in the WebView. No special native storage plugins are required for the terms agreement check.
 
 ---
 
