@@ -1,0 +1,39 @@
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #1a1a2e;
+  color: white;
+  aspect-ratio: 16 / 9;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.errorTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.errorText {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 1.5rem;
+  max-width: 360px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.skeletonPlayer {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+}

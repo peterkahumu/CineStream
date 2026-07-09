@@ -5,11 +5,12 @@ import Link from 'next/link'
 import { Capacitor } from '@capacitor/core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
-import { buildEmbedUrl, type StreamingServer } from '@/lib/streamingProvider'
+import PROVIDERS from '@/lib/providers'
+import type { StreamingServer } from '@/lib/streamingProvider'
+import PlayerIframe from '@/components/PlayerIframe'
 import styles from './page.module.css'
 
-// Set in .env.local / Cloudflare env. When present, all server embeds are
-// routed through the ad-stripping proxy. Falls back to direct embed if unset.
+// Route all server embeds through the ad-stripping proxy when configured.
 const PROXY_BASE = process.env.NEXT_PUBLIC_STREAM_PROXY_URL
 
 interface Props {
@@ -19,11 +20,12 @@ interface Props {
   episode: number
   title: string
   backdrop?: string | null
+  poster?: string | null
   servers: StreamingServer[]
   children?: React.ReactNode
 }
 
-// URL param cleaner removed to prevent Next.js soft navigation state bugs
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function restorePortraitOrientation() {
   if (Capacitor.isNativePlatform()) {
@@ -34,84 +36,51 @@ function restorePortraitOrientation() {
 }
 
 function applyProxy(embedUrl: string): string {
-  // implemented in proxy-worker folder. status: inactive
   if (!PROXY_BASE) return embedUrl
   return `${PROXY_BASE}/?url=${encodeURIComponent(embedUrl)}`
 }
 
-export default function WatchClient({ mediaType, id, season, episode, title, backdrop, servers, children }: Props) {
+function getCapabilityNotice(providerId: string, tier: 'advanced' | 'basic'): string {
+  if (tier === 'basic') return '◦ Basic mode — progress is not tracked on this server.'
+  switch (providerId) {
+    case 'cinesrc':
+      return '✨ Auto-resume active · Next episode detection enabled'
+    case 'vidfast':
+      return '⚡ Progress tracking active · Auto-next episode enabled'
+    default:
+      return '⚡ Progress tracking & auto-resume active'
+  }
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
+
+export default function WatchClient({
+  mediaType,
+  id,
+  season,
+  episode,
+  title,
+  backdrop,
+  poster,
+  servers,
+  children,
+}: Props) {
   const router = useRouter()
-  const [server, setServer] = useState(servers[0]?.id || '')
+  const [serverId, setServerId] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
 
-  // New state for CineSrc integration
-  const [isReady, setIsReady] = useState(false)
-  const [startTime, setStartTime] = useState(0)
+  // ── Effects ─────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    return () => restorePortraitOrientation()
+  const cleanupOrientation = useCallback(() => {
+    restorePortraitOrientation()
   }, [])
 
   useEffect(() => {
-    // Fetch saved progress to avoid hydration mismatch and start video at the right time
-    const key = `cinesrc-progress-${mediaType}-${id}`
-    const saved = localStorage.getItem(key)
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        // For TV, only resume if it's the same season and episode
-        if (mediaType === 'movie' || (parsed.season === season && parsed.episode === episode)) {
-          setStartTime(parsed.time || 0)
-        } else {
-          setStartTime(0)
-        }
-      } catch (e) {
-        console.error('Failed to parse progress', e)
-        setStartTime(0)
-      }
-    } else {
-      setStartTime(0)
-    }
-    setIsReady(true)
-  }, [id, mediaType, season, episode])
+    return cleanupOrientation
+  }, [cleanupOrientation])
 
-  const handleMessage = useCallback((event: MessageEvent) => {
-    if (event.origin !== 'https://cinesrc.st') return
-    const { type, ...data } = event.data
-
-    switch (type) {
-      case 'cinesrc:timeupdate':
-        if (data.currentTime > 5) { // don't save immediately to avoid saving 0s
-          const key = `cinesrc-progress-${mediaType}-${id}`
-          localStorage.setItem(key, JSON.stringify({
-            id,
-            mediaType,
-            title,
-            backdrop,
-            season,
-            episode,
-            time: data.currentTime,
-            duration: data.duration || 0,
-            updatedAt: Date.now()
-          }))
-        }
-        break
-      case 'cinesrc:nextepisode':
-        // Update URL and trigger Next.js soft navigation so page title updates
-        router.replace(`/watch/${id}?type=${mediaType}&s=${data.season}&e=${data.episode}`)
-        break
-      case 'cinesrc:close':
-        // Handle integrated back button
-        router.push(`/details/${id}?type=${mediaType}`)
-        break
-    }
-  }, [id, mediaType, season, episode, title, backdrop, router])
-
-  useEffect(() => {
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [handleMessage])
+  // ── Early returns ────────────────────────────────────────────────────────────
 
   if (servers.length === 0) {
     return (
@@ -122,17 +91,15 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
     )
   }
 
-  const activeServerObj = servers.find(s => s.id === server) || servers[0]
-  const rawEmbedUrl = buildEmbedUrl(activeServerObj.url, server, mediaType, id, season, episode, {
-    startTime,
-    color: '%232563eb', // Matches --accent in globals.css
-    back: 'close'
-  })
-  // Route through the ad-stripping proxy unless the user has toggled direct mode
-  const embedUrl = useDirectEmbed ? rawEmbedUrl : applyProxy(rawEmbedUrl)
+  // ── Resolve active provider ──────────────────────────────────────────────────
 
-  function switchServer(serverId: string) {
-    setServer(serverId)
+  const activeServer = servers.find(s => s.id === serverId) || servers[0]
+  const activeProvider = PROVIDERS.find(p => p.id === activeServer.id) || PROVIDERS[0]
+
+  // ── Event handlers ───────────────────────────────────────────────────────────
+
+  function switchServer(newId: string) {
+    setServerId(newId)
     setIframeKey(k => k + 1)
   }
 
@@ -141,23 +108,36 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
     setIframeKey(k => k + 1)
   }
 
+  function buildTransformUrl(url: string): string {
+    return useDirectEmbed ? url : applyProxy(url)
+  }
+
+  function handleNextEpisode(newSeason: number, newEpisode: number) {
+    router.replace(`/watch/${id}?type=${mediaType}&s=${newSeason}&e=${newEpisode}`)
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  const capabilityNotice = getCapabilityNotice(activeServer.id, activeServer.tier)
+
   return (
     <>
       <div className={styles.playerWrapper}>
         <div className={styles.playerSection}>
-          {isReady ? (
-            <iframe
-              key={`${embedUrl}-${iframeKey}`}
-              src={embedUrl}
-              className={styles.player}
-              loading="eager"
-              title={`${title} player`}
-              allow="autoplay; picture-in-picture; encrypted-media"
-              allowFullScreen
-            />
-          ) : (
-            <div className="skeleton" style={{ width: '100%', height: '100%', aspectRatio: '16/9', borderRadius: 'var(--radius-lg)' }} />
-          )}
+          <PlayerIframe
+            provider={activeProvider}
+            serverUrl={activeServer.url}
+            mediaType={mediaType}
+            id={id}
+            season={season}
+            episode={episode}
+            title={title}
+            backdrop={backdrop}
+            poster={poster}
+            iframeKey={iframeKey}
+            transformUrl={PROXY_BASE ? buildTransformUrl : undefined}
+            onNextEpisode={mediaType === 'tv' ? handleNextEpisode : undefined}
+          />
         </div>
 
         <div className={styles.controlsPanel}>
@@ -192,10 +172,12 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
             {servers.map(s => (
               <button
                 key={s.id}
-                className={`btn ${server === s.id ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
+                className={`btn ${serverId === s.id ? 'btn-primary' : 'btn-secondary'} ${styles.serverBtn}`}
                 onClick={() => switchServer(s.id)}
+                title={s.tier === 'basic' ? 'Basic server — no progress tracking' : 'Advanced server — progress tracking enabled'}
               >
-                {s.name}
+                {s.tier === 'advanced' ? '⚡ ' : ''}{s.name}
+                {s.tier === 'basic' && <span className={styles.basicBadge}>Basic</span>}
               </button>
             ))}
 
@@ -209,13 +191,9 @@ export default function WatchClient({ mediaType, id, season, episode, title, bac
               </button>
             )}
           </div>
-          
-          <div style={{ marginTop: 'var(--space-md)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            {server === 'cinesrc' ? (
-               <span>✨ <strong>Premium Features Enabled:</strong> Auto-Resume is active for CineSRC.</span>
-            ) : (
-               <span>Switch to <strong>CineSRC</strong> to unlock advanced features like Auto-Resume.</span>
-            )}
+
+          <div className={styles.capabilityNotice}>
+            <span>{capabilityNotice}</span>
           </div>
         </div>
       </div>

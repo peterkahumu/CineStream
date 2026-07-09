@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import TopRatedClient from './TopRatedClient'
 
 export const metadata: Metadata = {
-  title: 'Top Rated | CinemaPhora',
+  title: 'Top Rated',
   description: 'The highest rated movies and TV shows of all time.',
 }
 

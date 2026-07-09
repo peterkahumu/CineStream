@@ -2,7 +2,7 @@ import WishlistClient from './WishlistClient'
 import ScrollToTop from '@/components/ScrollToTop'
 
 export const metadata = {
-  title: 'My List | CinemaPhora',
+  title: 'My List',
   description: 'Your saved movies and TV shows.',
 }
 

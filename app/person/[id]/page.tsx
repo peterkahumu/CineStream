@@ -14,14 +14,14 @@ export async function generateMetadata(
   
   const person = await getPersonDetails(Number(id)).catch(() => null)
 
-  if (!person) return { title: 'Person Not Found | CinemaPhora' }
+  if (!person) return { title: 'Person Not Found' }
 
   const title = person.name
   const description = person.biography || `Discover movies and TV shows starring ${person.name}.`
   const ogImage = posterUrl(person.profile_path, 'w500')
 
   return {
-    title: `${title} | CinemaPhora`,
+    title: `${title}`,
     description,
     openGraph: {
       title: `${title} | CinemaPhora`,

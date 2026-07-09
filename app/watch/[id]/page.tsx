@@ -25,14 +25,14 @@ export async function generateMetadata(
     ? await getMovieDetails(Number(id)).catch(() => null)
     : await getTVDetails(Number(id)).catch(() => null)
 
-  if (!details) return { title: 'Watch | CinemaPhora' }
+  if (!details) return { title: 'Watch' }
 
   const baseTitle = mediaTitle(details)
   const title = mediaType === 'tv' ? `Watch ${baseTitle} - Season ${season} Episode ${episode}` : `Watch ${baseTitle}`
   const description = details.overview || `Watch ${baseTitle} instantly on CinemaPhora.`
 
   return {
-    title: `${title} | CinemaPhora`,
+    title: `${title}`,
     description,
     openGraph: {
       title: `${title} | CinemaPhora`,
@@ -68,6 +68,7 @@ export default async function WatchPage(props: {
 
   const title = mediaTitle(details)
   const backdrop = backdropUrl(details.backdrop_path, 'original')
+  const poster = details.poster_path ?? null
   const seasons = (details.seasons || []).filter((s: any) => s.season_number > 0)
 
   // Pre-fetch episode data server-side so EpisodeSelector doesn't need useEffect
@@ -104,6 +105,7 @@ export default async function WatchPage(props: {
               episode={episode}
               title={title}
               backdrop={backdrop}
+              poster={poster}
               servers={getStreamingServers()}
             />
           </div>

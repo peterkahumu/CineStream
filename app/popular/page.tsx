@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import PopularClient from './PopularClient'
 
 export const metadata: Metadata = {
-  title: 'Popular | CinemaPhora',
+  title: 'Popular',
   description: 'Browse the most popular movies and TV shows right now.',
 }
 

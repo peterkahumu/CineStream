@@ -1,127 +1,40 @@
+/**
+ * Thin shell over the provider registry.
+ * Resolves which providers are configured (env vars set) and returns them
+ * in priority order as StreamingServer objects for use in server components.
+ */
+import PROVIDERS from './providers'
+
 export interface StreamingServer {
   id: string
   name: string
   url: string
+  tier: 'advanced' | 'basic'
 }
 
+/**
+ * Returns only the configured providers (env var present and non-empty),
+ * in the registry's priority order.
+ * Safe to call in server components — reads process.env directly.
+ */
 export function getStreamingServers(): StreamingServer[] {
   const servers: StreamingServer[] = []
 
-  const cinesrc = process.env.CINESRC_URL || process.env.NEXT_PUBLIC_CINESRC_URL
-  if (cinesrc) {
-    servers.push({ id: 'cinesrc', name: 'CineSRC', url: cinesrc })
-  }
+  for (const provider of PROVIDERS) {
+    // NEXT_PUBLIC_ vars are available server-side as well as client-side
+    const url =
+      process.env[provider.envKey] ||
+      process.env[provider.envKey.replace('NEXT_PUBLIC_', '')]
 
-  const embedmaster = process.env.EMBEDMASTER_URL || process.env.NEXT_PUBLIC_EMBEDMASTER_URL
-  if (embedmaster) {
-    servers.push({ id: 'embedmaster', name: 'Embedmaster', url: embedmaster })
-  }
-
-  const vidnest = process.env.VIDNEST_URL || process.env.NEXT_PUBLIC_VIDNEST_URL
-  if (vidnest) {
-    servers.push({ id: 'vidnest', name: 'Vidnest', url: vidnest })
-  }
-
-  const moviesApi = process.env.MOVIESAPI_URL || process.env.NEXT_PUBLIC_MOVIESAPI_URL
-  if (moviesApi) {
-    servers.push({ id: 'moviesapi', name: 'MoviesAPI', url: moviesApi })
-  }
-
-  const primeSrc = process.env.PRIMESRC_URL || process.env.NEXT_PUBLIC_PRIMESRC_URL
-  if (primeSrc) {
-    servers.push({ id: 'primesrc', name: 'PrimeSrc', url: primeSrc })
-  }
-
-  const vidlink = process.env.VIDLINK_URL || process.env.NEXT_PUBLIC_VIDLINK_URL
-  if (vidlink) {
-    servers.push({ id: 'vidlink', name: 'Vidlink', url: vidlink })
-  }
-
-  const multiembed = process.env.MULTIEMBED_URL || process.env.NEXT_PUBLIC_MULTIEMBED_URL
-  if (multiembed) {
-    servers.push({ id: 'multiembed', name: 'Multiembed', url: multiembed })
-  }
-
-  const vidfast = process.env.VIDFAST_URL || process.env.NEXT_PUBLIC_VIDFAST_URL
-  if (vidfast) {
-    servers.push({ id: 'vidfast', name: 'Vidfast', url: vidfast })
+    if (url) {
+      servers.push({
+        id: provider.id,
+        name: provider.name,
+        url,
+        tier: provider.tier,
+      })
+    }
   }
 
   return servers
-}
-
-export function buildEmbedUrl(
-  serverUrl: string,
-  serverId: string,
-  type: 'movie' | 'tv',
-  id: number | string,
-  season?: number,
-  episode?: number,
-  options?: {
-    startTime?: number
-    autoSkip?: boolean
-    color?: string
-    back?: string
-  }
-): string {
-  const s = season ?? 1
-  const e = episode ?? 1
-  const base = serverUrl
-
-
-
-  if (serverId === 'primesrc') {
-    if (type === 'movie') return `${base}/embed/movie?tmdb=${id}`
-    return `${base}/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-  }
-
-  if (serverId === 'vidlink') {
-    if (type === 'movie') return `${base}/movie/${id}`
-    return `${base}/tv/${id}/${s}/${e}`
-  }
-
-  if (serverId === 'multiembed') {
-    if (type === 'movie') return `${base}/?video_id=${id}&tmdb=1`
-    return `${base}/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
-  }
-
-  if (serverId === 'moviesapi') {
-    if (type === 'movie') return `${base}/movie/${id}`
-    return `${base}/tv/${id}/${s}/${e}`
-  }
-
-  if (serverId === 'vidfast') {
-    if (type === 'movie') return `${base}/movie/${id}?autoPlay=true&title=true&poster=true&theme=16A085`
-    return `${base}/tv/${id}/${s}/${e}?autoPlay=true&title=true&poster=true&theme=16A085&nextButton=true&autoNext=true`
-  }
-
-  if (serverId === 'embedmaster') {
-    if (type === 'movie') return `${base}/movie/${id}`
-    return `${base}/tv/${id}/${s}/${e}`
-  }
-
-  if (serverId === 'vidnest') {
-    if (type === 'movie') return `${base}/movie/${id}`
-    return `${base}/tv/${id}/${s}/${e}`
-  }
-
-  // default to cinesrc
-  const url = type === 'movie' ? `${base}/embed/movie/${id}` : `${base}/embed/tv/${id}`
-  const params = new URLSearchParams()
-  if (type === 'tv') {
-    params.set('s', String(s))
-    params.set('e', String(e))
-  }
-  if (options?.startTime) {
-    params.set('t', String(Math.floor(options.startTime)))
-    params.set('continueprompt', 'false')
-  }
-  if (options?.autoSkip) params.set('autoskip', 'true')
-  if (options?.color) params.set('color', options.color)
-  if (options?.back) params.set('back', options.back)
-  
-  const qs = params.toString()
-  // Append rotateprompt=false to try and disable CineSrc's portrait warning
-  const finalQs = qs ? `${qs}&rotateprompt=false&rotate=false` : `rotateprompt=false&rotate=false`
-  return `${url}?${finalQs}`
 }

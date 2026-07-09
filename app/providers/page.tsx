@@ -5,7 +5,7 @@ import ProvidersExplorer from './ProvidersExplorer'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
 export const metadata: Metadata = {
-  title: 'Streaming Providers | CinemaPhora',
+  title: 'Streaming Providers',
   description: 'Browse movies and TV shows from Netflix, Prime Video, Disney+ and more — all in one place.',
 }
 
