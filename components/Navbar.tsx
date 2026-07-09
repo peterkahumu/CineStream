@@ -27,6 +27,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<MediaItem[]>([])
+  const [history, setHistory] = useState<string[]>([])
   const [isFetching, setIsFetching] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -59,6 +60,12 @@ export default function Navbar() {
   useEffect(() => {
     const onScroll = () => handleScrolled(setScrolled)
     window.addEventListener('scroll', onScroll, { passive: true })
+
+    try {
+      const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
+      setHistory(h)
+    } catch {}
+
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -80,13 +87,22 @@ export default function Navbar() {
 
   const submit = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-    if (!query.trim()) return
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+    const q = query.trim()
+    if (!q) return
+
+    try {
+      const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
+      const nextH = [q, ...h.filter((x: string) => x !== q)].slice(0, 10)
+      localStorage.setItem('searchHistory', JSON.stringify(nextH))
+      setHistory(nextH)
+    } catch {}
+
+    router.push(`/search?q=${encodeURIComponent(q)}`)
     setSearchOpen(false)
     setMenuOpen(false)
   }
 
-  const primaryLinks = [
+  const primaryLinks: Array<{ href: string; label: string; icon?: string }> = [
     { href: '/', label: 'Home' },
     { href: '/search', label: 'Search' },
     { href: '/wishlist', label: 'My List' },
@@ -113,7 +129,7 @@ export default function Navbar() {
                 href={l.href}
                 className={`${styles.link} ${isActive ? styles.active : ''}`}
               >
-                {'icon' in l && <span className={styles.linkIcon}>{l.icon}</span>}
+                {l.icon && <span className={styles.linkIcon}>{l.icon}</span>}
                 <span>{l.label}</span>
               </Link>
             )
@@ -140,9 +156,30 @@ export default function Navbar() {
               )}
             </form>
             
-            {searchOpen && query && (
+            {searchOpen && (
               <div className={styles.searchResults}>
-                {results.map(item => (
+                {/* History when empty query */}
+                {!query && history.length > 0 && (
+                  <>
+                    <div className={styles.historyHeader}>Recent Searches</div>
+                    <div className={styles.historyList}>
+                      {history.map(item => (
+                        <Link
+                          key={item}
+                          href={`/search?q=${encodeURIComponent(item)}`}
+                          className={styles.historyItem}
+                          onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
+                        >
+                          <span className={styles.historyIcon}>🕒</span>
+                          <span>{item}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Search Results */}
+                {query && results.map(item => (
                   <Link 
                     key={item.id} 
                     href={`/details/${item.id}?type=${mediaType(item)}`} 
@@ -158,7 +195,7 @@ export default function Navbar() {
                     </div>
                   </Link>
                 ))}
-                {results.length > 0 && (
+                {query && results.length > 0 && (
                   <Link 
                     href={`/search?q=${encodeURIComponent(query)}`} 
                     className={styles.searchResultMore}
@@ -167,7 +204,7 @@ export default function Navbar() {
                     View all results
                   </Link>
                 )}
-                {results.length === 0 && !isFetching && (
+                {query && results.length === 0 && !isFetching && (
                   <div className={styles.searchResultEmpty}>No results found.</div>
                 )}
               </div>

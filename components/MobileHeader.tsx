@@ -34,6 +34,7 @@ export default function MobileHeader() {
   const [isFetching, setIsFetching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [locationName, setLocationName] = useState<string | null>(null)
+  const [history, setHistory] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -41,8 +42,15 @@ export default function MobileHeader() {
     const cached = localStorage.getItem('user_location')
     if (cached) {
       setLocationName(cached)
-      return
     }
+
+    // Load search history
+    try {
+      const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
+      setHistory(h)
+    } catch {}
+
+    if (cached) return
     // Fetch if not present (simulates a slow load)
     fetch('https://ipapi.co/json/')
       .then(res => res.json())
@@ -74,8 +82,18 @@ export default function MobileHeader() {
 
   const submit = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-    if (!query.trim()) return
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+    const q = query.trim()
+    if (!q) return
+
+    // Save to history
+    try {
+      const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
+      const nextH = [q, ...h.filter((x: string) => x !== q)].slice(0, 10)
+      localStorage.setItem('searchHistory', JSON.stringify(nextH))
+      setHistory(nextH)
+    } catch {}
+
+    router.push(`/search?q=${encodeURIComponent(q)}`)
     setShowResults(false)
     setQuery('')
     inputRef.current?.blur()
@@ -118,9 +136,30 @@ export default function MobileHeader() {
             )}
           </form>
 
-          {showResults && query && (
+          {showResults && (
             <div className={styles.searchDropdown}>
-              {results.map(item => (
+              {/* Show history when query is empty */}
+              {!query && history.length > 0 && (
+                <>
+                  <div className={styles.historyHeader}>Recent Searches</div>
+                  <div className={styles.historyList}>
+                    {history.map(item => (
+                      <Link
+                        key={item}
+                        href={`/search?q=${encodeURIComponent(item)}`}
+                        className={styles.historyItem}
+                        onClick={() => { setShowResults(false); setQuery('') }}
+                      >
+                        <span className={styles.historyIcon}>🕒</span>
+                        <span>{item}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Show results when query is not empty */}
+              {query && results.map(item => (
                 <Link
                   key={item.id}
                   href={`/details/${item.id}?type=${mediaType(item)}`}
@@ -141,7 +180,7 @@ export default function MobileHeader() {
                   </div>
                 </Link>
               ))}
-              {results.length > 0 && (
+              {query && results.length > 0 && (
                 <button
                   className={styles.resultViewAll}
                   onMouseDown={() => submit()}
@@ -149,7 +188,7 @@ export default function MobileHeader() {
                   See all results for &ldquo;{query}&rdquo; →
                 </button>
               )}
-              {results.length === 0 && !isFetching && (
+              {query && results.length === 0 && !isFetching && (
                 <div className={styles.resultEmpty}>No results found</div>
               )}
             </div>
