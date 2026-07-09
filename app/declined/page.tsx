@@ -18,7 +18,7 @@ function DeclinedContent() {
     window.dispatchEvent(new Event('termsAccepted'))
     // Return user to their original destination if available
     const redirect = searchParams.get('redirect')
-    router.push(redirect || '/')
+    window.location.href = redirect || '/'
   }
 
   return (

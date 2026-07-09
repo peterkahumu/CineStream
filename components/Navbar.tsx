@@ -11,13 +11,13 @@ function handleScrolled(setScrolled: (v: boolean) => void) {
 }
 
 const CATEGORY_LINKS = [
-  { href: '/trending',    label: 'Trending',       icon: '🔥' },
-  { href: '/popular',     label: 'Popular',         icon: '🎞️' },
-  { href: '/top-rated',   label: 'Top Rated',       icon: '⭐' },
-  { href: '/now-playing', label: 'Now Playing',     icon: '🎬' },
-  { href: '/upcoming',    label: 'Coming Soon',     icon: '🍿' },
-  { href: '/providers',   label: 'Providers',       icon: '📺' },
-  { href: '/discover',    label: 'Discover',        icon: '🧭' },
+  { href: '/trending', label: 'Trending', icon: '🔥' },
+  { href: '/popular', label: 'Popular', icon: '🎞️' },
+  { href: '/top-rated', label: 'Top Rated', icon: '⭐' },
+  { href: '/now-playing', label: 'Now Playing', icon: '🎬' },
+  { href: '/upcoming', label: 'Coming Soon', icon: '🍿' },
+  { href: '/providers', label: 'Providers', icon: '📺' },
+  { href: '/discover', label: 'Discover', icon: '🧭' },
 ]
 
 export default function Navbar() {
@@ -64,7 +64,7 @@ export default function Navbar() {
     try {
       const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
       setHistory(h)
-    } catch {}
+    } catch { }
 
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -95,7 +95,7 @@ export default function Navbar() {
       const nextH = [q, ...h.filter((x: string) => x !== q)].slice(0, 10)
       localStorage.setItem('searchHistory', JSON.stringify(nextH))
       setHistory(nextH)
-    } catch {}
+    } catch { }
 
     router.push(`/search?q=${encodeURIComponent(q)}`)
     setSearchOpen(false)
@@ -129,7 +129,7 @@ export default function Navbar() {
                 href={l.href}
                 className={`${styles.link} ${isActive ? styles.active : ''}`}
               >
-                {l.icon && <span className={styles.linkIcon}>{l.icon}</span>}
+                {'icon' in l && <span className={styles.linkIcon}>{(l as any).icon}</span>}
                 <span>{l.label}</span>
               </Link>
             )
@@ -155,7 +155,7 @@ export default function Navbar() {
                 <button type="submit" className={styles.searchSubmit} aria-label="Search">⏎</button>
               )}
             </form>
-            
+
             {searchOpen && (
               <div className={styles.searchResults}>
                 {/* History when empty query */}
@@ -180,9 +180,9 @@ export default function Navbar() {
 
                 {/* Search Results */}
                 {query && results.map(item => (
-                  <Link 
-                    key={item.id} 
-                    href={`/details/${item.id}?type=${mediaType(item)}`} 
+                  <Link
+                    key={item.id}
+                    href={`/details/${item.id}?type=${mediaType(item)}`}
                     className={styles.searchResultItem}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >
@@ -190,14 +190,14 @@ export default function Navbar() {
                     <div>
                       <div className={styles.searchResultTitle}>{item.title || item.name}</div>
                       <div className={styles.searchResultMeta}>
-                        {item.media_type} • {(item.release_date || item.first_air_date || '').slice(0,4)}
+                        {item.media_type} • {(item.release_date || item.first_air_date || '').slice(0, 4)}
                       </div>
                     </div>
                   </Link>
                 ))}
                 {query && results.length > 0 && (
-                  <Link 
-                    href={`/search?q=${encodeURIComponent(query)}`} 
+                  <Link
+                    href={`/search?q=${encodeURIComponent(query)}`}
                     className={styles.searchResultMore}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >
@@ -213,7 +213,7 @@ export default function Navbar() {
 
           <button
             className={styles.iconBtn}
-            onClick={() => { 
+            onClick={() => {
               if (searchOpen && query.trim()) {
                 submit()
               } else {

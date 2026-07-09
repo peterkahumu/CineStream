@@ -10,7 +10,10 @@ import TermsAgreementModal from '@/components/TermsAgreementModal'
 import { SettingsProvider } from '@/components/SettingsProvider'
 
 export const viewport: Viewport = {
-  themeColor: '#0f172a',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
   viewportFit: 'cover',
 }
 
