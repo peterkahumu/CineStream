@@ -11,7 +11,7 @@ const BOT_UA_REGEX = /googlebot|bingbot|duckduckbot|facebookexternalhit|twitterb
 
 const TERMS_COOKIE = 'cinemaphora_terms'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const ua = request.headers.get('user-agent') || ''
 
@@ -35,7 +35,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.redirect(redirectUrl)
 }
 
-export const config = {
+export const proxyConfig = {
   /*
    * Match all request paths EXCEPT:
    * - _next/static (static files)
