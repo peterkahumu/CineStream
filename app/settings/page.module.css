@@ -115,6 +115,7 @@
 /* ── Theme buttons ─────────────────────────────────────────────── */
 .themeButtons {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -122,6 +123,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1 1 auto;
+  min-width: 100px;
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
   border-radius: 10px;
@@ -361,11 +364,6 @@
 @media (max-width: 600px) {
   .section {
     padding: 1.25rem;
-  }
-
-  .themeButtons {
-    flex-direction: column;
-    width: 100%;
   }
 
   .themeBtn {
