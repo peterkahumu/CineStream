@@ -30,9 +30,7 @@ export default function Navbar() {
   const [isFetching, setIsFetching] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const categoriesRef = useRef<HTMLDivElement>(null)
 
   const fetchSearchResults = useCallback(async () => {
     const q = query.trim()
@@ -64,16 +62,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close categories dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
-        setCategoriesOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+
 
   const handleKeyGlobal = useCallback((e: KeyboardEvent) => {
     if (e.key === '/' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
@@ -81,7 +70,7 @@ export default function Navbar() {
       setSearchOpen(true)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-    if (e.key === 'Escape') { setSearchOpen(false); setQuery(''); setCategoriesOpen(false) }
+    if (e.key === 'Escape') { setSearchOpen(false); setQuery('') }
   }, [])
 
   useEffect(() => {
@@ -114,51 +103,21 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop links */}
-        <div className={styles.links}>
-          {primaryLinks.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`${styles.link} ${pathname === l.href ? styles.active : ''}`}
-            >
-              {l.label}
-            </Link>
-          ))}
-
-          {/* Categories dropdown */}
-          <div className={styles.categoriesWrapper} ref={categoriesRef}>
-            <button
-              className={`${styles.link} ${styles.categoriesBtn} ${CATEGORY_LINKS.some(l => pathname.startsWith(l.href)) ? styles.active : ''}`}
-              onClick={() => setCategoriesOpen(o => !o)}
-              aria-expanded={categoriesOpen}
-            >
-              Browse
-              <svg
-                className={`${styles.chevron} ${categoriesOpen ? styles.chevronOpen : ''}`}
-                width="12" height="12" viewBox="0 0 12 12"
-                fill="none" stroke="currentColor" strokeWidth="2"
+        {/* Desktop scrollable links */}
+        <div className={styles.linksScroll}>
+          {[...primaryLinks, ...CATEGORY_LINKS].map(l => {
+            const isActive = l.href === '/' ? pathname === '/' : pathname.startsWith(l.href)
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`${styles.link} ${isActive ? styles.active : ''}`}
               >
-                <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            {categoriesOpen && (
-              <div className={styles.categoriesDropdown}>
-                {CATEGORY_LINKS.map(l => (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className={`${styles.categoryItem} ${pathname.startsWith(l.href) && l.href !== '/' ? styles.active : ''}`}
-                    onClick={() => setCategoriesOpen(false)}
-                  >
-                    <span>{l.icon}</span>
-                    <span>{l.label}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+                {'icon' in l && <span className={styles.linkIcon}>{l.icon}</span>}
+                <span>{l.label}</span>
+              </Link>
+            )
+          })}
         </div>
 
         {/* Right controls */}

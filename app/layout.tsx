@@ -11,6 +11,7 @@ import { SettingsProvider } from '@/components/SettingsProvider'
 
 export const viewport: Viewport = {
   themeColor: '#0f172a',
+  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
@@ -28,6 +29,11 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'CinemaPhora',
     description: 'Discover, search and stream movies & TV shows.',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'CinemaPhora',
   },
 }
 
@@ -51,6 +57,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     document.documentElement.dataset.theme = theme;
     var rm = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_reduceMotion=')}) || '').split('=')[1];
     if(rm === 'true') document.documentElement.dataset.reduceMotion = 'true';
+    var ds = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_dataSaver=')}) || '').split('=')[1];
+    if(ds === 'true') document.documentElement.dataset.dataSaver = 'true';
+    var layout = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_defaultLayout=')}) || '').split('=')[1];
+    if(layout) document.documentElement.dataset.layout = decodeURIComponent(layout.trim());
   } catch(e) {}
 })();
 `,

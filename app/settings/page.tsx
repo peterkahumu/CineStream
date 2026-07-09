@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSettings } from '@/components/SettingsProvider'
 import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
 import CustomSelect from '@/components/CustomSelect'
-import modalStyles from '@/components/TermsAgreementModal.module.css'
+import Modal from '@/components/Modal'
 import styles from './page.module.css'
 
 // Popular streaming providers with their TMDB IDs and emoji/colors
@@ -97,12 +97,26 @@ export default function SettingsPage() {
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
+
+  // ── Initialize client state ────────────────────────────────────────────
+  useEffect(() => {
+    setMounted(true)
+    const checkCookie = () => document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
+    setTermsAccepted(checkCookie())
+
+    const onTermsChanged = () => {
+      setTermsAccepted(checkCookie())
+    }
+    window.addEventListener('termsAccepted', onTermsChanged)
+    return () => window.removeEventListener('termsAccepted', onTermsChanged)
+  }, [])
 
   // ── Terms revoke ───────────────────────────────────────────────────────
   const handleConfirmRevoke = () => {
     document.cookie = 'cinemaphora_terms=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
-    localStorage.removeItem('termsAccepted')
     window.dispatchEvent(new Event('termsAccepted'))
     setShowRevokeConfirm(false)
     window.location.href = '/'
@@ -170,9 +184,7 @@ export default function SettingsPage() {
     updateSetting('preferredProviders', next)
   }
 
-  const termsAccepted = typeof window !== 'undefined'
-    ? localStorage.getItem('termsAccepted') === 'true'
-    : false
+  // Removed synchronous termsAccepted check to prevent hydration errors
 
   return (
     <>
@@ -397,7 +409,9 @@ export default function SettingsPage() {
                 <p>You must agree to the Terms of Use and Privacy Policy to use CinemaPhora.</p>
               </div>
               <div className={styles.settingControl}>
-                {termsAccepted ? (
+                {!mounted ? (
+                  <span className={styles.statusPending}>Loading...</span>
+                ) : termsAccepted ? (
                   <span className={styles.statusAccepted}>✓ Agreed</span>
                 ) : (
                   <span className={styles.statusPending}>✗ Not Agreed</span>
@@ -428,52 +442,26 @@ export default function SettingsPage() {
       </div>
 
       {/* ── Revoke Confirmation Modal ─────────────────────────────────── */}
-      {showRevokeConfirm && (
-        <div className={modalStyles.overlay}>
-          <div className={modalStyles.modal}>
-            <h2 className={modalStyles.title}>Are you sure?</h2>
-            <p className={modalStyles.message}>
-              You cannot use CinemaPhora without agreeing to the Terms of Use and Privacy Policy.
-              If you revoke your agreement, you will be prompted to accept the terms again.
-            </p>
-            <div className={modalStyles.buttonContainer}>
-              <button className={modalStyles.acceptButton} onClick={() => setShowRevokeConfirm(false)}>
-                Go Back
-              </button>
-              <button
-                className={`${modalStyles.declineButton} ${modalStyles.dangerButton}`}
-                onClick={handleConfirmRevoke}
-              >
-                Yes, Revoke Agreement
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showRevokeConfirm}
+        title="Are you sure?"
+        description="You cannot use CinemaPhora without agreeing to the Terms of Use and Privacy Policy. If you revoke your agreement, you will be prompted to accept the terms again."
+        confirmText="Yes, Revoke Agreement"
+        cancelText="Go Back"
+        onConfirm={handleConfirmRevoke}
+        onCancel={() => setShowRevokeConfirm(false)}
+      />
 
       {/* ── Clear All Confirmation Modal ──────────────────────────────── */}
-      {showClearConfirm && (
-        <div className={modalStyles.overlay}>
-          <div className={modalStyles.modal}>
-            <h2 className={modalStyles.title}>Clear All Data?</h2>
-            <p className={modalStyles.message}>
-              This will permanently delete your wishlist, search history, all settings, and your terms agreement from this device.
-              You will need to agree to the terms again. This action cannot be undone.
-            </p>
-            <div className={modalStyles.buttonContainer}>
-              <button className={modalStyles.acceptButton} onClick={() => setShowClearConfirm(false)}>
-                Cancel
-              </button>
-              <button
-                className={`${modalStyles.declineButton} ${modalStyles.dangerButton}`}
-                onClick={handleConfirmClearAll}
-              >
-                Yes, Clear Everything
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showClearConfirm}
+        title="Clear All Data?"
+        description="This will permanently delete your wishlist, search history, all settings, and your terms agreement from this device. You will need to agree to the terms again. This action cannot be undone."
+        confirmText="Yes, Clear Everything"
+        cancelText="Cancel"
+        onConfirm={handleConfirmClearAll}
+        onCancel={() => setShowClearConfirm(false)}
+      />
     </>
   )
 }

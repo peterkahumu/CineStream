@@ -94,4 +94,7 @@ export function applySettingsToDOM(settings: UserSettings) {
 
   // Data saver
   html.dataset.dataSaver = String(settings.dataSaver)
+
+  // Layout
+  html.dataset.layout = settings.defaultLayout
 }

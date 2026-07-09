@@ -370,6 +370,12 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 @media (min-width: 640px)  { .media-grid { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); } }
 @media (min-width: 1024px) { .media-grid { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); } }
 
+[data-layout="list"] .media-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* ─── Divider ────────────────────────────────────────────────────────────────── */
 .divider {
   height: 1px;
