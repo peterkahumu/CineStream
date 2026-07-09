@@ -21,6 +21,11 @@ export default function TermsAgreementModal() {
   }, [])
 
   const handleAccept = () => {
+    // Set HTTP cookie so Next.js Middleware can read it server-side
+    const expires = new Date()
+    expires.setFullYear(expires.getFullYear() + 10)
+    document.cookie = `cinemaphora_terms=true; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
+    // Also keep localStorage for client-side reads (SettingsContext)
     localStorage.setItem('termsAccepted', 'true')
     window.dispatchEvent(new Event('termsAccepted'))
     setShowModal(false)

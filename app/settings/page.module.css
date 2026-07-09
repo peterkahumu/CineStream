@@ -1,66 +1,412 @@
 .container {
-  max-width: 800px;
+  max-width: 760px;
   margin: 0 auto;
-  color: var(--text-primary);
 }
 
+/* ── Page header ───────────────────────────────────────────────── */
 .header {
-  margin-bottom: var(--space-xl);
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .title {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  margin-bottom: 4px;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
+/* ── Section cards ─────────────────────────────────────────────── */
 .section {
   background: var(--bg-card);
-  padding: 1.5rem;
-  border-radius: 12px;
   border: 1px solid var(--border);
-  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
-.section h2 {
-  font-size: 1.25rem;
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Setting row ───────────────────────────────────────────────── */
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settingRow:last-of-type {
+  border-bottom: none;
+}
+
+.settingLabel {
+  flex: 1;
+}
+
+.settingLabel span {
+  display: block;
   font-weight: 600;
-  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.settingLabel p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.settingControl {
+  flex-shrink: 0;
+}
+
+/* ── Toggle ────────────────────────────────────────────────────── */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border-strong);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.toggleOn {
+  background: var(--accent);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+  display: block;
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(20px);
+}
+
+/* ── Theme buttons ─────────────────────────────────────────────── */
+.themeButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.themeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.themeBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.themeBtnActive {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ── Layout buttons ────────────────────────────────────────────── */
+.layoutButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.layoutBtn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.layoutBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.layoutBtnActive {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ── Select ────────────────────────────────────────────────────── */
+.select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  transition: border-color 0.15s;
+}
+
+.select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* ── Provider chips ────────────────────────────────────────────── */
+.providersBlock {
+  padding: 0.875rem 0 0;
+}
+
+.providersBlock > .settingLabel {
+  margin-bottom: 0.875rem;
+}
+
+.providersBlock .settingLabel span {
+  font-weight: 600;
+  font-size: 0.9rem;
   color: var(--text-primary);
 }
 
-.section p {
-  margin-bottom: 1rem;
+.providersBlock .settingLabel p {
+  font-size: 0.8rem;
   color: var(--text-secondary);
+}
+
+.providerGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.providerChip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.providerChip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.providerChipActive {
+  color: var(--text-primary);
+}
+
+/* ── Data management actions ───────────────────────────────────── */
+.dataActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dataAction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dataAction:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dataAction strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.dataAction p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
   line-height: 1.5;
 }
 
-.revokeButton {
-  background: #dc2626; /* red-600 */
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
+.actionBtn {
+  flex-shrink: 0;
+  padding: 0.45rem 1rem;
   border-radius: 8px;
-  font-size: 1rem;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.revokeButton:hover {
-  background: #b91c1c; /* red-700 */
+.actionBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-.statusAccepted {
-  color: #16a34a; /* green-600 */
+.dangerBtn {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.dangerBtn:hover {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.importSuccess {
+  color: var(--green);
   font-weight: 600;
+}
+
+.importError {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* ── Status badges ─────────────────────────────────────────────── */
+.statusAccepted {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--green-light);
+  color: var(--green-text);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .statusPending {
-  color: #d97706; /* amber-600 */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--red-light);
+  color: var(--red);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.revokeButton {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  border: 1.5px solid rgba(239, 68, 68, 0.4);
+  background: transparent;
+  color: #ef4444;
+  font-size: 0.875rem;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.revokeButton:hover {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ── Danger zone ───────────────────────────────────────────────── */
+.dangerZone {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dangerZone .sectionTitle {
+  color: #ef4444;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .section {
+    padding: 1.25rem;
+  }
+
+  .themeButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .themeBtn {
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .settingRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .dataAction {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actionBtn {
+    width: 100%;
+    text-align: center;
+  }
 }

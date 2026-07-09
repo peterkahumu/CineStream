@@ -1,0 +1,66 @@
+'use client'
+
+import {
+  createContext, useContext, useEffect, useState, useCallback,
+  type ReactNode,
+} from 'react'
+import {
+  UserSettings, DEFAULT_SETTINGS,
+  readAllSettings, writeSetting, applySettingsToDOM,
+} from '@/lib/settings'
+
+interface SettingsContextValue {
+  settings: UserSettings
+  updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void
+}
+
+const SettingsContext = createContext<SettingsContextValue>({
+  settings: DEFAULT_SETTINGS,
+  updateSetting: () => {},
+})
+
+export function useSettings() {
+  return useContext(SettingsContext)
+}
+
+export function SettingsProvider({ children }: { children: ReactNode }) {
+  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS)
+
+  // Read cookies on first mount and apply to DOM
+  useEffect(() => {
+    const loaded = readAllSettings()
+    setSettings(loaded)
+    applySettingsToDOM(loaded)
+
+    // Watch system theme changes if setting is 'system'
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const onSystemChange = () => {
+      setSettings(prev => {
+        if (prev.theme === 'system') {
+          applySettingsToDOM(prev)
+        }
+        return prev
+      })
+    }
+    mq.addEventListener('change', onSystemChange)
+    return () => mq.removeEventListener('change', onSystemChange)
+  }, [])
+
+  const updateSetting = useCallback(<K extends keyof UserSettings>(
+    key: K,
+    value: UserSettings[K],
+  ) => {
+    writeSetting(key, value)
+    setSettings(prev => {
+      const next = { ...prev, [key]: value }
+      applySettingsToDOM(next)
+      return next
+    })
+  }, [])
+
+  return (
+    <SettingsContext.Provider value={{ settings, updateSetting }}>
+      {children}
+    </SettingsContext.Provider>
+  )
+}

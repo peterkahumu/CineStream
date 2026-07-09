@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 import MobileNav from '@/components/MobileNav'
 import CapacitorInit from '@/components/CapacitorInit'
 import TermsAgreementModal from '@/components/TermsAgreementModal'
-import RouteProtector from '@/components/RouteProtector'
+import { SettingsProvider } from '@/components/SettingsProvider'
 
 export const viewport: Viewport = {
   themeColor: '#0f172a',
@@ -37,9 +37,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* No-FOUC: synchronously sets data-theme before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function(){
+  try {
+    var theme = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_theme=')}) || '').split('=')[1];
+    if(theme) theme = decodeURIComponent(theme.trim());
+    if(!theme || theme === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+    var rm = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_reduceMotion=')}) || '').split('=')[1];
+    if(rm === 'true') document.documentElement.dataset.reduceMotion = 'true';
+  } catch(e) {}
+})();
+`,
+          }}
+        />
       </head>
       <body>
-        <RouteProtector>
+        <SettingsProvider>
           <CapacitorInit />
           <Navbar />
           <Suspense fallback={<header style={{ height: 'var(--mobile-header-height)' }} />}>
@@ -49,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <MobileNav />
           <TermsAgreementModal />
-        </RouteProtector>
+        </SettingsProvider>
       </body>
     </html>
   )

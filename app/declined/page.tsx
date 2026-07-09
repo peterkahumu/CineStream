@@ -1,16 +1,24 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import styles from './page.module.css'
 
-export default function DeclinedPage() {
+function DeclinedContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleAgree = () => {
+    // Set proper HTTP cookie for Middleware
+    const expires = new Date()
+    expires.setFullYear(expires.getFullYear() + 10)
+    document.cookie = `cinemaphora_terms=true; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
     localStorage.setItem('termsAccepted', 'true')
     window.dispatchEvent(new Event('termsAccepted'))
-    router.push('/')
+    // Return user to their original destination if available
+    const redirect = searchParams.get('redirect')
+    router.push(redirect || '/')
   }
 
   return (
@@ -19,7 +27,7 @@ export default function DeclinedPage() {
         <div className={styles.icon}>🛑</div>
         <h1 className={styles.title}>Terms Declined</h1>
         <p className={styles.message}>
-          You must agree to the Terms of Use and Privacy Policy to use CinemaPhora. 
+          You must agree to the Terms of Use and Privacy Policy to use CinemaPhora.
           Because you declined, access to the application is restricted.
         </p>
         <div className={styles.buttons}>
@@ -32,5 +40,13 @@ export default function DeclinedPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DeclinedPage() {
+  return (
+    <Suspense fallback={<div className="page-content page-container" />}>
+      <DeclinedContent />
+    </Suspense>
   )
 }
