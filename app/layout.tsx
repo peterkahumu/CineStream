@@ -6,6 +6,8 @@ import MobileHeader from '@/components/MobileHeader'
 import Footer from '@/components/Footer'
 import MobileNav from '@/components/MobileNav'
 import CapacitorInit from '@/components/CapacitorInit'
+import TermsAgreementModal from '@/components/TermsAgreementModal'
+import RouteProtector from '@/components/RouteProtector'
 
 export const viewport: Viewport = {
   themeColor: '#0f172a',
@@ -37,14 +39,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <CapacitorInit />
-        <Navbar />
-        <Suspense fallback={<header style={{ height: 'var(--mobile-header-height)' }} />}>
-          <MobileHeader />
-        </Suspense>
-        <div className="site-main">{children}</div>
-        <Footer />
-        <MobileNav />
+        <RouteProtector>
+          <CapacitorInit />
+          <Navbar />
+          <Suspense fallback={<header style={{ height: 'var(--mobile-header-height)' }} />}>
+            <MobileHeader />
+          </Suspense>
+          <div className="site-main">{children}</div>
+          <Footer />
+          <MobileNav />
+          <TermsAgreementModal />
+        </RouteProtector>
       </body>
     </html>
   )

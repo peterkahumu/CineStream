@@ -76,6 +76,10 @@ CinemaPhora is a Progressive Web App — install it directly to your device from
 - **How to Install:** In Chrome/Edge look for the install icon in the URL bar, or use *Add to Home Screen* in your browser menu.
 - **Benefits:** Launches in full-screen native mode. Images and data are cached locally for instant loads even on a slow connection.
 
+### 11. Legal & Settings
+When you first open CinemaPhora, you will be prompted to agree to our Terms of Use and Privacy Policy. This is required because CinemaPhora acts as a search engine for third-party streams.
+- **Settings:** You can view your agreement status or revoke it at any time by clicking "Settings" in the footer, or navigating to `/settings`.
+
 ---
 
 ## 🛠️ Troubleshooting
