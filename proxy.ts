@@ -35,6 +35,8 @@ export function proxy(request: NextRequest) {
   return NextResponse.redirect(redirectUrl)
 }
 
+export default proxy
+
 export const proxyConfig = {
   /*
    * Match all request paths EXCEPT:
