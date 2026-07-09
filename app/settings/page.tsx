@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useSettings } from '@/components/SettingsProvider'
 import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
+import CustomSelect from '@/components/CustomSelect'
 import modalStyles from '@/components/TermsAgreementModal.module.css'
 import styles from './page.module.css'
 
@@ -257,27 +258,19 @@ export default function SettingsPage() {
             </SettingRow>
 
             <SettingRow label="Region" description="Your TMDB region affects release dates and available streaming providers.">
-              <select
-                className={styles.select}
+              <CustomSelect
                 value={settings.region}
-                onChange={e => updateSetting('region', e.target.value)}
-              >
-                {REGIONS.map(r => (
-                  <option key={r.code} value={r.code}>{r.name}</option>
-                ))}
-              </select>
+                options={REGIONS.map(r => ({ value: r.code, label: r.name }))}
+                onChange={v => updateSetting('region', v)}
+              />
             </SettingRow>
 
             <SettingRow label="Language" description="Preferred language for titles and descriptions.">
-              <select
-                className={styles.select}
+              <CustomSelect
                 value={settings.language}
-                onChange={e => updateSetting('language', e.target.value)}
-              >
-                {LANGUAGES.map(l => (
-                  <option key={l.code} value={l.code}>{l.name}</option>
-                ))}
-              </select>
+                options={LANGUAGES.map(l => ({ value: l.code, label: l.name }))}
+                onChange={v => updateSetting('language', v)}
+              />
             </SettingRow>
 
             <div className={styles.providersBlock}>
@@ -334,16 +327,16 @@ export default function SettingsPage() {
             </SettingRow>
 
             <SettingRow label="Default Wishlist Sort" description="How your saved list is ordered by default.">
-              <select
-                className={styles.select}
+              <CustomSelect
                 value={settings.defaultSortWishlist}
-                onChange={e => updateSetting('defaultSortWishlist', e.target.value as WishlistSort)}
-              >
-                <option value="added">Recently Added</option>
-                <option value="alpha">Alphabetical</option>
-                <option value="rating">Highest Rated</option>
-                <option value="date">Release Date</option>
-              </select>
+                options={[
+                  { value: 'added', label: 'Recently Added' },
+                  { value: 'alpha', label: 'Alphabetical' },
+                  { value: 'rating', label: 'Highest Rated' },
+                  { value: 'date', label: 'Release Date' },
+                ]}
+                onChange={v => updateSetting('defaultSortWishlist', v as WishlistSort)}
+              />
             </SettingRow>
           </section>
 
