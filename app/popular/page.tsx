@@ -14,7 +14,7 @@ export default async function PopularPage(props: {
 }) {
   const searchParams = await props.searchParams
   const rawMedia = searchParams.media
-  const media = (rawMedia === 'tv' ? 'tv' : rawMedia === 'all' ? 'all' : 'movie') as 'all' | 'movie' | 'tv'
+  const media = (rawMedia === 'movie' ? 'movie' : rawMedia === 'tv' ? 'tv' : 'all') as 'all' | 'movie' | 'tv'
 
   if (media === 'all') {
     // Parallel-fetch both movies and TV for the All tab

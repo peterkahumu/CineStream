@@ -19,13 +19,12 @@ export default async function DiscoverPage(props: {
 
   const countries = countriesRes.sort((a, b) => a.english_name.localeCompare(b.english_name))
 
-  const media = searchParams.media || 'movie'
+  const media = searchParams.media || 'all'
   const isUpcoming = searchParams['primary_release_date.gte'] || searchParams['first_air_date.gte']
 
   const apiParams: Record<string, string | number | boolean> = {
     sort_by: searchParams.sort || 'popularity.desc',
     page: 1,
-    // Don't filter by vote count for upcoming — unreleased titles have no votes yet
     ...(!isUpcoming && { 'vote_count.gte': 10 }),
   }
 
@@ -37,17 +36,36 @@ export default async function DiscoverPage(props: {
     apiParams['with_watch_providers'] = searchParams.with_watch_providers
     apiParams['watch_region'] = searchParams.watch_region || 'US'
   }
-  // Date range filters (upcoming / provider deep-links)
   if (searchParams['primary_release_date.gte']) apiParams['primary_release_date.gte'] = searchParams['primary_release_date.gte']
   if (searchParams['primary_release_date.lte']) apiParams['primary_release_date.lte'] = searchParams['primary_release_date.lte']
   if (searchParams['first_air_date.gte'])       apiParams['first_air_date.gte']       = searchParams['first_air_date.gte']
   if (searchParams['first_air_date.lte'])       apiParams['first_air_date.lte']       = searchParams['first_air_date.lte']
-  if (searchParams.year) {
-    if (media === 'movie') apiParams['primary_release_year'] = searchParams.year
-    else                   apiParams['first_air_date_year']  = searchParams.year
-  }
 
-  const data = await discover({ media, ...apiParams } as any)
+  let initialItems: any[] = []
+  let totalPages = 1
+  let initialMovieItems: any[] = []
+  let initialTvItems: any[] = []
+  let movieTotalPages = 1
+  let tvTotalPages = 1
+
+  if (media === 'all') {
+    const [movieData, tvData] = await Promise.all([
+      discover({ media: 'movie', ...apiParams, ...(searchParams.year && { primary_release_year: searchParams.year }) } as any),
+      discover({ media: 'tv', ...apiParams, ...(searchParams.year && { first_air_date_year: searchParams.year }) } as any),
+    ])
+    initialMovieItems = movieData.results
+    initialTvItems = tvData.results
+    movieTotalPages = movieData.total_pages
+    tvTotalPages = tvData.total_pages
+  } else {
+    if (searchParams.year) {
+      if (media === 'movie') apiParams['primary_release_year'] = searchParams.year
+      else                   apiParams['first_air_date_year']  = searchParams.year
+    }
+    const data = await discover({ media, ...apiParams } as any)
+    initialItems = data.results
+    totalPages = data.total_pages
+  }
 
   // key forces DiscoverClient to remount when filters change — no useEffect sync needed
   const clientKey = JSON.stringify(searchParams)
@@ -58,7 +76,7 @@ export default async function DiscoverPage(props: {
         <div className={styles.header}>
           <h1 className={styles.title}>Discover</h1>
           <p className={styles.subtitle}>
-            Browse {media === 'movie' ? 'movies' : 'TV shows'} by genre, country, year and more
+            Browse {media === 'all' ? 'movies and TV shows' : media === 'movie' ? 'movies' : 'TV shows'} by genre, country, year and more
           </p>
         </div>
 
@@ -72,9 +90,14 @@ export default async function DiscoverPage(props: {
 
         <DiscoverClient
           key={clientKey}
-          initialItems={data.results}
-          totalPages={data.total_pages}
+          initialItems={initialItems}
+          totalPages={totalPages}
           searchParams={searchParams}
+          media={media as 'all' | 'movie' | 'tv'}
+          initialMovieItems={initialMovieItems}
+          initialTvItems={initialTvItems}
+          movieTotalPages={movieTotalPages}
+          tvTotalPages={tvTotalPages}
         />
       </div>
     </main>

@@ -14,7 +14,7 @@ export default async function TopRatedPage(props: {
 }) {
   const searchParams = await props.searchParams
   const rawMedia = searchParams.media
-  const media = (rawMedia === 'tv' ? 'tv' : rawMedia === 'all' ? 'all' : 'movie') as 'all' | 'movie' | 'tv'
+  const media = (rawMedia === 'movie' ? 'movie' : rawMedia === 'tv' ? 'tv' : 'all') as 'all' | 'movie' | 'tv'
 
   if (media === 'all') {
     const [movieData, tvData] = await Promise.all([

@@ -48,7 +48,7 @@ export default function TrendingClient({ initialItems, totalPages, media }: Prop
     // Guard against concurrent calls without depending on the loadingMore state
     if (loadingRef.current) return
     const next = page + 1
-    if (next > Math.min(totalPages, 10)) { setExhausted(true); return }
+    if (next > totalPages) { setExhausted(true); return }
 
     loadingRef.current = true
     setLoadingMore(true)
@@ -59,7 +59,7 @@ export default function TrendingClient({ initialItems, totalPages, media }: Prop
         return [...prev, ...data.results.filter(i => !seen.has(i.id))]
       })
       setPage(next)
-      if (next >= Math.min(totalPages, 10)) setExhausted(true)
+      if (next >= totalPages) setExhausted(true)
     } catch (e) {
       console.error('Failed to load more trending', e)
     } finally {

@@ -98,8 +98,8 @@ export default function NowPlayingClient({
       if (media === 'all') {
         const nextMovie = moviePage + 1
         const nextTv = tvPage + 1
-        const movieDone = nextMovie > Math.min(movieTotalPages, 10)
-        const tvDone = nextTv > Math.min(tvTotalPages, 10)
+        const movieDone = nextMovie > movieTotalPages
+        const tvDone = nextTv > tvTotalPages
         if (movieDone && tvDone) { setExhausted(true); return }
 
         const [newMovies, newTv] = await Promise.all([
@@ -122,12 +122,12 @@ export default function NowPlayingClient({
           setTvPage(nextTv)
         }
 
-        const newMovieDone = (newMovies ? nextMovie : moviePage) >= Math.min(movieTotalPages, 10)
-        const newTvDone = (newTv ? nextTv : tvPage) >= Math.min(tvTotalPages, 10)
+        const newMovieDone = (newMovies ? nextMovie : moviePage) >= movieTotalPages
+        const newTvDone = (newTv ? nextTv : tvPage) >= tvTotalPages
         if (newMovieDone && newTvDone) setExhausted(true)
       } else {
         const next = page + 1
-        if (next > Math.min(totalPages, 10)) { setExhausted(true); return }
+        if (next > totalPages) { setExhausted(true); return }
 
         const data = await fetchNowPlayingPage(media, next)
         setItems(prev => {
@@ -135,7 +135,7 @@ export default function NowPlayingClient({
           return [...prev, ...data.results.filter(i => !seen.has(i.id))]
         })
         setPage(next)
-        if (next >= Math.min(totalPages, 10)) setExhausted(true)
+        if (next >= totalPages) setExhausted(true)
       }
     } catch (e) {
       console.error('Failed to load more', e)

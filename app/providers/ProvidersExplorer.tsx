@@ -119,7 +119,7 @@ function ProviderPanel({ provider, mediaType, initialItems, totalPages }: Provid
   const loadMore = useCallback(async () => {
     if (loadingRef.current) return
     const next = page + 1
-    if (next > Math.min(totalPages, 15)) return
+    if (next > totalPages) return
     loadingRef.current = true
     setLoadingMore(true)
     try {
@@ -129,7 +129,7 @@ function ProviderPanel({ provider, mediaType, initialItems, totalPages }: Provid
         return [...prev, ...data.results.filter(i => !seen.has(i.id))]
       })
       setPage(next)
-      if (next >= Math.min(totalPages, 15)) setExhausted(true)
+      if (next >= totalPages) setExhausted(true)
     } catch { /* ignore */ } finally {
       setLoadingMore(false)
       loadingRef.current = false
@@ -213,8 +213,8 @@ function ProviderPanelAll({ provider, initialMovieItems, initialTvItems, movieTo
     try {
       const nextMovie = moviePage + 1
       const nextTv = tvPage + 1
-      const movieDone = nextMovie > Math.min(movieTotalPages, 15)
-      const tvDone = nextTv > Math.min(tvTotalPages, 15)
+      const movieDone = nextMovie > movieTotalPages
+      const tvDone = nextTv > tvTotalPages
       if (movieDone && tvDone) { setExhausted(true); return }
 
       const [newMovies, newTv] = await Promise.all([
@@ -237,8 +237,8 @@ function ProviderPanelAll({ provider, initialMovieItems, initialTvItems, movieTo
         setTvPage(nextTv)
       }
 
-      const newMovieDone = (newMovies ? nextMovie : moviePage) >= Math.min(movieTotalPages, 15)
-      const newTvDone = (newTv ? nextTv : tvPage) >= Math.min(tvTotalPages, 15)
+      const newMovieDone = (newMovies ? nextMovie : moviePage) >= movieTotalPages
+      const newTvDone = (newTv ? nextTv : tvPage) >= tvTotalPages
       if (newMovieDone && newTvDone) setExhausted(true)
     } catch { /* ignore */ } finally {
       setLoadingMore(false)
@@ -298,7 +298,7 @@ export default function ProvidersExplorer({ initialData }: Props) {
 
   const initProviderId = Number(searchParams.get('provider')) || 8
   const rawMedia = searchParams.get('media')
-  const initMedia = (rawMedia === 'tv' ? 'tv' : rawMedia === 'all' ? 'all' : 'movie') as 'all' | 'movie' | 'tv'
+  const initMedia = (rawMedia === 'movie' ? 'movie' : rawMedia === 'tv' ? 'tv' : 'all') as 'all' | 'movie' | 'tv'
 
   const [activeProvider, setActiveProvider] = useState<number>(
     PROVIDERS.find(p => p.id === initProviderId) ? initProviderId : 8

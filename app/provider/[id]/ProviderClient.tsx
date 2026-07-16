@@ -38,12 +38,12 @@ export default function ProviderClient({ initialItems, totalPages, providerId, m
   const [items, setItems] = useState<MediaItem[]>(initialItems)
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [exhausted, setExhausted] = useState(page >= Math.min(totalPages, 500))
+  const [exhausted, setExhausted] = useState(page >= totalPages)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const loadMore = useCallback(async () => {
     const next = page + 1
-    if (loadingMore || next > Math.min(totalPages, 500)) return
+    if (loadingMore || next > totalPages) return
     setLoadingMore(true)
     try {
       const sixMonthsAgo = new Date()
@@ -69,7 +69,7 @@ export default function ProviderClient({ initialItems, totalPages, providerId, m
         return [...prev, ...data.results.filter(i => !seen.has(i.id))]
       })
       setPage(next)
-      if (next >= Math.min(totalPages, 500)) setExhausted(true)
+      if (next >= totalPages) setExhausted(true)
     } catch (e) {
       console.error('Failed to load more', e)
     } finally {

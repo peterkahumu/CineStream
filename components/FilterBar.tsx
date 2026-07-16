@@ -55,7 +55,7 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
   const searchParams = useSearchParams()
   const [expanded, setExpanded] = useState(false)
 
-  const media = (searchParams.get('media') as 'movie' | 'tv') || 'movie'
+  const media = (searchParams.get('media') as 'all' | 'movie' | 'tv') || 'all'
   const sort_by = searchParams.get('sort') || 'popularity.desc'
   const genreId = searchParams.get('genre') || ''
   const country = searchParams.get('country') || ''
@@ -63,8 +63,8 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
   const minRating = searchParams.get('minRating') || ''
   const language = searchParams.get('language') || ''
 
-  const genres = media === 'movie' ? movieGenres : tvGenres
-  const sortOptions = media === 'movie' ? SORT_OPTIONS : SORT_TV
+  const genres = media === 'movie' ? movieGenres : media === 'tv' ? tvGenres : []
+  const sortOptions = media === 'tv' ? SORT_TV : SORT_OPTIONS
   const hasFilters = genreId || country || year || minRating || language
 
   const setFilter = (key: string, value: string) => {
@@ -88,7 +88,7 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
   }
 
   const reset = () => {
-    router.push(`/discover?media=movie&sort=popularity.desc`)
+    router.push(`/discover?media=all&sort=popularity.desc`)
   }
 
   return (
@@ -97,6 +97,12 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
       <div className={styles.primary}>
         {/* Media type toggle */}
         <div className={styles.typeToggle}>
+          <button
+            className={`${styles.typeBtn} ${media === 'all' ? styles.typeBtnActive : ''}`}
+            onClick={() => setFilter('media', 'all')}
+          >
+            🌐 All
+          </button>
           <button
             className={`${styles.typeBtn} ${media === 'movie' ? styles.typeBtnActive : ''}`}
             onClick={() => setFilter('media', 'movie')}
@@ -141,17 +147,20 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
       {expanded && (
         <div className={styles.secondary}>
           {/* Genre */}
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Genre</label>
-            <CustomSelect
-              value={genreId}
-              options={[
-                { value: '', label: 'All Genres' },
-                ...genres.map(g => ({ value: String(g.id), label: g.name }))
-              ]}
-              onChange={v => setFilter('genre', v)}
-            />
-          </div>
+          {/* Genre (Hidden for 'all' since IDs diverge) */}
+          {media !== 'all' && (
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>Genre</label>
+              <CustomSelect
+                value={genreId}
+                options={[
+                  { value: '', label: 'All Genres' },
+                  ...genres.map(g => ({ value: String(g.id), label: g.name }))
+                ]}
+                onChange={v => setFilter('genre', v)}
+              />
+            </div>
+          )}
 
           {/* Country */}
           <div className={styles.filterGroup}>

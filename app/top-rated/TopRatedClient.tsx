@@ -85,8 +85,8 @@ export default function TopRatedClient({
   const loadingRef = useRef(false)
   const [exhausted, setExhausted] = useState(
     media === 'all'
-      ? moviePage >= Math.min(movieTotalPages, 20) && tvPage >= Math.min(tvTotalPages, 20)
-      : page >= Math.min(totalPages, 20)
+      ? moviePage >= movieTotalPages && tvPage >= tvTotalPages
+      : page >= totalPages
   )
   const sentinelRef = useRef<HTMLDivElement>(null)
 
@@ -101,8 +101,8 @@ export default function TopRatedClient({
       if (media === 'all') {
         const nextMovie = moviePage + 1
         const nextTv = tvPage + 1
-        const movieDone = nextMovie > Math.min(movieTotalPages, 20)
-        const tvDone = nextTv > Math.min(tvTotalPages, 20)
+        const movieDone = nextMovie > movieTotalPages
+        const tvDone = nextTv > tvTotalPages
         if (movieDone && tvDone) { setExhausted(true); return }
 
         const [newMovies, newTv] = await Promise.all([
@@ -125,12 +125,12 @@ export default function TopRatedClient({
           setTvPage(nextTv)
         }
 
-        const newMovieDone = (newMovies ? nextMovie : moviePage) >= Math.min(movieTotalPages, 20)
-        const newTvDone = (newTv ? nextTv : tvPage) >= Math.min(tvTotalPages, 20)
+        const newMovieDone = (newMovies ? nextMovie : moviePage) >= movieTotalPages
+        const newTvDone = (newTv ? nextTv : tvPage) >= tvTotalPages
         if (newMovieDone && newTvDone) setExhausted(true)
       } else {
         const next = page + 1
-        if (next > Math.min(totalPages, 20)) { setExhausted(true); return }
+        if (next > totalPages) { setExhausted(true); return }
 
         const data = await fetchTopRatedPage(media, next)
         setItems(prev => {
@@ -138,7 +138,7 @@ export default function TopRatedClient({
           return [...prev, ...data.results.filter(i => !seen.has(i.id))]
         })
         setPage(next)
-        if (next >= Math.min(totalPages, 20)) setExhausted(true)
+        if (next >= totalPages) setExhausted(true)
       }
     } catch (e) {
       console.error('Failed to load more top rated', e)
