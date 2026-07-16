@@ -104,6 +104,7 @@ export default function SettingsPage() {
   const [termsAccepted, setTermsState] = useState(false)
   const [mounted, setMounted] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
+  const importTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Initialize client state ────────────────────────────────────────────
   useEffect(() => {
@@ -144,10 +145,12 @@ export default function SettingsPage() {
         localStorage.setItem(WISHLIST_KEY, JSON.stringify(parsed))
         setImportStatus('success')
         window.dispatchEvent(new StorageEvent('storage', { key: WISHLIST_KEY }))
-        setTimeout(() => setImportStatus('idle'), 3000)
+        if (importTimerRef.current) clearTimeout(importTimerRef.current)
+        importTimerRef.current = setTimeout(() => setImportStatus('idle'), 3000)
       } catch {
         setImportStatus('error')
-        setTimeout(() => setImportStatus('idle'), 3000)
+        if (importTimerRef.current) clearTimeout(importTimerRef.current)
+        importTimerRef.current = setTimeout(() => setImportStatus('idle'), 3000)
       }
     }
     reader.readAsText(file)

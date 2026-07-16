@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Modal from './Modal'
 import styles from './ActionButtons.module.css'
@@ -32,6 +32,16 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
   const [showWishlistToast, setShowWishlistToast] = useState(false)
   const [showShareToast, setShowShareToast] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const wishlistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const shareTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Clear timers on unmount to prevent state updates on dead components
+  useEffect(() => {
+    return () => {
+      if (wishlistTimerRef.current) clearTimeout(wishlistTimerRef.current)
+      if (shareTimerRef.current) clearTimeout(shareTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     setInWishlist(readWishlistStatus(id))
@@ -58,7 +68,8 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
         })
         setInWishlist(true)
         setShowWishlistToast(true)
-        setTimeout(() => setShowWishlistToast(false), 3000)
+        if (wishlistTimerRef.current) clearTimeout(wishlistTimerRef.current)
+        wishlistTimerRef.current = setTimeout(() => setShowWishlistToast(false), 3000)
         localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
       }
     } catch (e) {
@@ -95,7 +106,8 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
       try {
         await navigator.clipboard.writeText(url)
         setShowShareToast(true)
-        setTimeout(() => setShowShareToast(false), 3000)
+        if (shareTimerRef.current) clearTimeout(shareTimerRef.current)
+        shareTimerRef.current = setTimeout(() => setShowShareToast(false), 3000)
       } catch (err) {
         console.error('Failed to copy', err)
       }

@@ -6,6 +6,8 @@ import { MediaItem } from '@/lib/tmdb'
 import baseStyles from './MediaRow.module.css'
 import styles from './Top10Row.module.css'
 
+const GEO_CACHE_KEY = 'cinemaphora-geo'
+
 async function fetchTop10Data(
   setCountry: (v: string) => void,
   setMovieItems: (v: MediaItem[]) => void,
@@ -15,14 +17,27 @@ async function fetchTop10Data(
   setLoading: (v: boolean) => void,
 ) {
   try {
-    const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json')
-    if (!geoRes.ok) throw new Error('Geo failed')
-    const geo = await geoRes.json()
-    setCountry(geo.country)
+    // Use cached country code to avoid a geo API call on every page load
+    let countryCode: string
+    let countryName: string
+    const cached = localStorage.getItem(GEO_CACHE_KEY)
+    if (cached) {
+      const parsed = JSON.parse(cached)
+      countryCode = parsed.countryCode
+      countryName = parsed.countryName
+    } else {
+      const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json')
+      if (!geoRes.ok) throw new Error('Geo failed')
+      const geo = await geoRes.json()
+      countryCode = geo.country_code
+      countryName = geo.country
+      localStorage.setItem(GEO_CACHE_KEY, JSON.stringify({ countryCode, countryName }))
+    }
+    setCountry(countryName)
 
     const [movieRes, tvRes] = await Promise.all([
-      fetch(`/api/tmdb/discover/movie?region=${geo.country_code}&sort_by=popularity.desc&page=1`),
-      fetch(`/api/tmdb/discover/tv?region=${geo.country_code}&sort_by=popularity.desc&page=1`),
+      fetch(`/api/tmdb/discover/movie?region=${countryCode}&sort_by=popularity.desc&page=1`),
+      fetch(`/api/tmdb/discover/tv?region=${countryCode}&sort_by=popularity.desc&page=1`),
     ])
 
     if (!movieRes.ok || !tvRes.ok) throw new Error('TMDB failed')
@@ -32,9 +47,7 @@ async function fetchTop10Data(
 
     setMovieItems(movieData.results.slice(0, 10))
     setTvItems(tvData.results.slice(0, 10))
-
     setShowToast(true)
-    setTimeout(() => setShowToast(false), 5000)
   } catch {
     setError(true)
   } finally {
@@ -53,9 +66,21 @@ export default function Top10Row() {
   const scrollerMovieRef = useRef<HTMLDivElement>(null)
   const scrollerTvRef = useRef<HTMLDivElement>(null)
 
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
     fetchTop10Data(setCountry, setMovieItems, setTvItems, setShowToast, setError, setLoading)
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    }
   }, [])
+
+  // Dismiss the toast after 5 seconds, with cleanup
+  useEffect(() => {
+    if (!showToast) return
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setShowToast(false), 5000)
+  }, [showToast])
 
   if (error || (!loading && movieItems.length === 0 && tvItems.length === 0)) return null
 

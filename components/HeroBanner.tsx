@@ -17,30 +17,36 @@ interface Props {
 export default function HeroBanner({ items, loading, activeIdx: controlledIdx, onSlide }: Props) {
   const [internalIdx, setInternalIdx] = useState(0)
   const [fading, setFading] = useState(false)
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Use controlled idx if provided, else internal
   const idx = controlledIdx !== undefined ? controlledIdx : internalIdx
 
-  const goTo = useCallback((i: number) => {
+  // Clean up any pending fade timer on unmount
+  useEffect(() => {
+    return () => {
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current)
+    }
+  }, [])
+
+  const goTo = useCallback((i: number, onSlideCallback?: (i: number) => void) => {
     setFading(true)
-    setTimeout(() => {
+    if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current)
+    fadeTimerRef.current = setTimeout(() => {
       setInternalIdx(i)
-      onSlide?.(i)
+      onSlideCallback?.(i)
       setFading(false)
     }, 300)
-  }, [onSlide])
+  }, [])
 
   // Sync internal state when controlled idx changes from outside
   useEffect(() => {
     if (controlledIdx !== undefined && controlledIdx !== internalIdx) {
-      setFading(true)
-      setTimeout(() => {
-        setInternalIdx(controlledIdx)
-        setFading(false)
-      }, 300)
+      goTo(controlledIdx)
     }
+    // internalIdx intentionally excluded: we only react to parent driving a new value
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controlledIdx])
+  }, [controlledIdx, goTo])
 
   const idxRef = useRef(idx)
   useEffect(() => { idxRef.current = idx }, [idx])
@@ -49,10 +55,10 @@ export default function HeroBanner({ items, loading, activeIdx: controlledIdx, o
   useEffect(() => {
     if (items.length < 2) return
     const t = setInterval(() => {
-      goTo((idxRef.current + 1) % items.length)
+      goTo((idxRef.current + 1) % items.length, onSlide)
     }, 6000)
     return () => clearInterval(t)
-  }, [items.length, goTo])
+  }, [items.length, goTo, onSlide])
 
   const featured = items[idx]
 
@@ -105,7 +111,7 @@ export default function HeroBanner({ items, loading, activeIdx: controlledIdx, o
               <button
                 key={i}
                 className={`${styles.dot} ${i === idx ? styles.dotActive : ''}`}
-                onClick={() => goTo(i)}
+                onClick={() => goTo(i, onSlide)}
                 aria-label={`Slide ${i + 1}`}
               />
             ))}
