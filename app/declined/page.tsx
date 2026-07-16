@@ -17,9 +17,10 @@ function DeclinedContent() {
     
     // Broadcast event
     window.dispatchEvent(new Event('termsAccepted'))
-    // Return user to their original destination if available
+    // Return user to their original destination via hard navigation
+    // This ensures Next.js middleware gets the new cookie and doesn't use the client router cache
     const redirect = searchParams.get('redirect')
-    router.push(redirect || '/')
+    window.location.href = redirect || '/'
   }
 
   return (
