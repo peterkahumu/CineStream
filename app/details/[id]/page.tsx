@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { cookies } from 'next/headers'
 import MediaCard from '@/components/MediaCard'
 import MediaRow from '@/components/MediaRow'
@@ -226,7 +227,9 @@ export default async function DetailsPage(props: {
                 ▶ Watch Now
               </Link>
             ) : (
-              <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
+              <Suspense fallback={<span className={`btn btn-primary ${styles.watchBtn}`}>▶ Choose Episode</span>}>
+                <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
+              </Suspense>
             )}
             <ActionButtons 
               id={id} 

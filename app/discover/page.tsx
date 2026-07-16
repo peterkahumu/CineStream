@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import FilterBar from '@/components/FilterBar'
 import { discover, getMovieGenres, getTVGenres, getCountries } from '@/lib/tmdb'
 import styles from './page.module.css'
@@ -61,11 +62,13 @@ export default async function DiscoverPage(props: {
           </p>
         </div>
 
-        <FilterBar
-          movieGenres={movieGenresRes.genres}
-          tvGenres={tvGenresRes.genres}
-          countries={countries}
-        />
+        <Suspense fallback={<div className={styles.filterBarSkeleton} />}>
+          <FilterBar
+            movieGenres={movieGenresRes.genres}
+            tvGenres={tvGenresRes.genres}
+            countries={countries}
+          />
+        </Suspense>
 
         <DiscoverClient
           key={clientKey}
