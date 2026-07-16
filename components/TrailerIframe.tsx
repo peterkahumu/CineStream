@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers'
+import OfflineTrailerWrapper from './OfflineTrailerWrapper'
 
 interface Props {
   trailerKey: string
@@ -19,12 +20,15 @@ export default async function TrailerIframe({ trailerKey, name, className }: Pro
   const src = `https://www.youtube.com/embed/${trailerKey}?autoplay=${autoplay}&mute=${autoplay}&rel=0`
 
   return (
-    <iframe
-      className={className}
-      src={src}
-      title={name}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
+    <OfflineTrailerWrapper>
+      <iframe
+        className={className}
+        src={src}
+        title={name}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </OfflineTrailerWrapper>
   )
 }

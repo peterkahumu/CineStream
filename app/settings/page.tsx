@@ -121,10 +121,12 @@ export default function SettingsPage() {
 
   // ── Terms revoke ───────────────────────────────────────────────────────
   const handleConfirmRevoke = () => {
-    document.cookie = 'cinemaphora_terms=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
+    // Explicitly set to false instead of deleting to ensure Capacitor webviews overwrite the old value
+    const expires = new Date()
+    expires.setFullYear(expires.getFullYear() + 10)
+    document.cookie = `cinemaphora_terms=false; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
     window.dispatchEvent(new Event('termsAccepted'))
     setShowRevokeConfirm(false)
-    router.push('/')
   }
 
   // ── Wishlist export ────────────────────────────────────────────────────
@@ -170,14 +172,21 @@ export default function SettingsPage() {
 
   // ── Clear all data ─────────────────────────────────────────────────────
   const handleConfirmClearAll = () => {
-    // Clear all cookies
+    // Overwrite the terms cookie to false for mobile persistence
+    const expires = new Date()
+    expires.setFullYear(expires.getFullYear() + 10)
+    document.cookie = `cinemaphora_terms=false; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
+    
+    // Clear other cookies
     document.cookie.split(';').forEach(c => {
       const key = c.trim().split('=')[0]
-      document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`
+      if (key !== 'cinemaphora_terms') {
+        document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`
+      }
     })
     localStorage.clear()
+    window.dispatchEvent(new Event('termsAccepted'))
     setShowClearConfirm(false)
-    router.push('/')
   }
 
   // ── Preferred providers toggle ─────────────────────────────────────────

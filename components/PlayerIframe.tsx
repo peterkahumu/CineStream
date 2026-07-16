@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import type { ProviderConfig, PlayerCallbacks, PlayerContext, ProviderProgressData } from '@/lib/providers/types'
 import type { EpisodeProgress } from '@/lib/progressTracker'
 import * as progressTracker from '@/lib/progressTracker'
+import OfflineTrailerWrapper from './OfflineTrailerWrapper'
 import pageStyles from '@/app/watch/[id]/page.module.css'
 import styles from './PlayerIframe.module.css'
 
@@ -205,15 +206,17 @@ export default function PlayerIframe({
   const embedUrl = transformUrl ? transformUrl(rawUrl) : rawUrl
 
   return (
-    <iframe
-      ref={iframeRef}
-      key={`${embedUrl}-${iframeKey}`}
-      src={embedUrl}
-      className={pageStyles.player}
-      loading="eager"
-      title={`${title} player`}
-      allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-      allowFullScreen
-    />
+    <OfflineTrailerWrapper>
+      <iframe
+        ref={iframeRef}
+        key={`${embedUrl}-${iframeKey}`}
+        src={embedUrl}
+        className={pageStyles.player}
+        loading="eager"
+        title={`${title} player`}
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        allowFullScreen
+      />
+    </OfflineTrailerWrapper>
   )
 }
