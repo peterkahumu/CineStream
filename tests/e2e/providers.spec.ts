@@ -5,11 +5,11 @@ test.describe('Providers Page', () => {
     await page.goto('/providers');
     
     // Check for the Netflix tab
-    const netflixTab = page.locator('text=Netflix').first();
+    const netflixTab = page.getByRole('button', { name: /Netflix/i }).first();
     await expect(netflixTab).toBeVisible();
 
     // Check for Prime Video tab
-    const primeTab = page.locator('text=Prime Video').first();
+    const primeTab = page.getByRole('button', { name: /Prime Video/i }).first();
     await expect(primeTab).toBeVisible();
 
     // Click Prime Video and ensure URL updates

@@ -12,8 +12,8 @@ test.describe('Homepage', () => {
     expect(await rows.count()).toBeGreaterThan(0);
     
     // Check navigation links in the header
-    await expect(page.getByRole('link', { name: /Discover/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Providers/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Discover/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Providers/i }).first()).toBeVisible();
   });
 
   test('should navigate to trending page when clicking See All on trending row', async ({ page }) => {

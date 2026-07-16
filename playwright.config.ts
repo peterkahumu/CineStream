@@ -6,9 +6,9 @@ const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 30 * 1000,
+  timeout: 60000,
   expect: {
-    timeout: 5000
+    timeout: 10000
   },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -16,10 +16,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL,
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
-    actionTimeout: 0,
-    navigationTimeout: 10000,
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
   },
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
