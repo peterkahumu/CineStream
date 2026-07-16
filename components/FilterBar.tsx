@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Genre, Country } from '@/lib/tmdb'
+import CustomSelect from '@/components/CustomSelect'
 import styles from './FilterBar.module.css'
 
 interface Props {
@@ -113,15 +114,13 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
         {/* Sort */}
         <div className={styles.selectWrap}>
           <span className={styles.selectIcon}>↕️</span>
-          <select
-            className={styles.select}
-            value={sort_by}
-            onChange={e => setFilter('sort', e.target.value)}
-          >
-            {sortOptions.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+          <div style={{ width: '200px' }}>
+            <CustomSelect
+              value={sort_by}
+              options={sortOptions}
+              onChange={v => setFilter('sort', v)}
+            />
+          </div>
         </div>
 
         {/* More filters toggle */}
@@ -144,46 +143,60 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
           {/* Genre */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Genre</label>
-            <select className={styles.select} value={genreId} onChange={e => setFilter('genre', e.target.value)}>
-              <option value="">All Genres</option>
-              {genres.map(g => <option key={g.id} value={String(g.id)}>{g.name}</option>)}
-            </select>
+            <CustomSelect
+              value={genreId}
+              options={[
+                { value: '', label: 'All Genres' },
+                ...genres.map(g => ({ value: String(g.id), label: g.name }))
+              ]}
+              onChange={v => setFilter('genre', v)}
+            />
           </div>
 
           {/* Country */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Country</label>
-            <select className={styles.select} value={country} onChange={e => setFilter('country', e.target.value)}>
-              <option value="">All Countries</option>
-              {countries.map(c => (
-                <option key={c.iso_3166_1} value={c.iso_3166_1}>{c.english_name}</option>
-              ))}
-            </select>
+            <CustomSelect
+              value={country}
+              options={[
+                { value: '', label: 'All Countries' },
+                ...countries.map(c => ({ value: c.iso_3166_1, label: c.english_name }))
+              ]}
+              onChange={v => setFilter('country', v)}
+            />
           </div>
 
           {/* Year */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Year</label>
-            <select className={styles.select} value={year} onChange={e => setFilter('year', e.target.value)}>
-              <option value="">Any Year</option>
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+            <CustomSelect
+              value={year}
+              options={[
+                { value: '', label: 'Any Year' },
+                ...YEARS.map(y => ({ value: y, label: y }))
+              ]}
+              onChange={v => setFilter('year', v)}
+            />
           </div>
 
           {/* Min rating */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Rating</label>
-            <select className={styles.select} value={minRating} onChange={e => setFilter('minRating', e.target.value)}>
-              {RATINGS.map(r => <option key={r} value={r}>{RATING_LABELS[r]}</option>)}
-            </select>
+            <CustomSelect
+              value={minRating}
+              options={RATINGS.map(r => ({ value: r, label: RATING_LABELS[r] }))}
+              onChange={v => setFilter('minRating', v)}
+            />
           </div>
 
           {/* Language */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Language</label>
-            <select className={styles.select} value={language} onChange={e => setFilter('language', e.target.value)}>
-              {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-            </select>
+            <CustomSelect
+              value={language}
+              options={LANGUAGES.map(l => ({ value: l.code, label: l.label }))}
+              onChange={v => setFilter('language', v)}
+            />
           </div>
         </div>
       )}

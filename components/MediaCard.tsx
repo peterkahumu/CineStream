@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MediaItem, posterUrl, mediaTitle, mediaYear, mediaType as getType } from '@/lib/tmdb'
+import { useSettings } from '@/components/SettingsProvider'
 import styles from './MediaCard.module.css'
 
 interface Props {
@@ -19,11 +20,13 @@ function isUpcoming(item: MediaItem): boolean {
 
 export default function MediaCard({ item, forcedType, priority = false }: Props) {
   const [imgErr, setImgErr] = useState(false)
+  const { settings } = useSettings()
   const type = forcedType ?? getType(item)
   const title = mediaTitle(item)
   const year = mediaYear(item)
   const rating = item.vote_average?.toFixed(1)
-  const poster = posterUrl(item.poster_path, 'w342')
+  // Data saver: use lower-res poster
+  const poster = posterUrl(item.poster_path, settings.dataSaver ? 'w185' : 'w342')
   const href = `/details/${item.id}?type=${type}`
   const upcoming = isUpcoming(item)
 

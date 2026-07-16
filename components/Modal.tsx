@@ -6,11 +6,12 @@ import styles from './Modal.module.css'
 interface Props {
   isOpen: boolean
   title: string
-  description: string
+  description: React.ReactNode
   confirmText?: string
   cancelText?: string
   onConfirm: () => void
-  onCancel: () => void
+  onCancel?: () => void
+  hideCancel?: boolean
 }
 
 export default function Modal({
@@ -20,10 +21,11 @@ export default function Modal({
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   onConfirm,
-  onCancel
+  onCancel,
+  hideCancel = false
 }: Props) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onCancel()
+    if (e.key === 'Escape' && onCancel) onCancel()
   }, [onCancel])
 
   useEffect(() => {
@@ -43,14 +45,16 @@ export default function Modal({
   if (!isOpen) return null
 
   return (
-    <div className={styles.overlay} onClick={onCancel} role="dialog" aria-modal="true">
+    <div className={styles.overlay} onClick={() => onCancel && onCancel()} role="dialog" aria-modal="true">
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <h3 className={styles.title}>{title}</h3>
-        <p className={styles.description}>{description}</p>
+        <div className={styles.description}>{description}</div>
         <div className={styles.actions}>
-          <button className={styles.btnCancel} onClick={onCancel}>
-            {cancelText}
-          </button>
+          {!hideCancel && onCancel && (
+            <button className={styles.btnCancel} onClick={onCancel}>
+              {cancelText}
+            </button>
+          )}
           <button className={styles.btnConfirm} onClick={onConfirm}>
             {confirmText}
           </button>

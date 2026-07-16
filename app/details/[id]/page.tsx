@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import MediaCard from '@/components/MediaCard'
 import MediaRow from '@/components/MediaRow'
 import ScrollToTop from '@/components/ScrollToTop'
@@ -7,6 +8,7 @@ import DetailsTabs from '@/components/DetailsTabs'
 import EpisodeSelector from '@/components/EpisodeSelector'
 import WatchTvButton from '@/components/WatchTvButton'
 import ActionButtons from '@/components/ActionButtons'
+import TrailerIframe from '@/components/TrailerIframe'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
@@ -334,12 +336,10 @@ export default async function DetailsPage(props: {
                     <div key={trailer.key} className={styles.trailerCard}>
                       {trailer.label && <div className={styles.trailerLabel}>{trailer.label}</div>}
                       <div className={styles.trailerWrapper}>
-                        <iframe
+                        <TrailerIframe
+                          trailerKey={trailer.key}
+                          name={trailer.name}
                           className={styles.trailerIframe}
-                          src={`https://www.youtube.com/embed/${trailer.key}`}
-                          title={trailer.name}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
                         />
                       </div>
                     </div>

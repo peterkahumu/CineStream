@@ -96,6 +96,53 @@
   --z-modal: 200;
 }
 
+/* ─── Dark Theme ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg-base:    #0b0f1a;
+  --bg-surface: #111827;
+  --bg-card:    #1e293b;
+  --bg-hover:   #1e2a3d;
+  --bg-muted:   #1e293b;
+
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+  --text-inverse:   #0f172a;
+
+  --border:       #1e293b;
+  --border-strong: #334155;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.4);
+
+  /* Keep accents vibrant in dark mode */
+  --accent:        #3b82f6;
+  --accent-hover:  #2563eb;
+  --accent-light:  rgba(59, 130, 246, 0.12);
+  --accent-subtle: rgba(59, 130, 246, 0.08);
+  --accent-border: rgba(59, 130, 246, 0.3);
+
+  --green:       #22c55e;
+  --green-light: rgba(34, 197, 94, 0.12);
+  --green-text:  #86efac;
+
+  --red:       #f87171;
+  --red-light: rgba(248, 113, 113, 0.12);
+  --amber:     #fbbf24;
+}
+
+/* ─── Reduce Motion ──────────────────────────────────────────────────────────── */
+[data-reduce-motion="true"] *,
+[data-reduce-motion="true"] *::before,
+[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
 /* ─── Reset ─────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -322,6 +369,12 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 }
 @media (min-width: 640px)  { .media-grid { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); } }
 @media (min-width: 1024px) { .media-grid { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); } }
+
+[data-layout="list"] .media-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
 /* ─── Divider ────────────────────────────────────────────────────────────────── */
 .divider {

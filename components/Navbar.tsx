@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
+import { useSettings } from '@/components/SettingsProvider'
 import styles from './Navbar.module.css'
 
 function handleScrolled(setScrolled: (v: boolean) => void) {
@@ -10,27 +11,27 @@ function handleScrolled(setScrolled: (v: boolean) => void) {
 }
 
 const CATEGORY_LINKS = [
-  { href: '/trending',    label: 'Trending',       icon: '🔥' },
-  { href: '/popular',     label: 'Popular',         icon: '🎞️' },
-  { href: '/top-rated',   label: 'Top Rated',       icon: '⭐' },
-  { href: '/now-playing', label: 'Now Playing',     icon: '🎬' },
-  { href: '/upcoming',    label: 'Coming Soon',     icon: '🍿' },
-  { href: '/providers',   label: 'Providers',       icon: '📺' },
-  { href: '/discover',    label: 'Discover',        icon: '🧭' },
+  { href: '/trending', label: 'Trending', icon: '🔥' },
+  { href: '/popular', label: 'Popular', icon: '🎞️' },
+  { href: '/top-rated', label: 'Top Rated', icon: '⭐' },
+  { href: '/now-playing', label: 'Now Playing', icon: '🎬' },
+  { href: '/upcoming', label: 'Coming Soon', icon: '🍿' },
+  { href: '/providers', label: 'Providers', icon: '📺' },
+  { href: '/discover', label: 'Discover', icon: '🧭' },
 ]
 
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { settings } = useSettings()
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<MediaItem[]>([])
+  const [history, setHistory] = useState<string[]>([])
   const [isFetching, setIsFetching] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const categoriesRef = useRef<HTMLDivElement>(null)
 
   const fetchSearchResults = useCallback(async () => {
     const q = query.trim()
@@ -40,7 +41,7 @@ export default function Navbar() {
     }
     setIsFetching(true)
     try {
-      const data = await searchMulti(q)
+      const data = await searchMulti(q, 1, !settings.safeSearch)
       setResults((data.results || []).filter(r => r.media_type !== 'person').slice(0, 5))
     } catch (err) {
       console.error(err)
@@ -59,19 +60,16 @@ export default function Navbar() {
   useEffect(() => {
     const onScroll = () => handleScrolled(setScrolled)
     window.addEventListener('scroll', onScroll, { passive: true })
+
+    try {
+      const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
+      setHistory(h)
+    } catch { }
+
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close categories dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
-        setCategoriesOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+
 
   const handleKeyGlobal = useCallback((e: KeyboardEvent) => {
     if (e.key === '/' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
@@ -79,7 +77,7 @@ export default function Navbar() {
       setSearchOpen(true)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-    if (e.key === 'Escape') { setSearchOpen(false); setQuery(''); setCategoriesOpen(false) }
+    if (e.key === 'Escape') { setSearchOpen(false); setQuery('') }
   }, [])
 
   useEffect(() => {
@@ -89,13 +87,22 @@ export default function Navbar() {
 
   const submit = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-    if (!query.trim()) return
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+    const q = query.trim()
+    if (!q) return
+
+    try {
+      const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
+      const nextH = [q, ...h.filter((x: string) => x !== q)].slice(0, 10)
+      localStorage.setItem('searchHistory', JSON.stringify(nextH))
+      setHistory(nextH)
+    } catch { }
+
+    router.push(`/search?q=${encodeURIComponent(q)}`)
     setSearchOpen(false)
     setMenuOpen(false)
   }
 
-  const primaryLinks = [
+  const primaryLinks: Array<{ href: string; label: string; icon?: string }> = [
     { href: '/', label: 'Home' },
     { href: '/search', label: 'Search' },
     { href: '/wishlist', label: 'My List' },
@@ -112,51 +119,21 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop links */}
-        <div className={styles.links}>
-          {primaryLinks.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`${styles.link} ${pathname === l.href ? styles.active : ''}`}
-            >
-              {l.label}
-            </Link>
-          ))}
-
-          {/* Categories dropdown */}
-          <div className={styles.categoriesWrapper} ref={categoriesRef}>
-            <button
-              className={`${styles.link} ${styles.categoriesBtn} ${CATEGORY_LINKS.some(l => pathname.startsWith(l.href)) ? styles.active : ''}`}
-              onClick={() => setCategoriesOpen(o => !o)}
-              aria-expanded={categoriesOpen}
-            >
-              Browse
-              <svg
-                className={`${styles.chevron} ${categoriesOpen ? styles.chevronOpen : ''}`}
-                width="12" height="12" viewBox="0 0 12 12"
-                fill="none" stroke="currentColor" strokeWidth="2"
+        {/* Desktop scrollable links */}
+        <div className={styles.linksScroll}>
+          {[...primaryLinks, ...CATEGORY_LINKS].map(l => {
+            const isActive = l.href === '/' ? pathname === '/' : pathname.startsWith(l.href)
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`${styles.link} ${isActive ? styles.active : ''}`}
               >
-                <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            {categoriesOpen && (
-              <div className={styles.categoriesDropdown}>
-                {CATEGORY_LINKS.map(l => (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className={`${styles.categoryItem} ${pathname.startsWith(l.href) && l.href !== '/' ? styles.active : ''}`}
-                    onClick={() => setCategoriesOpen(false)}
-                  >
-                    <span>{l.icon}</span>
-                    <span>{l.label}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+                {'icon' in l && <span className={styles.linkIcon}>{(l as any).icon}</span>}
+                <span>{l.label}</span>
+              </Link>
+            )
+          })}
         </div>
 
         {/* Right controls */}
@@ -178,13 +155,34 @@ export default function Navbar() {
                 <button type="submit" className={styles.searchSubmit} aria-label="Search">⏎</button>
               )}
             </form>
-            
-            {searchOpen && query && (
+
+            {searchOpen && (
               <div className={styles.searchResults}>
-                {results.map(item => (
-                  <Link 
-                    key={item.id} 
-                    href={`/details/${item.id}?type=${mediaType(item)}`} 
+                {/* History when empty query */}
+                {!query && history.length > 0 && (
+                  <>
+                    <div className={styles.historyHeader}>Recent Searches</div>
+                    <div className={styles.historyList}>
+                      {history.map(item => (
+                        <Link
+                          key={item}
+                          href={`/search?q=${encodeURIComponent(item)}`}
+                          className={styles.historyItem}
+                          onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
+                        >
+                          <span className={styles.historyIcon}>🕒</span>
+                          <span>{item}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Search Results */}
+                {query && results.map(item => (
+                  <Link
+                    key={item.id}
+                    href={`/details/${item.id}?type=${mediaType(item)}`}
                     className={styles.searchResultItem}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >
@@ -192,21 +190,21 @@ export default function Navbar() {
                     <div>
                       <div className={styles.searchResultTitle}>{item.title || item.name}</div>
                       <div className={styles.searchResultMeta}>
-                        {item.media_type} • {(item.release_date || item.first_air_date || '').slice(0,4)}
+                        {item.media_type} • {(item.release_date || item.first_air_date || '').slice(0, 4)}
                       </div>
                     </div>
                   </Link>
                 ))}
-                {results.length > 0 && (
-                  <Link 
-                    href={`/search?q=${encodeURIComponent(query)}`} 
+                {query && results.length > 0 && (
+                  <Link
+                    href={`/search?q=${encodeURIComponent(query)}`}
                     className={styles.searchResultMore}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >
                     View all results
                   </Link>
                 )}
-                {results.length === 0 && !isFetching && (
+                {query && results.length === 0 && !isFetching && (
                   <div className={styles.searchResultEmpty}>No results found.</div>
                 )}
               </div>
@@ -215,7 +213,7 @@ export default function Navbar() {
 
           <button
             className={styles.iconBtn}
-            onClick={() => { 
+            onClick={() => {
               if (searchOpen && query.trim()) {
                 submit()
               } else {

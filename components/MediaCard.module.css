@@ -165,3 +165,65 @@
   pointer-events: none;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
+
+/* ─── List Layout Overrides ─── */
+:global([data-layout="list"]) .card {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  height: 120px;
+  background: var(--bg-card);
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+:global([data-layout="list"]) .card:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+:global([data-layout="list"]) .poster {
+  height: 100%;
+  aspect-ratio: 2/3;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: none;
+}
+
+:global([data-layout="list"]) .overlay {
+  display: none !important;
+}
+
+:global([data-layout="list"]) .info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 8px;
+}
+
+:global([data-layout="list"]) .title {
+  font-size: 1rem;
+  margin-bottom: 4px;
+  -webkit-line-clamp: 2;
+}
+
+:global([data-layout="list"]) .year {
+  font-size: 0.85rem;
+  display: block;
+}
+
+:global([data-layout="list"]) .typePill {
+  top: 4px;
+  left: 4px;
+  font-size: 0.55rem;
+}
+
+:global([data-layout="list"]) .ratingBadge {
+  top: auto;
+  bottom: 4px;
+  right: 4px;
+  font-size: 0.6rem;
+}

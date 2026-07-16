@@ -7,10 +7,14 @@ import Footer from '@/components/Footer'
 import MobileNav from '@/components/MobileNav'
 import CapacitorInit from '@/components/CapacitorInit'
 import TermsAgreementModal from '@/components/TermsAgreementModal'
-import RouteProtector from '@/components/RouteProtector'
+import { SettingsProvider } from '@/components/SettingsProvider'
 
 export const viewport: Viewport = {
-  themeColor: '#0f172a',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
@@ -29,17 +33,45 @@ export const metadata: Metadata = {
     title: 'CinemaPhora',
     description: 'Discover, search and stream movies & TV shows.',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'CinemaPhora',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* No-FOUC: synchronously sets data-theme before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function(){
+  try {
+    var theme = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_theme=')}) || '').split('=')[1];
+    if(theme) theme = decodeURIComponent(theme.trim());
+    if(!theme || theme === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+    var rm = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_reduceMotion=')}) || '').split('=')[1];
+    if(rm === 'true') document.documentElement.dataset.reduceMotion = 'true';
+    var ds = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_dataSaver=')}) || '').split('=')[1];
+    if(ds === 'true') document.documentElement.dataset.dataSaver = 'true';
+    var layout = (document.cookie.split(';').find(function(c){return c.trim().startsWith('cp_defaultLayout=')}) || '').split('=')[1];
+    if(layout) document.documentElement.dataset.layout = decodeURIComponent(layout.trim());
+  } catch(e) {}
+})();
+`,
+          }}
+        />
       </head>
       <body>
-        <RouteProtector>
+        <SettingsProvider>
           <CapacitorInit />
           <Navbar />
           <Suspense fallback={<header style={{ height: 'var(--mobile-header-height)' }} />}>
@@ -49,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <MobileNav />
           <TermsAgreementModal />
-        </RouteProtector>
+        </SettingsProvider>
       </body>
     </html>
   )
