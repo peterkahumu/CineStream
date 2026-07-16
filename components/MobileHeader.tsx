@@ -70,35 +70,43 @@ export default function MobileHeader() {
   const [isFetching, setIsFetching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [locationName, setLocationName] = useState<string | null>(null)
+  const [showLocationToast, setShowLocationToast] = useState(false)
   const [history, setHistory] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
+  const locationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    // Attempt to load persisted location first
-    const cached = localStorage.getItem('user_location')
-    if (cached) {
-      setLocationName(cached)
-    }
-
     // Load search history
     try {
       const h = JSON.parse(localStorage.getItem('searchHistory') || '[]')
       setHistory(h)
     } catch {}
 
-    if (cached) return
-    // Fetch if not present (simulates a slow load)
+    // Use cached location; only fetch (and toast) when first detected
+    const cached = localStorage.getItem('user_location')
+    if (cached) {
+      setLocationName(cached)
+      return
+    }
+
     fetch('https://ipapi.co/json/')
       .then(res => res.json())
       .then(data => {
-        if (data.country_name) {
-          setLocationName(data.country_name)
-          localStorage.setItem('user_location', data.country_name)
-        } else {
-          setLocationName('Global')
+        const name = data.country_name || 'Global'
+        setLocationName(name)
+        localStorage.setItem('user_location', name)
+        // Only toast on first-ever detection; never repeat it
+        if (!localStorage.getItem('user_location_seen')) {
+          localStorage.setItem('user_location_seen', '1')
+          setShowLocationToast(true)
+          locationTimerRef.current = setTimeout(() => setShowLocationToast(false), 4000)
         }
       })
       .catch(() => setLocationName('Global'))
+
+    return () => {
+      if (locationTimerRef.current) clearTimeout(locationTimerRef.current)
+    }
   }, [])
 
   const fetchSearchResults = useCallback(async () => {
@@ -259,16 +267,14 @@ export default function MobileHeader() {
         <button
           className={styles.pill}
           onClick={() => {
-            // Future enhancement: Open location modal
             localStorage.removeItem('user_location')
             setLocationName('Locating...')
             fetch('https://ipapi.co/json/')
               .then(res => res.json())
               .then(data => {
-                if (data.country_name) {
-                  setLocationName(data.country_name)
-                  localStorage.setItem('user_location', data.country_name)
-                } else { setLocationName('Global') }
+                const name = data.country_name || 'Global'
+                setLocationName(name)
+                localStorage.setItem('user_location', name)
               })
               .catch(() => setLocationName('Global'))
           }}
@@ -278,6 +284,28 @@ export default function MobileHeader() {
           <span>{locationName || 'Locating...'}</span>
         </button>
       </nav>
+
+      {/* One-time location detected toast */}
+      {showLocationToast && (
+        <div style={{
+          position: 'fixed',
+          bottom: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'var(--surface-raised)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '0.6rem 1.2rem',
+          fontSize: '0.85rem',
+          color: 'var(--text)',
+          zIndex: 1000,
+          whiteSpace: 'nowrap',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          📍 Location detected: {locationName}
+        </div>
+      )}
     </header>
   )
 }
