@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import styles from './MobileNav.module.css'
 
 const TABS = [
@@ -57,23 +58,53 @@ const TABS = [
 
 export default function MobileNav() {
   const pathname = usePathname()
+  const [isOnline, setIsOnline] = useState(true)
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine)
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   return (
     <nav className={styles.mobileNav} aria-label="Mobile navigation">
       {TABS.map(tab => {
         // For home, exact match. For others, starts-with match.
         const active = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href)
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={`${styles.tab} ${active ? styles.active : ''}`}
-            aria-label={tab.label}
-          >
+        const className = `${styles.tab} ${active ? styles.active : ''}`
+        
+        const content = (
+          <>
             <span className={styles.tabIcon}>{tab.icon(active)}</span>
             <span className={styles.tabLabel}>{tab.label}</span>
             {active && <span className={styles.activeIndicator} />}
+          </>
+        )
+
+        return isOnline ? (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={className}
+            aria-label={tab.label}
+          >
+            {content}
           </Link>
+        ) : (
+          <a
+            key={tab.href}
+            href={tab.href}
+            className={className}
+            aria-label={tab.label}
+          >
+            {content}
+          </a>
         )
       })}
     </nav>
