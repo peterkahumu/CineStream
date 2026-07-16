@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
@@ -24,6 +25,41 @@ const CATEGORIES = [
   { href: '/discover?media=movie&country=IN', label: 'Bollywood', icon: '🇮🇳' },
   { href: '/discover?sort=revenue.desc', label: 'Blockbusters', icon: '🍿' },
 ]
+
+// ─── Sub-component keeps img-error state isolated per search result ────────────
+function ResultThumb({ src, alt, className }: { src: string | null; alt: string; className?: string }) {
+  const [imgErr, setImgErr] = useState(false)
+
+  if (!src || imgErr) {
+    return (
+      <div
+        className={className}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--surface-raised)',
+          borderRadius: 4,
+          fontSize: '1.2rem',
+        }}
+      >
+        🎬
+      </div>
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={40}
+      height={56}
+      className={className}
+      style={{ objectFit: 'cover' }}
+      onError={() => setImgErr(true)}
+    />
+  )
+}
 
 export default function MobileHeader() {
   const pathname = usePathname()
@@ -166,11 +202,10 @@ export default function MobileHeader() {
                   className={styles.resultItem}
                   onClick={() => { setShowResults(false); setQuery('') }}
                 >
-                  <img
-                    src={posterUrl(item.poster_path, 'w92') || ''}
-                    alt={item.title || item.name}
+                  <ResultThumb
+                    src={posterUrl(item.poster_path, 'w92')}
+                    alt={item.title || item.name || ''}
                     className={styles.resultThumb}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
                   />
                   <div>
                     <div className={styles.resultTitle}>{item.title || item.name}</div>
