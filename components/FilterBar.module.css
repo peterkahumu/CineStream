@@ -127,3 +127,33 @@
   .secondary { gap: var(--space-sm); }
   .filterGroup { min-width: calc(50% - var(--space-sm)); }
 }
+
+@media (max-width: 480px) {
+  .primary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .typeToggle {
+    width: 100%;
+    justify-content: center;
+  }
+  .typeBtn {
+    flex: 1;
+    text-align: center;
+  }
+  .selectWrap {
+    width: 100%;
+  }
+  .selectWrap > div { /* CustomSelect container */
+    width: 100%;
+  }
+  .moreBtn {
+    justify-content: center;
+    width: 100%;
+  }
+  .resetBtn {
+    width: 100%;
+    text-align: center;
+  }
+  .filterGroup { min-width: 100%; }
+}

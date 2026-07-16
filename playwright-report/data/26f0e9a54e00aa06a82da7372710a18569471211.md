@@ -1,0 +1,4470 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: home.spec.ts >> Homepage >> should load the homepage and display key elements
+- Location: tests/e2e/home.spec.ts:4:7
+
+# Error details
+
+```
+TimeoutError: page.goto: Timeout 10000ms exceeded.
+Call log:
+  - navigating to "http://localhost:3000/", waiting until "load"
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "🎬 CinemaPhora" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: 🎬
+        - generic [ref=e6]: CinemaPhora
+      - generic [ref=e7]:
+        - link "Home" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e9]: Home
+        - link "Search" [ref=e10] [cursor=pointer]:
+          - /url: /search
+          - generic [ref=e11]: Search
+        - link "My List" [ref=e12] [cursor=pointer]:
+          - /url: /wishlist
+          - generic [ref=e13]: My List
+        - link "🔥 Trending" [ref=e14] [cursor=pointer]:
+          - /url: /trending
+          - generic [ref=e15]: 🔥
+          - generic [ref=e16]: Trending
+        - link "🎞️ Popular" [ref=e17] [cursor=pointer]:
+          - /url: /popular
+          - generic [ref=e18]: 🎞️
+          - generic [ref=e19]: Popular
+        - link "⭐ Top Rated" [ref=e20] [cursor=pointer]:
+          - /url: /top-rated
+          - generic [ref=e21]: ⭐
+          - generic [ref=e22]: Top Rated
+        - link "🎬 Now Playing" [ref=e23] [cursor=pointer]:
+          - /url: /now-playing
+          - generic [ref=e24]: 🎬
+          - generic [ref=e25]: Now Playing
+        - link "🍿 Coming Soon" [ref=e26] [cursor=pointer]:
+          - /url: /upcoming
+          - generic [ref=e27]: 🍿
+          - generic [ref=e28]: Coming Soon
+        - link "📺 Providers" [ref=e29] [cursor=pointer]:
+          - /url: /providers
+          - generic [ref=e30]: 📺
+          - generic [ref=e31]: Providers
+        - link "🧭 Discover" [ref=e32] [cursor=pointer]:
+          - /url: /discover
+          - generic [ref=e33]: 🧭
+          - generic [ref=e34]: Discover
+      - generic [ref=e35]:
+        - textbox "Search movies, TV shows…" [ref=e38]
+        - button "Search" [ref=e39] [cursor=pointer]:
+          - text: 🔍
+          - generic [ref=e40]: /
+        - link "Settings" [ref=e41] [cursor=pointer]:
+          - /url: /settings
+          - text: ⚙️
+  - main [ref=e43]:
+    - generic [ref=e44]:
+      - img "The Odyssey" [ref=e45]
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]: Movie
+          - generic [ref=e49]: "2026"
+          - generic [ref=e50]: ⭐ 6.1
+        - heading "The Odyssey" [level=1] [ref=e51]
+        - paragraph [ref=e52]: Odysseus, the legendary King of Ithaca, embarks on a long and perilous journey home following the Trojan War. Throughout his voyage, he is forced to confront the whims of gods, mythological monsters, and trials that stretch both his cunning and his humanity to the breaking point.
+        - generic [ref=e53]:
+          - link "▶ View Details" [ref=e54] [cursor=pointer]:
+            - /url: /details/1368337?type=movie
+          - generic [ref=e55]:
+            - button "Slide 1" [ref=e56] [cursor=pointer]
+            - button "Slide 2" [ref=e57] [cursor=pointer]
+            - button "Slide 3" [ref=e58] [cursor=pointer]
+            - button "Slide 4" [ref=e59] [cursor=pointer]
+            - button "Slide 5" [ref=e60] [cursor=pointer]
+            - button "Slide 6" [ref=e61] [cursor=pointer]
+            - button "Slide 7" [ref=e62] [cursor=pointer]
+            - button "Slide 8" [ref=e63] [cursor=pointer]
+    - generic [ref=e64]:
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - heading "🔥 Trending This Week" [level=2] [ref=e67]:
+            - generic [ref=e68]: 🔥
+            - text: Trending This Week
+          - link "See all →" [ref=e69] [cursor=pointer]:
+            - /url: /trending
+        - generic [ref=e70]:
+          - button "Scroll left": ‹
+          - generic [ref=e71]:
+            - link "Backrooms Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Backrooms 2026" [ref=e73] [cursor=pointer]:
+              - /url: /details/1083381?type=movie
+              - generic [ref=e74]:
+                - img "Backrooms" [ref=e75]
+                - generic [ref=e77]:
+                  - generic [ref=e78]: Movie
+                  - generic [ref=e79]: ⭐ 7.0
+                  - button "▶ View" [ref=e80]
+                - generic [ref=e81]: ⭐ 7.0
+                - generic: Film
+              - generic [ref=e82]:
+                - heading "Backrooms" [level=3] [ref=e83]
+                - text: "2026"
+            - link "The Odyssey Movie ⭐ 6.1 ▶ View ⭐ 6.1 Film The Odyssey 2026" [ref=e85] [cursor=pointer]:
+              - /url: /details/1368337?type=movie
+              - generic [ref=e86]:
+                - img "The Odyssey" [ref=e87]
+                - generic [ref=e89]:
+                  - generic [ref=e90]: Movie
+                  - generic [ref=e91]: ⭐ 6.1
+                  - button "▶ View" [ref=e92]
+                - generic [ref=e93]: ⭐ 6.1
+                - generic: Film
+              - generic [ref=e94]:
+                - heading "The Odyssey" [level=3] [ref=e95]
+                - text: "2026"
+            - link "Obsession Movie ⭐ 8.3 ▶ View ⭐ 8.3 Film Obsession 2026" [ref=e97] [cursor=pointer]:
+              - /url: /details/1339713?type=movie
+              - generic [ref=e98]:
+                - img "Obsession" [ref=e99]
+                - generic [ref=e101]:
+                  - generic [ref=e102]: Movie
+                  - generic [ref=e103]: ⭐ 8.3
+                  - button "▶ View" [ref=e104]
+                - generic [ref=e105]: ⭐ 8.3
+                - generic: Film
+              - generic [ref=e106]:
+                - heading "Obsession" [level=3] [ref=e107]
+                - text: "2026"
+            - link "The Furious Movie ⭐ 7.5 ▶ View ⭐ 7.5 Film The Furious 2026" [ref=e109] [cursor=pointer]:
+              - /url: /details/1280738?type=movie
+              - generic [ref=e110]:
+                - img "The Furious" [ref=e111]
+                - generic [ref=e113]:
+                  - generic [ref=e114]: Movie
+                  - generic [ref=e115]: ⭐ 7.5
+                  - button "▶ View" [ref=e116]
+                - generic [ref=e117]: ⭐ 7.5
+                - generic: Film
+              - generic [ref=e118]:
+                - heading "The Furious" [level=3] [ref=e119]
+                - text: "2026"
+            - link "Moana Movie ⭐ 5.6 ▶ View ⭐ 5.6 Film Moana 2026" [ref=e121] [cursor=pointer]:
+              - /url: /details/1108427?type=movie
+              - generic [ref=e122]:
+                - img "Moana" [ref=e123]
+                - generic [ref=e125]:
+                  - generic [ref=e126]: Movie
+                  - generic [ref=e127]: ⭐ 5.6
+                  - button "▶ View" [ref=e128]
+                - generic [ref=e129]: ⭐ 5.6
+                - generic: Film
+              - generic [ref=e130]:
+                - heading "Moana" [level=3] [ref=e131]
+                - text: "2026"
+            - link "Lucky TV ⭐ 5.4 ▶ View ⭐ 5.4 TV Lucky 2026" [ref=e133] [cursor=pointer]:
+              - /url: /details/278624?type=tv
+              - generic [ref=e134]:
+                - img "Lucky" [ref=e135]
+                - generic [ref=e137]:
+                  - generic [ref=e138]: TV
+                  - generic [ref=e139]: ⭐ 5.4
+                  - button "▶ View" [ref=e140]
+                - generic [ref=e141]: ⭐ 5.4
+                - generic: TV
+              - generic [ref=e142]:
+                - heading "Lucky" [level=3] [ref=e143]
+                - text: "2026"
+            - link "Evil Dead Burn Movie ⭐ 6.8 ▶ View ⭐ 6.8 Film Evil Dead Burn 2026" [ref=e145] [cursor=pointer]:
+              - /url: /details/1212763?type=movie
+              - generic [ref=e146]:
+                - img "Evil Dead Burn" [ref=e147]
+                - generic [ref=e149]:
+                  - generic [ref=e150]: Movie
+                  - generic [ref=e151]: ⭐ 6.8
+                  - button "▶ View" [ref=e152]
+                - generic [ref=e153]: ⭐ 6.8
+                - generic: Film
+              - generic [ref=e154]:
+                - heading "Evil Dead Burn" [level=3] [ref=e155]
+                - text: "2026"
+            - link "Silo TV ⭐ 8.2 ▶ View ⭐ 8.2 TV Silo 2023" [ref=e157] [cursor=pointer]:
+              - /url: /details/125988?type=tv
+              - generic [ref=e158]:
+                - img "Silo" [ref=e159]
+                - generic [ref=e161]:
+                  - generic [ref=e162]: TV
+                  - generic [ref=e163]: ⭐ 8.2
+                  - button "▶ View" [ref=e164]
+                - generic [ref=e165]: ⭐ 8.2
+                - generic: TV
+              - generic [ref=e166]:
+                - heading "Silo" [level=3] [ref=e167]
+                - text: "2023"
+            - link "House of the Dragon TV ⭐ 8.4 ▶ View ⭐ 8.4 TV House of the Dragon 2022" [ref=e169] [cursor=pointer]:
+              - /url: /details/94997?type=tv
+              - generic [ref=e170]:
+                - img "House of the Dragon" [ref=e171]
+                - generic [ref=e173]:
+                  - generic [ref=e174]: TV
+                  - generic [ref=e175]: ⭐ 8.4
+                  - button "▶ View" [ref=e176]
+                - generic [ref=e177]: ⭐ 8.4
+                - generic: TV
+              - generic [ref=e178]:
+                - heading "House of the Dragon" [level=3] [ref=e179]
+                - text: "2022"
+            - 'link "Spider-Man: Brand New Day Movie 📅 View 🍿 Soon Film Spider-Man: Brand New Day 2026" [ref=e181] [cursor=pointer]':
+              - /url: /details/969681?type=movie
+              - generic [ref=e182]:
+                - 'img "Spider-Man: Brand New Day" [ref=e183]'
+                - generic [ref=e185]:
+                  - generic [ref=e186]: Movie
+                  - button "📅 View" [ref=e187]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e188]:
+                - 'heading "Spider-Man: Brand New Day" [level=3] [ref=e189]'
+                - text: "2026"
+            - link "Little House on the Prairie TV ⭐ 6.2 ▶ View ⭐ 6.2 TV Little House on the Prairie 2026" [ref=e191] [cursor=pointer]:
+              - /url: /details/283304?type=tv
+              - generic [ref=e192]:
+                - img "Little House on the Prairie" [ref=e193]
+                - generic [ref=e195]:
+                  - generic [ref=e196]: TV
+                  - generic [ref=e197]: ⭐ 6.2
+                  - button "▶ View" [ref=e198]
+                - generic [ref=e199]: ⭐ 6.2
+                - generic: TV
+              - generic [ref=e200]:
+                - heading "Little House on the Prairie" [level=3] [ref=e201]
+                - text: "2026"
+            - link "Toy Story 5 Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Toy Story 5 2026" [ref=e203] [cursor=pointer]:
+              - /url: /details/1084244?type=movie
+              - generic [ref=e204]:
+                - img "Toy Story 5" [ref=e205]
+                - generic [ref=e207]:
+                  - generic [ref=e208]: Movie
+                  - generic [ref=e209]: ⭐ 7.4
+                  - button "▶ View" [ref=e210]
+                - generic [ref=e211]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e212]:
+                - heading "Toy Story 5" [level=3] [ref=e213]
+                - text: "2026"
+            - link "Minions & Monsters Movie ⭐ 6.4 ▶ View ⭐ 6.4 Film Minions & Monsters 2026" [ref=e215] [cursor=pointer]:
+              - /url: /details/1315772?type=movie
+              - generic [ref=e216]:
+                - img "Minions & Monsters" [ref=e217]
+                - generic [ref=e219]:
+                  - generic [ref=e220]: Movie
+                  - generic [ref=e221]: ⭐ 6.4
+                  - button "▶ View" [ref=e222]
+                - generic [ref=e223]: ⭐ 6.4
+                - generic: Film
+              - generic [ref=e224]:
+                - heading "Minions & Monsters" [level=3] [ref=e225]
+                - text: "2026"
+            - link "One Piece TV ⭐ 8.7 ▶ View ⭐ 8.7 TV One Piece 1999" [ref=e227] [cursor=pointer]:
+              - /url: /details/37854?type=tv
+              - generic [ref=e228]:
+                - img "One Piece" [ref=e229]
+                - generic [ref=e231]:
+                  - generic [ref=e232]: TV
+                  - generic [ref=e233]: ⭐ 8.7
+                  - button "▶ View" [ref=e234]
+                - generic [ref=e235]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e236]:
+                - heading "One Piece" [level=3] [ref=e237]
+                - text: "1999"
+            - link "Rick and Morty TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Rick and Morty 2013" [ref=e239] [cursor=pointer]:
+              - /url: /details/60625?type=tv
+              - generic [ref=e240]:
+                - img "Rick and Morty" [ref=e241]
+                - generic [ref=e243]:
+                  - generic [ref=e244]: TV
+                  - generic [ref=e245]: ⭐ 8.7
+                  - button "▶ View" [ref=e246]
+                - generic [ref=e247]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e248]:
+                - heading "Rick and Morty" [level=3] [ref=e249]
+                - text: "2013"
+            - link "Project Hail Mary Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Project Hail Mary 2026" [ref=e251] [cursor=pointer]:
+              - /url: /details/687163?type=movie
+              - generic [ref=e252]:
+                - img "Project Hail Mary" [ref=e253]
+                - generic [ref=e255]:
+                  - generic [ref=e256]: Movie
+                  - generic [ref=e257]: ⭐ 8.7
+                  - button "▶ View" [ref=e258]
+                - generic [ref=e259]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e260]:
+                - heading "Project Hail Mary" [level=3] [ref=e261]
+                - text: "2026"
+            - link "Passenger Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Passenger 2026" [ref=e263] [cursor=pointer]:
+              - /url: /details/1368314?type=movie
+              - generic [ref=e264]:
+                - img "Passenger" [ref=e265]
+                - generic [ref=e267]:
+                  - generic [ref=e268]: Movie
+                  - generic [ref=e269]: ⭐ 7.2
+                  - button "▶ View" [ref=e270]
+                - generic [ref=e271]: ⭐ 7.2
+                - generic: Film
+              - generic [ref=e272]:
+                - heading "Passenger" [level=3] [ref=e273]
+                - text: "2026"
+            - link "The Hawk TV ⭐ 10.0 ▶ View ⭐ 10.0 TV The Hawk 2026" [ref=e275] [cursor=pointer]:
+              - /url: /details/254528?type=tv
+              - generic [ref=e276]:
+                - img "The Hawk" [ref=e277]
+                - generic [ref=e279]:
+                  - generic [ref=e280]: TV
+                  - generic [ref=e281]: ⭐ 10.0
+                  - button "▶ View" [ref=e282]
+                - generic [ref=e283]: ⭐ 10.0
+                - generic: TV
+              - generic [ref=e284]:
+                - heading "The Hawk" [level=3] [ref=e285]
+                - text: "2026"
+            - link "X-Men '97 TV ⭐ 8.6 ▶ View ⭐ 8.6 TV X-Men '97 2024" [ref=e287] [cursor=pointer]:
+              - /url: /details/138502?type=tv
+              - generic [ref=e288]:
+                - img "X-Men '97" [ref=e289]
+                - generic [ref=e291]:
+                  - generic [ref=e292]: TV
+                  - generic [ref=e293]: ⭐ 8.6
+                  - button "▶ View" [ref=e294]
+                - generic [ref=e295]: ⭐ 8.6
+                - generic: TV
+              - generic [ref=e296]:
+                - heading "X-Men '97" [level=3] [ref=e297]
+                - text: "2024"
+            - link "The Breadwinner Movie ⭐ 7.3 ▶ View ⭐ 7.3 Film The Breadwinner 2026" [ref=e299] [cursor=pointer]:
+              - /url: /details/1440050?type=movie
+              - generic [ref=e300]:
+                - img "The Breadwinner" [ref=e301]
+                - generic [ref=e303]:
+                  - generic [ref=e304]: Movie
+                  - generic [ref=e305]: ⭐ 7.3
+                  - button "▶ View" [ref=e306]
+                - generic [ref=e307]: ⭐ 7.3
+                - generic: Film
+              - generic [ref=e308]:
+                - heading "The Breadwinner" [level=3] [ref=e309]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e310]:
+        - generic [ref=e311]:
+          - heading "🎬 Now Playing" [level=2] [ref=e312]:
+            - generic [ref=e313]: 🎬
+            - text: Now Playing
+          - link "See all →" [ref=e314] [cursor=pointer]:
+            - /url: /now-playing?media=movie
+        - generic [ref=e315]:
+          - button "Scroll left": ‹
+          - generic [ref=e316]:
+            - link "Obsession Movie ⭐ 8.2 ▶ View ⭐ 8.2 Film Obsession 2026" [ref=e318] [cursor=pointer]:
+              - /url: /details/1339713?type=movie
+              - generic [ref=e319]:
+                - img "Obsession" [ref=e320]
+                - generic [ref=e322]:
+                  - generic [ref=e323]: Movie
+                  - generic [ref=e324]: ⭐ 8.2
+                  - button "▶ View" [ref=e325]
+                - generic [ref=e326]: ⭐ 8.2
+                - generic: Film
+              - generic [ref=e327]:
+                - heading "Obsession" [level=3] [ref=e328]
+                - text: "2026"
+            - link "Toy Story 5 Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Toy Story 5 2026" [ref=e330] [cursor=pointer]:
+              - /url: /details/1084244?type=movie
+              - generic [ref=e331]:
+                - img "Toy Story 5" [ref=e332]
+                - generic [ref=e334]:
+                  - generic [ref=e335]: Movie
+                  - generic [ref=e336]: ⭐ 7.4
+                  - button "▶ View" [ref=e337]
+                - generic [ref=e338]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e339]:
+                - heading "Toy Story 5" [level=3] [ref=e340]
+                - text: "2026"
+            - link "Moana Movie ⭐ 5.6 ▶ View ⭐ 5.6 Film Moana 2026" [ref=e342] [cursor=pointer]:
+              - /url: /details/1108427?type=movie
+              - generic [ref=e343]:
+                - img "Moana" [ref=e344]
+                - generic [ref=e346]:
+                  - generic [ref=e347]: Movie
+                  - generic [ref=e348]: ⭐ 5.6
+                  - button "▶ View" [ref=e349]
+                - generic [ref=e350]: ⭐ 5.6
+                - generic: Film
+              - generic [ref=e351]:
+                - heading "Moana" [level=3] [ref=e352]
+                - text: "2026"
+            - link "Disclosure Day Movie ⭐ 6.7 ▶ View ⭐ 6.7 Film Disclosure Day 2026" [ref=e354] [cursor=pointer]:
+              - /url: /details/1275779?type=movie
+              - generic [ref=e355]:
+                - img "Disclosure Day" [ref=e356]
+                - generic [ref=e358]:
+                  - generic [ref=e359]: Movie
+                  - generic [ref=e360]: ⭐ 6.7
+                  - button "▶ View" [ref=e361]
+                - generic [ref=e362]: ⭐ 6.7
+                - generic: Film
+              - generic [ref=e363]:
+                - heading "Disclosure Day" [level=3] [ref=e364]
+                - text: "2026"
+            - link "Backrooms Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Backrooms 2026" [ref=e366] [cursor=pointer]:
+              - /url: /details/1083381?type=movie
+              - generic [ref=e367]:
+                - img "Backrooms" [ref=e368]
+                - generic [ref=e370]:
+                  - generic [ref=e371]: Movie
+                  - generic [ref=e372]: ⭐ 7.0
+                  - button "▶ View" [ref=e373]
+                - generic [ref=e374]: ⭐ 7.0
+                - generic: Film
+              - generic [ref=e375]:
+                - heading "Backrooms" [level=3] [ref=e376]
+                - text: "2026"
+            - link "Scary Movie Movie ⭐ 5.4 ▶ View ⭐ 5.4 Film Scary Movie 2026" [ref=e378] [cursor=pointer]:
+              - /url: /details/1273221?type=movie
+              - generic [ref=e379]:
+                - img "Scary Movie" [ref=e380]
+                - generic [ref=e382]:
+                  - generic [ref=e383]: Movie
+                  - generic [ref=e384]: ⭐ 5.4
+                  - button "▶ View" [ref=e385]
+                - generic [ref=e386]: ⭐ 5.4
+                - generic: Film
+              - generic [ref=e387]:
+                - heading "Scary Movie" [level=3] [ref=e388]
+                - text: "2026"
+            - link "Passenger Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Passenger 2026" [ref=e390] [cursor=pointer]:
+              - /url: /details/1368314?type=movie
+              - generic [ref=e391]:
+                - img "Passenger" [ref=e392]
+                - generic [ref=e394]:
+                  - generic [ref=e395]: Movie
+                  - generic [ref=e396]: ⭐ 7.2
+                  - button "▶ View" [ref=e397]
+                - generic [ref=e398]: ⭐ 7.2
+                - generic: Film
+              - generic [ref=e399]:
+                - heading "Passenger" [level=3] [ref=e400]
+                - text: "2026"
+            - link "The Furious Movie ⭐ 7.5 ▶ View ⭐ 7.5 Film The Furious 2026" [ref=e402] [cursor=pointer]:
+              - /url: /details/1280738?type=movie
+              - generic [ref=e403]:
+                - img "The Furious" [ref=e404]
+                - generic [ref=e406]:
+                  - generic [ref=e407]: Movie
+                  - generic [ref=e408]: ⭐ 7.5
+                  - button "▶ View" [ref=e409]
+                - generic [ref=e410]: ⭐ 7.5
+                - generic: Film
+              - generic [ref=e411]:
+                - heading "The Furious" [level=3] [ref=e412]
+                - text: "2026"
+            - link "Citizen Vigilante Movie ⭐ 6.5 ▶ View ⭐ 6.5 Film Citizen Vigilante 2026" [ref=e414] [cursor=pointer]:
+              - /url: /details/1413976?type=movie
+              - generic [ref=e415]:
+                - img "Citizen Vigilante" [ref=e416]
+                - generic [ref=e418]:
+                  - generic [ref=e419]: Movie
+                  - generic [ref=e420]: ⭐ 6.5
+                  - button "▶ View" [ref=e421]
+                - generic [ref=e422]: ⭐ 6.5
+                - generic: Film
+              - generic [ref=e423]:
+                - heading "Citizen Vigilante" [level=3] [ref=e424]
+                - text: "2026"
+            - link "Deep Water Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Deep Water 2026" [ref=e426] [cursor=pointer]:
+              - /url: /details/1127384?type=movie
+              - generic [ref=e427]:
+                - img "Deep Water" [ref=e428]
+                - generic [ref=e430]:
+                  - generic [ref=e431]: Movie
+                  - generic [ref=e432]: ⭐ 7.4
+                  - button "▶ View" [ref=e433]
+                - generic [ref=e434]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e435]:
+                - heading "Deep Water" [level=3] [ref=e436]
+                - text: "2026"
+            - link "The Odyssey Movie ⭐ 6.1 ▶ View ⭐ 6.1 Film The Odyssey 2026" [ref=e438] [cursor=pointer]:
+              - /url: /details/1368337?type=movie
+              - generic [ref=e439]:
+                - img "The Odyssey" [ref=e440]
+                - generic [ref=e442]:
+                  - generic [ref=e443]: Movie
+                  - generic [ref=e444]: ⭐ 6.1
+                  - button "▶ View" [ref=e445]
+                - generic [ref=e446]: ⭐ 6.1
+                - generic: Film
+              - generic [ref=e447]:
+                - heading "The Odyssey" [level=3] [ref=e448]
+                - text: "2026"
+            - link "Michael Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Michael 2026" [ref=e450] [cursor=pointer]:
+              - /url: /details/936075?type=movie
+              - generic [ref=e451]:
+                - img "Michael" [ref=e452]
+                - generic [ref=e454]:
+                  - generic [ref=e455]: Movie
+                  - generic [ref=e456]: ⭐ 8.7
+                  - button "▶ View" [ref=e457]
+                - generic [ref=e458]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e459]:
+                - heading "Michael" [level=3] [ref=e460]
+                - text: "2026"
+            - link "Evil Dead Burn Movie ⭐ 6.8 ▶ View ⭐ 6.8 Film Evil Dead Burn 2026" [ref=e462] [cursor=pointer]:
+              - /url: /details/1212763?type=movie
+              - generic [ref=e463]:
+                - img "Evil Dead Burn" [ref=e464]
+                - generic [ref=e466]:
+                  - generic [ref=e467]: Movie
+                  - generic [ref=e468]: ⭐ 6.8
+                  - button "▶ View" [ref=e469]
+                - generic [ref=e470]: ⭐ 6.8
+                - generic: Film
+              - generic [ref=e471]:
+                - heading "Evil Dead Burn" [level=3] [ref=e472]
+                - text: "2026"
+            - link "The Get Out Movie ⭐ 6.4 ▶ View ⭐ 6.4 Film The Get Out 2026" [ref=e474] [cursor=pointer]:
+              - /url: /details/1279493?type=movie
+              - generic [ref=e475]:
+                - img "The Get Out" [ref=e476]
+                - generic [ref=e478]:
+                  - generic [ref=e479]: Movie
+                  - generic [ref=e480]: ⭐ 6.4
+                  - button "▶ View" [ref=e481]
+                - generic [ref=e482]: ⭐ 6.4
+                - generic: Film
+              - generic [ref=e483]:
+                - heading "The Get Out" [level=3] [ref=e484]
+                - text: "2026"
+            - link "Night of the Living Dead Movie ⭐ 5.1 ▶ View ⭐ 5.1 Film Night of the Living Dead 2026" [ref=e486] [cursor=pointer]:
+              - /url: /details/1645603?type=movie
+              - generic [ref=e487]:
+                - img "Night of the Living Dead" [ref=e488]
+                - generic [ref=e490]:
+                  - generic [ref=e491]: Movie
+                  - generic [ref=e492]: ⭐ 5.1
+                  - button "▶ View" [ref=e493]
+                - generic [ref=e494]: ⭐ 5.1
+                - generic: Film
+              - generic [ref=e495]:
+                - heading "Night of the Living Dead" [level=3] [ref=e496]
+                - text: "2026"
+            - link "Black Box Movie ⭐ 6.3 ▶ View ⭐ 6.3 Film Black Box 2026" [ref=e498] [cursor=pointer]:
+              - /url: /details/1321008?type=movie
+              - generic [ref=e499]:
+                - img "Black Box" [ref=e500]
+                - generic [ref=e502]:
+                  - generic [ref=e503]: Movie
+                  - generic [ref=e504]: ⭐ 6.3
+                  - button "▶ View" [ref=e505]
+                - generic [ref=e506]: ⭐ 6.3
+                - generic: Film
+              - generic [ref=e507]:
+                - heading "Black Box" [level=3] [ref=e508]
+                - text: "2026"
+            - link "Minions & Monsters Movie ⭐ 6.4 ▶ View ⭐ 6.4 Film Minions & Monsters 2026" [ref=e510] [cursor=pointer]:
+              - /url: /details/1315772?type=movie
+              - generic [ref=e511]:
+                - img "Minions & Monsters" [ref=e512]
+                - generic [ref=e514]:
+                  - generic [ref=e515]: Movie
+                  - generic [ref=e516]: ⭐ 6.4
+                  - button "▶ View" [ref=e517]
+                - generic [ref=e518]: ⭐ 6.4
+                - generic: Film
+              - generic [ref=e519]:
+                - heading "Minions & Monsters" [level=3] [ref=e520]
+                - text: "2026"
+            - 'link "Demon Slayer: Kimetsu no Yaiba Infinity Castle Movie ⭐ 7.7 ▶ View ⭐ 7.7 Film Demon Slayer: Kimetsu no Yaiba Infinity Castle 2025" [ref=e522] [cursor=pointer]':
+              - /url: /details/1311031?type=movie
+              - generic [ref=e523]:
+                - 'img "Demon Slayer: Kimetsu no Yaiba Infinity Castle" [ref=e524]'
+                - generic [ref=e526]:
+                  - generic [ref=e527]: Movie
+                  - generic [ref=e528]: ⭐ 7.7
+                  - button "▶ View" [ref=e529]
+                - generic [ref=e530]: ⭐ 7.7
+                - generic: Film
+              - generic [ref=e531]:
+                - 'heading "Demon Slayer: Kimetsu no Yaiba Infinity Castle" [level=3] [ref=e532]'
+                - text: "2025"
+            - link "Kung Fu Soccer Movie ⭐ 4.6 ▶ View ⭐ 4.6 Film Kung Fu Soccer 2026" [ref=e534] [cursor=pointer]:
+              - /url: /details/1491920?type=movie
+              - generic [ref=e535]:
+                - img "Kung Fu Soccer" [ref=e536]
+                - generic [ref=e538]:
+                  - generic [ref=e539]: Movie
+                  - generic [ref=e540]: ⭐ 4.6
+                  - button "▶ View" [ref=e541]
+                - generic [ref=e542]: ⭐ 4.6
+                - generic: Film
+              - generic [ref=e543]:
+                - heading "Kung Fu Soccer" [level=3] [ref=e544]
+                - text: "2026"
+            - link "Peddi Movie ⭐ 6.1 ▶ View ⭐ 6.1 Film Peddi 2026" [ref=e546] [cursor=pointer]:
+              - /url: /details/1057265?type=movie
+              - generic [ref=e547]:
+                - img "Peddi" [ref=e548]
+                - generic [ref=e550]:
+                  - generic [ref=e551]: Movie
+                  - generic [ref=e552]: ⭐ 6.1
+                  - button "▶ View" [ref=e553]
+                - generic [ref=e554]: ⭐ 6.1
+                - generic: Film
+              - generic [ref=e555]:
+                - heading "Peddi" [level=3] [ref=e556]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e557]:
+        - generic [ref=e558]:
+          - heading "📡 Currently On Air" [level=2] [ref=e559]:
+            - generic [ref=e560]: 📡
+            - text: Currently On Air
+          - link "See all →" [ref=e561] [cursor=pointer]:
+            - /url: /now-playing?media=tv
+        - generic [ref=e562]:
+          - button "Scroll left": ‹
+          - generic [ref=e563]:
+            - link "House of the Dragon TV ⭐ 8.4 ▶ View ⭐ 8.4 TV House of the Dragon 2022" [ref=e565] [cursor=pointer]:
+              - /url: /details/94997?type=tv
+              - generic [ref=e566]:
+                - img "House of the Dragon" [ref=e567]
+                - generic [ref=e569]:
+                  - generic [ref=e570]: TV
+                  - generic [ref=e571]: ⭐ 8.4
+                  - button "▶ View" [ref=e572]
+                - generic [ref=e573]: ⭐ 8.4
+                - generic: TV
+              - generic [ref=e574]:
+                - heading "House of the Dragon" [level=3] [ref=e575]
+                - text: "2022"
+            - link "Silo TV ⭐ 8.2 ▶ View ⭐ 8.2 TV Silo 2023" [ref=e577] [cursor=pointer]:
+              - /url: /details/125988?type=tv
+              - generic [ref=e578]:
+                - img "Silo" [ref=e579]
+                - generic [ref=e581]:
+                  - generic [ref=e582]: TV
+                  - generic [ref=e583]: ⭐ 8.2
+                  - button "▶ View" [ref=e584]
+                - generic [ref=e585]: ⭐ 8.2
+                - generic: TV
+              - generic [ref=e586]:
+                - heading "Silo" [level=3] [ref=e587]
+                - text: "2023"
+            - 'link "Mushoku Tensei: Jobless Reincarnation TV ⭐ 8.5 ▶ View ⭐ 8.5 TV Mushoku Tensei: Jobless Reincarnation 2021" [ref=e589] [cursor=pointer]':
+              - /url: /details/94664?type=tv
+              - generic [ref=e590]:
+                - 'img "Mushoku Tensei: Jobless Reincarnation" [ref=e591]'
+                - generic [ref=e593]:
+                  - generic [ref=e594]: TV
+                  - generic [ref=e595]: ⭐ 8.5
+                  - button "▶ View" [ref=e596]
+                - generic [ref=e597]: ⭐ 8.5
+                - generic: TV
+              - generic [ref=e598]:
+                - 'heading "Mushoku Tensei: Jobless Reincarnation" [level=3] [ref=e599]'
+                - text: "2021"
+            - link "Rick and Morty TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Rick and Morty 2013" [ref=e601] [cursor=pointer]:
+              - /url: /details/60625?type=tv
+              - generic [ref=e602]:
+                - img "Rick and Morty" [ref=e603]
+                - generic [ref=e605]:
+                  - generic [ref=e606]: TV
+                  - generic [ref=e607]: ⭐ 8.7
+                  - button "▶ View" [ref=e608]
+                - generic [ref=e609]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e610]:
+                - heading "Rick and Morty" [level=3] [ref=e611]
+                - text: "2013"
+            - link "Criminal Minds TV ⭐ 8.3 ▶ View ⭐ 8.3 TV Criminal Minds 2005" [ref=e613] [cursor=pointer]:
+              - /url: /details/4057?type=tv
+              - generic [ref=e614]:
+                - img "Criminal Minds" [ref=e615]
+                - generic [ref=e617]:
+                  - generic [ref=e618]: TV
+                  - generic [ref=e619]: ⭐ 8.3
+                  - button "▶ View" [ref=e620]
+                - generic [ref=e621]: ⭐ 8.3
+                - generic: TV
+              - generic [ref=e622]:
+                - heading "Criminal Minds" [level=3] [ref=e623]
+                - text: "2005"
+            - link "Chainsmoker Cat TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Chainsmoker Cat 2026" [ref=e625] [cursor=pointer]:
+              - /url: /details/312949?type=tv
+              - generic [ref=e626]:
+                - img "Chainsmoker Cat" [ref=e627]
+                - generic [ref=e629]:
+                  - generic [ref=e630]: TV
+                  - generic [ref=e631]: ⭐ 8.7
+                  - button "▶ View" [ref=e632]
+                - generic [ref=e633]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e634]:
+                - heading "Chainsmoker Cat" [level=3] [ref=e635]
+                - text: "2026"
+            - link "Renegade Immortal TV ⭐ 8.3 ▶ View ⭐ 8.3 TV Renegade Immortal 2023" [ref=e637] [cursor=pointer]:
+              - /url: /details/223911?type=tv
+              - generic [ref=e638]:
+                - img "Renegade Immortal" [ref=e639]
+                - generic [ref=e641]:
+                  - generic [ref=e642]: TV
+                  - generic [ref=e643]: ⭐ 8.3
+                  - button "▶ View" [ref=e644]
+                - generic [ref=e645]: ⭐ 8.3
+                - generic: TV
+              - generic [ref=e646]:
+                - heading "Renegade Immortal" [level=3] [ref=e647]
+                - text: "2023"
+            - link "Bittersweet Love TV ⭐ 10.0 ▶ View ⭐ 10.0 TV Bittersweet Love 2026" [ref=e649] [cursor=pointer]:
+              - /url: /details/316540?type=tv
+              - generic [ref=e650]:
+                - img "Bittersweet Love" [ref=e651]
+                - generic [ref=e653]:
+                  - generic [ref=e654]: TV
+                  - generic [ref=e655]: ⭐ 10.0
+                  - button "▶ View" [ref=e656]
+                - generic [ref=e657]: ⭐ 10.0
+                - generic: TV
+              - generic [ref=e658]:
+                - heading "Bittersweet Love" [level=3] [ref=e659]
+                - text: "2026"
+            - link "Agent Kim Reactivated TV ⭐ 7.5 ▶ View ⭐ 7.5 TV Agent Kim Reactivated 2026" [ref=e661] [cursor=pointer]:
+              - /url: /details/296206?type=tv
+              - generic [ref=e662]:
+                - img "Agent Kim Reactivated" [ref=e663]
+                - generic [ref=e665]:
+                  - generic [ref=e666]: TV
+                  - generic [ref=e667]: ⭐ 7.5
+                  - button "▶ View" [ref=e668]
+                - generic [ref=e669]: ⭐ 7.5
+                - generic: TV
+              - generic [ref=e670]:
+                - heading "Agent Kim Reactivated" [level=3] [ref=e671]
+                - text: "2026"
+            - link "Kyunki... Saas Bhi Kabhi Bahu Thi... TV ⭐ 3.4 ▶ View ⭐ 3.4 TV Kyunki... Saas Bhi Kabhi Bahu Thi... 2000" [ref=e673] [cursor=pointer]:
+              - /url: /details/6060?type=tv
+              - generic [ref=e674]:
+                - img "Kyunki... Saas Bhi Kabhi Bahu Thi..." [ref=e675]
+                - generic [ref=e677]:
+                  - generic [ref=e678]: TV
+                  - generic [ref=e679]: ⭐ 3.4
+                  - button "▶ View" [ref=e680]
+                - generic [ref=e681]: ⭐ 3.4
+                - generic: TV
+              - generic [ref=e682]:
+                - heading "Kyunki... Saas Bhi Kabhi Bahu Thi..." [level=3] [ref=e683]
+                - text: "2000"
+            - link "Lucky TV ⭐ 5.6 ▶ View ⭐ 5.6 TV Lucky 2026" [ref=e685] [cursor=pointer]:
+              - /url: /details/278624?type=tv
+              - generic [ref=e686]:
+                - img "Lucky" [ref=e687]
+                - generic [ref=e689]:
+                  - generic [ref=e690]: TV
+                  - generic [ref=e691]: ⭐ 5.6
+                  - button "▶ View" [ref=e692]
+                - generic [ref=e693]: ⭐ 5.6
+                - generic: TV
+              - generic [ref=e694]:
+                - heading "Lucky" [level=3] [ref=e695]
+                - text: "2026"
+            - link "The Daily Show TV ⭐ 6.4 ▶ View ⭐ 6.4 TV The Daily Show 1996" [ref=e697] [cursor=pointer]:
+              - /url: /details/2224?type=tv
+              - generic [ref=e698]:
+                - img "The Daily Show" [ref=e699]
+                - generic [ref=e701]:
+                  - generic [ref=e702]: TV
+                  - generic [ref=e703]: ⭐ 6.4
+                  - button "▶ View" [ref=e704]
+                - generic [ref=e705]: ⭐ 6.4
+                - generic: TV
+              - generic [ref=e706]:
+                - heading "The Daily Show" [level=3] [ref=e707]
+                - text: "1996"
+            - link "Coronation Street TV ⭐ 5.3 ▶ View ⭐ 5.3 TV Coronation Street 1960" [ref=e709] [cursor=pointer]:
+              - /url: /details/291?type=tv
+              - generic [ref=e710]:
+                - img "Coronation Street" [ref=e711]
+                - generic [ref=e713]:
+                  - generic [ref=e714]: TV
+                  - generic [ref=e715]: ⭐ 5.3
+                  - button "▶ View" [ref=e716]
+                - generic [ref=e717]: ⭐ 5.3
+                - generic: TV
+              - generic [ref=e718]:
+                - heading "Coronation Street" [level=3] [ref=e719]
+                - text: "1960"
+            - link "Club Friday TV ⭐ 2.8 ▶ View ⭐ 2.8 TV Club Friday 2012" [ref=e721] [cursor=pointer]:
+              - /url: /details/62245?type=tv
+              - generic [ref=e722]:
+                - img "Club Friday" [ref=e723]
+                - generic [ref=e725]:
+                  - generic [ref=e726]: TV
+                  - generic [ref=e727]: ⭐ 2.8
+                  - button "▶ View" [ref=e728]
+                - generic [ref=e729]: ⭐ 2.8
+                - generic: TV
+              - generic [ref=e730]:
+                - heading "Club Friday" [level=3] [ref=e731]
+                - text: "2012"
+            - link "The Prosecutor's Proposal TV ⭐ 6.0 ▶ View ⭐ 6.0 TV The Prosecutor's Proposal 2026" [ref=e733] [cursor=pointer]:
+              - /url: /details/322055?type=tv
+              - generic [ref=e734]:
+                - img "The Prosecutor's Proposal" [ref=e735]
+                - generic [ref=e737]:
+                  - generic [ref=e738]: TV
+                  - generic [ref=e739]: ⭐ 6.0
+                  - button "▶ View" [ref=e740]
+                - generic [ref=e741]: ⭐ 6.0
+                - generic: TV
+              - generic [ref=e742]:
+                - heading "The Prosecutor's Proposal" [level=3] [ref=e743]
+                - text: "2026"
+            - link "Running Man TV ⭐ 8.2 ▶ View ⭐ 8.2 TV Running Man 2010" [ref=e745] [cursor=pointer]:
+              - /url: /details/33238?type=tv
+              - generic [ref=e746]:
+                - img "Running Man" [ref=e747]
+                - generic [ref=e749]:
+                  - generic [ref=e750]: TV
+                  - generic [ref=e751]: ⭐ 8.2
+                  - button "▶ View" [ref=e752]
+                - generic [ref=e753]: ⭐ 8.2
+                - generic: TV
+              - generic [ref=e754]:
+                - heading "Running Man" [level=3] [ref=e755]
+                - text: "2010"
+            - link "Watch What Happens Live with Andy Cohen TV ⭐ 5.0 ▶ View ⭐ 5.0 TV Watch What Happens Live with Andy Cohen 2009" [ref=e757] [cursor=pointer]:
+              - /url: /details/22980?type=tv
+              - generic [ref=e758]:
+                - img "Watch What Happens Live with Andy Cohen" [ref=e759]
+                - generic [ref=e761]:
+                  - generic [ref=e762]: TV
+                  - generic [ref=e763]: ⭐ 5.0
+                  - button "▶ View" [ref=e764]
+                - generic [ref=e765]: ⭐ 5.0
+                - generic: TV
+              - generic [ref=e766]:
+                - heading "Watch What Happens Live with Andy Cohen" [level=3] [ref=e767]
+                - text: "2009"
+            - 'link "Come Home Love: Lo and Behold TV ⭐ 5.4 ▶ View ⭐ 5.4 TV Come Home Love: Lo and Behold 2017" [ref=e769] [cursor=pointer]':
+              - /url: /details/91759?type=tv
+              - generic [ref=e770]:
+                - 'img "Come Home Love: Lo and Behold" [ref=e771]'
+                - generic [ref=e773]:
+                  - generic [ref=e774]: TV
+                  - generic [ref=e775]: ⭐ 5.4
+                  - button "▶ View" [ref=e776]
+                - generic [ref=e777]: ⭐ 5.4
+                - generic: TV
+              - generic [ref=e778]:
+                - 'heading "Come Home Love: Lo and Behold" [level=3] [ref=e779]'
+                - text: "2017"
+            - link "Chibi Maruko-chan TV ⭐ 7.8 ▶ View ⭐ 7.8 TV Chibi Maruko-chan 1990" [ref=e781] [cursor=pointer]:
+              - /url: /details/57775?type=tv
+              - generic [ref=e782]:
+                - img "Chibi Maruko-chan" [ref=e783]
+                - generic [ref=e785]:
+                  - generic [ref=e786]: TV
+                  - generic [ref=e787]: ⭐ 7.8
+                  - button "▶ View" [ref=e788]
+                - generic [ref=e789]: ⭐ 7.8
+                - generic: TV
+              - generic [ref=e790]:
+                - heading "Chibi Maruko-chan" [level=3] [ref=e791]
+                - text: "1990"
+            - link "PAW Patrol TV ⭐ 7.0 ▶ View ⭐ 7.0 TV PAW Patrol 2013" [ref=e793] [cursor=pointer]:
+              - /url: /details/57532?type=tv
+              - generic [ref=e794]:
+                - img "PAW Patrol" [ref=e795]
+                - generic [ref=e797]:
+                  - generic [ref=e798]: TV
+                  - generic [ref=e799]: ⭐ 7.0
+                  - button "▶ View" [ref=e800]
+                - generic [ref=e801]: ⭐ 7.0
+                - generic: TV
+              - generic [ref=e802]:
+                - heading "PAW Patrol" [level=3] [ref=e803]
+                - text: "2013"
+          - button "Scroll right": ›
+      - generic [ref=e804]:
+        - heading "📈 Top 10 Movies in Kenya Today" [level=2] [ref=e806]:
+          - generic [ref=e807]: 📈
+          - text: Top 10 Movies in Kenya Today
+        - generic [ref=e808]:
+          - button "Scroll left": ‹
+          - generic [ref=e809]:
+            - generic [ref=e810]:
+              - generic: "1"
+              - link "Obsession Movie ⭐ 8.3 ▶ View ⭐ 8.3 Film Obsession 2026" [ref=e812] [cursor=pointer]:
+                - /url: /details/1339713?type=movie
+                - generic [ref=e813]:
+                  - img "Obsession" [ref=e814]
+                  - generic [ref=e816]:
+                    - generic [ref=e817]: Movie
+                    - generic [ref=e818]: ⭐ 8.3
+                    - button "▶ View" [ref=e819]
+                  - generic [ref=e820]: ⭐ 8.3
+                  - generic: Film
+                - generic [ref=e821]:
+                  - heading "Obsession" [level=3] [ref=e822]
+                  - text: "2026"
+            - generic [ref=e823]:
+              - generic: "2"
+              - link "Toy Story 5 Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Toy Story 5 2026" [ref=e825] [cursor=pointer]:
+                - /url: /details/1084244?type=movie
+                - generic [ref=e826]:
+                  - img "Toy Story 5" [ref=e827]
+                  - generic [ref=e829]:
+                    - generic [ref=e830]: Movie
+                    - generic [ref=e831]: ⭐ 7.4
+                    - button "▶ View" [ref=e832]
+                  - generic [ref=e833]: ⭐ 7.4
+                  - generic: Film
+                - generic [ref=e834]:
+                  - heading "Toy Story 5" [level=3] [ref=e835]
+                  - text: "2026"
+            - generic [ref=e836]:
+              - generic: "3"
+              - link "Moana Movie ⭐ 5.6 ▶ View ⭐ 5.6 Film Moana 2026" [ref=e838] [cursor=pointer]:
+                - /url: /details/1108427?type=movie
+                - generic [ref=e839]:
+                  - img "Moana" [ref=e840]
+                  - generic [ref=e842]:
+                    - generic [ref=e843]: Movie
+                    - generic [ref=e844]: ⭐ 5.6
+                    - button "▶ View" [ref=e845]
+                  - generic [ref=e846]: ⭐ 5.6
+                  - generic: Film
+                - generic [ref=e847]:
+                  - heading "Moana" [level=3] [ref=e848]
+                  - text: "2026"
+            - generic [ref=e849]:
+              - generic: "4"
+              - link "Disclosure Day Movie ⭐ 6.7 ▶ View ⭐ 6.7 Film Disclosure Day 2026" [ref=e851] [cursor=pointer]:
+                - /url: /details/1275779?type=movie
+                - generic [ref=e852]:
+                  - img "Disclosure Day" [ref=e853]
+                  - generic [ref=e855]:
+                    - generic [ref=e856]: Movie
+                    - generic [ref=e857]: ⭐ 6.7
+                    - button "▶ View" [ref=e858]
+                  - generic [ref=e859]: ⭐ 6.7
+                  - generic: Film
+                - generic [ref=e860]:
+                  - heading "Disclosure Day" [level=3] [ref=e861]
+                  - text: "2026"
+            - generic [ref=e862]:
+              - generic: "5"
+              - link "Backrooms Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Backrooms 2026" [ref=e864] [cursor=pointer]:
+                - /url: /details/1083381?type=movie
+                - generic [ref=e865]:
+                  - img "Backrooms" [ref=e866]
+                  - generic [ref=e868]:
+                    - generic [ref=e869]: Movie
+                    - generic [ref=e870]: ⭐ 7.0
+                    - button "▶ View" [ref=e871]
+                  - generic [ref=e872]: ⭐ 7.0
+                  - generic: Film
+                - generic [ref=e873]:
+                  - heading "Backrooms" [level=3] [ref=e874]
+                  - text: "2026"
+            - generic [ref=e875]:
+              - generic: "6"
+              - link "Scary Movie Movie ⭐ 5.4 ▶ View ⭐ 5.4 Film Scary Movie 2026" [ref=e877] [cursor=pointer]:
+                - /url: /details/1273221?type=movie
+                - generic [ref=e878]:
+                  - img "Scary Movie" [ref=e879]
+                  - generic [ref=e881]:
+                    - generic [ref=e882]: Movie
+                    - generic [ref=e883]: ⭐ 5.4
+                    - button "▶ View" [ref=e884]
+                  - generic [ref=e885]: ⭐ 5.4
+                  - generic: Film
+                - generic [ref=e886]:
+                  - heading "Scary Movie" [level=3] [ref=e887]
+                  - text: "2026"
+            - generic [ref=e888]:
+              - generic: "7"
+              - link "The Devil Wears Prada 2 Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film The Devil Wears Prada 2 2026" [ref=e890] [cursor=pointer]:
+                - /url: /details/1314481?type=movie
+                - generic [ref=e891]:
+                  - img "The Devil Wears Prada 2" [ref=e892]
+                  - generic [ref=e894]:
+                    - generic [ref=e895]: Movie
+                    - generic [ref=e896]: ⭐ 7.1
+                    - button "▶ View" [ref=e897]
+                  - generic [ref=e898]: ⭐ 7.1
+                  - generic: Film
+                - generic [ref=e899]:
+                  - heading "The Devil Wears Prada 2" [level=3] [ref=e900]
+                  - text: "2026"
+            - generic [ref=e901]:
+              - generic: "8"
+              - link "Passenger Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Passenger 2026" [ref=e903] [cursor=pointer]:
+                - /url: /details/1368314?type=movie
+                - generic [ref=e904]:
+                  - img "Passenger" [ref=e905]
+                  - generic [ref=e907]:
+                    - generic [ref=e908]: Movie
+                    - generic [ref=e909]: ⭐ 7.2
+                    - button "▶ View" [ref=e910]
+                  - generic [ref=e911]: ⭐ 7.2
+                  - generic: Film
+                - generic [ref=e912]:
+                  - heading "Passenger" [level=3] [ref=e913]
+                  - text: "2026"
+            - generic [ref=e914]:
+              - generic: "9"
+              - link "The Furious Movie ⭐ 7.5 ▶ View ⭐ 7.5 Film The Furious 2026" [ref=e916] [cursor=pointer]:
+                - /url: /details/1280738?type=movie
+                - generic [ref=e917]:
+                  - img "The Furious" [ref=e918]
+                  - generic [ref=e920]:
+                    - generic [ref=e921]: Movie
+                    - generic [ref=e922]: ⭐ 7.5
+                    - button "▶ View" [ref=e923]
+                  - generic [ref=e924]: ⭐ 7.5
+                  - generic: Film
+                - generic [ref=e925]:
+                  - heading "The Furious" [level=3] [ref=e926]
+                  - text: "2026"
+            - generic [ref=e927]:
+              - generic: "10"
+              - link "Your Heart Will Be Broken Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film Your Heart Will Be Broken 2026" [ref=e929] [cursor=pointer]:
+                - /url: /details/1523145?type=movie
+                - generic [ref=e930]:
+                  - img "Your Heart Will Be Broken" [ref=e931]
+                  - generic [ref=e933]:
+                    - generic [ref=e934]: Movie
+                    - generic [ref=e935]: ⭐ 7.1
+                    - button "▶ View" [ref=e936]
+                  - generic [ref=e937]: ⭐ 7.1
+                  - generic: Film
+                - generic [ref=e938]:
+                  - heading "Your Heart Will Be Broken" [level=3] [ref=e939]
+                  - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e940]:
+        - heading "📈 Top 10 TV Shows in Kenya Today" [level=2] [ref=e942]:
+          - generic [ref=e943]: 📈
+          - text: Top 10 TV Shows in Kenya Today
+        - generic [ref=e944]:
+          - button "Scroll left": ‹
+          - generic [ref=e945]:
+            - generic [ref=e946]:
+              - generic: "1"
+              - link "House of the Dragon TV ⭐ 8.4 ▶ View ⭐ 8.4 TV House of the Dragon 2022" [ref=e948] [cursor=pointer]:
+                - /url: /details/94997?type=tv
+                - generic [ref=e949]:
+                  - img "House of the Dragon" [ref=e950]
+                  - generic [ref=e952]:
+                    - generic [ref=e953]: TV
+                    - generic [ref=e954]: ⭐ 8.4
+                    - button "▶ View" [ref=e955]
+                  - generic [ref=e956]: ⭐ 8.4
+                  - generic: TV
+                - generic [ref=e957]:
+                  - heading "House of the Dragon" [level=3] [ref=e958]
+                  - text: "2022"
+            - generic [ref=e959]:
+              - generic: "2"
+              - link "Pritam and Pedro TV ⭐ 8.6 ▶ View ⭐ 8.6 TV Pritam and Pedro 2026" [ref=e961] [cursor=pointer]:
+                - /url: /details/243206?type=tv
+                - generic [ref=e962]:
+                  - img "Pritam and Pedro" [ref=e963]
+                  - generic [ref=e965]:
+                    - generic [ref=e966]: TV
+                    - generic [ref=e967]: ⭐ 8.6
+                    - button "▶ View" [ref=e968]
+                  - generic [ref=e969]: ⭐ 8.6
+                  - generic: TV
+                - generic [ref=e970]:
+                  - heading "Pritam and Pedro" [level=3] [ref=e971]
+                  - text: "2026"
+            - generic [ref=e972]:
+              - generic: "3"
+              - link "Silo TV ⭐ 8.2 ▶ View ⭐ 8.2 TV Silo 2023" [ref=e974] [cursor=pointer]:
+                - /url: /details/125988?type=tv
+                - generic [ref=e975]:
+                  - img "Silo" [ref=e976]
+                  - generic [ref=e978]:
+                    - generic [ref=e979]: TV
+                    - generic [ref=e980]: ⭐ 8.2
+                    - button "▶ View" [ref=e981]
+                  - generic [ref=e982]: ⭐ 8.2
+                  - generic: TV
+                - generic [ref=e983]:
+                  - heading "Silo" [level=3] [ref=e984]
+                  - text: "2023"
+            - generic [ref=e985]:
+              - generic: "4"
+              - link "FROM TV ⭐ 8.5 ▶ View ⭐ 8.5 TV FROM 2022" [ref=e987] [cursor=pointer]:
+                - /url: /details/124364?type=tv
+                - generic [ref=e988]:
+                  - img "FROM" [ref=e989]
+                  - generic [ref=e991]:
+                    - generic [ref=e992]: TV
+                    - generic [ref=e993]: ⭐ 8.5
+                    - button "▶ View" [ref=e994]
+                  - generic [ref=e995]: ⭐ 8.5
+                  - generic: TV
+                - generic [ref=e996]:
+                  - heading "FROM" [level=3] [ref=e997]
+                  - text: "2022"
+            - generic [ref=e998]:
+              - generic: "5"
+              - link "Maddie + Triggs TV ⭐ 10.0 ▶ View ⭐ 10.0 TV Maddie + Triggs 2024" [ref=e1000] [cursor=pointer]:
+                - /url: /details/257723?type=tv
+                - generic [ref=e1001]:
+                  - img "Maddie + Triggs" [ref=e1002]
+                  - generic [ref=e1004]:
+                    - generic [ref=e1005]: TV
+                    - generic [ref=e1006]: ⭐ 10.0
+                    - button "▶ View" [ref=e1007]
+                  - generic [ref=e1008]: ⭐ 10.0
+                  - generic: TV
+                - generic [ref=e1009]:
+                  - heading "Maddie + Triggs" [level=3] [ref=e1010]
+                  - text: "2024"
+            - generic [ref=e1011]:
+              - generic: "6"
+              - 'link "Mushoku Tensei: Jobless Reincarnation TV ⭐ 8.5 ▶ View ⭐ 8.5 TV Mushoku Tensei: Jobless Reincarnation 2021" [ref=e1013] [cursor=pointer]':
+                - /url: /details/94664?type=tv
+                - generic [ref=e1014]:
+                  - 'img "Mushoku Tensei: Jobless Reincarnation" [ref=e1015]'
+                  - generic [ref=e1017]:
+                    - generic [ref=e1018]: TV
+                    - generic [ref=e1019]: ⭐ 8.5
+                    - button "▶ View" [ref=e1020]
+                  - generic [ref=e1021]: ⭐ 8.5
+                  - generic: TV
+                - generic [ref=e1022]:
+                  - 'heading "Mushoku Tensei: Jobless Reincarnation" [level=3] [ref=e1023]'
+                  - text: "2021"
+            - generic [ref=e1024]:
+              - generic: "7"
+              - 'link "Law & Order: Special Victims Unit TV ⭐ 8.0 ▶ View ⭐ 8.0 TV Law & Order: Special Victims Unit 1999" [ref=e1026] [cursor=pointer]':
+                - /url: /details/2734?type=tv
+                - generic [ref=e1027]:
+                  - 'img "Law & Order: Special Victims Unit" [ref=e1028]'
+                  - generic [ref=e1030]:
+                    - generic [ref=e1031]: TV
+                    - generic [ref=e1032]: ⭐ 8.0
+                    - button "▶ View" [ref=e1033]
+                  - generic [ref=e1034]: ⭐ 8.0
+                  - generic: TV
+                - generic [ref=e1035]:
+                  - 'heading "Law & Order: Special Victims Unit" [level=3] [ref=e1036]'
+                  - text: "1999"
+            - generic [ref=e1037]:
+              - generic: "8"
+              - link "The Rookie TV ⭐ 8.6 ▶ View ⭐ 8.6 TV The Rookie 2018" [ref=e1039] [cursor=pointer]:
+                - /url: /details/79744?type=tv
+                - generic [ref=e1040]:
+                  - img "The Rookie" [ref=e1041]
+                  - generic [ref=e1043]:
+                    - generic [ref=e1044]: TV
+                    - generic [ref=e1045]: ⭐ 8.6
+                    - button "▶ View" [ref=e1046]
+                  - generic [ref=e1047]: ⭐ 8.6
+                  - generic: TV
+                - generic [ref=e1048]:
+                  - heading "The Rookie" [level=3] [ref=e1049]
+                  - text: "2018"
+            - generic [ref=e1050]:
+              - generic: "9"
+              - link "The Mentalist TV ⭐ 8.4 ▶ View ⭐ 8.4 TV The Mentalist 2008" [ref=e1052] [cursor=pointer]:
+                - /url: /details/5920?type=tv
+                - generic [ref=e1053]:
+                  - img "The Mentalist" [ref=e1054]
+                  - generic [ref=e1056]:
+                    - generic [ref=e1057]: TV
+                    - generic [ref=e1058]: ⭐ 8.4
+                    - button "▶ View" [ref=e1059]
+                  - generic [ref=e1060]: ⭐ 8.4
+                  - generic: TV
+                - generic [ref=e1061]:
+                  - heading "The Mentalist" [level=3] [ref=e1062]
+                  - text: "2008"
+            - generic [ref=e1063]:
+              - generic: "10"
+              - link "Law & Order TV ⭐ 7.3 ▶ View ⭐ 7.3 TV Law & Order 1990" [ref=e1065] [cursor=pointer]:
+                - /url: /details/549?type=tv
+                - generic [ref=e1066]:
+                  - img "Law & Order" [ref=e1067]
+                  - generic [ref=e1069]:
+                    - generic [ref=e1070]: TV
+                    - generic [ref=e1071]: ⭐ 7.3
+                    - button "▶ View" [ref=e1072]
+                  - generic [ref=e1073]: ⭐ 7.3
+                  - generic: TV
+                - generic [ref=e1074]:
+                  - heading "Law & Order" [level=3] [ref=e1075]
+                  - text: "1990"
+          - button "Scroll right": ›
+      - generic [ref=e1076]:
+        - generic [ref=e1077]:
+          - heading "🔴 New Movies on Netflix" [level=2] [ref=e1078]:
+            - generic [ref=e1079]: 🔴
+            - text: New Movies on Netflix
+          - link "See all →" [ref=e1080] [cursor=pointer]:
+            - /url: /providers?with_watch_providers=8&media=movie
+        - generic [ref=e1081]:
+          - button "Scroll left": ‹
+          - generic [ref=e1082]:
+            - link "Swapped Movie ⭐ 8.9 ▶ View ⭐ 8.9 Film Swapped 2026" [ref=e1084] [cursor=pointer]:
+              - /url: /details/1007757?type=movie
+              - generic [ref=e1085]:
+                - img "Swapped" [ref=e1086]
+                - generic [ref=e1088]:
+                  - generic [ref=e1089]: Movie
+                  - generic [ref=e1090]: ⭐ 8.9
+                  - button "▶ View" [ref=e1091]
+                - generic [ref=e1092]: ⭐ 8.9
+                - generic: Film
+              - generic [ref=e1093]:
+                - heading "Swapped" [level=3] [ref=e1094]
+                - text: "2026"
+            - link "Enola Holmes 3 Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Enola Holmes 3 2026" [ref=e1096] [cursor=pointer]:
+              - /url: /details/1202033?type=movie
+              - generic [ref=e1097]:
+                - img "Enola Holmes 3" [ref=e1098]
+                - generic [ref=e1100]:
+                  - generic [ref=e1101]: Movie
+                  - generic [ref=e1102]: ⭐ 7.0
+                  - button "▶ View" [ref=e1103]
+                - generic [ref=e1104]: ⭐ 7.0
+                - generic: Film
+              - generic [ref=e1105]:
+                - heading "Enola Holmes 3" [level=3] [ref=e1106]
+                - text: "2026"
+            - link "Little Brother Movie ⭐ 6.5 ▶ View ⭐ 6.5 Film Little Brother 2026" [ref=e1108] [cursor=pointer]:
+              - /url: /details/1397385?type=movie
+              - generic [ref=e1109]:
+                - img "Little Brother" [ref=e1110]
+                - generic [ref=e1112]:
+                  - generic [ref=e1113]: Movie
+                  - generic [ref=e1114]: ⭐ 6.5
+                  - button "▶ View" [ref=e1115]
+                - generic [ref=e1116]: ⭐ 6.5
+                - generic: Film
+              - generic [ref=e1117]:
+                - heading "Little Brother" [level=3] [ref=e1118]
+                - text: "2026"
+            - link "Apex Movie ⭐ 6.9 ▶ View ⭐ 6.9 Film Apex 2026" [ref=e1120] [cursor=pointer]:
+              - /url: /details/1318447?type=movie
+              - generic [ref=e1121]:
+                - img "Apex" [ref=e1122]
+                - generic [ref=e1124]:
+                  - generic [ref=e1125]: Movie
+                  - generic [ref=e1126]: ⭐ 6.9
+                  - button "▶ View" [ref=e1127]
+                - generic [ref=e1128]: ⭐ 6.9
+                - generic: Film
+              - generic [ref=e1129]:
+                - heading "Apex" [level=3] [ref=e1130]
+                - text: "2026"
+            - link "Voicemails for Isabelle Movie ⭐ 8.4 ▶ View ⭐ 8.4 Film Voicemails for Isabelle 2026" [ref=e1132] [cursor=pointer]:
+              - /url: /details/614945?type=movie
+              - generic [ref=e1133]:
+                - img "Voicemails for Isabelle" [ref=e1134]
+                - generic [ref=e1136]:
+                  - generic [ref=e1137]: Movie
+                  - generic [ref=e1138]: ⭐ 8.4
+                  - button "▶ View" [ref=e1139]
+                - generic [ref=e1140]: ⭐ 8.4
+                - generic: Film
+              - generic [ref=e1141]:
+                - heading "Voicemails for Isabelle" [level=3] [ref=e1142]
+                - text: "2026"
+            - link "GOAT Movie ⭐ 8.1 ▶ View ⭐ 8.1 Film GOAT 2026" [ref=e1144] [cursor=pointer]:
+              - /url: /details/1297842?type=movie
+              - generic [ref=e1145]:
+                - img "GOAT" [ref=e1146]
+                - generic [ref=e1148]:
+                  - generic [ref=e1149]: Movie
+                  - generic [ref=e1150]: ⭐ 8.1
+                  - button "▶ View" [ref=e1151]
+                - generic [ref=e1152]: ⭐ 8.1
+                - generic: Film
+              - generic [ref=e1153]:
+                - heading "GOAT" [level=3] [ref=e1154]
+                - text: "2026"
+            - link "War Machine Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film War Machine 2026" [ref=e1156] [cursor=pointer]:
+              - /url: /details/1265609?type=movie
+              - generic [ref=e1157]:
+                - img "War Machine" [ref=e1158]
+                - generic [ref=e1160]:
+                  - generic [ref=e1161]: Movie
+                  - generic [ref=e1162]: ⭐ 7.4
+                  - button "▶ View" [ref=e1163]
+                - generic [ref=e1164]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e1165]:
+                - heading "War Machine" [level=3] [ref=e1166]
+                - text: "2026"
+            - 'link "Shipwrecked: Nightmare at Sea Movie ⭐ 7.7 ▶ View ⭐ 7.7 Film Shipwrecked: Nightmare at Sea 2026" [ref=e1168] [cursor=pointer]':
+              - /url: /details/1715492?type=movie
+              - generic [ref=e1169]:
+                - 'img "Shipwrecked: Nightmare at Sea" [ref=e1170]'
+                - generic [ref=e1172]:
+                  - generic [ref=e1173]: Movie
+                  - generic [ref=e1174]: ⭐ 7.7
+                  - button "▶ View" [ref=e1175]
+                - generic [ref=e1176]: ⭐ 7.7
+                - generic: Film
+              - generic [ref=e1177]:
+                - 'heading "Shipwrecked: Nightmare at Sea" [level=3] [ref=e1178]'
+                - text: "2026"
+            - link "Remarkably Bright Creatures Movie ⭐ 8.6 ▶ View ⭐ 8.6 Film Remarkably Bright Creatures 2026" [ref=e1180] [cursor=pointer]:
+              - /url: /details/1330021?type=movie
+              - generic [ref=e1181]:
+                - img "Remarkably Bright Creatures" [ref=e1182]
+                - generic [ref=e1184]:
+                  - generic [ref=e1185]: Movie
+                  - generic [ref=e1186]: ⭐ 8.6
+                  - button "▶ View" [ref=e1187]
+                - generic [ref=e1188]: ⭐ 8.6
+                - generic: Film
+              - generic [ref=e1189]:
+                - heading "Remarkably Bright Creatures" [level=3] [ref=e1190]
+                - text: "2026"
+            - link "Thrash Movie ⭐ 6.1 ▶ View ⭐ 6.1 Film Thrash 2026" [ref=e1192] [cursor=pointer]:
+              - /url: /details/1290417?type=movie
+              - generic [ref=e1193]:
+                - img "Thrash" [ref=e1194]
+                - generic [ref=e1196]:
+                  - generic [ref=e1197]: Movie
+                  - generic [ref=e1198]: ⭐ 6.1
+                  - button "▶ View" [ref=e1199]
+                - generic [ref=e1200]: ⭐ 6.1
+                - generic: Film
+              - generic [ref=e1201]:
+                - heading "Thrash" [level=3] [ref=e1202]
+                - text: "2026"
+            - link "Office Romance Movie ⭐ 6.4 ▶ View ⭐ 6.4 Film Office Romance 2026" [ref=e1204] [cursor=pointer]:
+              - /url: /details/1358005?type=movie
+              - generic [ref=e1205]:
+                - img "Office Romance" [ref=e1206]
+                - generic [ref=e1208]:
+                  - generic [ref=e1209]: Movie
+                  - generic [ref=e1210]: ⭐ 6.4
+                  - button "▶ View" [ref=e1211]
+                - generic [ref=e1212]: ⭐ 6.4
+                - generic: Film
+              - generic [ref=e1213]:
+                - heading "Office Romance" [level=3] [ref=e1214]
+                - text: "2026"
+            - 'link "Peaky Blinders: The Immortal Man Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Peaky Blinders: The Immortal Man 2026" [ref=e1216] [cursor=pointer]':
+              - /url: /details/875828?type=movie
+              - generic [ref=e1217]:
+                - 'img "Peaky Blinders: The Immortal Man" [ref=e1218]'
+                - generic [ref=e1220]:
+                  - generic [ref=e1221]: Movie
+                  - generic [ref=e1222]: ⭐ 7.2
+                  - button "▶ View" [ref=e1223]
+                - generic [ref=e1224]: ⭐ 7.2
+                - generic: Film
+              - generic [ref=e1225]:
+                - 'heading "Peaky Blinders: The Immortal Man" [level=3] [ref=e1226]'
+                - text: "2026"
+            - link "Roommates Movie ⭐ 6.5 ▶ View ⭐ 6.5 Film Roommates 2026" [ref=e1228] [cursor=pointer]:
+              - /url: /details/1511057?type=movie
+              - generic [ref=e1229]:
+                - img "Roommates" [ref=e1230]
+                - generic [ref=e1232]:
+                  - generic [ref=e1233]: Movie
+                  - generic [ref=e1234]: ⭐ 6.5
+                  - button "▶ View" [ref=e1235]
+                - generic [ref=e1236]: ⭐ 6.5
+                - generic: Film
+              - generic [ref=e1237]:
+                - heading "Roommates" [level=3] [ref=e1238]
+                - text: "2026"
+            - link "The Crash Movie ⭐ 6.9 ▶ View ⭐ 6.9 Film The Crash 2026" [ref=e1240] [cursor=pointer]:
+              - /url: /details/1662317?type=movie
+              - generic [ref=e1241]:
+                - img "The Crash" [ref=e1242]
+                - generic [ref=e1244]:
+                  - generic [ref=e1245]: Movie
+                  - generic [ref=e1246]: ⭐ 6.9
+                  - button "▶ View" [ref=e1247]
+                - generic [ref=e1248]: ⭐ 6.9
+                - generic: Film
+              - generic [ref=e1249]:
+                - heading "The Crash" [level=3] [ref=e1250]
+                - text: "2026"
+            - link "Ladies First Movie ⭐ 6.0 ▶ View ⭐ 6.0 Film Ladies First 2026" [ref=e1252] [cursor=pointer]:
+              - /url: /details/1368881?type=movie
+              - generic [ref=e1253]:
+                - img "Ladies First" [ref=e1254]
+                - generic [ref=e1256]:
+                  - generic [ref=e1257]: Movie
+                  - generic [ref=e1258]: ⭐ 6.0
+                  - button "▶ View" [ref=e1259]
+                - generic [ref=e1260]: ⭐ 6.0
+                - generic: Film
+              - generic [ref=e1261]:
+                - heading "Ladies First" [level=3] [ref=e1262]
+                - text: "2026"
+            - link "180 Movie ⭐ 5.8 ▶ View ⭐ 5.8 Film 180 2026" [ref=e1264] [cursor=pointer]:
+              - /url: /details/1659087?type=movie
+              - generic [ref=e1265]:
+                - img "180" [ref=e1266]
+                - generic [ref=e1268]:
+                  - generic [ref=e1269]: Movie
+                  - generic [ref=e1270]: ⭐ 5.8
+                  - button "▶ View" [ref=e1271]
+                - generic [ref=e1272]: ⭐ 5.8
+                - generic: Film
+              - generic [ref=e1273]:
+                - heading "180" [level=3] [ref=e1274]
+                - text: "2026"
+            - link "Yoh! Bestie Movie ⭐ 6.3 ▶ View ⭐ 6.3 Film Yoh! Bestie 2026" [ref=e1276] [cursor=pointer]:
+              - /url: /details/1618945?type=movie
+              - generic [ref=e1277]:
+                - img "Yoh! Bestie" [ref=e1278]
+                - generic [ref=e1280]:
+                  - generic [ref=e1281]: Movie
+                  - generic [ref=e1282]: ⭐ 6.3
+                  - button "▶ View" [ref=e1283]
+                - generic [ref=e1284]: ⭐ 6.3
+                - generic: Film
+              - generic [ref=e1285]:
+                - heading "Yoh! Bestie" [level=3] [ref=e1286]
+                - text: "2026"
+            - link "In the Hand of Dante Movie ⭐ 5.4 ▶ View ⭐ 5.4 Film In the Hand of Dante 2026" [ref=e1288] [cursor=pointer]:
+              - /url: /details/1020047?type=movie
+              - generic [ref=e1289]:
+                - img "In the Hand of Dante" [ref=e1290]
+                - generic [ref=e1292]:
+                  - generic [ref=e1293]: Movie
+                  - generic [ref=e1294]: ⭐ 5.4
+                  - button "▶ View" [ref=e1295]
+                - generic [ref=e1296]: ⭐ 5.4
+                - generic: Film
+              - generic [ref=e1297]:
+                - heading "In the Hand of Dante" [level=3] [ref=e1298]
+                - text: "2026"
+            - link "Maternal Instinct Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Maternal Instinct 2026" [ref=e1300] [cursor=pointer]:
+              - /url: /details/1699155?type=movie
+              - generic [ref=e1301]:
+                - img "Maternal Instinct" [ref=e1302]
+                - generic [ref=e1304]:
+                  - generic [ref=e1305]: Movie
+                  - generic [ref=e1306]: ⭐ 7.2
+                  - button "▶ View" [ref=e1307]
+                - generic [ref=e1308]: ⭐ 7.2
+                - generic: Film
+              - generic [ref=e1309]:
+                - heading "Maternal Instinct" [level=3] [ref=e1310]
+                - text: "2026"
+            - link "Skyscraper Live Movie ⭐ 7.6 ▶ View ⭐ 7.6 Film Skyscraper Live 2026" [ref=e1312] [cursor=pointer]:
+              - /url: /details/1599090?type=movie
+              - generic [ref=e1313]:
+                - img "Skyscraper Live" [ref=e1314]
+                - generic [ref=e1316]:
+                  - generic [ref=e1317]: Movie
+                  - generic [ref=e1318]: ⭐ 7.6
+                  - button "▶ View" [ref=e1319]
+                - generic [ref=e1320]: ⭐ 7.6
+                - generic: Film
+              - generic [ref=e1321]:
+                - heading "Skyscraper Live" [level=3] [ref=e1322]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e1323]:
+        - generic [ref=e1324]:
+          - heading "🔴 New TV Shows on Netflix" [level=2] [ref=e1325]:
+            - generic [ref=e1326]: 🔴
+            - text: New TV Shows on Netflix
+          - link "See all →" [ref=e1327] [cursor=pointer]:
+            - /url: /providers?with_watch_providers=8&media=tv
+        - generic [ref=e1328]:
+          - button "Scroll left": ‹
+          - generic [ref=e1329]:
+            - link "I Will Find You TV ⭐ 8.2 ▶ View ⭐ 8.2 TV I Will Find You 2026" [ref=e1331] [cursor=pointer]:
+              - /url: /details/278178?type=tv
+              - generic [ref=e1332]:
+                - img "I Will Find You" [ref=e1333]
+                - generic [ref=e1335]:
+                  - generic [ref=e1336]: TV
+                  - generic [ref=e1337]: ⭐ 8.2
+                  - button "▶ View" [ref=e1338]
+                - generic [ref=e1339]: ⭐ 8.2
+                - generic: TV
+              - generic [ref=e1340]:
+                - heading "I Will Find You" [level=3] [ref=e1341]
+                - text: "2026"
+            - link "Little House on the Prairie TV ⭐ 6.2 ▶ View ⭐ 6.2 TV Little House on the Prairie 2026" [ref=e1343] [cursor=pointer]:
+              - /url: /details/283304?type=tv
+              - generic [ref=e1344]:
+                - img "Little House on the Prairie" [ref=e1345]
+                - generic [ref=e1347]:
+                  - generic [ref=e1348]: TV
+                  - generic [ref=e1349]: ⭐ 6.2
+                  - button "▶ View" [ref=e1350]
+                - generic [ref=e1351]: ⭐ 6.2
+                - generic: TV
+              - generic [ref=e1352]:
+                - heading "Little House on the Prairie" [level=3] [ref=e1353]
+                - text: "2026"
+            - link "The Boroughs TV ⭐ 7.3 ▶ View ⭐ 7.3 TV The Boroughs 2026" [ref=e1355] [cursor=pointer]:
+              - /url: /details/224941?type=tv
+              - generic [ref=e1356]:
+                - img "The Boroughs" [ref=e1357]
+                - generic [ref=e1359]:
+                  - generic [ref=e1360]: TV
+                  - generic [ref=e1361]: ⭐ 7.3
+                  - button "▶ View" [ref=e1362]
+                - generic [ref=e1363]: ⭐ 7.3
+                - generic: TV
+              - generic [ref=e1364]:
+                - heading "The Boroughs" [level=3] [ref=e1365]
+                - text: "2026"
+            - link "Nemesis TV ⭐ 7.6 ▶ View ⭐ 7.6 TV Nemesis 2026" [ref=e1367] [cursor=pointer]:
+              - /url: /details/285807?type=tv
+              - generic [ref=e1368]:
+                - img "Nemesis" [ref=e1369]
+                - generic [ref=e1371]:
+                  - generic [ref=e1372]: TV
+                  - generic [ref=e1373]: ⭐ 7.6
+                  - button "▶ View" [ref=e1374]
+                - generic [ref=e1375]: ⭐ 7.6
+                - generic: TV
+              - generic [ref=e1376]:
+                - heading "Nemesis" [level=3] [ref=e1377]
+                - text: "2026"
+            - link "Unchosen TV ⭐ 6.8 ▶ View ⭐ 6.8 TV Unchosen 2026" [ref=e1379] [cursor=pointer]:
+              - /url: /details/262848?type=tv
+              - generic [ref=e1380]:
+                - img "Unchosen" [ref=e1381]
+                - generic [ref=e1383]:
+                  - generic [ref=e1384]: TV
+                  - generic [ref=e1385]: ⭐ 6.8
+                  - button "▶ View" [ref=e1386]
+                - generic [ref=e1387]: ⭐ 6.8
+                - generic: TV
+              - generic [ref=e1388]:
+                - heading "Unchosen" [level=3] [ref=e1389]
+                - text: "2026"
+            - 'link "Stranger Things: Tales from ''85 TV ⭐ 7.6 ▶ View ⭐ 7.6 TV Stranger Things: Tales from ''85 2026" [ref=e1391] [cursor=pointer]':
+              - /url: /details/224263?type=tv
+              - generic [ref=e1392]:
+                - 'img "Stranger Things: Tales from ''85" [ref=e1393]'
+                - generic [ref=e1395]:
+                  - generic [ref=e1396]: TV
+                  - generic [ref=e1397]: ⭐ 7.6
+                  - button "▶ View" [ref=e1398]
+                - generic [ref=e1399]: ⭐ 7.6
+                - generic: TV
+              - generic [ref=e1400]:
+                - 'heading "Stranger Things: Tales from ''85" [level=3] [ref=e1401]'
+                - text: "2026"
+            - link "The Witness TV ⭐ 6.2 ▶ View ⭐ 6.2 TV The Witness 2026" [ref=e1403] [cursor=pointer]:
+              - /url: /details/280511?type=tv
+              - generic [ref=e1404]:
+                - img "The Witness" [ref=e1405]
+                - generic [ref=e1407]:
+                  - generic [ref=e1408]: TV
+                  - generic [ref=e1409]: ⭐ 6.2
+                  - button "▶ View" [ref=e1410]
+                - generic [ref=e1411]: ⭐ 6.2
+                - generic: TV
+              - generic [ref=e1412]:
+                - heading "The Witness" [level=3] [ref=e1413]
+                - text: "2026"
+            - link "Man on Fire TV ⭐ 7.4 ▶ View ⭐ 7.4 TV Man on Fire 2026" [ref=e1415] [cursor=pointer]:
+              - /url: /details/223386?type=tv
+              - generic [ref=e1416]:
+                - img "Man on Fire" [ref=e1417]
+                - generic [ref=e1419]:
+                  - generic [ref=e1420]: TV
+                  - generic [ref=e1421]: ⭐ 7.4
+                  - button "▶ View" [ref=e1422]
+                - generic [ref=e1423]: ⭐ 7.4
+                - generic: TV
+              - generic [ref=e1424]:
+                - heading "Man on Fire" [level=3] [ref=e1425]
+                - text: "2026"
+            - link "The Dinosaurs TV ⭐ 7.9 ▶ View ⭐ 7.9 TV The Dinosaurs 2026" [ref=e1427] [cursor=pointer]:
+              - /url: /details/313298?type=tv
+              - generic [ref=e1428]:
+                - img "The Dinosaurs" [ref=e1429]
+                - generic [ref=e1431]:
+                  - generic [ref=e1432]: TV
+                  - generic [ref=e1433]: ⭐ 7.9
+                  - button "▶ View" [ref=e1434]
+                - generic [ref=e1435]: ⭐ 7.9
+                - generic: TV
+              - generic [ref=e1436]:
+                - heading "The Dinosaurs" [level=3] [ref=e1437]
+                - text: "2026"
+            - link "Mating Season TV ⭐ 7.8 ▶ View ⭐ 7.8 TV Mating Season 2026" [ref=e1439] [cursor=pointer]:
+              - /url: /details/290295?type=tv
+              - generic [ref=e1440]:
+                - img "Mating Season" [ref=e1441]
+                - generic [ref=e1443]:
+                  - generic [ref=e1444]: TV
+                  - generic [ref=e1445]: ⭐ 7.8
+                  - button "▶ View" [ref=e1446]
+                - generic [ref=e1447]: ⭐ 7.8
+                - generic: TV
+              - generic [ref=e1448]:
+                - heading "Mating Season" [level=3] [ref=e1449]
+                - text: "2026"
+            - link "Something Very Bad Is Going to Happen TV ⭐ 6.5 ▶ View ⭐ 6.5 TV Something Very Bad Is Going to Happen 2026" [ref=e1451] [cursor=pointer]:
+              - /url: /details/259265?type=tv
+              - generic [ref=e1452]:
+                - img "Something Very Bad Is Going to Happen" [ref=e1453]
+                - generic [ref=e1455]:
+                  - generic [ref=e1456]: TV
+                  - generic [ref=e1457]: ⭐ 6.5
+                  - button "▶ View" [ref=e1458]
+                - generic [ref=e1459]: ⭐ 6.5
+                - generic: TV
+              - generic [ref=e1460]:
+                - heading "Something Very Bad Is Going to Happen" [level=3] [ref=e1461]
+                - text: "2026"
+            - link "Strip Law TV ⭐ 7.0 ▶ View ⭐ 7.0 TV Strip Law 2026" [ref=e1463] [cursor=pointer]:
+              - /url: /details/298343?type=tv
+              - generic [ref=e1464]:
+                - img "Strip Law" [ref=e1465]
+                - generic [ref=e1467]:
+                  - generic [ref=e1468]: TV
+                  - generic [ref=e1469]: ⭐ 7.0
+                  - button "▶ View" [ref=e1470]
+                - generic [ref=e1471]: ⭐ 7.0
+                - generic: TV
+              - generic [ref=e1472]:
+                - heading "Strip Law" [level=3] [ref=e1473]
+                - text: "2026"
+            - link "Legends TV ⭐ 7.7 ▶ View ⭐ 7.7 TV Legends 2026" [ref=e1475] [cursor=pointer]:
+              - /url: /details/262280?type=tv
+              - generic [ref=e1476]:
+                - img "Legends" [ref=e1477]
+                - generic [ref=e1479]:
+                  - generic [ref=e1480]: TV
+                  - generic [ref=e1481]: ⭐ 7.7
+                  - button "▶ View" [ref=e1482]
+                - generic [ref=e1483]: ⭐ 7.7
+                - generic: TV
+              - generic [ref=e1484]:
+                - heading "Legends" [level=3] [ref=e1485]
+                - text: "2026"
+            - link "Big Mistakes TV ⭐ 6.7 ▶ View ⭐ 6.7 TV Big Mistakes 2026" [ref=e1487] [cursor=pointer]:
+              - /url: /details/291506?type=tv
+              - generic [ref=e1488]:
+                - img "Big Mistakes" [ref=e1489]
+                - generic [ref=e1491]:
+                  - generic [ref=e1492]: TV
+                  - generic [ref=e1493]: ⭐ 6.7
+                  - button "▶ View" [ref=e1494]
+                - generic [ref=e1495]: ⭐ 6.7
+                - generic: TV
+              - generic [ref=e1496]:
+                - heading "Big Mistakes" [level=3] [ref=e1497]
+                - text: "2026"
+            - link "The Rest Is Football TV ▶ View TV The Rest Is Football 2026" [ref=e1499] [cursor=pointer]:
+              - /url: /details/323660?type=tv
+              - generic [ref=e1500]:
+                - img "The Rest Is Football" [ref=e1501]
+                - generic [ref=e1503]:
+                  - generic [ref=e1504]: TV
+                  - button "▶ View" [ref=e1505]
+                - generic: TV
+              - generic [ref=e1506]:
+                - heading "The Rest Is Football" [level=3] [ref=e1507]
+                - text: "2026"
+            - link "Lord of the Flies TV ⭐ 7.6 ▶ View ⭐ 7.6 TV Lord of the Flies 2026" [ref=e1509] [cursor=pointer]:
+              - /url: /details/270572?type=tv
+              - generic [ref=e1510]:
+                - img "Lord of the Flies" [ref=e1511]
+                - generic [ref=e1513]:
+                  - generic [ref=e1514]: TV
+                  - generic [ref=e1515]: ⭐ 7.6
+                  - button "▶ View" [ref=e1516]
+                - generic [ref=e1517]: ⭐ 7.6
+                - generic: TV
+              - generic [ref=e1518]:
+                - heading "Lord of the Flies" [level=3] [ref=e1519]
+                - text: "2026"
+            - link "Finding Her Edge TV ⭐ 7.6 ▶ View ⭐ 7.6 TV Finding Her Edge 2026" [ref=e1521] [cursor=pointer]:
+              - /url: /details/281401?type=tv
+              - generic [ref=e1522]:
+                - img "Finding Her Edge" [ref=e1523]
+                - generic [ref=e1525]:
+                  - generic [ref=e1526]: TV
+                  - generic [ref=e1527]: ⭐ 7.6
+                  - button "▶ View" [ref=e1528]
+                - generic [ref=e1529]: ⭐ 7.6
+                - generic: TV
+              - generic [ref=e1530]:
+                - heading "Finding Her Edge" [level=3] [ref=e1531]
+                - text: "2026"
+            - link "Age of Attraction TV ⭐ 6.3 ▶ View ⭐ 6.3 TV Age of Attraction 2026" [ref=e1533] [cursor=pointer]:
+              - /url: /details/287390?type=tv
+              - generic [ref=e1534]:
+                - img "Age of Attraction" [ref=e1535]
+                - generic [ref=e1537]:
+                  - generic [ref=e1538]: TV
+                  - generic [ref=e1539]: ⭐ 6.3
+                  - button "▶ View" [ref=e1540]
+                - generic [ref=e1541]: ⭐ 6.3
+                - generic: TV
+              - generic [ref=e1542]:
+                - heading "Age of Attraction" [level=3] [ref=e1543]
+                - text: "2026"
+            - link "Vladimir TV ⭐ 6.9 ▶ View ⭐ 6.9 TV Vladimir 2026" [ref=e1545] [cursor=pointer]:
+              - /url: /details/285739?type=tv
+              - generic [ref=e1546]:
+                - img "Vladimir" [ref=e1547]
+                - generic [ref=e1549]:
+                  - generic [ref=e1550]: TV
+                  - generic [ref=e1551]: ⭐ 6.9
+                  - button "▶ View" [ref=e1552]
+                - generic [ref=e1553]: ⭐ 6.9
+                - generic: TV
+              - generic [ref=e1554]:
+                - heading "Vladimir" [level=3] [ref=e1555]
+                - text: "2026"
+            - link "How to Get to Heaven from Belfast TV ⭐ 7.0 ▶ View ⭐ 7.0 TV How to Get to Heaven from Belfast 2026" [ref=e1557] [cursor=pointer]:
+              - /url: /details/233079?type=tv
+              - generic [ref=e1558]:
+                - img "How to Get to Heaven from Belfast" [ref=e1559]
+                - generic [ref=e1561]:
+                  - generic [ref=e1562]: TV
+                  - generic [ref=e1563]: ⭐ 7.0
+                  - button "▶ View" [ref=e1564]
+                - generic [ref=e1565]: ⭐ 7.0
+                - generic: TV
+              - generic [ref=e1566]:
+                - heading "How to Get to Heaven from Belfast" [level=3] [ref=e1567]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e1568]:
+        - generic [ref=e1569]:
+          - heading "🔵 New Movies on Prime Video" [level=2] [ref=e1570]:
+            - generic [ref=e1571]: 🔵
+            - text: New Movies on Prime Video
+          - link "See all →" [ref=e1572] [cursor=pointer]:
+            - /url: /providers?with_watch_providers=9&media=movie
+        - generic [ref=e1573]:
+          - button "Scroll left": ‹
+          - generic [ref=e1574]:
+            - link "Project Hail Mary Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Project Hail Mary 2026" [ref=e1576] [cursor=pointer]:
+              - /url: /details/687163?type=movie
+              - generic [ref=e1577]:
+                - img "Project Hail Mary" [ref=e1578]
+                - generic [ref=e1580]:
+                  - generic [ref=e1581]: Movie
+                  - generic [ref=e1582]: ⭐ 8.7
+                  - button "▶ View" [ref=e1583]
+                - generic [ref=e1584]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e1585]:
+                - heading "Project Hail Mary" [level=3] [ref=e1586]
+                - text: "2026"
+            - link "The Sheep Detectives Movie ⭐ 7.9 ▶ View ⭐ 7.9 Film The Sheep Detectives 2026" [ref=e1588] [cursor=pointer]:
+              - /url: /details/1301421?type=movie
+              - generic [ref=e1589]:
+                - img "The Sheep Detectives" [ref=e1590]
+                - generic [ref=e1592]:
+                  - generic [ref=e1593]: Movie
+                  - generic [ref=e1594]: ⭐ 7.9
+                  - button "▶ View" [ref=e1595]
+                - generic [ref=e1596]: ⭐ 7.9
+                - generic: Film
+              - generic [ref=e1597]:
+                - heading "The Sheep Detectives" [level=3] [ref=e1598]
+                - text: "2026"
+            - 'link "Tom Clancy''s Jack Ryan: Ghost War Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Tom Clancy''s Jack Ryan: Ghost War 2026" [ref=e1600] [cursor=pointer]':
+              - /url: /details/1380291?type=movie
+              - generic [ref=e1601]:
+                - 'img "Tom Clancy''s Jack Ryan: Ghost War" [ref=e1602]'
+                - generic [ref=e1604]:
+                  - generic [ref=e1605]: Movie
+                  - generic [ref=e1606]: ⭐ 7.0
+                  - button "▶ View" [ref=e1607]
+                - generic [ref=e1608]: ⭐ 7.0
+                - generic: Film
+              - generic [ref=e1609]:
+                - 'heading "Tom Clancy''s Jack Ryan: Ghost War" [level=3] [ref=e1610]'
+                - text: "2026"
+            - 'link "Your Fault: London Movie ⭐ 7.5 ▶ View ⭐ 7.5 Film Your Fault: London 2026" [ref=e1612] [cursor=pointer]':
+              - /url: /details/1477317?type=movie
+              - generic [ref=e1613]:
+                - 'img "Your Fault: London" [ref=e1614]'
+                - generic [ref=e1616]:
+                  - generic [ref=e1617]: Movie
+                  - generic [ref=e1618]: ⭐ 7.5
+                  - button "▶ View" [ref=e1619]
+                - generic [ref=e1620]: ⭐ 7.5
+                - generic: Film
+              - generic [ref=e1621]:
+                - 'heading "Your Fault: London" [level=3] [ref=e1622]'
+                - text: "2026"
+            - link "Crime 101 Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Crime 101 2026" [ref=e1624] [cursor=pointer]:
+              - /url: /details/1171145?type=movie
+              - generic [ref=e1625]:
+                - img "Crime 101" [ref=e1626]
+                - generic [ref=e1628]:
+                  - generic [ref=e1629]: Movie
+                  - generic [ref=e1630]: ⭐ 7.0
+                  - button "▶ View" [ref=e1631]
+                - generic [ref=e1632]: ⭐ 7.0
+                - generic: Film
+              - generic [ref=e1633]:
+                - heading "Crime 101" [level=3] [ref=e1634]
+                - text: "2026"
+            - link "The Wrecking Crew Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film The Wrecking Crew 2026" [ref=e1636] [cursor=pointer]:
+              - /url: /details/1168190?type=movie
+              - generic [ref=e1637]:
+                - img "The Wrecking Crew" [ref=e1638]
+                - generic [ref=e1640]:
+                  - generic [ref=e1641]: Movie
+                  - generic [ref=e1642]: ⭐ 7.1
+                  - button "▶ View" [ref=e1643]
+                - generic [ref=e1644]: ⭐ 7.1
+                - generic: Film
+              - generic [ref=e1645]:
+                - heading "The Wrecking Crew" [level=3] [ref=e1646]
+                - text: "2026"
+            - link "Pretty Lethal Movie ⭐ 6.8 ▶ View ⭐ 6.8 Film Pretty Lethal 2026" [ref=e1648] [cursor=pointer]:
+              - /url: /details/1084187?type=movie
+              - generic [ref=e1649]:
+                - img "Pretty Lethal" [ref=e1650]
+                - generic [ref=e1652]:
+                  - generic [ref=e1653]: Movie
+                  - generic [ref=e1654]: ⭐ 6.8
+                  - button "▶ View" [ref=e1655]
+                - generic [ref=e1656]: ⭐ 6.8
+                - generic: Film
+              - generic [ref=e1657]:
+                - heading "Pretty Lethal" [level=3] [ref=e1658]
+                - text: "2026"
+            - link "Mercy Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film Mercy 2026" [ref=e1660] [cursor=pointer]:
+              - /url: /details/1236153?type=movie
+              - generic [ref=e1661]:
+                - img "Mercy" [ref=e1662]
+                - generic [ref=e1664]:
+                  - generic [ref=e1665]: Movie
+                  - generic [ref=e1666]: ⭐ 7.1
+                  - button "▶ View" [ref=e1667]
+                - generic [ref=e1668]: ⭐ 7.1
+                - generic: Film
+              - generic [ref=e1669]:
+                - heading "Mercy" [level=3] [ref=e1670]
+                - text: "2026"
+            - link "Rise of the Conqueror Movie ⭐ 6.2 ▶ View ⭐ 6.2 Film Rise of the Conqueror 2026" [ref=e1672] [cursor=pointer]:
+              - /url: /details/1207162?type=movie
+              - generic [ref=e1673]:
+                - img "Rise of the Conqueror" [ref=e1674]
+                - generic [ref=e1676]:
+                  - generic [ref=e1677]: Movie
+                  - generic [ref=e1678]: ⭐ 6.2
+                  - button "▶ View" [ref=e1679]
+                - generic [ref=e1680]: ⭐ 6.2
+                - generic: Film
+              - generic [ref=e1681]:
+                - heading "Rise of the Conqueror" [level=3] [ref=e1682]
+                - text: "2026"
+            - link "Balls Up Movie ⭐ 5.9 ▶ View ⭐ 5.9 Film Balls Up 2026" [ref=e1684] [cursor=pointer]:
+              - /url: /details/1084577?type=movie
+              - generic [ref=e1685]:
+                - img "Balls Up" [ref=e1686]
+                - generic [ref=e1688]:
+                  - generic [ref=e1689]: Movie
+                  - generic [ref=e1690]: ⭐ 5.9
+                  - button "▶ View" [ref=e1691]
+                - generic [ref=e1692]: ⭐ 5.9
+                - generic: Film
+              - generic [ref=e1693]:
+                - heading "Balls Up" [level=3] [ref=e1694]
+                - text: "2026"
+            - link "Love Me Love Me Movie ⭐ 6.0 ▶ View ⭐ 6.0 Film Love Me Love Me 2026" [ref=e1696] [cursor=pointer]:
+              - /url: /details/1317672?type=movie
+              - generic [ref=e1697]:
+                - img "Love Me Love Me" [ref=e1698]
+                - generic [ref=e1700]:
+                  - generic [ref=e1701]: Movie
+                  - generic [ref=e1702]: ⭐ 6.0
+                  - button "▶ View" [ref=e1703]
+                - generic [ref=e1704]: ⭐ 6.0
+                - generic: Film
+              - generic [ref=e1705]:
+                - heading "Love Me Love Me" [level=3] [ref=e1706]
+                - text: "2026"
+            - link "Pose Movie ⭐ 6.3 ▶ View ⭐ 6.3 Film Pose 2026" [ref=e1708] [cursor=pointer]:
+              - /url: /details/1199193?type=movie
+              - generic [ref=e1709]:
+                - img "Pose" [ref=e1710]
+                - generic [ref=e1712]:
+                  - generic [ref=e1713]: Movie
+                  - generic [ref=e1714]: ⭐ 6.3
+                  - button "▶ View" [ref=e1715]
+                - generic [ref=e1716]: ⭐ 6.3
+                - generic: Film
+              - generic [ref=e1717]:
+                - heading "Pose" [level=3] [ref=e1718]
+                - text: "2026"
+            - link "Melania Movie ⭐ 3.7 ▶ View ⭐ 3.7 Film Melania 2026" [ref=e1720] [cursor=pointer]:
+              - /url: /details/1413097?type=movie
+              - generic [ref=e1721]:
+                - img "Melania" [ref=e1722]
+                - generic [ref=e1724]:
+                  - generic [ref=e1725]: Movie
+                  - generic [ref=e1726]: ⭐ 3.7
+                  - button "▶ View" [ref=e1727]
+                - generic [ref=e1728]: ⭐ 3.7
+                - generic: Film
+              - generic [ref=e1729]:
+                - heading "Melania" [level=3] [ref=e1730]
+                - text: "2026"
+            - link "The Bluff Movie ⭐ 6.8 ▶ View ⭐ 6.8 Film The Bluff 2026" [ref=e1732] [cursor=pointer]:
+              - /url: /details/799882?type=movie
+              - generic [ref=e1733]:
+                - img "The Bluff" [ref=e1734]
+                - generic [ref=e1736]:
+                  - generic [ref=e1737]: Movie
+                  - generic [ref=e1738]: ⭐ 6.8
+                  - button "▶ View" [ref=e1739]
+                - generic [ref=e1740]: ⭐ 6.8
+                - generic: Film
+              - generic [ref=e1741]:
+                - heading "The Bluff" [level=3] [ref=e1742]
+                - text: "2026"
+            - link "Speed Faster Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film Speed Faster 2026" [ref=e1744] [cursor=pointer]:
+              - /url: /details/1617852?type=movie
+              - generic [ref=e1745]:
+                - img "Speed Faster" [ref=e1746]
+                - generic [ref=e1748]:
+                  - generic [ref=e1749]: Movie
+                  - generic [ref=e1750]: ⭐ 7.1
+                  - button "▶ View" [ref=e1751]
+                - generic [ref=e1752]: ⭐ 7.1
+                - generic: Film
+              - generic [ref=e1753]:
+                - heading "Speed Faster" [level=3] [ref=e1754]
+                - text: "2026"
+            - link "The Deadly Little Mermaid Movie ⭐ 4.9 ▶ View ⭐ 4.9 Film The Deadly Little Mermaid 2026" [ref=e1756] [cursor=pointer]:
+              - /url: /details/1572073?type=movie
+              - generic [ref=e1757]:
+                - img "The Deadly Little Mermaid" [ref=e1758]
+                - generic [ref=e1760]:
+                  - generic [ref=e1761]: Movie
+                  - generic [ref=e1762]: ⭐ 4.9
+                  - button "▶ View" [ref=e1763]
+                - generic [ref=e1764]: ⭐ 4.9
+                - generic: Film
+              - generic [ref=e1765]:
+                - heading "The Deadly Little Mermaid" [level=3] [ref=e1766]
+                - text: "2026"
+            - link "First Haunt Movie ▶ View Film First Haunt 2026" [ref=e1768] [cursor=pointer]:
+              - /url: /details/1657347?type=movie
+              - generic [ref=e1769]:
+                - img "First Haunt" [ref=e1770]
+                - generic [ref=e1772]:
+                  - generic [ref=e1773]: Movie
+                  - button "▶ View" [ref=e1774]
+                - generic: Film
+              - generic [ref=e1775]:
+                - heading "First Haunt" [level=3] [ref=e1776]
+                - text: "2026"
+            - link "Meal Ticket Movie ⭐ 7.7 ▶ View ⭐ 7.7 Film Meal Ticket 2026" [ref=e1778] [cursor=pointer]:
+              - /url: /details/1649758?type=movie
+              - generic [ref=e1779]:
+                - img "Meal Ticket" [ref=e1780]
+                - generic [ref=e1782]:
+                  - generic [ref=e1783]: Movie
+                  - generic [ref=e1784]: ⭐ 7.7
+                  - button "▶ View" [ref=e1785]
+                - generic [ref=e1786]: ⭐ 7.7
+                - generic: Film
+              - generic [ref=e1787]:
+                - heading "Meal Ticket" [level=3] [ref=e1788]
+                - text: "2026"
+            - link "Red Riding Movie ⭐ 4.8 ▶ View ⭐ 4.8 Film Red Riding 2026" [ref=e1790] [cursor=pointer]:
+              - /url: /details/1323909?type=movie
+              - generic [ref=e1791]:
+                - img "Red Riding" [ref=e1792]
+                - generic [ref=e1794]:
+                  - generic [ref=e1795]: Movie
+                  - generic [ref=e1796]: ⭐ 4.8
+                  - button "▶ View" [ref=e1797]
+                - generic [ref=e1798]: ⭐ 4.8
+                - generic: Film
+              - generic [ref=e1799]:
+                - heading "Red Riding" [level=3] [ref=e1800]
+                - text: "2026"
+            - link "The Dreadful Movie ⭐ 6.1 ▶ View ⭐ 6.1 Film The Dreadful 2026" [ref=e1802] [cursor=pointer]:
+              - /url: /details/1242937?type=movie
+              - generic [ref=e1803]:
+                - img "The Dreadful" [ref=e1804]
+                - generic [ref=e1806]:
+                  - generic [ref=e1807]: Movie
+                  - generic [ref=e1808]: ⭐ 6.1
+                  - button "▶ View" [ref=e1809]
+                - generic [ref=e1810]: ⭐ 6.1
+                - generic: Film
+              - generic [ref=e1811]:
+                - heading "The Dreadful" [level=3] [ref=e1812]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e1813]:
+        - generic [ref=e1814]:
+          - heading "🔵 New TV Shows on Prime Video" [level=2] [ref=e1815]:
+            - generic [ref=e1816]: 🔵
+            - text: New TV Shows on Prime Video
+          - link "See all →" [ref=e1817] [cursor=pointer]:
+            - /url: /providers?with_watch_providers=9&media=tv
+        - generic [ref=e1818]:
+          - button "Scroll left": ‹
+          - generic [ref=e1819]:
+            - link "Off Campus TV ⭐ 8.9 ▶ View ⭐ 8.9 TV Off Campus 2026" [ref=e1821] [cursor=pointer]:
+              - /url: /details/273240?type=tv
+              - generic [ref=e1822]:
+                - img "Off Campus" [ref=e1823]
+                - generic [ref=e1825]:
+                  - generic [ref=e1826]: TV
+                  - generic [ref=e1827]: ⭐ 8.9
+                  - button "▶ View" [ref=e1828]
+                - generic [ref=e1829]: ⭐ 8.9
+                - generic: TV
+              - generic [ref=e1830]:
+                - heading "Off Campus" [level=3] [ref=e1831]
+                - text: "2026"
+            - link "The Westies TV ⭐ 6.0 ▶ View ⭐ 6.0 TV The Westies 2026" [ref=e1833] [cursor=pointer]:
+              - /url: /details/286709?type=tv
+              - generic [ref=e1834]:
+                - img "The Westies" [ref=e1835]
+                - generic [ref=e1837]:
+                  - generic [ref=e1838]: TV
+                  - generic [ref=e1839]: ⭐ 6.0
+                  - button "▶ View" [ref=e1840]
+                - generic [ref=e1841]: ⭐ 6.0
+                - generic: TV
+              - generic [ref=e1842]:
+                - heading "The Westies" [level=3] [ref=e1843]
+                - text: "2026"
+            - link "Elle TV ⭐ 7.7 ▶ View ⭐ 7.7 TV Elle 2026" [ref=e1845] [cursor=pointer]:
+              - /url: /details/254420?type=tv
+              - generic [ref=e1846]:
+                - img "Elle" [ref=e1847]
+                - generic [ref=e1849]:
+                  - generic [ref=e1850]: TV
+                  - generic [ref=e1851]: ⭐ 7.7
+                  - button "▶ View" [ref=e1852]
+                - generic [ref=e1853]: ⭐ 7.7
+                - generic: TV
+              - generic [ref=e1854]:
+                - heading "Elle" [level=3] [ref=e1855]
+                - text: "2026"
+            - link "Spider-Noir TV ⭐ 8.4 ▶ View ⭐ 8.4 TV Spider-Noir 2026" [ref=e1857] [cursor=pointer]:
+              - /url: /details/220102?type=tv
+              - generic [ref=e1858]:
+                - img "Spider-Noir" [ref=e1859]
+                - generic [ref=e1861]:
+                  - generic [ref=e1862]: TV
+                  - generic [ref=e1863]: ⭐ 8.4
+                  - button "▶ View" [ref=e1864]
+                - generic [ref=e1865]: ⭐ 8.4
+                - generic: TV
+              - generic [ref=e1866]:
+                - heading "Spider-Noir" [level=3] [ref=e1867]
+                - text: "2026"
+            - link "Margo's Got Money Troubles TV ⭐ 7.9 ▶ View ⭐ 7.9 TV Margo's Got Money Troubles 2026" [ref=e1869] [cursor=pointer]:
+              - /url: /details/245318?type=tv
+              - generic [ref=e1870]:
+                - img "Margo's Got Money Troubles" [ref=e1871]
+                - generic [ref=e1873]:
+                  - generic [ref=e1874]: TV
+                  - generic [ref=e1875]: ⭐ 7.9
+                  - button "▶ View" [ref=e1876]
+                - generic [ref=e1877]: ⭐ 7.9
+                - generic: TV
+              - generic [ref=e1878]:
+                - heading "Margo's Got Money Troubles" [level=3] [ref=e1879]
+                - text: "2026"
+            - link "The Vampire Lestat TV ⭐ 6.2 ▶ View ⭐ 6.2 TV The Vampire Lestat 2026" [ref=e1881] [cursor=pointer]:
+              - /url: /details/323411?type=tv
+              - generic [ref=e1882]:
+                - img "The Vampire Lestat" [ref=e1883]
+                - generic [ref=e1885]:
+                  - generic [ref=e1886]: TV
+                  - generic [ref=e1887]: ⭐ 6.2
+                  - button "▶ View" [ref=e1888]
+                - generic [ref=e1889]: ⭐ 6.2
+                - generic: TV
+              - generic [ref=e1890]:
+                - heading "The Vampire Lestat" [level=3] [ref=e1891]
+                - text: "2026"
+            - link "Every Year After TV ⭐ 8.3 ▶ View ⭐ 8.3 TV Every Year After 2026" [ref=e1893] [cursor=pointer]:
+              - /url: /details/260592?type=tv
+              - generic [ref=e1894]:
+                - img "Every Year After" [ref=e1895]
+                - generic [ref=e1897]:
+                  - generic [ref=e1898]: TV
+                  - generic [ref=e1899]: ⭐ 8.3
+                  - button "▶ View" [ref=e1900]
+                - generic [ref=e1901]: ⭐ 8.3
+                - generic: TV
+              - generic [ref=e1902]:
+                - heading "Every Year After" [level=3] [ref=e1903]
+                - text: "2026"
+            - link "56 Days TV ⭐ 7.3 ▶ View ⭐ 7.3 TV 56 Days 2026" [ref=e1905] [cursor=pointer]:
+              - /url: /details/241372?type=tv
+              - generic [ref=e1906]:
+                - img "56 Days" [ref=e1907]
+                - generic [ref=e1909]:
+                  - generic [ref=e1910]: TV
+                  - generic [ref=e1911]: ⭐ 7.3
+                  - button "▶ View" [ref=e1912]
+                - generic [ref=e1913]: ⭐ 7.3
+                - generic: TV
+              - generic [ref=e1914]:
+                - heading "56 Days" [level=3] [ref=e1915]
+                - text: "2026"
+            - link "Young Sherlock TV ⭐ 7.9 ▶ View ⭐ 7.9 TV Young Sherlock 2026" [ref=e1917] [cursor=pointer]:
+              - /url: /details/255661?type=tv
+              - generic [ref=e1918]:
+                - img "Young Sherlock" [ref=e1919]
+                - generic [ref=e1921]:
+                  - generic [ref=e1922]: TV
+                  - generic [ref=e1923]: ⭐ 7.9
+                  - button "▶ View" [ref=e1924]
+                - generic [ref=e1925]: ⭐ 7.9
+                - generic: TV
+              - generic [ref=e1926]:
+                - heading "Young Sherlock" [level=3] [ref=e1927]
+                - text: "2026"
+            - link "Scarpetta TV ⭐ 6.5 ▶ View ⭐ 6.5 TV Scarpetta 2026" [ref=e1929] [cursor=pointer]:
+              - /url: /details/240740?type=tv
+              - generic [ref=e1930]:
+                - img "Scarpetta" [ref=e1931]
+                - generic [ref=e1933]:
+                  - generic [ref=e1934]: TV
+                  - generic [ref=e1935]: ⭐ 6.5
+                  - button "▶ View" [ref=e1936]
+                - generic [ref=e1937]: ⭐ 6.5
+                - generic: TV
+              - generic [ref=e1938]:
+                - heading "Scarpetta" [level=3] [ref=e1939]
+                - text: "2026"
+            - link "Among Us TV ⭐ 9.1 ▶ View ⭐ 9.1 TV Among Us 2026" [ref=e1941] [cursor=pointer]:
+              - /url: /details/229544?type=tv
+              - generic [ref=e1942]:
+                - img "Among Us" [ref=e1943]
+                - generic [ref=e1945]:
+                  - generic [ref=e1946]: TV
+                  - generic [ref=e1947]: ⭐ 9.1
+                  - button "▶ View" [ref=e1948]
+                - generic [ref=e1949]: ⭐ 9.1
+                - generic: TV
+              - generic [ref=e1950]:
+                - heading "Among Us" [level=3] [ref=e1951]
+                - text: "2026"
+            - link "Steal TV ⭐ 7.4 ▶ View ⭐ 7.4 TV Steal 2026" [ref=e1953] [cursor=pointer]:
+              - /url: /details/254071?type=tv
+              - generic [ref=e1954]:
+                - img "Steal" [ref=e1955]
+                - generic [ref=e1957]:
+                  - generic [ref=e1958]: TV
+                  - generic [ref=e1959]: ⭐ 7.4
+                  - button "▶ View" [ref=e1960]
+                - generic [ref=e1961]: ⭐ 7.4
+                - generic: TV
+              - generic [ref=e1962]:
+                - heading "Steal" [level=3] [ref=e1963]
+                - text: "2026"
+            - link "The House of the Spirits TV ⭐ 8.5 ▶ View ⭐ 8.5 TV The House of the Spirits 2026" [ref=e1965] [cursor=pointer]:
+              - /url: /details/259702?type=tv
+              - generic [ref=e1966]:
+                - img "The House of the Spirits" [ref=e1967]
+                - generic [ref=e1969]:
+                  - generic [ref=e1970]: TV
+                  - generic [ref=e1971]: ⭐ 8.5
+                  - button "▶ View" [ref=e1972]
+                - generic [ref=e1973]: ⭐ 8.5
+                - generic: TV
+              - generic [ref=e1974]:
+                - heading "The House of the Spirits" [level=3] [ref=e1975]
+                - text: "2026"
+            - link "You're Killing Me TV ⭐ 6.5 ▶ View ⭐ 6.5 TV You're Killing Me 2026" [ref=e1977] [cursor=pointer]:
+              - /url: /details/320430?type=tv
+              - generic [ref=e1978]:
+                - img "You're Killing Me" [ref=e1979]
+                - generic [ref=e1981]:
+                  - generic [ref=e1982]: TV
+                  - generic [ref=e1983]: ⭐ 6.5
+                  - button "▶ View" [ref=e1984]
+                - generic [ref=e1985]: ⭐ 6.5
+                - generic: TV
+              - generic [ref=e1986]:
+                - heading "You're Killing Me" [level=3] [ref=e1987]
+                - text: "2026"
+            - 'link "The Terror: Devil in Silver TV ⭐ 6.7 ▶ View ⭐ 6.7 TV The Terror: Devil in Silver 2026" [ref=e1989] [cursor=pointer]':
+              - /url: /details/323903?type=tv
+              - generic [ref=e1990]:
+                - 'img "The Terror: Devil in Silver" [ref=e1991]'
+                - generic [ref=e1993]:
+                  - generic [ref=e1994]: TV
+                  - generic [ref=e1995]: ⭐ 6.7
+                  - button "▶ View" [ref=e1996]
+                - generic [ref=e1997]: ⭐ 6.7
+                - generic: TV
+              - generic [ref=e1998]:
+                - 'heading "The Terror: Devil in Silver" [level=3] [ref=e1999]'
+                - text: "2026"
+            - link "Bait TV ⭐ 6.7 ▶ View ⭐ 6.7 TV Bait 2026" [ref=e2001] [cursor=pointer]:
+              - /url: /details/257519?type=tv
+              - generic [ref=e2002]:
+                - img "Bait" [ref=e2003]
+                - generic [ref=e2005]:
+                  - generic [ref=e2006]: TV
+                  - generic [ref=e2007]: ⭐ 6.7
+                  - button "▶ View" [ref=e2008]
+                - generic [ref=e2009]: ⭐ 6.7
+                - generic: TV
+              - generic [ref=e2010]:
+                - heading "Bait" [level=3] [ref=e2011]
+                - text: "2026"
+            - link "Kevin TV ⭐ 5.4 ▶ View ⭐ 5.4 TV Kevin 2026" [ref=e2013] [cursor=pointer]:
+              - /url: /details/255760?type=tv
+              - generic [ref=e2014]:
+                - img "Kevin" [ref=e2015]
+                - generic [ref=e2017]:
+                  - generic [ref=e2018]: TV
+                  - generic [ref=e2019]: ⭐ 5.4
+                  - button "▶ View" [ref=e2020]
+                - generic [ref=e2021]: ⭐ 5.4
+                - generic: TV
+              - generic [ref=e2022]:
+                - heading "Kevin" [level=3] [ref=e2023]
+                - text: "2026"
+            - link "The Other Bennet Sister TV ⭐ 7.9 ▶ View ⭐ 7.9 TV The Other Bennet Sister 2026" [ref=e2025] [cursor=pointer]:
+              - /url: /details/273866?type=tv
+              - generic [ref=e2026]:
+                - img "The Other Bennet Sister" [ref=e2027]
+                - generic [ref=e2029]:
+                  - generic [ref=e2030]: TV
+                  - generic [ref=e2031]: ⭐ 7.9
+                  - button "▶ View" [ref=e2032]
+                - generic [ref=e2033]: ⭐ 7.9
+                - generic: TV
+              - generic [ref=e2034]:
+                - heading "The Other Bennet Sister" [level=3] [ref=e2035]
+                - text: "2026"
+            - link "The Real Wolf of Wall Street TV ▶ View TV The Real Wolf of Wall Street 2026" [ref=e2037] [cursor=pointer]:
+              - /url: /details/313808?type=tv
+              - generic [ref=e2038]:
+                - img "The Real Wolf of Wall Street" [ref=e2039]
+                - generic [ref=e2041]:
+                  - generic [ref=e2042]: TV
+                  - button "▶ View" [ref=e2043]
+                - generic: TV
+              - generic [ref=e2044]:
+                - heading "The Real Wolf of Wall Street" [level=3] [ref=e2045]
+                - text: "2026"
+            - link "The Audacity TV ⭐ 7.3 ▶ View ⭐ 7.3 TV The Audacity 2026" [ref=e2047] [cursor=pointer]:
+              - /url: /details/258036?type=tv
+              - generic [ref=e2048]:
+                - img "The Audacity" [ref=e2049]
+                - generic [ref=e2051]:
+                  - generic [ref=e2052]: TV
+                  - generic [ref=e2053]: ⭐ 7.3
+                  - button "▶ View" [ref=e2054]
+                - generic [ref=e2055]: ⭐ 7.3
+                - generic: TV
+              - generic [ref=e2056]:
+                - heading "The Audacity" [level=3] [ref=e2057]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e2058]:
+        - generic [ref=e2059]:
+          - heading "✨ New Movies on Disney+" [level=2] [ref=e2060]:
+            - generic [ref=e2061]: ✨
+            - text: New Movies on Disney+
+          - link "See all →" [ref=e2062] [cursor=pointer]:
+            - /url: /providers?with_watch_providers=337&media=movie
+        - generic [ref=e2063]:
+          - button "Scroll left": ‹
+          - generic [ref=e2064]:
+            - 'link "The Punisher: One Last Kill Movie ⭐ 8.3 ▶ View ⭐ 8.3 Film The Punisher: One Last Kill 2026" [ref=e2066] [cursor=pointer]':
+              - /url: /details/1439930?type=movie
+              - generic [ref=e2067]:
+                - 'img "The Punisher: One Last Kill" [ref=e2068]'
+                - generic [ref=e2070]:
+                  - generic [ref=e2071]: Movie
+                  - generic [ref=e2072]: ⭐ 8.3
+                  - button "▶ View" [ref=e2073]
+                - generic [ref=e2074]: ⭐ 8.3
+                - generic: Film
+              - generic [ref=e2075]:
+                - 'heading "The Punisher: One Last Kill" [level=3] [ref=e2076]'
+                - text: "2026"
+            - link "Hoppers Movie ⭐ 8.2 ▶ View ⭐ 8.2 Film Hoppers 2026" [ref=e2078] [cursor=pointer]:
+              - /url: /details/1327819?type=movie
+              - generic [ref=e2079]:
+                - img "Hoppers" [ref=e2080]
+                - generic [ref=e2082]:
+                  - generic [ref=e2083]: Movie
+                  - generic [ref=e2084]: ⭐ 8.2
+                  - button "▶ View" [ref=e2085]
+                - generic [ref=e2086]: ⭐ 8.2
+                - generic: Film
+              - generic [ref=e2087]:
+                - heading "Hoppers" [level=3] [ref=e2088]
+                - text: "2026"
+            - link "Simpsley Movie ⭐ 8.0 ▶ View ⭐ 8.0 Film Simpsley 2026" [ref=e2090] [cursor=pointer]:
+              - /url: /details/1725116?type=movie
+              - generic [ref=e2091]:
+                - img "Simpsley" [ref=e2092]
+                - generic [ref=e2094]:
+                  - generic [ref=e2095]: Movie
+                  - generic [ref=e2096]: ⭐ 8.0
+                  - button "▶ View" [ref=e2097]
+                - generic [ref=e2098]: ⭐ 8.0
+                - generic: Film
+              - generic [ref=e2099]:
+                - heading "Simpsley" [level=3] [ref=e2100]
+                - text: "2026"
+            - link "Disneyland Handcrafted Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film Disneyland Handcrafted 2026" [ref=e2102] [cursor=pointer]:
+              - /url: /details/1538718?type=movie
+              - generic [ref=e2103]:
+                - img "Disneyland Handcrafted" [ref=e2104]
+                - generic [ref=e2106]:
+                  - generic [ref=e2107]: Movie
+                  - generic [ref=e2108]: ⭐ 7.1
+                  - button "▶ View" [ref=e2109]
+                - generic [ref=e2110]: ⭐ 7.1
+                - generic: Film
+              - generic [ref=e2111]:
+                - heading "Disneyland Handcrafted" [level=3] [ref=e2112]
+                - text: "2026"
+            - link "Hannah Montana 20th Anniversary Special Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Hannah Montana 20th Anniversary Special 2026" [ref=e2114] [cursor=pointer]:
+              - /url: /details/1637319?type=movie
+              - generic [ref=e2115]:
+                - img "Hannah Montana 20th Anniversary Special" [ref=e2116]
+                - generic [ref=e2118]:
+                  - generic [ref=e2119]: Movie
+                  - generic [ref=e2120]: ⭐ 7.2
+                  - button "▶ View" [ref=e2121]
+                - generic [ref=e2122]: ⭐ 7.2
+                - generic: Film
+              - generic [ref=e2123]:
+                - heading "Hannah Montana 20th Anniversary Special" [level=3] [ref=e2124]
+                - text: "2026"
+            - link "Descendants/ZOMBIES Worlds Collide - Concert Special Movie ⭐ 6.8 ▶ View ⭐ 6.8 Film Descendants/ZOMBIES Worlds Collide - Concert Special 2026" [ref=e2126] [cursor=pointer]:
+              - /url: /details/1531626?type=movie
+              - generic [ref=e2127]:
+                - img "Descendants/ZOMBIES Worlds Collide - Concert Special" [ref=e2128]
+                - generic [ref=e2130]:
+                  - generic [ref=e2131]: Movie
+                  - generic [ref=e2132]: ⭐ 6.8
+                  - button "▶ View" [ref=e2133]
+                - generic [ref=e2134]: ⭐ 6.8
+                - generic: Film
+              - generic [ref=e2135]:
+                - heading "Descendants/ZOMBIES Worlds Collide - Concert Special" [level=3] [ref=e2136]
+                - text: "2026"
+            - link "The Muppet Show Movie ⭐ 7.3 ▶ View ⭐ 7.3 Film The Muppet Show 2026" [ref=e2138] [cursor=pointer]:
+              - /url: /details/1548113?type=movie
+              - generic [ref=e2139]:
+                - img "The Muppet Show" [ref=e2140]
+                - generic [ref=e2142]:
+                  - generic [ref=e2143]: Movie
+                  - generic [ref=e2144]: ⭐ 7.3
+                  - button "▶ View" [ref=e2145]
+                - generic [ref=e2146]: ⭐ 7.3
+                - generic: Film
+              - generic [ref=e2147]:
+                - heading "The Muppet Show" [level=3] [ref=e2148]
+                - text: "2026"
+            - link "Orangutan Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Orangutan 2026" [ref=e2150] [cursor=pointer]:
+              - /url: /details/1648678?type=movie
+              - generic [ref=e2151]:
+                - img "Orangutan" [ref=e2152]
+                - generic [ref=e2154]:
+                  - generic [ref=e2155]: Movie
+                  - generic [ref=e2156]: ⭐ 8.5
+                  - button "▶ View" [ref=e2157]
+                - generic [ref=e2158]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e2159]:
+                - heading "Orangutan" [level=3] [ref=e2160]
+                - text: "2026"
+            - link "Ghost Elephants Movie ⭐ 7.7 ▶ View ⭐ 7.7 Film Ghost Elephants 2026" [ref=e2162] [cursor=pointer]:
+              - /url: /details/1451867?type=movie
+              - generic [ref=e2163]:
+                - img "Ghost Elephants" [ref=e2164]
+                - generic [ref=e2166]:
+                  - generic [ref=e2167]: Movie
+                  - generic [ref=e2168]: ⭐ 7.7
+                  - button "▶ View" [ref=e2169]
+                - generic [ref=e2170]: ⭐ 7.7
+                - generic: Film
+              - generic [ref=e2171]:
+                - heading "Ghost Elephants" [level=3] [ref=e2172]
+                - text: "2026"
+            - 'link "Extreme Makeover: Homer Edition Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Extreme Makeover: Homer Edition 2026" [ref=e2174] [cursor=pointer]':
+              - /url: /details/1716513?type=movie
+              - generic [ref=e2175]:
+                - 'img "Extreme Makeover: Homer Edition" [ref=e2176]'
+                - generic [ref=e2178]:
+                  - generic [ref=e2179]: Movie
+                  - generic [ref=e2180]: ⭐ 7.4
+                  - button "▶ View" [ref=e2181]
+                - generic [ref=e2182]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e2183]:
+                - 'heading "Extreme Makeover: Homer Edition" [level=3] [ref=e2184]'
+                - text: "2026"
+            - link "Hammerhead Sharks Up Close with Bertie Gregory Movie ▶ View Film Hammerhead Sharks Up Close with Bertie Gregory 2026" [ref=e2186] [cursor=pointer]:
+              - /url: /details/1723068?type=movie
+              - generic [ref=e2187]:
+                - img "Hammerhead Sharks Up Close with Bertie Gregory" [ref=e2188]
+                - generic [ref=e2190]:
+                  - generic [ref=e2191]: Movie
+                  - button "▶ View" [ref=e2192]
+                - generic: Film
+              - generic [ref=e2193]:
+                - heading "Hammerhead Sharks Up Close with Bertie Gregory" [level=3] [ref=e2194]
+                - text: "2026"
+            - 'link "Bukayo Saka: The Time Is Now Movie ⭐ 6.0 ▶ View ⭐ 6.0 Film Bukayo Saka: The Time Is Now 2026" [ref=e2196] [cursor=pointer]':
+              - /url: /details/1707544?type=movie
+              - generic [ref=e2197]:
+                - 'img "Bukayo Saka: The Time Is Now" [ref=e2198]'
+                - generic [ref=e2200]:
+                  - generic [ref=e2201]: Movie
+                  - generic [ref=e2202]: ⭐ 6.0
+                  - button "▶ View" [ref=e2203]
+                - generic [ref=e2204]: ⭐ 6.0
+                - generic: Film
+              - generic [ref=e2205]:
+                - 'heading "Bukayo Saka: The Time Is Now" [level=3] [ref=e2206]'
+                - text: "2026"
+            - 'link "A Spark Into A Flame: Hamilton & Hip Hop Movie ⭐ 1.0 ▶ View ⭐ 1.0 Film A Spark Into A Flame: Hamilton & Hip Hop 2026" [ref=e2208] [cursor=pointer]':
+              - /url: /details/1715818?type=movie
+              - generic [ref=e2209]:
+                - 'img "A Spark Into A Flame: Hamilton & Hip Hop" [ref=e2210]'
+                - generic [ref=e2212]:
+                  - generic [ref=e2213]: Movie
+                  - generic [ref=e2214]: ⭐ 1.0
+                  - button "▶ View" [ref=e2215]
+                - generic [ref=e2216]: ⭐ 1.0
+                - generic: Film
+              - generic [ref=e2217]:
+                - 'heading "A Spark Into A Flame: Hamilton & Hip Hop" [level=3] [ref=e2218]'
+                - text: "2026"
+            - link "Stitch & Angel's Perfect Summer Day Movie ⭐ 6.0 ▶ View ⭐ 6.0 Film Stitch & Angel's Perfect Summer Day 2026" [ref=e2220] [cursor=pointer]:
+              - /url: /details/1721723?type=movie
+              - generic [ref=e2221]:
+                - img "Stitch & Angel's Perfect Summer Day" [ref=e2222]
+                - generic [ref=e2224]:
+                  - generic [ref=e2225]: Movie
+                  - generic [ref=e2226]: ⭐ 6.0
+                  - button "▶ View" [ref=e2227]
+                - generic [ref=e2228]: ⭐ 6.0
+                - generic: Film
+              - generic [ref=e2229]:
+                - heading "Stitch & Angel's Perfect Summer Day" [level=3] [ref=e2230]
+                - text: "2026"
+            - link "Disney+ Insider World of Frozen Movie ▶ View Film Disney+ Insider World of Frozen 2026" [ref=e2232] [cursor=pointer]:
+              - /url: /details/1660175?type=movie
+              - generic [ref=e2233]:
+                - img "Disney+ Insider World of Frozen" [ref=e2234]
+                - generic [ref=e2236]:
+                  - generic [ref=e2237]: Movie
+                  - button "▶ View" [ref=e2238]
+                - generic: Film
+              - generic [ref=e2239]:
+                - heading "Disney+ Insider World of Frozen" [level=3] [ref=e2240]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e2241]:
+        - generic [ref=e2242]:
+          - heading "✨ New TV Shows on Disney+" [level=2] [ref=e2243]:
+            - generic [ref=e2244]: ✨
+            - text: New TV Shows on Disney+
+          - link "See all →" [ref=e2245] [cursor=pointer]:
+            - /url: /providers?with_watch_providers=337&media=tv
+        - generic [ref=e2246]:
+          - button "Scroll left": ‹
+          - generic [ref=e2247]:
+            - link "Dragon Striker TV ⭐ 7.7 ▶ View ⭐ 7.7 TV Dragon Striker 2026" [ref=e2249] [cursor=pointer]:
+              - /url: /details/204135?type=tv
+              - generic [ref=e2250]:
+                - img "Dragon Striker" [ref=e2251]
+                - generic [ref=e2253]:
+                  - generic [ref=e2254]: TV
+                  - generic [ref=e2255]: ⭐ 7.7
+                  - button "▶ View" [ref=e2256]
+                - generic [ref=e2257]: ⭐ 7.7
+                - generic: TV
+              - generic [ref=e2258]:
+                - heading "Dragon Striker" [level=3] [ref=e2259]
+                - text: "2026"
+            - link "Scrubs TV ⭐ 7.9 ▶ View ⭐ 7.9 TV Scrubs 2026" [ref=e2261] [cursor=pointer]:
+              - /url: /details/295778?type=tv
+              - generic [ref=e2262]:
+                - img "Scrubs" [ref=e2263]
+                - generic [ref=e2265]:
+                  - generic [ref=e2266]: TV
+                  - generic [ref=e2267]: ⭐ 7.9
+                  - button "▶ View" [ref=e2268]
+                - generic [ref=e2269]: ⭐ 7.9
+                - generic: TV
+              - generic [ref=e2270]:
+                - heading "Scrubs" [level=3] [ref=e2271]
+                - text: "2026"
+            - link "The Beauty TV ⭐ 6.5 ▶ View ⭐ 6.5 TV The Beauty 2026" [ref=e2273] [cursor=pointer]:
+              - /url: /details/273160?type=tv
+              - generic [ref=e2274]:
+                - img "The Beauty" [ref=e2275]
+                - generic [ref=e2277]:
+                  - generic [ref=e2278]: TV
+                  - generic [ref=e2279]: ⭐ 6.5
+                  - button "▶ View" [ref=e2280]
+                - generic [ref=e2281]: ⭐ 6.5
+                - generic: TV
+              - generic [ref=e2282]:
+                - heading "The Beauty" [level=3] [ref=e2283]
+                - text: "2026"
+            - link "Wonder Man TV ⭐ 7.0 ▶ View ⭐ 7.0 TV Wonder Man 2026" [ref=e2285] [cursor=pointer]:
+              - /url: /details/198178?type=tv
+              - generic [ref=e2286]:
+                - img "Wonder Man" [ref=e2287]
+                - generic [ref=e2289]:
+                  - generic [ref=e2290]: TV
+                  - generic [ref=e2291]: ⭐ 7.0
+                  - button "▶ View" [ref=e2292]
+                - generic [ref=e2293]: ⭐ 7.0
+                - generic: TV
+              - generic [ref=e2294]:
+                - heading "Wonder Man" [level=3] [ref=e2295]
+                - text: "2026"
+            - 'link "Star Wars: Maul - Shadow Lord TV ⭐ 8.6 ▶ View ⭐ 8.6 TV Star Wars: Maul - Shadow Lord 2026" [ref=e2297] [cursor=pointer]':
+              - /url: /details/289219?type=tv
+              - generic [ref=e2298]:
+                - 'img "Star Wars: Maul - Shadow Lord" [ref=e2299]'
+                - generic [ref=e2301]:
+                  - generic [ref=e2302]: TV
+                  - generic [ref=e2303]: ⭐ 8.6
+                  - button "▶ View" [ref=e2304]
+                - generic [ref=e2305]: ⭐ 8.6
+                - generic: TV
+              - generic [ref=e2306]:
+                - 'heading "Star Wars: Maul - Shadow Lord" [level=3] [ref=e2307]'
+                - text: "2026"
+            - link "Love Story TV ⭐ 8.3 ▶ View ⭐ 8.3 TV Love Story 2026" [ref=e2309] [cursor=pointer]:
+              - /url: /details/131142?type=tv
+              - generic [ref=e2310]:
+                - img "Love Story" [ref=e2311]
+                - generic [ref=e2313]:
+                  - generic [ref=e2314]: TV
+                  - generic [ref=e2315]: ⭐ 8.3
+                  - button "▶ View" [ref=e2316]
+                - generic [ref=e2317]: ⭐ 8.3
+                - generic: TV
+              - generic [ref=e2318]:
+                - heading "Love Story" [level=3] [ref=e2319]
+                - text: "2026"
+            - link "The Doomies TV ⭐ 8.9 ▶ View ⭐ 8.9 TV The Doomies 2026" [ref=e2321] [cursor=pointer]:
+              - /url: /details/204137?type=tv
+              - generic [ref=e2322]:
+                - img "The Doomies" [ref=e2323]
+                - generic [ref=e2325]:
+                  - generic [ref=e2326]: TV
+                  - generic [ref=e2327]: ⭐ 8.9
+                  - button "▶ View" [ref=e2328]
+                - generic [ref=e2329]: ⭐ 8.9
+                - generic: TV
+              - generic [ref=e2330]:
+                - heading "The Doomies" [level=3] [ref=e2331]
+                - text: "2026"
+            - 'link "Sofia the First: Royal Magic TV ⭐ 8.6 ▶ View ⭐ 8.6 TV Sofia the First: Royal Magic 2026" [ref=e2333] [cursor=pointer]':
+              - /url: /details/261647?type=tv
+              - generic [ref=e2334]:
+                - 'img "Sofia the First: Royal Magic" [ref=e2335]'
+                - generic [ref=e2337]:
+                  - generic [ref=e2338]: TV
+                  - generic [ref=e2339]: ⭐ 8.6
+                  - button "▶ View" [ref=e2340]
+                - generic [ref=e2341]: ⭐ 8.6
+                - generic: TV
+              - generic [ref=e2342]:
+                - 'heading "Sofia the First: Royal Magic" [level=3] [ref=e2343]'
+                - text: "2026"
+            - link "Alice and Steve TV ⭐ 6.7 ▶ View ⭐ 6.7 TV Alice and Steve 2026" [ref=e2345] [cursor=pointer]:
+              - /url: /details/318203?type=tv
+              - generic [ref=e2346]:
+                - img "Alice and Steve" [ref=e2347]
+                - generic [ref=e2349]:
+                  - generic [ref=e2350]: TV
+                  - generic [ref=e2351]: ⭐ 6.7
+                  - button "▶ View" [ref=e2352]
+                - generic [ref=e2353]: ⭐ 6.7
+                - generic: TV
+              - generic [ref=e2354]:
+                - heading "Alice and Steve" [level=3] [ref=e2355]
+                - text: "2026"
+            - 'link "Adventure Time: Side Quests TV ⭐ 6.0 ▶ View ⭐ 6.0 TV Adventure Time: Side Quests 2026" [ref=e2357] [cursor=pointer]':
+              - /url: /details/256694?type=tv
+              - generic [ref=e2358]:
+                - 'img "Adventure Time: Side Quests" [ref=e2359]'
+                - generic [ref=e2361]:
+                  - generic [ref=e2362]: TV
+                  - generic [ref=e2363]: ⭐ 6.0
+                  - button "▶ View" [ref=e2364]
+                - generic [ref=e2365]: ⭐ 6.0
+                - generic: TV
+              - generic [ref=e2366]:
+                - 'heading "Adventure Time: Side Quests" [level=3] [ref=e2367]'
+                - text: "2026"
+            - link "Magicampers TV ⭐ 1.0 ▶ View ⭐ 1.0 TV Magicampers 2026" [ref=e2369] [cursor=pointer]:
+              - /url: /details/228671?type=tv
+              - generic [ref=e2370]:
+                - img "Magicampers" [ref=e2371]
+                - generic [ref=e2373]:
+                  - generic [ref=e2374]: TV
+                  - generic [ref=e2375]: ⭐ 1.0
+                  - button "▶ View" [ref=e2376]
+                - generic [ref=e2377]: ⭐ 1.0
+                - generic: TV
+              - generic [ref=e2378]:
+                - heading "Magicampers" [level=3] [ref=e2379]
+                - text: "2026"
+            - link "Secrets of the Bees TV ⭐ 8.9 ▶ View ⭐ 8.9 TV Secrets of the Bees 2026" [ref=e2381] [cursor=pointer]:
+              - /url: /details/218274?type=tv
+              - generic [ref=e2382]:
+                - img "Secrets of the Bees" [ref=e2383]
+                - generic [ref=e2385]:
+                  - generic [ref=e2386]: TV
+                  - generic [ref=e2387]: ⭐ 8.9
+                  - button "▶ View" [ref=e2388]
+                - generic [ref=e2389]: ⭐ 8.9
+                - generic: TV
+              - generic [ref=e2390]:
+                - heading "Secrets of the Bees" [level=3] [ref=e2391]
+                - text: "2026"
+            - link "Agent P Under C TV ⭐ 8.4 ▶ View ⭐ 8.4 TV Agent P Under C 2026" [ref=e2393] [cursor=pointer]:
+              - /url: /details/309792?type=tv
+              - generic [ref=e2394]:
+                - img "Agent P Under C" [ref=e2395]
+                - generic [ref=e2397]:
+                  - generic [ref=e2398]: TV
+                  - generic [ref=e2399]: ⭐ 8.4
+                  - button "▶ View" [ref=e2400]
+                - generic [ref=e2401]: ⭐ 8.4
+                - generic: TV
+              - generic [ref=e2402]:
+                - heading "Agent P Under C" [level=3] [ref=e2403]
+                - text: "2026"
+            - 'link "Locker Diaries: ZOMBIES TV ⭐ 6.3 ▶ View ⭐ 6.3 TV Locker Diaries: ZOMBIES 2026" [ref=e2405] [cursor=pointer]':
+              - /url: /details/313973?type=tv
+              - generic [ref=e2406]:
+                - 'img "Locker Diaries: ZOMBIES" [ref=e2407]'
+                - generic [ref=e2409]:
+                  - generic [ref=e2410]: TV
+                  - generic [ref=e2411]: ⭐ 6.3
+                  - button "▶ View" [ref=e2412]
+                - generic [ref=e2413]: ⭐ 6.3
+                - generic: TV
+              - generic [ref=e2414]:
+                - 'heading "Locker Diaries: ZOMBIES" [level=3] [ref=e2415]'
+                - text: "2026"
+            - link "Best of the World with Antoni Porowski TV ▶ View TV Best of the World with Antoni Porowski 2026" [ref=e2417] [cursor=pointer]:
+              - /url: /details/323039?type=tv
+              - generic [ref=e2418]:
+                - img "Best of the World with Antoni Porowski" [ref=e2419]
+                - generic [ref=e2421]:
+                  - generic [ref=e2422]: TV
+                  - button "▶ View" [ref=e2423]
+                - generic: TV
+              - generic [ref=e2424]:
+                - heading "Best of the World with Antoni Porowski" [level=3] [ref=e2425]
+                - text: "2026"
+            - 'link "Sofia the First: Magical Friends TV ⭐ 3.0 ▶ View ⭐ 3.0 TV Sofia the First: Magical Friends 2026" [ref=e2427] [cursor=pointer]':
+              - /url: /details/321657?type=tv
+              - generic [ref=e2428]:
+                - 'img "Sofia the First: Magical Friends" [ref=e2429]'
+                - generic [ref=e2431]:
+                  - generic [ref=e2432]: TV
+                  - generic [ref=e2433]: ⭐ 3.0
+                  - button "▶ View" [ref=e2434]
+                - generic [ref=e2435]: ⭐ 3.0
+                - generic: TV
+              - generic [ref=e2436]:
+                - 'heading "Sofia the First: Magical Friends" [level=3] [ref=e2437]'
+                - text: "2026"
+            - 'link "Locker Diaries: Phineas And Ferb TV ▶ View TV Locker Diaries: Phineas And Ferb 2026" [ref=e2439] [cursor=pointer]':
+              - /url: /details/317375?type=tv
+              - generic [ref=e2440]:
+                - 'img "Locker Diaries: Phineas And Ferb" [ref=e2441]'
+                - generic [ref=e2443]:
+                  - generic [ref=e2444]: TV
+                  - button "▶ View" [ref=e2445]
+                - generic: TV
+              - generic [ref=e2446]:
+                - 'heading "Locker Diaries: Phineas And Ferb" [level=3] [ref=e2447]'
+                - text: "2026"
+            - 'link "Betrayal: Secrets & Lies TV ⭐ 7.0 ▶ View ⭐ 7.0 TV Betrayal: Secrets & Lies 2026" [ref=e2449] [cursor=pointer]':
+              - /url: /details/317264?type=tv
+              - generic [ref=e2450]:
+                - 'img "Betrayal: Secrets & Lies" [ref=e2451]'
+                - generic [ref=e2453]:
+                  - generic [ref=e2454]: TV
+                  - generic [ref=e2455]: ⭐ 7.0
+                  - button "▶ View" [ref=e2456]
+                - generic [ref=e2457]: ⭐ 7.0
+                - generic: TV
+              - generic [ref=e2458]:
+                - 'heading "Betrayal: Secrets & Lies" [level=3] [ref=e2459]'
+                - text: "2026"
+            - 'link "Inside the CIA: Secrets & Spies TV ⭐ 8.5 ▶ View ⭐ 8.5 TV Inside the CIA: Secrets & Spies 2026" [ref=e2461] [cursor=pointer]':
+              - /url: /details/314748?type=tv
+              - generic [ref=e2462]:
+                - 'img "Inside the CIA: Secrets & Spies" [ref=e2463]'
+                - generic [ref=e2465]:
+                  - generic [ref=e2466]: TV
+                  - generic [ref=e2467]: ⭐ 8.5
+                  - button "▶ View" [ref=e2468]
+                - generic [ref=e2469]: ⭐ 8.5
+                - generic: TV
+              - generic [ref=e2470]:
+                - 'heading "Inside the CIA: Secrets & Spies" [level=3] [ref=e2471]'
+                - text: "2026"
+            - link "Hidden Beneath the Cities TV ▶ View TV Hidden Beneath the Cities 2026" [ref=e2473] [cursor=pointer]:
+              - /url: /details/321047?type=tv
+              - generic [ref=e2474]:
+                - img "Hidden Beneath the Cities" [ref=e2475]
+                - generic [ref=e2477]:
+                  - generic [ref=e2478]: TV
+                  - button "▶ View" [ref=e2479]
+                - generic: TV
+              - generic [ref=e2480]:
+                - heading "Hidden Beneath the Cities" [level=3] [ref=e2481]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e2482]:
+        - generic [ref=e2483]:
+          - heading "🎞️ Popular Movies" [level=2] [ref=e2484]:
+            - generic [ref=e2485]: 🎞️
+            - text: Popular Movies
+          - link "See all →" [ref=e2486] [cursor=pointer]:
+            - /url: /popular?media=movie
+        - generic [ref=e2487]:
+          - button "Scroll left": ‹
+          - generic [ref=e2488]:
+            - link "Obsession Movie ⭐ 8.2 ▶ View ⭐ 8.2 Film Obsession 2026" [ref=e2490] [cursor=pointer]:
+              - /url: /details/1339713?type=movie
+              - generic [ref=e2491]:
+                - img "Obsession" [ref=e2492]
+                - generic [ref=e2494]:
+                  - generic [ref=e2495]: Movie
+                  - generic [ref=e2496]: ⭐ 8.2
+                  - button "▶ View" [ref=e2497]
+                - generic [ref=e2498]: ⭐ 8.2
+                - generic: Film
+              - generic [ref=e2499]:
+                - heading "Obsession" [level=3] [ref=e2500]
+                - text: "2026"
+            - link "Toy Story 5 Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Toy Story 5 2026" [ref=e2502] [cursor=pointer]:
+              - /url: /details/1084244?type=movie
+              - generic [ref=e2503]:
+                - img "Toy Story 5" [ref=e2504]
+                - generic [ref=e2506]:
+                  - generic [ref=e2507]: Movie
+                  - generic [ref=e2508]: ⭐ 7.4
+                  - button "▶ View" [ref=e2509]
+                - generic [ref=e2510]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e2511]:
+                - heading "Toy Story 5" [level=3] [ref=e2512]
+                - text: "2026"
+            - link "Moana Movie ⭐ 5.6 ▶ View ⭐ 5.6 Film Moana 2026" [ref=e2514] [cursor=pointer]:
+              - /url: /details/1108427?type=movie
+              - generic [ref=e2515]:
+                - img "Moana" [ref=e2516]
+                - generic [ref=e2518]:
+                  - generic [ref=e2519]: Movie
+                  - generic [ref=e2520]: ⭐ 5.6
+                  - button "▶ View" [ref=e2521]
+                - generic [ref=e2522]: ⭐ 5.6
+                - generic: Film
+              - generic [ref=e2523]:
+                - heading "Moana" [level=3] [ref=e2524]
+                - text: "2026"
+            - link "Disclosure Day Movie ⭐ 6.7 ▶ View ⭐ 6.7 Film Disclosure Day 2026" [ref=e2526] [cursor=pointer]:
+              - /url: /details/1275779?type=movie
+              - generic [ref=e2527]:
+                - img "Disclosure Day" [ref=e2528]
+                - generic [ref=e2530]:
+                  - generic [ref=e2531]: Movie
+                  - generic [ref=e2532]: ⭐ 6.7
+                  - button "▶ View" [ref=e2533]
+                - generic [ref=e2534]: ⭐ 6.7
+                - generic: Film
+              - generic [ref=e2535]:
+                - heading "Disclosure Day" [level=3] [ref=e2536]
+                - text: "2026"
+            - link "Backrooms Movie ⭐ 7.0 ▶ View ⭐ 7.0 Film Backrooms 2026" [ref=e2538] [cursor=pointer]:
+              - /url: /details/1083381?type=movie
+              - generic [ref=e2539]:
+                - img "Backrooms" [ref=e2540]
+                - generic [ref=e2542]:
+                  - generic [ref=e2543]: Movie
+                  - generic [ref=e2544]: ⭐ 7.0
+                  - button "▶ View" [ref=e2545]
+                - generic [ref=e2546]: ⭐ 7.0
+                - generic: Film
+              - generic [ref=e2547]:
+                - heading "Backrooms" [level=3] [ref=e2548]
+                - text: "2026"
+            - link "Scary Movie Movie ⭐ 5.4 ▶ View ⭐ 5.4 Film Scary Movie 2026" [ref=e2550] [cursor=pointer]:
+              - /url: /details/1273221?type=movie
+              - generic [ref=e2551]:
+                - img "Scary Movie" [ref=e2552]
+                - generic [ref=e2554]:
+                  - generic [ref=e2555]: Movie
+                  - generic [ref=e2556]: ⭐ 5.4
+                  - button "▶ View" [ref=e2557]
+                - generic [ref=e2558]: ⭐ 5.4
+                - generic: Film
+              - generic [ref=e2559]:
+                - heading "Scary Movie" [level=3] [ref=e2560]
+                - text: "2026"
+            - link "The Devil Wears Prada 2 Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film The Devil Wears Prada 2 2026" [ref=e2562] [cursor=pointer]:
+              - /url: /details/1314481?type=movie
+              - generic [ref=e2563]:
+                - img "The Devil Wears Prada 2" [ref=e2564]
+                - generic [ref=e2566]:
+                  - generic [ref=e2567]: Movie
+                  - generic [ref=e2568]: ⭐ 7.1
+                  - button "▶ View" [ref=e2569]
+                - generic [ref=e2570]: ⭐ 7.1
+                - generic: Film
+              - generic [ref=e2571]:
+                - heading "The Devil Wears Prada 2" [level=3] [ref=e2572]
+                - text: "2026"
+            - link "Passenger Movie ⭐ 7.2 ▶ View ⭐ 7.2 Film Passenger 2026" [ref=e2574] [cursor=pointer]:
+              - /url: /details/1368314?type=movie
+              - generic [ref=e2575]:
+                - img "Passenger" [ref=e2576]
+                - generic [ref=e2578]:
+                  - generic [ref=e2579]: Movie
+                  - generic [ref=e2580]: ⭐ 7.2
+                  - button "▶ View" [ref=e2581]
+                - generic [ref=e2582]: ⭐ 7.2
+                - generic: Film
+              - generic [ref=e2583]:
+                - heading "Passenger" [level=3] [ref=e2584]
+                - text: "2026"
+            - link "The Furious Movie ⭐ 7.5 ▶ View ⭐ 7.5 Film The Furious 2026" [ref=e2586] [cursor=pointer]:
+              - /url: /details/1280738?type=movie
+              - generic [ref=e2587]:
+                - img "The Furious" [ref=e2588]
+                - generic [ref=e2590]:
+                  - generic [ref=e2591]: Movie
+                  - generic [ref=e2592]: ⭐ 7.5
+                  - button "▶ View" [ref=e2593]
+                - generic [ref=e2594]: ⭐ 7.5
+                - generic: Film
+              - generic [ref=e2595]:
+                - heading "The Furious" [level=3] [ref=e2596]
+                - text: "2026"
+            - link "Your Heart Will Be Broken Movie ⭐ 7.1 ▶ View ⭐ 7.1 Film Your Heart Will Be Broken 2026" [ref=e2598] [cursor=pointer]:
+              - /url: /details/1523145?type=movie
+              - generic [ref=e2599]:
+                - img "Your Heart Will Be Broken" [ref=e2600]
+                - generic [ref=e2602]:
+                  - generic [ref=e2603]: Movie
+                  - generic [ref=e2604]: ⭐ 7.1
+                  - button "▶ View" [ref=e2605]
+                - generic [ref=e2606]: ⭐ 7.1
+                - generic: Film
+              - generic [ref=e2607]:
+                - heading "Your Heart Will Be Broken" [level=3] [ref=e2608]
+                - text: "2026"
+            - link "Citizen Vigilante Movie ⭐ 6.5 ▶ View ⭐ 6.5 Film Citizen Vigilante 2026" [ref=e2610] [cursor=pointer]:
+              - /url: /details/1413976?type=movie
+              - generic [ref=e2611]:
+                - img "Citizen Vigilante" [ref=e2612]
+                - generic [ref=e2614]:
+                  - generic [ref=e2615]: Movie
+                  - generic [ref=e2616]: ⭐ 6.5
+                  - button "▶ View" [ref=e2617]
+                - generic [ref=e2618]: ⭐ 6.5
+                - generic: Film
+              - generic [ref=e2619]:
+                - heading "Citizen Vigilante" [level=3] [ref=e2620]
+                - text: "2026"
+            - link "The Shawshank Redemption Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film The Shawshank Redemption 1994" [ref=e2622] [cursor=pointer]:
+              - /url: /details/278?type=movie
+              - generic [ref=e2623]:
+                - img "The Shawshank Redemption" [ref=e2624]
+                - generic [ref=e2626]:
+                  - generic [ref=e2627]: Movie
+                  - generic [ref=e2628]: ⭐ 8.7
+                  - button "▶ View" [ref=e2629]
+                - generic [ref=e2630]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e2631]:
+                - heading "The Shawshank Redemption" [level=3] [ref=e2632]
+                - text: "1994"
+            - link "Deep Water Movie ⭐ 7.4 ▶ View ⭐ 7.4 Film Deep Water 2026" [ref=e2634] [cursor=pointer]:
+              - /url: /details/1127384?type=movie
+              - generic [ref=e2635]:
+                - img "Deep Water" [ref=e2636]
+                - generic [ref=e2638]:
+                  - generic [ref=e2639]: Movie
+                  - generic [ref=e2640]: ⭐ 7.4
+                  - button "▶ View" [ref=e2641]
+                - generic [ref=e2642]: ⭐ 7.4
+                - generic: Film
+              - generic [ref=e2643]:
+                - heading "Deep Water" [level=3] [ref=e2644]
+                - text: "2026"
+            - link "The Odyssey Movie ⭐ 6.2 ▶ View ⭐ 6.2 Film The Odyssey 2026" [ref=e2646] [cursor=pointer]:
+              - /url: /details/1368337?type=movie
+              - generic [ref=e2647]:
+                - img "The Odyssey" [ref=e2648]
+                - generic [ref=e2650]:
+                  - generic [ref=e2651]: Movie
+                  - generic [ref=e2652]: ⭐ 6.2
+                  - button "▶ View" [ref=e2653]
+                - generic [ref=e2654]: ⭐ 6.2
+                - generic: Film
+              - generic [ref=e2655]:
+                - heading "The Odyssey" [level=3] [ref=e2656]
+                - text: "2026"
+            - link "Michael Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Michael 2026" [ref=e2658] [cursor=pointer]:
+              - /url: /details/936075?type=movie
+              - generic [ref=e2659]:
+                - img "Michael" [ref=e2660]
+                - generic [ref=e2662]:
+                  - generic [ref=e2663]: Movie
+                  - generic [ref=e2664]: ⭐ 8.7
+                  - button "▶ View" [ref=e2665]
+                - generic [ref=e2666]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e2667]:
+                - heading "Michael" [level=3] [ref=e2668]
+                - text: "2026"
+            - link "Project Hail Mary Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Project Hail Mary 2026" [ref=e2670] [cursor=pointer]:
+              - /url: /details/687163?type=movie
+              - generic [ref=e2671]:
+                - img "Project Hail Mary" [ref=e2672]
+                - generic [ref=e2674]:
+                  - generic [ref=e2675]: Movie
+                  - generic [ref=e2676]: ⭐ 8.7
+                  - button "▶ View" [ref=e2677]
+                - generic [ref=e2678]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e2679]:
+                - heading "Project Hail Mary" [level=3] [ref=e2680]
+                - text: "2026"
+            - link "Shape of My Heart Movie ⭐ 5.0 ▶ View ⭐ 5.0 Film Shape of My Heart 2024" [ref=e2682] [cursor=pointer]:
+              - /url: /details/1285366?type=movie
+              - generic [ref=e2683]:
+                - img "Shape of My Heart" [ref=e2684]
+                - generic [ref=e2686]:
+                  - generic [ref=e2687]: Movie
+                  - generic [ref=e2688]: ⭐ 5.0
+                  - button "▶ View" [ref=e2689]
+                - generic [ref=e2690]: ⭐ 5.0
+                - generic: Film
+              - generic [ref=e2691]:
+                - heading "Shape of My Heart" [level=3] [ref=e2692]
+                - text: "2024"
+            - link "Mortal Kombat II Movie ⭐ 8.0 ▶ View ⭐ 8.0 Film Mortal Kombat II 2026" [ref=e2694] [cursor=pointer]:
+              - /url: /details/931285?type=movie
+              - generic [ref=e2695]:
+                - img "Mortal Kombat II" [ref=e2696]
+                - generic [ref=e2698]:
+                  - generic [ref=e2699]: Movie
+                  - generic [ref=e2700]: ⭐ 8.0
+                  - button "▶ View" [ref=e2701]
+                - generic [ref=e2702]: ⭐ 8.0
+                - generic: Film
+              - generic [ref=e2703]:
+                - heading "Mortal Kombat II" [level=3] [ref=e2704]
+                - text: "2026"
+            - link "The Super Mario Galaxy Movie Movie ⭐ 8.3 ▶ View ⭐ 8.3 Film The Super Mario Galaxy Movie 2026" [ref=e2706] [cursor=pointer]:
+              - /url: /details/1226863?type=movie
+              - generic [ref=e2707]:
+                - img "The Super Mario Galaxy Movie" [ref=e2708]
+                - generic [ref=e2710]:
+                  - generic [ref=e2711]: Movie
+                  - generic [ref=e2712]: ⭐ 8.3
+                  - button "▶ View" [ref=e2713]
+                - generic [ref=e2714]: ⭐ 8.3
+                - generic: Film
+              - generic [ref=e2715]:
+                - heading "The Super Mario Galaxy Movie" [level=3] [ref=e2716]
+                - text: "2026"
+            - link "Evil Dead Burn Movie ⭐ 6.8 ▶ View ⭐ 6.8 Film Evil Dead Burn 2026" [ref=e2718] [cursor=pointer]:
+              - /url: /details/1212763?type=movie
+              - generic [ref=e2719]:
+                - img "Evil Dead Burn" [ref=e2720]
+                - generic [ref=e2722]:
+                  - generic [ref=e2723]: Movie
+                  - generic [ref=e2724]: ⭐ 6.8
+                  - button "▶ View" [ref=e2725]
+                - generic [ref=e2726]: ⭐ 6.8
+                - generic: Film
+              - generic [ref=e2727]:
+                - heading "Evil Dead Burn" [level=3] [ref=e2728]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e2729]:
+        - generic [ref=e2730]:
+          - heading "📺 Popular TV Shows" [level=2] [ref=e2731]:
+            - generic [ref=e2732]: 📺
+            - text: Popular TV Shows
+          - link "See all →" [ref=e2733] [cursor=pointer]:
+            - /url: /popular?media=tv
+        - generic [ref=e2734]:
+          - button "Scroll left": ‹
+          - generic [ref=e2735]:
+            - link "House of the Dragon TV ⭐ 8.4 ▶ View ⭐ 8.4 TV House of the Dragon 2022" [ref=e2737] [cursor=pointer]:
+              - /url: /details/94997?type=tv
+              - generic [ref=e2738]:
+                - img "House of the Dragon" [ref=e2739]
+                - generic [ref=e2741]:
+                  - generic [ref=e2742]: TV
+                  - generic [ref=e2743]: ⭐ 8.4
+                  - button "▶ View" [ref=e2744]
+                - generic [ref=e2745]: ⭐ 8.4
+                - generic: TV
+              - generic [ref=e2746]:
+                - heading "House of the Dragon" [level=3] [ref=e2747]
+                - text: "2022"
+            - link "Pritam and Pedro TV ⭐ 8.6 ▶ View ⭐ 8.6 TV Pritam and Pedro 2026" [ref=e2749] [cursor=pointer]:
+              - /url: /details/243206?type=tv
+              - generic [ref=e2750]:
+                - img "Pritam and Pedro" [ref=e2751]
+                - generic [ref=e2753]:
+                  - generic [ref=e2754]: TV
+                  - generic [ref=e2755]: ⭐ 8.6
+                  - button "▶ View" [ref=e2756]
+                - generic [ref=e2757]: ⭐ 8.6
+                - generic: TV
+              - generic [ref=e2758]:
+                - heading "Pritam and Pedro" [level=3] [ref=e2759]
+                - text: "2026"
+            - link "Silo TV ⭐ 8.2 ▶ View ⭐ 8.2 TV Silo 2023" [ref=e2761] [cursor=pointer]:
+              - /url: /details/125988?type=tv
+              - generic [ref=e2762]:
+                - img "Silo" [ref=e2763]
+                - generic [ref=e2765]:
+                  - generic [ref=e2766]: TV
+                  - generic [ref=e2767]: ⭐ 8.2
+                  - button "▶ View" [ref=e2768]
+                - generic [ref=e2769]: ⭐ 8.2
+                - generic: TV
+              - generic [ref=e2770]:
+                - heading "Silo" [level=3] [ref=e2771]
+                - text: "2023"
+            - link "FROM TV ⭐ 8.5 ▶ View ⭐ 8.5 TV FROM 2022" [ref=e2773] [cursor=pointer]:
+              - /url: /details/124364?type=tv
+              - generic [ref=e2774]:
+                - img "FROM" [ref=e2775]
+                - generic [ref=e2777]:
+                  - generic [ref=e2778]: TV
+                  - generic [ref=e2779]: ⭐ 8.5
+                  - button "▶ View" [ref=e2780]
+                - generic [ref=e2781]: ⭐ 8.5
+                - generic: TV
+              - generic [ref=e2782]:
+                - heading "FROM" [level=3] [ref=e2783]
+                - text: "2022"
+            - link "Maddie + Triggs TV ⭐ 10.0 ▶ View ⭐ 10.0 TV Maddie + Triggs 2024" [ref=e2785] [cursor=pointer]:
+              - /url: /details/257723?type=tv
+              - generic [ref=e2786]:
+                - img "Maddie + Triggs" [ref=e2787]
+                - generic [ref=e2789]:
+                  - generic [ref=e2790]: TV
+                  - generic [ref=e2791]: ⭐ 10.0
+                  - button "▶ View" [ref=e2792]
+                - generic [ref=e2793]: ⭐ 10.0
+                - generic: TV
+              - generic [ref=e2794]:
+                - heading "Maddie + Triggs" [level=3] [ref=e2795]
+                - text: "2024"
+            - 'link "Mushoku Tensei: Jobless Reincarnation TV ⭐ 8.5 ▶ View ⭐ 8.5 TV Mushoku Tensei: Jobless Reincarnation 2021" [ref=e2797] [cursor=pointer]':
+              - /url: /details/94664?type=tv
+              - generic [ref=e2798]:
+                - 'img "Mushoku Tensei: Jobless Reincarnation" [ref=e2799]'
+                - generic [ref=e2801]:
+                  - generic [ref=e2802]: TV
+                  - generic [ref=e2803]: ⭐ 8.5
+                  - button "▶ View" [ref=e2804]
+                - generic [ref=e2805]: ⭐ 8.5
+                - generic: TV
+              - generic [ref=e2806]:
+                - 'heading "Mushoku Tensei: Jobless Reincarnation" [level=3] [ref=e2807]'
+                - text: "2021"
+            - 'link "Law & Order: Special Victims Unit TV ⭐ 8.0 ▶ View ⭐ 8.0 TV Law & Order: Special Victims Unit 1999" [ref=e2809] [cursor=pointer]':
+              - /url: /details/2734?type=tv
+              - generic [ref=e2810]:
+                - 'img "Law & Order: Special Victims Unit" [ref=e2811]'
+                - generic [ref=e2813]:
+                  - generic [ref=e2814]: TV
+                  - generic [ref=e2815]: ⭐ 8.0
+                  - button "▶ View" [ref=e2816]
+                - generic [ref=e2817]: ⭐ 8.0
+                - generic: TV
+              - generic [ref=e2818]:
+                - 'heading "Law & Order: Special Victims Unit" [level=3] [ref=e2819]'
+                - text: "1999"
+            - link "The Rookie TV ⭐ 8.6 ▶ View ⭐ 8.6 TV The Rookie 2018" [ref=e2821] [cursor=pointer]:
+              - /url: /details/79744?type=tv
+              - generic [ref=e2822]:
+                - img "The Rookie" [ref=e2823]
+                - generic [ref=e2825]:
+                  - generic [ref=e2826]: TV
+                  - generic [ref=e2827]: ⭐ 8.6
+                  - button "▶ View" [ref=e2828]
+                - generic [ref=e2829]: ⭐ 8.6
+                - generic: TV
+              - generic [ref=e2830]:
+                - heading "The Rookie" [level=3] [ref=e2831]
+                - text: "2018"
+            - link "The Mentalist TV ⭐ 8.4 ▶ View ⭐ 8.4 TV The Mentalist 2008" [ref=e2833] [cursor=pointer]:
+              - /url: /details/5920?type=tv
+              - generic [ref=e2834]:
+                - img "The Mentalist" [ref=e2835]
+                - generic [ref=e2837]:
+                  - generic [ref=e2838]: TV
+                  - generic [ref=e2839]: ⭐ 8.4
+                  - button "▶ View" [ref=e2840]
+                - generic [ref=e2841]: ⭐ 8.4
+                - generic: TV
+              - generic [ref=e2842]:
+                - heading "The Mentalist" [level=3] [ref=e2843]
+                - text: "2008"
+            - link "Law & Order TV ⭐ 7.3 ▶ View ⭐ 7.3 TV Law & Order 1990" [ref=e2845] [cursor=pointer]:
+              - /url: /details/549?type=tv
+              - generic [ref=e2846]:
+                - img "Law & Order" [ref=e2847]
+                - generic [ref=e2849]:
+                  - generic [ref=e2850]: TV
+                  - generic [ref=e2851]: ⭐ 7.3
+                  - button "▶ View" [ref=e2852]
+                - generic [ref=e2853]: ⭐ 7.3
+                - generic: TV
+              - generic [ref=e2854]:
+                - heading "Law & Order" [level=3] [ref=e2855]
+                - text: "1990"
+            - link "Chainsmoker Cat TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Chainsmoker Cat 2026" [ref=e2857] [cursor=pointer]:
+              - /url: /details/312949?type=tv
+              - generic [ref=e2858]:
+                - img "Chainsmoker Cat" [ref=e2859]
+                - generic [ref=e2861]:
+                  - generic [ref=e2862]: TV
+                  - generic [ref=e2863]: ⭐ 8.7
+                  - button "▶ View" [ref=e2864]
+                - generic [ref=e2865]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e2866]:
+                - heading "Chainsmoker Cat" [level=3] [ref=e2867]
+                - text: "2026"
+            - link "Supernatural TV ⭐ 8.3 ▶ View ⭐ 8.3 TV Supernatural 2005" [ref=e2869] [cursor=pointer]:
+              - /url: /details/1622?type=tv
+              - generic [ref=e2870]:
+                - img "Supernatural" [ref=e2871]
+                - generic [ref=e2873]:
+                  - generic [ref=e2874]: TV
+                  - generic [ref=e2875]: ⭐ 8.3
+                  - button "▶ View" [ref=e2876]
+                - generic [ref=e2877]: ⭐ 8.3
+                - generic: TV
+              - generic [ref=e2878]:
+                - heading "Supernatural" [level=3] [ref=e2879]
+                - text: "2005"
+            - link "Family Guy TV ⭐ 7.4 ▶ View ⭐ 7.4 TV Family Guy 1999" [ref=e2881] [cursor=pointer]:
+              - /url: /details/1434?type=tv
+              - generic [ref=e2882]:
+                - img "Family Guy" [ref=e2883]
+                - generic [ref=e2885]:
+                  - generic [ref=e2886]: TV
+                  - generic [ref=e2887]: ⭐ 7.4
+                  - button "▶ View" [ref=e2888]
+                - generic [ref=e2889]: ⭐ 7.4
+                - generic: TV
+              - generic [ref=e2890]:
+                - heading "Family Guy" [level=3] [ref=e2891]
+                - text: "1999"
+            - link "Overflow TV ⭐ 7.3 ▶ View ⭐ 7.3 TV Overflow 2020" [ref=e2893] [cursor=pointer]:
+              - /url: /details/95897?type=tv
+              - generic [ref=e2894]:
+                - img "Overflow" [ref=e2895]
+                - generic [ref=e2897]:
+                  - generic [ref=e2898]: TV
+                  - generic [ref=e2899]: ⭐ 7.3
+                  - button "▶ View" [ref=e2900]
+                - generic [ref=e2901]: ⭐ 7.3
+                - generic: TV
+              - generic [ref=e2902]:
+                - heading "Overflow" [level=3] [ref=e2903]
+                - text: "2020"
+            - link "Rick and Morty TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Rick and Morty 2013" [ref=e2905] [cursor=pointer]:
+              - /url: /details/60625?type=tv
+              - generic [ref=e2906]:
+                - img "Rick and Morty" [ref=e2907]
+                - generic [ref=e2909]:
+                  - generic [ref=e2910]: TV
+                  - generic [ref=e2911]: ⭐ 8.7
+                  - button "▶ View" [ref=e2912]
+                - generic [ref=e2913]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e2914]:
+                - heading "Rick and Morty" [level=3] [ref=e2915]
+                - text: "2013"
+            - link "Sesame Street TV ⭐ 7.1 ▶ View ⭐ 7.1 TV Sesame Street 1969" [ref=e2917] [cursor=pointer]:
+              - /url: /details/502?type=tv
+              - generic [ref=e2918]:
+                - img "Sesame Street" [ref=e2919]
+                - generic [ref=e2921]:
+                  - generic [ref=e2922]: TV
+                  - generic [ref=e2923]: ⭐ 7.1
+                  - button "▶ View" [ref=e2924]
+                - generic [ref=e2925]: ⭐ 7.1
+                - generic: TV
+              - generic [ref=e2926]:
+                - heading "Sesame Street" [level=3] [ref=e2927]
+                - text: "1969"
+            - link "Jamai Raja TV ⭐ 5.5 ▶ View ⭐ 5.5 TV Jamai Raja 2014" [ref=e2929] [cursor=pointer]:
+              - /url: /details/100780?type=tv
+              - generic [ref=e2930]:
+                - img "Jamai Raja" [ref=e2931]
+                - generic [ref=e2933]:
+                  - generic [ref=e2934]: TV
+                  - generic [ref=e2935]: ⭐ 5.5
+                  - button "▶ View" [ref=e2936]
+                - generic [ref=e2937]: ⭐ 5.5
+                - generic: TV
+              - generic [ref=e2938]:
+                - heading "Jamai Raja" [level=3] [ref=e2939]
+                - text: "2014"
+            - link "Game of Thrones TV ⭐ 8.5 ▶ View ⭐ 8.5 TV Game of Thrones 2011" [ref=e2941] [cursor=pointer]:
+              - /url: /details/1399?type=tv
+              - generic [ref=e2942]:
+                - img "Game of Thrones" [ref=e2943]
+                - generic [ref=e2945]:
+                  - generic [ref=e2946]: TV
+                  - generic [ref=e2947]: ⭐ 8.5
+                  - button "▶ View" [ref=e2948]
+                - generic [ref=e2949]: ⭐ 8.5
+                - generic: TV
+              - generic [ref=e2950]:
+                - heading "Game of Thrones" [level=3] [ref=e2951]
+                - text: "2011"
+            - link "Majhi Manasa TV ▶ View TV Majhi Manasa 2022" [ref=e2953] [cursor=pointer]:
+              - /url: /details/324186?type=tv
+              - generic [ref=e2954]:
+                - img "Majhi Manasa" [ref=e2955]
+                - generic [ref=e2957]:
+                  - generic [ref=e2958]: TV
+                  - button "▶ View" [ref=e2959]
+                - generic: TV
+              - generic [ref=e2960]:
+                - heading "Majhi Manasa" [level=3] [ref=e2961]
+                - text: "2022"
+            - link "Grey's Anatomy TV ⭐ 8.2 ▶ View ⭐ 8.2 TV Grey's Anatomy 2005" [ref=e2963] [cursor=pointer]:
+              - /url: /details/1416?type=tv
+              - generic [ref=e2964]:
+                - img "Grey's Anatomy" [ref=e2965]
+                - generic [ref=e2967]:
+                  - generic [ref=e2968]: TV
+                  - generic [ref=e2969]: ⭐ 8.2
+                  - button "▶ View" [ref=e2970]
+                - generic [ref=e2971]: ⭐ 8.2
+                - generic: TV
+              - generic [ref=e2972]:
+                - heading "Grey's Anatomy" [level=3] [ref=e2973]
+                - text: "2005"
+          - button "Scroll right": ›
+      - generic [ref=e2974]:
+        - generic [ref=e2975]:
+          - heading "🍿 Coming Soon — Movies" [level=2] [ref=e2976]:
+            - generic [ref=e2977]: 🍿
+            - text: Coming Soon — Movies
+          - link "See all →" [ref=e2978] [cursor=pointer]:
+            - /url: /upcoming?media=movie
+        - generic [ref=e2979]:
+          - button "Scroll left": ‹
+          - generic [ref=e2980]:
+            - 'link "Avatar Aang: The Last Airbender Movie 📅 View 🍿 Soon Film Avatar Aang: The Last Airbender 2026" [ref=e2982] [cursor=pointer]':
+              - /url: /details/980431?type=movie
+              - generic [ref=e2983]:
+                - 'img "Avatar Aang: The Last Airbender" [ref=e2984]'
+                - generic [ref=e2986]:
+                  - generic [ref=e2987]: Movie
+                  - button "📅 View" [ref=e2988]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e2989]:
+                - 'heading "Avatar Aang: The Last Airbender" [level=3] [ref=e2990]'
+                - text: "2026"
+            - 'link "Spider-Man: Brand New Day Movie 📅 View 🍿 Soon Film Spider-Man: Brand New Day 2026" [ref=e2992] [cursor=pointer]':
+              - /url: /details/969681?type=movie
+              - generic [ref=e2993]:
+                - 'img "Spider-Man: Brand New Day" [ref=e2994]'
+                - generic [ref=e2996]:
+                  - generic [ref=e2997]: Movie
+                  - button "📅 View" [ref=e2998]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e2999]:
+                - 'heading "Spider-Man: Brand New Day" [level=3] [ref=e3000]'
+                - text: "2026"
+            - link "Digger Movie 📅 View 🍿 Soon Film Digger 2026" [ref=e3002] [cursor=pointer]:
+              - /url: /details/1248832?type=movie
+              - generic [ref=e3003]:
+                - img "Digger" [ref=e3004]
+                - generic [ref=e3006]:
+                  - generic [ref=e3007]: Movie
+                  - button "📅 View" [ref=e3008]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3009]:
+                - heading "Digger" [level=3] [ref=e3010]
+                - text: "2026"
+            - link "The End of Oak Street Movie 📅 View 🍿 Soon Film The End of Oak Street 2026" [ref=e3012] [cursor=pointer]:
+              - /url: /details/1101383?type=movie
+              - generic [ref=e3013]:
+                - img "The End of Oak Street" [ref=e3014]
+                - generic [ref=e3016]:
+                  - generic [ref=e3017]: Movie
+                  - button "📅 View" [ref=e3018]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3019]:
+                - heading "The End of Oak Street" [level=3] [ref=e3020]
+                - text: "2026"
+            - link "Resident Evil Movie 📅 View 🍿 Soon Film Resident Evil 2026" [ref=e3022] [cursor=pointer]:
+              - /url: /details/1423191?type=movie
+              - generic [ref=e3023]:
+                - img "Resident Evil" [ref=e3024]
+                - generic [ref=e3026]:
+                  - generic [ref=e3027]: Movie
+                  - button "📅 View" [ref=e3028]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3029]:
+                - heading "Resident Evil" [level=3] [ref=e3030]
+                - text: "2026"
+            - link "Forgotten Island Movie 📅 View 🍿 Soon Film Forgotten Island 2026" [ref=e3032] [cursor=pointer]:
+              - /url: /details/1465063?type=movie
+              - generic [ref=e3033]:
+                - img "Forgotten Island" [ref=e3034]
+                - generic [ref=e3036]:
+                  - generic [ref=e3037]: Movie
+                  - button "📅 View" [ref=e3038]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3039]:
+                - heading "Forgotten Island" [level=3] [ref=e3040]
+                - text: "2026"
+            - link "Kill Trip Movie 📅 View 🍿 Soon Film Kill Trip 2026" [ref=e3042] [cursor=pointer]:
+              - /url: /details/1473505?type=movie
+              - generic [ref=e3043]:
+                - img "Kill Trip" [ref=e3044]
+                - generic [ref=e3046]:
+                  - generic [ref=e3047]: Movie
+                  - button "📅 View" [ref=e3048]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3049]:
+                - heading "Kill Trip" [level=3] [ref=e3050]
+                - text: "2026"
+            - 'link "PAW Patrol: The Dino Movie Movie 📅 View 🍿 Soon Film PAW Patrol: The Dino Movie 2026" [ref=e3052] [cursor=pointer]':
+              - /url: /details/1185806?type=movie
+              - generic [ref=e3053]:
+                - 'img "PAW Patrol: The Dino Movie" [ref=e3054]'
+                - generic [ref=e3056]:
+                  - generic [ref=e3057]: Movie
+                  - button "📅 View" [ref=e3058]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3059]:
+                - 'heading "PAW Patrol: The Dino Movie" [level=3] [ref=e3060]'
+                - text: "2026"
+            - link "The Dog Stars Movie 📅 View 🍿 Soon Film The Dog Stars 2026" [ref=e3062] [cursor=pointer]:
+              - /url: /details/1384216?type=movie
+              - generic [ref=e3063]:
+                - img "The Dog Stars" [ref=e3064]
+                - generic [ref=e3066]:
+                  - generic [ref=e3067]: Movie
+                  - button "📅 View" [ref=e3068]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3069]:
+                - heading "The Dog Stars" [level=3] [ref=e3070]
+                - text: "2026"
+            - link "Brandon & Haider Movie 📅 View 🍿 Soon Film Brandon & Haider 2026" [ref=e3072] [cursor=pointer]:
+              - /url: /details/1588765?type=movie
+              - generic [ref=e3073]:
+                - img "Brandon & Haider" [ref=e3074]
+                - generic [ref=e3076]:
+                  - generic [ref=e3077]: Movie
+                  - button "📅 View" [ref=e3078]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3079]:
+                - heading "Brandon & Haider" [level=3] [ref=e3080]
+                - text: "2026"
+            - link "Ice Skater Movie 📅 View 🍿 Soon Film Ice Skater 2026" [ref=e3082] [cursor=pointer]:
+              - /url: /details/1424965?type=movie
+              - generic [ref=e3083]:
+                - img "Ice Skater" [ref=e3084]
+                - generic [ref=e3086]:
+                  - generic [ref=e3087]: Movie
+                  - button "📅 View" [ref=e3088]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3089]:
+                - heading "Ice Skater" [level=3] [ref=e3090]
+                - text: "2026"
+            - link "The Last Sunrise Movie 📅 View 🍿 Soon Film The Last Sunrise 2026" [ref=e3092] [cursor=pointer]:
+              - /url: /details/1516698?type=movie
+              - generic [ref=e3093]:
+                - img "The Last Sunrise" [ref=e3094]
+                - generic [ref=e3096]:
+                  - generic [ref=e3097]: Movie
+                  - button "📅 View" [ref=e3098]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3099]:
+                - heading "The Last Sunrise" [level=3] [ref=e3100]
+                - text: "2026"
+            - link "The Intro Movie 📅 View 🍿 Soon Film The Intro 2026" [ref=e3102] [cursor=pointer]:
+              - /url: /details/1711124?type=movie
+              - generic [ref=e3103]:
+                - img "The Intro" [ref=e3104]
+                - generic [ref=e3106]:
+                  - generic [ref=e3107]: Movie
+                  - button "📅 View" [ref=e3108]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3109]:
+                - heading "The Intro" [level=3] [ref=e3110]
+                - text: "2026"
+            - link "I Want Your Sex Movie 📅 View 🍿 Soon Film I Want Your Sex 2026" [ref=e3112] [cursor=pointer]:
+              - /url: /details/1288059?type=movie
+              - generic [ref=e3113]:
+                - img "I Want Your Sex" [ref=e3114]
+                - generic [ref=e3116]:
+                  - generic [ref=e3117]: Movie
+                  - button "📅 View" [ref=e3118]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3119]:
+                - heading "I Want Your Sex" [level=3] [ref=e3120]
+                - text: "2026"
+            - link "🎬 Welcome Home Movie 📅 View 🍿 Soon Film Welcome Home 2026" [ref=e3122] [cursor=pointer]:
+              - /url: /details/1696152?type=movie
+              - generic [ref=e3123]:
+                - generic [ref=e3124]:
+                  - generic [ref=e3125]: 🎬
+                  - generic [ref=e3126]: Welcome Home
+                - generic [ref=e3128]:
+                  - generic [ref=e3129]: Movie
+                  - button "📅 View" [ref=e3130]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3131]:
+                - heading "Welcome Home" [level=3] [ref=e3132]
+                - text: "2026"
+            - 'link "Pinocchio: Unstrung Movie 📅 View 🍿 Soon Film Pinocchio: Unstrung 2026" [ref=e3134] [cursor=pointer]':
+              - /url: /details/1232569?type=movie
+              - generic [ref=e3135]:
+                - 'img "Pinocchio: Unstrung" [ref=e3136]'
+                - generic [ref=e3138]:
+                  - generic [ref=e3139]: Movie
+                  - button "📅 View" [ref=e3140]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3141]:
+                - 'heading "Pinocchio: Unstrung" [level=3] [ref=e3142]'
+                - text: "2026"
+            - 'link "Fall 2: Deadpoint Movie 📅 View 🍿 Soon Film Fall 2: Deadpoint 2026" [ref=e3144] [cursor=pointer]':
+              - /url: /details/1101412?type=movie
+              - generic [ref=e3145]:
+                - 'img "Fall 2: Deadpoint" [ref=e3146]'
+                - generic [ref=e3148]:
+                  - generic [ref=e3149]: Movie
+                  - button "📅 View" [ref=e3150]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3151]:
+                - 'heading "Fall 2: Deadpoint" [level=3] [ref=e3152]'
+                - text: "2026"
+            - 'link "Descendants: Wicked Wonderland Movie ⭐ 10.0 ▶ View ⭐ 10.0 Film Descendants: Wicked Wonderland 2026" [ref=e3154] [cursor=pointer]':
+              - /url: /details/1318621?type=movie
+              - generic [ref=e3155]:
+                - 'img "Descendants: Wicked Wonderland" [ref=e3156]'
+                - generic [ref=e3158]:
+                  - generic [ref=e3159]: Movie
+                  - generic [ref=e3160]: ⭐ 10.0
+                  - button "▶ View" [ref=e3161]
+                - generic [ref=e3162]: ⭐ 10.0
+                - generic: Film
+              - generic [ref=e3163]:
+                - 'heading "Descendants: Wicked Wonderland" [level=3] [ref=e3164]'
+                - text: "2026"
+            - link "We, Brothers Movie 📅 View 🍿 Soon Film We, Brothers 2026" [ref=e3166] [cursor=pointer]:
+              - /url: /details/1509968?type=movie
+              - generic [ref=e3167]:
+                - img "We, Brothers" [ref=e3168]
+                - generic [ref=e3170]:
+                  - generic [ref=e3171]: Movie
+                  - button "📅 View" [ref=e3172]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3173]:
+                - heading "We, Brothers" [level=3] [ref=e3174]
+                - text: "2026"
+            - link "Mutiny Movie 📅 View 🍿 Soon Film Mutiny 2026" [ref=e3176] [cursor=pointer]:
+              - /url: /details/1288445?type=movie
+              - generic [ref=e3177]:
+                - img "Mutiny" [ref=e3178]
+                - generic [ref=e3180]:
+                  - generic [ref=e3181]: Movie
+                  - button "📅 View" [ref=e3182]
+                - generic: 🍿 Soon
+                - generic: Film
+              - generic [ref=e3183]:
+                - heading "Mutiny" [level=3] [ref=e3184]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e3185]:
+        - generic [ref=e3186]:
+          - heading "📅 Coming Soon — TV Shows" [level=2] [ref=e3187]:
+            - generic [ref=e3188]: 📅
+            - text: Coming Soon — TV Shows
+          - link "See all →" [ref=e3189] [cursor=pointer]:
+            - /url: /upcoming?media=tv
+        - generic [ref=e3190]:
+          - button "Scroll left": ‹
+          - generic [ref=e3191]:
+            - link "The Hawk TV ▶ View TV The Hawk 2026" [ref=e3193] [cursor=pointer]:
+              - /url: /details/254528?type=tv
+              - generic [ref=e3194]:
+                - img "The Hawk" [ref=e3195]
+                - generic [ref=e3197]:
+                  - generic [ref=e3198]: TV
+                  - button "▶ View" [ref=e3199]
+                - generic: TV
+              - generic [ref=e3200]:
+                - heading "The Hawk" [level=3] [ref=e3201]
+                - text: "2026"
+            - link "Treasure & Dirt TV 📅 View 🍿 Soon TV Treasure & Dirt 2026" [ref=e3203] [cursor=pointer]:
+              - /url: /details/325785?type=tv
+              - generic [ref=e3204]:
+                - img "Treasure & Dirt" [ref=e3205]
+                - generic [ref=e3207]:
+                  - generic [ref=e3208]: TV
+                  - button "📅 View" [ref=e3209]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3210]:
+                - heading "Treasure & Dirt" [level=3] [ref=e3211]
+                - text: "2026"
+            - link "VisionQuest TV 📅 View 🍿 Soon TV VisionQuest 2026" [ref=e3213] [cursor=pointer]:
+              - /url: /details/213375?type=tv
+              - generic [ref=e3214]:
+                - img "VisionQuest" [ref=e3215]
+                - generic [ref=e3217]:
+                  - generic [ref=e3218]: TV
+                  - button "📅 View" [ref=e3219]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3220]:
+                - heading "VisionQuest" [level=3] [ref=e3221]
+                - text: "2026"
+            - link "President Curtis TV 📅 View 🍿 Soon TV President Curtis 2026" [ref=e3223] [cursor=pointer]:
+              - /url: /details/296756?type=tv
+              - generic [ref=e3224]:
+                - img "President Curtis" [ref=e3225]
+                - generic [ref=e3227]:
+                  - generic [ref=e3228]: TV
+                  - button "📅 View" [ref=e3229]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3230]:
+                - heading "President Curtis" [level=3] [ref=e3231]
+                - text: "2026"
+            - link "The Shards TV 📅 View 🍿 Soon TV The Shards 2026" [ref=e3233] [cursor=pointer]:
+              - /url: /details/298168?type=tv
+              - generic [ref=e3234]:
+                - img "The Shards" [ref=e3235]
+                - generic [ref=e3237]:
+                  - generic [ref=e3238]: TV
+                  - button "📅 View" [ref=e3239]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3240]:
+                - heading "The Shards" [level=3] [ref=e3241]
+                - text: "2026"
+            - link "🎬 Crystal Lake TV 📅 View 🍿 Soon TV Crystal Lake 2026" [ref=e3243] [cursor=pointer]:
+              - /url: /details/213562?type=tv
+              - generic [ref=e3244]:
+                - generic [ref=e3245]:
+                  - generic [ref=e3246]: 🎬
+                  - generic [ref=e3247]: Crystal Lake
+                - generic [ref=e3249]:
+                  - generic [ref=e3250]: TV
+                  - button "📅 View" [ref=e3251]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3252]:
+                - heading "Crystal Lake" [level=3] [ref=e3253]
+                - text: "2026"
+            - link "Sterling Point TV 📅 View 🍿 Soon TV Sterling Point 2026" [ref=e3255] [cursor=pointer]:
+              - /url: /details/283297?type=tv
+              - generic [ref=e3256]:
+                - img "Sterling Point" [ref=e3257]
+                - generic [ref=e3259]:
+                  - generic [ref=e3260]: TV
+                  - button "📅 View" [ref=e3261]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3262]:
+                - heading "Sterling Point" [level=3] [ref=e3263]
+                - text: "2026"
+            - link "Lanterns TV 📅 View 🍿 Soon TV Lanterns 2026" [ref=e3265] [cursor=pointer]:
+              - /url: /details/95350?type=tv
+              - generic [ref=e3266]:
+                - img "Lanterns" [ref=e3267]
+                - generic [ref=e3269]:
+                  - generic [ref=e3270]: TV
+                  - button "📅 View" [ref=e3271]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3272]:
+                - heading "Lanterns" [level=3] [ref=e3273]
+                - text: "2026"
+            - link "🎬 Crew Girl TV 📅 View 🍿 Soon TV Crew Girl 2026" [ref=e3275] [cursor=pointer]:
+              - /url: /details/300507?type=tv
+              - generic [ref=e3276]:
+                - generic [ref=e3277]:
+                  - generic [ref=e3278]: 🎬
+                  - generic [ref=e3279]: Crew Girl
+                - generic [ref=e3281]:
+                  - generic [ref=e3282]: TV
+                  - button "📅 View" [ref=e3283]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3284]:
+                - heading "Crew Girl" [level=3] [ref=e3285]
+                - text: "2026"
+            - link "🎬 Rizzler News TV 📅 View 🍿 Soon TV Rizzler News 2026" [ref=e3287] [cursor=pointer]:
+              - /url: /details/297577?type=tv
+              - generic [ref=e3288]:
+                - generic [ref=e3289]:
+                  - generic [ref=e3290]: 🎬
+                  - generic [ref=e3291]: Rizzler News
+                - generic [ref=e3293]:
+                  - generic [ref=e3294]: TV
+                  - button "📅 View" [ref=e3295]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3296]:
+                - heading "Rizzler News" [level=3] [ref=e3297]
+                - text: "2026"
+            - link "Last Seen TV 📅 View 🍿 Soon TV Last Seen 2026" [ref=e3299] [cursor=pointer]:
+              - /url: /details/258230?type=tv
+              - generic [ref=e3300]:
+                - img "Last Seen" [ref=e3301]
+                - generic [ref=e3303]:
+                  - generic [ref=e3304]: TV
+                  - button "📅 View" [ref=e3305]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3306]:
+                - heading "Last Seen" [level=3] [ref=e3307]
+                - text: "2026"
+            - link "Stuart Fails to Save the Universe TV 📅 View 🍿 Soon TV Stuart Fails to Save the Universe 2026" [ref=e3309] [cursor=pointer]:
+              - /url: /details/287620?type=tv
+              - generic [ref=e3310]:
+                - img "Stuart Fails to Save the Universe" [ref=e3311]
+                - generic [ref=e3313]:
+                  - generic [ref=e3314]: TV
+                  - button "📅 View" [ref=e3315]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3316]:
+                - heading "Stuart Fails to Save the Universe" [level=3] [ref=e3317]
+                - text: "2026"
+            - link "Furious TV 📅 View 🍿 Soon TV Furious 2026" [ref=e3319] [cursor=pointer]:
+              - /url: /details/287238?type=tv
+              - generic [ref=e3320]:
+                - img "Furious" [ref=e3321]
+                - generic [ref=e3323]:
+                  - generic [ref=e3324]: TV
+                  - button "📅 View" [ref=e3325]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3326]:
+                - heading "Furious" [level=3] [ref=e3327]
+                - text: "2026"
+            - link "The Hairdresser Mysteries TV 📅 View 🍿 Soon TV The Hairdresser Mysteries 2026" [ref=e3329] [cursor=pointer]:
+              - /url: /details/300462?type=tv
+              - generic [ref=e3330]:
+                - img "The Hairdresser Mysteries" [ref=e3331]
+                - generic [ref=e3333]:
+                  - generic [ref=e3334]: TV
+                  - button "📅 View" [ref=e3335]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3336]:
+                - heading "The Hairdresser Mysteries" [level=3] [ref=e3337]
+                - text: "2026"
+            - link "Fightland TV 📅 View 🍿 Soon TV Fightland 2026" [ref=e3339] [cursor=pointer]:
+              - /url: /details/8840?type=tv
+              - generic [ref=e3340]:
+                - img "Fightland" [ref=e3341]
+                - generic [ref=e3343]:
+                  - generic [ref=e3344]: TV
+                  - button "📅 View" [ref=e3345]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3346]:
+                - heading "Fightland" [level=3] [ref=e3347]
+                - text: "2026"
+            - 'link "Pompeii: Out of Time with Tom Hiddleston TV 📅 View 🍿 Soon TV Pompeii: Out of Time with Tom Hiddleston 2026" [ref=e3349] [cursor=pointer]':
+              - /url: /details/277640?type=tv
+              - generic [ref=e3350]:
+                - 'img "Pompeii: Out of Time with Tom Hiddleston" [ref=e3351]'
+                - generic [ref=e3353]:
+                  - generic [ref=e3354]: TV
+                  - button "📅 View" [ref=e3355]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3356]:
+                - 'heading "Pompeii: Out of Time with Tom Hiddleston" [level=3] [ref=e3357]'
+                - text: "2026"
+            - link "Brothers TV 📅 View 🍿 Soon TV Brothers 2026" [ref=e3359] [cursor=pointer]:
+              - /url: /details/250203?type=tv
+              - generic [ref=e3360]:
+                - img "Brothers" [ref=e3361]
+                - generic [ref=e3363]:
+                  - generic [ref=e3364]: TV
+                  - button "📅 View" [ref=e3365]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3366]:
+                - heading "Brothers" [level=3] [ref=e3367]
+                - text: "2026"
+            - link "Anna Pigeon TV 📅 View 🍿 Soon TV Anna Pigeon 2026" [ref=e3369] [cursor=pointer]:
+              - /url: /details/291350?type=tv
+              - generic [ref=e3370]:
+                - img "Anna Pigeon" [ref=e3371]
+                - generic [ref=e3373]:
+                  - generic [ref=e3374]: TV
+                  - button "📅 View" [ref=e3375]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3376]:
+                - heading "Anna Pigeon" [level=3] [ref=e3377]
+                - text: "2026"
+            - link "🎬 S.W.A.T. Exiles TV 📅 View 🍿 Soon TV S.W.A.T. Exiles 2026" [ref=e3379] [cursor=pointer]:
+              - /url: /details/292742?type=tv
+              - generic [ref=e3380]:
+                - generic [ref=e3381]:
+                  - generic [ref=e3382]: 🎬
+                  - generic [ref=e3383]: S.W.A.T. Exiles
+                - generic [ref=e3385]:
+                  - generic [ref=e3386]: TV
+                  - button "📅 View" [ref=e3387]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3388]:
+                - heading "S.W.A.T. Exiles" [level=3] [ref=e3389]
+                - text: "2026"
+            - link "🎬 Slo Pitch TV 📅 View 🍿 Soon TV Slo Pitch 2026" [ref=e3391] [cursor=pointer]:
+              - /url: /details/310890?type=tv
+              - generic [ref=e3392]:
+                - generic [ref=e3393]:
+                  - generic [ref=e3394]: 🎬
+                  - generic [ref=e3395]: Slo Pitch
+                - generic [ref=e3397]:
+                  - generic [ref=e3398]: TV
+                  - button "📅 View" [ref=e3399]
+                - generic: 🍿 Soon
+                - generic: TV
+              - generic [ref=e3400]:
+                - heading "Slo Pitch" [level=3] [ref=e3401]
+                - text: "2026"
+          - button "Scroll right": ›
+      - generic [ref=e3402]:
+        - generic [ref=e3403]:
+          - heading "⭐ Top Rated Movies" [level=2] [ref=e3404]:
+            - generic [ref=e3405]: ⭐
+            - text: Top Rated Movies
+          - link "See all →" [ref=e3406] [cursor=pointer]:
+            - /url: /top-rated?media=movie
+        - generic [ref=e3407]:
+          - button "Scroll left": ‹
+          - generic [ref=e3408]:
+            - link "Accidental Partners Movie ⭐ 9.1 ▶ View ⭐ 9.1 Film Accidental Partners 2026" [ref=e3410] [cursor=pointer]:
+              - /url: /details/1632181?type=movie
+              - generic [ref=e3411]:
+                - img "Accidental Partners" [ref=e3412]
+                - generic [ref=e3414]:
+                  - generic [ref=e3415]: Movie
+                  - generic [ref=e3416]: ⭐ 9.1
+                  - button "▶ View" [ref=e3417]
+                - generic [ref=e3418]: ⭐ 9.1
+                - generic: Film
+              - generic [ref=e3419]:
+                - heading "Accidental Partners" [level=3] [ref=e3420]
+                - text: "2026"
+            - link "Swapped Movie ⭐ 8.9 ▶ View ⭐ 8.9 Film Swapped 2026" [ref=e3422] [cursor=pointer]:
+              - /url: /details/1007757?type=movie
+              - generic [ref=e3423]:
+                - img "Swapped" [ref=e3424]
+                - generic [ref=e3426]:
+                  - generic [ref=e3427]: Movie
+                  - generic [ref=e3428]: ⭐ 8.9
+                  - button "▶ View" [ref=e3429]
+                - generic [ref=e3430]: ⭐ 8.9
+                - generic: Film
+              - generic [ref=e3431]:
+                - heading "Swapped" [level=3] [ref=e3432]
+                - text: "2026"
+            - link "The Shawshank Redemption Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film The Shawshank Redemption 1994" [ref=e3434] [cursor=pointer]:
+              - /url: /details/278?type=movie
+              - generic [ref=e3435]:
+                - img "The Shawshank Redemption" [ref=e3436]
+                - generic [ref=e3438]:
+                  - generic [ref=e3439]: Movie
+                  - generic [ref=e3440]: ⭐ 8.7
+                  - button "▶ View" [ref=e3441]
+                - generic [ref=e3442]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e3443]:
+                - heading "The Shawshank Redemption" [level=3] [ref=e3444]
+                - text: "1994"
+            - link "Michael Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Michael 2026" [ref=e3446] [cursor=pointer]:
+              - /url: /details/936075?type=movie
+              - generic [ref=e3447]:
+                - img "Michael" [ref=e3448]
+                - generic [ref=e3450]:
+                  - generic [ref=e3451]: Movie
+                  - generic [ref=e3452]: ⭐ 8.7
+                  - button "▶ View" [ref=e3453]
+                - generic [ref=e3454]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e3455]:
+                - heading "Michael" [level=3] [ref=e3456]
+                - text: "2026"
+            - link "The Godfather Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film The Godfather 1972" [ref=e3458] [cursor=pointer]:
+              - /url: /details/238?type=movie
+              - generic [ref=e3459]:
+                - img "The Godfather" [ref=e3460]
+                - generic [ref=e3462]:
+                  - generic [ref=e3463]: Movie
+                  - generic [ref=e3464]: ⭐ 8.7
+                  - button "▶ View" [ref=e3465]
+                - generic [ref=e3466]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e3467]:
+                - heading "The Godfather" [level=3] [ref=e3468]
+                - text: "1972"
+            - link "Project Hail Mary Movie ⭐ 8.7 ▶ View ⭐ 8.7 Film Project Hail Mary 2026" [ref=e3470] [cursor=pointer]:
+              - /url: /details/687163?type=movie
+              - generic [ref=e3471]:
+                - img "Project Hail Mary" [ref=e3472]
+                - generic [ref=e3474]:
+                  - generic [ref=e3475]: Movie
+                  - generic [ref=e3476]: ⭐ 8.7
+                  - button "▶ View" [ref=e3477]
+                - generic [ref=e3478]: ⭐ 8.7
+                - generic: Film
+              - generic [ref=e3479]:
+                - heading "Project Hail Mary" [level=3] [ref=e3480]
+                - text: "2026"
+            - link "The Godfather Part II Movie ⭐ 8.6 ▶ View ⭐ 8.6 Film The Godfather Part II 1974" [ref=e3482] [cursor=pointer]:
+              - /url: /details/240?type=movie
+              - generic [ref=e3483]:
+                - img "The Godfather Part II" [ref=e3484]
+                - generic [ref=e3486]:
+                  - generic [ref=e3487]: Movie
+                  - generic [ref=e3488]: ⭐ 8.6
+                  - button "▶ View" [ref=e3489]
+                - generic [ref=e3490]: ⭐ 8.6
+                - generic: Film
+              - generic [ref=e3491]:
+                - heading "The Godfather Part II" [level=3] [ref=e3492]
+                - text: "1974"
+            - link "Schindler's List Movie ⭐ 8.6 ▶ View ⭐ 8.6 Film Schindler's List 1993" [ref=e3494] [cursor=pointer]:
+              - /url: /details/424?type=movie
+              - generic [ref=e3495]:
+                - img "Schindler's List" [ref=e3496]
+                - generic [ref=e3498]:
+                  - generic [ref=e3499]: Movie
+                  - generic [ref=e3500]: ⭐ 8.6
+                  - button "▶ View" [ref=e3501]
+                - generic [ref=e3502]: ⭐ 8.6
+                - generic: Film
+              - generic [ref=e3503]:
+                - heading "Schindler's List" [level=3] [ref=e3504]
+                - text: "1993"
+            - link "12 Angry Men Movie ⭐ 8.6 ▶ View ⭐ 8.6 Film 12 Angry Men 1957" [ref=e3506] [cursor=pointer]:
+              - /url: /details/389?type=movie
+              - generic [ref=e3507]:
+                - img "12 Angry Men" [ref=e3508]
+                - generic [ref=e3510]:
+                  - generic [ref=e3511]: Movie
+                  - generic [ref=e3512]: ⭐ 8.6
+                  - button "▶ View" [ref=e3513]
+                - generic [ref=e3514]: ⭐ 8.6
+                - generic: Film
+              - generic [ref=e3515]:
+                - heading "12 Angry Men" [level=3] [ref=e3516]
+                - text: "1957"
+            - link "Remarkably Bright Creatures Movie ⭐ 8.6 ▶ View ⭐ 8.6 Film Remarkably Bright Creatures 2026" [ref=e3518] [cursor=pointer]:
+              - /url: /details/1330021?type=movie
+              - generic [ref=e3519]:
+                - img "Remarkably Bright Creatures" [ref=e3520]
+                - generic [ref=e3522]:
+                  - generic [ref=e3523]: Movie
+                  - generic [ref=e3524]: ⭐ 8.6
+                  - button "▶ View" [ref=e3525]
+                - generic [ref=e3526]: ⭐ 8.6
+                - generic: Film
+              - generic [ref=e3527]:
+                - heading "Remarkably Bright Creatures" [level=3] [ref=e3528]
+                - text: "2026"
+            - link "Protector Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Protector 2026" [ref=e3530] [cursor=pointer]:
+              - /url: /details/1383731?type=movie
+              - generic [ref=e3531]:
+                - img "Protector" [ref=e3532]
+                - generic [ref=e3534]:
+                  - generic [ref=e3535]: Movie
+                  - generic [ref=e3536]: ⭐ 8.5
+                  - button "▶ View" [ref=e3537]
+                - generic [ref=e3538]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3539]:
+                - heading "Protector" [level=3] [ref=e3540]
+                - text: "2026"
+            - link "Spirited Away Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Spirited Away 2001" [ref=e3542] [cursor=pointer]:
+              - /url: /details/129?type=movie
+              - generic [ref=e3543]:
+                - img "Spirited Away" [ref=e3544]
+                - generic [ref=e3546]:
+                  - generic [ref=e3547]: Movie
+                  - generic [ref=e3548]: ⭐ 8.5
+                  - button "▶ View" [ref=e3549]
+                - generic [ref=e3550]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3551]:
+                - heading "Spirited Away" [level=3] [ref=e3552]
+                - text: "2001"
+            - link "The Dark Knight Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film The Dark Knight 2008" [ref=e3554] [cursor=pointer]:
+              - /url: /details/155?type=movie
+              - generic [ref=e3555]:
+                - img "The Dark Knight" [ref=e3556]
+                - generic [ref=e3558]:
+                  - generic [ref=e3559]: Movie
+                  - generic [ref=e3560]: ⭐ 8.5
+                  - button "▶ View" [ref=e3561]
+                - generic [ref=e3562]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3563]:
+                - heading "The Dark Knight" [level=3] [ref=e3564]
+                - text: "2008"
+            - link "Dilwale Dulhania Le Jayenge Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Dilwale Dulhania Le Jayenge 1995" [ref=e3566] [cursor=pointer]:
+              - /url: /details/19404?type=movie
+              - generic [ref=e3567]:
+                - img "Dilwale Dulhania Le Jayenge" [ref=e3568]
+                - generic [ref=e3570]:
+                  - generic [ref=e3571]: Movie
+                  - generic [ref=e3572]: ⭐ 8.5
+                  - button "▶ View" [ref=e3573]
+                - generic [ref=e3574]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3575]:
+                - heading "Dilwale Dulhania Le Jayenge" [level=3] [ref=e3576]
+                - text: "1995"
+            - link "The Green Mile Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film The Green Mile 1999" [ref=e3578] [cursor=pointer]:
+              - /url: /details/497?type=movie
+              - generic [ref=e3579]:
+                - img "The Green Mile" [ref=e3580]
+                - generic [ref=e3582]:
+                  - generic [ref=e3583]: Movie
+                  - generic [ref=e3584]: ⭐ 8.5
+                  - button "▶ View" [ref=e3585]
+                - generic [ref=e3586]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3587]:
+                - heading "The Green Mile" [level=3] [ref=e3588]
+                - text: "1999"
+            - link "¿Quieres ser mi hijo? Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film ¿Quieres ser mi hijo? 2023" [ref=e3590] [cursor=pointer]:
+              - /url: /details/1181678?type=movie
+              - generic [ref=e3591]:
+                - img "¿Quieres ser mi hijo?" [ref=e3592]
+                - generic [ref=e3594]:
+                  - generic [ref=e3595]: Movie
+                  - generic [ref=e3596]: ⭐ 8.5
+                  - button "▶ View" [ref=e3597]
+                - generic [ref=e3598]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3599]:
+                - heading "¿Quieres ser mi hijo?" [level=3] [ref=e3600]
+                - text: "2023"
+            - 'link "The Lord of the Rings: The Return of the King Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film The Lord of the Rings: The Return of the King 2003" [ref=e3602] [cursor=pointer]':
+              - /url: /details/122?type=movie
+              - generic [ref=e3603]:
+                - 'img "The Lord of the Rings: The Return of the King" [ref=e3604]'
+                - generic [ref=e3606]:
+                  - generic [ref=e3607]: Movie
+                  - generic [ref=e3608]: ⭐ 8.5
+                  - button "▶ View" [ref=e3609]
+                - generic [ref=e3610]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3611]:
+                - 'heading "The Lord of the Rings: The Return of the King" [level=3] [ref=e3612]'
+                - text: "2003"
+            - link "Parasite Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Parasite 2019" [ref=e3614] [cursor=pointer]:
+              - /url: /details/496243?type=movie
+              - generic [ref=e3615]:
+                - img "Parasite" [ref=e3616]
+                - generic [ref=e3618]:
+                  - generic [ref=e3619]: Movie
+                  - generic [ref=e3620]: ⭐ 8.5
+                  - button "▶ View" [ref=e3621]
+                - generic [ref=e3622]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3623]:
+                - heading "Parasite" [level=3] [ref=e3624]
+                - text: "2019"
+            - link "Your Name. Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Your Name. 2016" [ref=e3626] [cursor=pointer]:
+              - /url: /details/372058?type=movie
+              - generic [ref=e3627]:
+                - img "Your Name." [ref=e3628]
+                - generic [ref=e3630]:
+                  - generic [ref=e3631]: Movie
+                  - generic [ref=e3632]: ⭐ 8.5
+                  - button "▶ View" [ref=e3633]
+                - generic [ref=e3634]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3635]:
+                - heading "Your Name." [level=3] [ref=e3636]
+                - text: "2016"
+            - link "Interstellar Movie ⭐ 8.5 ▶ View ⭐ 8.5 Film Interstellar 2014" [ref=e3638] [cursor=pointer]:
+              - /url: /details/157336?type=movie
+              - generic [ref=e3639]:
+                - img "Interstellar" [ref=e3640]
+                - generic [ref=e3642]:
+                  - generic [ref=e3643]: Movie
+                  - generic [ref=e3644]: ⭐ 8.5
+                  - button "▶ View" [ref=e3645]
+                - generic [ref=e3646]: ⭐ 8.5
+                - generic: Film
+              - generic [ref=e3647]:
+                - heading "Interstellar" [level=3] [ref=e3648]
+                - text: "2014"
+          - button "Scroll right": ›
+      - generic [ref=e3649]:
+        - generic [ref=e3650]:
+          - heading "🏆 Top Rated TV Shows" [level=2] [ref=e3651]:
+            - generic [ref=e3652]: 🏆
+            - text: Top Rated TV Shows
+          - link "See all →" [ref=e3653] [cursor=pointer]:
+            - /url: /top-rated?media=tv
+        - generic [ref=e3654]:
+          - button "Scroll left": ‹
+          - generic [ref=e3655]:
+            - link "Teach You a Lesson TV ⭐ 9.5 ▶ View ⭐ 9.5 TV Teach You a Lesson 2026" [ref=e3657] [cursor=pointer]:
+              - /url: /details/276161?type=tv
+              - generic [ref=e3658]:
+                - img "Teach You a Lesson" [ref=e3659]
+                - generic [ref=e3661]:
+                  - generic [ref=e3662]: TV
+                  - generic [ref=e3663]: ⭐ 9.5
+                  - button "▶ View" [ref=e3664]
+                - generic [ref=e3665]: ⭐ 9.5
+                - generic: TV
+              - generic [ref=e3666]:
+                - heading "Teach You a Lesson" [level=3] [ref=e3667]
+                - text: "2026"
+            - link "Dutton Ranch TV ⭐ 9.3 ▶ View ⭐ 9.3 TV Dutton Ranch 2026" [ref=e3669] [cursor=pointer]:
+              - /url: /details/299167?type=tv
+              - generic [ref=e3670]:
+                - img "Dutton Ranch" [ref=e3671]
+                - generic [ref=e3673]:
+                  - generic [ref=e3674]: TV
+                  - generic [ref=e3675]: ⭐ 9.3
+                  - button "▶ View" [ref=e3676]
+                - generic [ref=e3677]: ⭐ 9.3
+                - generic: TV
+              - generic [ref=e3678]:
+                - heading "Dutton Ranch" [level=3] [ref=e3679]
+                - text: "2026"
+            - link "The WONDERfools TV ⭐ 9.0 ▶ View ⭐ 9.0 TV The WONDERfools 2026" [ref=e3681] [cursor=pointer]:
+              - /url: /details/259837?type=tv
+              - generic [ref=e3682]:
+                - img "The WONDERfools" [ref=e3683]
+                - generic [ref=e3685]:
+                  - generic [ref=e3686]: TV
+                  - generic [ref=e3687]: ⭐ 9.0
+                  - button "▶ View" [ref=e3688]
+                - generic [ref=e3689]: ⭐ 9.0
+                - generic: TV
+              - generic [ref=e3690]:
+                - heading "The WONDERfools" [level=3] [ref=e3691]
+                - text: "2026"
+            - link "Breaking Bad TV ⭐ 8.9 ▶ View ⭐ 8.9 TV Breaking Bad 2008" [ref=e3693] [cursor=pointer]:
+              - /url: /details/1396?type=tv
+              - generic [ref=e3694]:
+                - img "Breaking Bad" [ref=e3695]
+                - generic [ref=e3697]:
+                  - generic [ref=e3698]: TV
+                  - generic [ref=e3699]: ⭐ 8.9
+                  - button "▶ View" [ref=e3700]
+                - generic [ref=e3701]: ⭐ 8.9
+                - generic: TV
+              - generic [ref=e3702]:
+                - heading "Breaking Bad" [level=3] [ref=e3703]
+                - text: "2008"
+            - link "Off Campus TV ⭐ 8.9 ▶ View ⭐ 8.9 TV Off Campus 2026" [ref=e3705] [cursor=pointer]:
+              - /url: /details/273240?type=tv
+              - generic [ref=e3706]:
+                - img "Off Campus" [ref=e3707]
+                - generic [ref=e3709]:
+                  - generic [ref=e3710]: TV
+                  - generic [ref=e3711]: ⭐ 8.9
+                  - button "▶ View" [ref=e3712]
+                - generic [ref=e3713]: ⭐ 8.9
+                - generic: TV
+              - generic [ref=e3714]:
+                - heading "Off Campus" [level=3] [ref=e3715]
+                - text: "2026"
+            - 'link "Frieren: Beyond Journey''s End TV ⭐ 8.8 ▶ View ⭐ 8.8 TV Frieren: Beyond Journey''s End 2023" [ref=e3717] [cursor=pointer]':
+              - /url: /details/209867?type=tv
+              - generic [ref=e3718]:
+                - 'img "Frieren: Beyond Journey''s End" [ref=e3719]'
+                - generic [ref=e3721]:
+                  - generic [ref=e3722]: TV
+                  - generic [ref=e3723]: ⭐ 8.8
+                  - button "▶ View" [ref=e3724]
+                - generic [ref=e3725]: ⭐ 8.8
+                - generic: TV
+              - generic [ref=e3726]:
+                - 'heading "Frieren: Beyond Journey''s End" [level=3] [ref=e3727]'
+                - text: "2023"
+            - 'link "Avatar: The Last Airbender TV ⭐ 8.8 ▶ View ⭐ 8.8 TV Avatar: The Last Airbender 2005" [ref=e3729] [cursor=pointer]':
+              - /url: /details/246?type=tv
+              - generic [ref=e3730]:
+                - 'img "Avatar: The Last Airbender" [ref=e3731]'
+                - generic [ref=e3733]:
+                  - generic [ref=e3734]: TV
+                  - generic [ref=e3735]: ⭐ 8.8
+                  - button "▶ View" [ref=e3736]
+                - generic [ref=e3737]: ⭐ 8.8
+                - generic: TV
+              - generic [ref=e3738]:
+                - 'heading "Avatar: The Last Airbender" [level=3] [ref=e3739]'
+                - text: "2005"
+            - link "The Chosen TV ⭐ 8.8 ▶ View ⭐ 8.8 TV The Chosen 2019" [ref=e3741] [cursor=pointer]:
+              - /url: /details/85077?type=tv
+              - generic [ref=e3742]:
+                - img "The Chosen" [ref=e3743]
+                - generic [ref=e3745]:
+                  - generic [ref=e3746]: TV
+                  - generic [ref=e3747]: ⭐ 8.8
+                  - button "▶ View" [ref=e3748]
+                - generic [ref=e3749]: ⭐ 8.8
+                - generic: TV
+              - generic [ref=e3750]:
+                - heading "The Chosen" [level=3] [ref=e3751]
+                - text: "2019"
+            - link "When Life Gives You Tangerines TV ⭐ 8.8 ▶ View ⭐ 8.8 TV When Life Gives You Tangerines 2025" [ref=e3753] [cursor=pointer]:
+              - /url: /details/219246?type=tv
+              - generic [ref=e3754]:
+                - img "When Life Gives You Tangerines" [ref=e3755]
+                - generic [ref=e3757]:
+                  - generic [ref=e3758]: TV
+                  - generic [ref=e3759]: ⭐ 8.8
+                  - button "▶ View" [ref=e3760]
+                - generic [ref=e3761]: ⭐ 8.8
+                - generic: TV
+              - generic [ref=e3762]:
+                - heading "When Life Gives You Tangerines" [level=3] [ref=e3763]
+                - text: "2025"
+            - link "Heated Rivalry TV ⭐ 8.8 ▶ View ⭐ 8.8 TV Heated Rivalry 2025" [ref=e3765] [cursor=pointer]:
+              - /url: /details/301507?type=tv
+              - generic [ref=e3766]:
+                - img "Heated Rivalry" [ref=e3767]
+                - generic [ref=e3769]:
+                  - generic [ref=e3770]: TV
+                  - generic [ref=e3771]: ⭐ 8.8
+                  - button "▶ View" [ref=e3772]
+                - generic [ref=e3773]: ⭐ 8.8
+                - generic: TV
+              - generic [ref=e3774]:
+                - heading "Heated Rivalry" [level=3] [ref=e3775]
+                - text: "2025"
+            - link "Arcane TV ⭐ 8.8 ▶ View ⭐ 8.8 TV Arcane 2021" [ref=e3777] [cursor=pointer]:
+              - /url: /details/94605?type=tv
+              - generic [ref=e3778]:
+                - img "Arcane" [ref=e3779]
+                - generic [ref=e3781]:
+                  - generic [ref=e3782]: TV
+                  - generic [ref=e3783]: ⭐ 8.8
+                  - button "▶ View" [ref=e3784]
+                - generic [ref=e3785]: ⭐ 8.8
+                - generic: TV
+              - generic [ref=e3786]:
+                - heading "Arcane" [level=3] [ref=e3787]
+                - text: "2021"
+            - link "Reply 1988 TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Reply 1988 2015" [ref=e3789] [cursor=pointer]:
+              - /url: /details/64010?type=tv
+              - generic [ref=e3790]:
+                - img "Reply 1988" [ref=e3791]
+                - generic [ref=e3793]:
+                  - generic [ref=e3794]: TV
+                  - generic [ref=e3795]: ⭐ 8.7
+                  - button "▶ View" [ref=e3796]
+                - generic [ref=e3797]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3798]:
+                - heading "Reply 1988" [level=3] [ref=e3799]
+                - text: "2015"
+            - link "One Piece TV ⭐ 8.7 ▶ View ⭐ 8.7 TV One Piece 1999" [ref=e3801] [cursor=pointer]:
+              - /url: /details/37854?type=tv
+              - generic [ref=e3802]:
+                - img "One Piece" [ref=e3803]
+                - generic [ref=e3805]:
+                  - generic [ref=e3806]: TV
+                  - generic [ref=e3807]: ⭐ 8.7
+                  - button "▶ View" [ref=e3808]
+                - generic [ref=e3809]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3810]:
+                - heading "One Piece" [level=3] [ref=e3811]
+                - text: "1999"
+            - link "The Pitt TV ⭐ 8.7 ▶ View ⭐ 8.7 TV The Pitt 2025" [ref=e3813] [cursor=pointer]:
+              - /url: /details/250307?type=tv
+              - generic [ref=e3814]:
+                - img "The Pitt" [ref=e3815]
+                - generic [ref=e3817]:
+                  - generic [ref=e3818]: TV
+                  - generic [ref=e3819]: ⭐ 8.7
+                  - button "▶ View" [ref=e3820]
+                - generic [ref=e3821]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3822]:
+                - heading "The Pitt" [level=3] [ref=e3823]
+                - text: "2025"
+            - link "Weak Hero TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Weak Hero 2022" [ref=e3825] [cursor=pointer]:
+              - /url: /details/200709?type=tv
+              - generic [ref=e3826]:
+                - img "Weak Hero" [ref=e3827]
+                - generic [ref=e3829]:
+                  - generic [ref=e3830]: TV
+                  - generic [ref=e3831]: ⭐ 8.7
+                  - button "▶ View" [ref=e3832]
+                - generic [ref=e3833]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3834]:
+                - heading "Weak Hero" [level=3] [ref=e3835]
+                - text: "2022"
+            - link "Chernobyl TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Chernobyl 2019" [ref=e3837] [cursor=pointer]:
+              - /url: /details/87108?type=tv
+              - generic [ref=e3838]:
+                - img "Chernobyl" [ref=e3839]
+                - generic [ref=e3841]:
+                  - generic [ref=e3842]: TV
+                  - generic [ref=e3843]: ⭐ 8.7
+                  - button "▶ View" [ref=e3844]
+                - generic [ref=e3845]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3846]:
+                - heading "Chernobyl" [level=3] [ref=e3847]
+                - text: "2019"
+            - 'link "Fullmetal Alchemist: Brotherhood TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Fullmetal Alchemist: Brotherhood 2009" [ref=e3849] [cursor=pointer]':
+              - /url: /details/31911?type=tv
+              - generic [ref=e3850]:
+                - 'img "Fullmetal Alchemist: Brotherhood" [ref=e3851]'
+                - generic [ref=e3853]:
+                  - generic [ref=e3854]: TV
+                  - generic [ref=e3855]: ⭐ 8.7
+                  - button "▶ View" [ref=e3856]
+                - generic [ref=e3857]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3858]:
+                - 'heading "Fullmetal Alchemist: Brotherhood" [level=3] [ref=e3859]'
+                - text: "2009"
+            - link "Better Call Saul TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Better Call Saul 2015" [ref=e3861] [cursor=pointer]:
+              - /url: /details/60059?type=tv
+              - generic [ref=e3862]:
+                - img "Better Call Saul" [ref=e3863]
+                - generic [ref=e3865]:
+                  - generic [ref=e3866]: TV
+                  - generic [ref=e3867]: ⭐ 8.7
+                  - button "▶ View" [ref=e3868]
+                - generic [ref=e3869]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3870]:
+                - heading "Better Call Saul" [level=3] [ref=e3871]
+                - text: "2015"
+            - link "The Amazing Digital Circus TV ⭐ 8.7 ▶ View ⭐ 8.7 TV The Amazing Digital Circus 2023" [ref=e3873] [cursor=pointer]:
+              - /url: /details/261145?type=tv
+              - generic [ref=e3874]:
+                - img "The Amazing Digital Circus" [ref=e3875]
+                - generic [ref=e3877]:
+                  - generic [ref=e3878]: TV
+                  - generic [ref=e3879]: ⭐ 8.7
+                  - button "▶ View" [ref=e3880]
+                - generic [ref=e3881]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3882]:
+                - heading "The Amazing Digital Circus" [level=3] [ref=e3883]
+                - text: "2023"
+            - link "Attack on Titan TV ⭐ 8.7 ▶ View ⭐ 8.7 TV Attack on Titan 2013" [ref=e3885] [cursor=pointer]:
+              - /url: /details/1429?type=tv
+              - generic [ref=e3886]:
+                - img "Attack on Titan" [ref=e3887]
+                - generic [ref=e3889]:
+                  - generic [ref=e3890]: TV
+                  - generic [ref=e3891]: ⭐ 8.7
+                  - button "▶ View" [ref=e3892]
+                - generic [ref=e3893]: ⭐ 8.7
+                - generic: TV
+              - generic [ref=e3894]:
+                - heading "Attack on Titan" [level=3] [ref=e3895]
+                - text: "2013"
+          - button "Scroll right": ›
+  - contentinfo [ref=e3896]:
+    - generic [ref=e3897]:
+      - generic [ref=e3898]: CinemaPhora
+      - generic [ref=e3899]:
+        - generic [ref=e3900]:
+          - generic [ref=e3901]: Browse
+          - link "Home" [ref=e3902] [cursor=pointer]:
+            - /url: /
+          - link "Trending" [ref=e3903] [cursor=pointer]:
+            - /url: /trending
+          - link "Popular" [ref=e3904] [cursor=pointer]:
+            - /url: /popular
+          - link "Top Rated" [ref=e3905] [cursor=pointer]:
+            - /url: /top-rated
+        - generic [ref=e3906]:
+          - generic [ref=e3907]: Discover
+          - link "Now Playing" [ref=e3908] [cursor=pointer]:
+            - /url: /now-playing
+          - link "Coming Soon" [ref=e3909] [cursor=pointer]:
+            - /url: /upcoming
+          - link "Discover" [ref=e3910] [cursor=pointer]:
+            - /url: /discover
+          - link "Search" [ref=e3911] [cursor=pointer]:
+            - /url: /search
+        - generic [ref=e3912]:
+          - generic [ref=e3913]: Providers
+          - link "All Providers" [ref=e3914] [cursor=pointer]:
+            - /url: /providers
+          - link "Netflix" [ref=e3915] [cursor=pointer]:
+            - /url: /provider/8
+          - link "Prime Video" [ref=e3916] [cursor=pointer]:
+            - /url: /provider/9
+          - link "Disney+" [ref=e3917] [cursor=pointer]:
+            - /url: /provider/337
+        - generic [ref=e3918]:
+          - generic [ref=e3919]: Legal
+          - link "Terms of Use" [ref=e3920] [cursor=pointer]:
+            - /url: /terms
+          - link "Privacy Policy" [ref=e3921] [cursor=pointer]:
+            - /url: /privacy
+          - link "Settings" [ref=e3922] [cursor=pointer]:
+            - /url: /settings
+      - paragraph [ref=e3923]: Powered by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.
+      - generic [ref=e3924]: © 2026 CinemaPhora. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=e3930] [cursor=pointer]:
+    - img [ref=e3931]
+  - alert [ref=e3934]
+  - dialog [ref=e3935]:
+    - generic [ref=e3936]:
+      - heading "Welcome to CinemaPhora" [level=3] [ref=e3937]
+      - generic [ref=e3938]:
+        - text: Before you continue, please review our
+        - link "Terms of Use" [ref=e3939] [cursor=pointer]:
+          - /url: /terms
+        - text: and
+        - link "Privacy Policy" [ref=e3940] [cursor=pointer]:
+          - /url: /privacy
+        - text: . By clicking "I Agree", you acknowledge that CinemaPhora is an indexing service and does not host any media files.
+      - generic [ref=e3941]:
+        - button "I Decline" [ref=e3942] [cursor=pointer]
+        - button "I Agree" [ref=e3943] [cursor=pointer]
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from '@playwright/test';
+  2  | 
+  3  | test.describe('Homepage', () => {
+  4  |   test('should load the homepage and display key elements', async ({ page }) => {
+> 5  |     await page.goto('/');
+     |                ^ TimeoutError: page.goto: Timeout 10000ms exceeded.
+  6  | 
+  7  |     // Check title or hero banner
+  8  |     await expect(page.locator('.site-main')).toBeVisible();
+  9  | 
+  10 |     // Check that at least one media row is visible
+  11 |     const rows = page.locator('h2');
+  12 |     expect(await rows.count()).toBeGreaterThan(0);
+  13 |     
+  14 |     // Check navigation links in the header
+  15 |     await expect(page.getByRole('link', { name: /Discover/i })).toBeVisible();
+  16 |     await expect(page.getByRole('link', { name: /Providers/i })).toBeVisible();
+  17 |   });
+  18 | 
+  19 |   test('should navigate to trending page when clicking See All on trending row', async ({ page }) => {
+  20 |     await page.goto('/');
+  21 | 
+  22 |     // Wait for content to load
+  23 |     await page.waitForLoadState('networkidle');
+  24 | 
+  25 |     // Find the "Trending This Week" row and click its "See All" link
+  26 |     const seeAllLink = page.locator('a:has-text("See All")').first();
+  27 |     if (await seeAllLink.isVisible()) {
+  28 |       await seeAllLink.click();
+  29 |       await expect(page).toHaveURL(/\/trending/);
+  30 |       await expect(page.locator('h1')).toContainText(/Trending/i);
+  31 |     }
+  32 |   });
+  33 | });
+  34 | 
+```

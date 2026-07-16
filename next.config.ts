@@ -25,6 +25,9 @@ const withPWAConfig = withPWA({
     '!_headers',
     '!_routes.json',
   ],
+  fallbacks: {
+    document: '/~offline',
+  },
   workboxOptions: {
     exclude: [
       /_headers$/,
