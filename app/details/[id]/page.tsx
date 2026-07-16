@@ -1,8 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { cookies } from 'next/headers'
-import MediaCard from '@/components/MediaCard'
 import MediaRow from '@/components/MediaRow'
 import ScrollToTop from '@/components/ScrollToTop'
 import DetailsTabs from '@/components/DetailsTabs'
@@ -81,7 +79,6 @@ export default async function DetailsPage(props: {
 
   const title = mediaTitle(details)
   const backdrop = backdropUrl(details.backdrop_path, 'original')
-  const poster = posterUrl(details.poster_path, 'w500')
   const genres = details.genres || []
   const cast = (details.credits?.cast || details.aggregate_credits?.cast || []).slice(0, 12)
   const similar = (details.similar?.results || []).filter((r: any) => r.poster_path).slice(0, 12)

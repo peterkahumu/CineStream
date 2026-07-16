@@ -5,7 +5,7 @@ import ContinueWatchingRow from '@/components/ContinueWatchingRow'
 import {
   getTrending, getPopular, getTopRated, getNowPlaying, getOnAir,
   getUpcomingMovies, getUpcomingTV, getProviderContent,
-  discover, MediaItem, TMDBPage,
+  discover, TMDBPage,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import styles from './page.module.css'

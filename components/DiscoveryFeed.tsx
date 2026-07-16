@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import MediaCard from '@/components/MediaCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { discover, MediaItem } from '@/lib/tmdb'
+import { MediaItem } from '@/lib/tmdb'
 import styles from './DiscoveryFeed.module.css'
 
 

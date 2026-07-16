@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import FilterBar from '@/components/FilterBar'
-import { getPopular, getMovieGenres, getTVGenres, getCountries, discover } from '@/lib/tmdb'
+import { getMovieGenres, getTVGenres, getCountries, discover } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import DiscoveryFeed from '@/components/DiscoveryFeed'
 import styles from '@/components/PageHeader.module.css'

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Season, Episode, backdropUrl } from '@/lib/tmdb'
@@ -27,7 +27,7 @@ function createOutsideClickHandler(
 }
 
 export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpisode, episodes }: Props) {
-  const router = useRouter()
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 

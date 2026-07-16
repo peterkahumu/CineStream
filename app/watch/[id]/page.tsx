@@ -3,7 +3,7 @@ import WatchClient from './WatchClient'
 import ScrollToTop from '@/components/ScrollToTop'
 import { getStreamingServers } from '@/lib/streamingProvider'
 import {
-  getMovieDetails, getTVDetails, getSeasonDetails,
+  getMovieDetails, getTVDetails,
   mediaTitle, backdropUrl
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
@@ -69,18 +69,9 @@ export default async function WatchPage(props: {
   const title = mediaTitle(details)
   const backdrop = backdropUrl(details.backdrop_path, 'original')
   const poster = details.poster_path ?? null
-  const seasons = (details.seasons || []).filter((s: any) => s.season_number > 0)
 
-  // Pre-fetch episode data server-side so EpisodeSelector doesn't need useEffect
-  let episodes: any[] = []
-  if (mediaType === 'tv' && seasons.length > 0) {
-    try {
-      const seasonData = await getSeasonDetails(Number(id), season)
-      episodes = seasonData.episodes || []
-    } catch {
-      // Gracefully degrade — episode list just won't show
-    }
-  }
+
+
 
   return (
     <main className={styles.main}>
