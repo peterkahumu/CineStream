@@ -34,7 +34,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
     // Watch system theme changes if setting is 'system'
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onSystemChange = () => {
+
+    function onSystemChange() {
       setSettings(prev => {
         if (prev.theme === 'system') {
           applySettingsToDOM(prev)
@@ -42,6 +43,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         return prev
       })
     }
+
     mq.addEventListener('change', onSystemChange)
     return () => mq.removeEventListener('change', onSystemChange)
   }, [])

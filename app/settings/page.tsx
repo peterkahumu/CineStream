@@ -102,14 +102,17 @@ export default function SettingsPage() {
   const importRef = useRef<HTMLInputElement>(null)
 
   // ── Initialize client state ────────────────────────────────────────────
+  function checkTermsCookie() {
+    return document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
+  }
+
+  function onTermsChanged() {
+    setTermsAccepted(checkTermsCookie())
+  }
+
   useEffect(() => {
     setMounted(true)
-    const checkCookie = () => document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
-    setTermsAccepted(checkCookie())
-
-    const onTermsChanged = () => {
-      setTermsAccepted(checkCookie())
-    }
+    setTermsAccepted(checkTermsCookie())
     window.addEventListener('termsAccepted', onTermsChanged)
     return () => window.removeEventListener('termsAccepted', onTermsChanged)
   }, [])

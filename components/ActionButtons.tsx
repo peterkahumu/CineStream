@@ -15,25 +15,28 @@ interface Props {
 
 const WISHLIST_KEY = 'cinemaphora-wishlist'
 
+function readWishlistStatus(id: string): boolean {
+  try {
+    const stored = localStorage.getItem(WISHLIST_KEY)
+    if (!stored) return false
+    const list = JSON.parse(stored)
+    return list.some((item: any) => String(item.id) === String(id))
+  } catch (e) {
+    console.error('Failed to read wishlist', e)
+    return false
+  }
+}
+
 export default function ActionButtons({ id, mediaType, title, poster, backdrop }: Props) {
   const [inWishlist, setInWishlist] = useState(false)
   const [showWishlistToast, setShowWishlistToast] = useState(false)
   const [showShareToast, setShowShareToast] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Avoid using inline functions in useEffect by wrapping with useCallback if needed,
-  // but simple logic can be inside useEffect as long as dependencies are correct.
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(WISHLIST_KEY)
-      if (stored) {
-        const list = JSON.parse(stored)
-        setInWishlist(list.some((item: any) => String(item.id) === String(id)))
-      }
-    } catch (e) {
-      console.error('Failed to read wishlist', e)
-    }
+    setInWishlist(readWishlistStatus(id))
   }, [id])
+
 
   const toggleWishlist = useCallback(() => {
     try {
