@@ -4,7 +4,7 @@ const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate', async ({ page }) => {
   // Navigate to the app
-  await page.goto('/');
+  await page.goto('/', { timeout: 60000, waitUntil: 'domcontentloaded' });
 
   // Wait for the modal and click "I Agree"
   const agreeBtn = page.getByRole('button', { name: /I Agree/i });
