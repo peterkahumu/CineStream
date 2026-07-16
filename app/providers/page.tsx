@@ -1,8 +1,10 @@
-import { getProviderContent } from '@/lib/tmdb'
-import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import ProvidersExplorer from './ProvidersExplorer'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import FilterBar from '@/components/FilterBar'
+import { getMovieGenres, getTVGenres, getCountries, discover } from '@/lib/tmdb'
+import type { Metadata } from 'next'
+import DiscoveryFeed from '@/components/DiscoveryFeed'
+import ProviderTabs from '@/components/ProviderTabs'
+import styles from '@/components/PageHeader.module.css'
 
 export const metadata: Metadata = {
   title: 'Streaming Providers',
@@ -11,49 +13,91 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600
 
-export default async function ProvidersPage() {
-  // SSR-prefetch all three providers (both movies + TV) in parallel
-  const [
-    netflixMovie, netflixTV,
-    primeMovie, primeTV,
-    disneyMovie, disneyTV,
-  ] = await Promise.allSettled([
-    getProviderContent(8, 'movie'),
-    getProviderContent(8, 'tv'),
-    getProviderContent(9, 'movie'),
-    getProviderContent(9, 'tv'),
-    getProviderContent(337, 'movie'),
-    getProviderContent(337, 'tv'),
+export default async function ProvidersPage(props: {
+  searchParams: Promise<Record<string, string>>
+}) {
+  const searchParams = await props.searchParams
+
+  const [movieGenresRes, tvGenresRes, countriesRes] = await Promise.all([
+    getMovieGenres(),
+    getTVGenres(),
+    getCountries(),
   ])
+  const countries = countriesRes.sort((a, b) => a.english_name.localeCompare(b.english_name))
 
-  const ok = <T,>(r: PromiseSettledResult<{ results: T[]; total_pages: number; page: number; total_results: number }>) =>
-    r.status === 'fulfilled' ? r.value : { results: [], total_pages: 0, page: 1, total_results: 0 }
+  const rawMedia = searchParams.media
+  const media = (rawMedia === 'movie' ? 'movie' : rawMedia === 'tv' ? 'tv' : 'all') as 'all' | 'movie' | 'tv'
 
-  const initialData = {
-    8:   { movie: ok(netflixMovie), tv: ok(netflixTV)  },
-    9:   { movie: ok(primeMovie),   tv: ok(primeTV)    },
-    337: { movie: ok(disneyMovie),  tv: ok(disneyTV)   },
+  const providerId = searchParams.with_watch_providers || '8' // Default Netflix
+
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+  const gteDate = sixMonthsAgo.toISOString().split('T')[0]
+
+  const baseParams = {
+    sort_by: 'popularity.desc',
+    with_original_language: 'en',
+    with_watch_providers: providerId,
+    watch_region: searchParams.watch_region || 'US',
+    'primary_release_date.gte': gteDate,
+    'first_air_date.gte': gteDate,
+  }
+
+  let initialItems: any[] = []
+  let totalPages = 1
+  let initialMovieItems: any[] = []
+  let initialTvItems: any[] = []
+  let movieTotalPages = 1
+  let tvTotalPages = 1
+
+  if (media === 'all') {
+    const [movieData, tvData] = await Promise.all([
+      discover({ media: 'movie', ...baseParams } as any),
+      discover({ media: 'tv', ...baseParams } as any),
+    ])
+    initialMovieItems = movieData.results
+    initialTvItems = tvData.results
+    movieTotalPages = movieData.total_pages
+    tvTotalPages = tvData.total_pages
+  } else {
+    const data = await discover({ media, ...baseParams } as any)
+    initialItems = data.results
+    totalPages = data.total_pages
   }
 
   return (
     <main className="page-content">
       <div className="page-container">
-        <div style={{ marginBottom: 'var(--space-xl)' }}>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', marginBottom: 4 }}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
             📺 Streaming Providers
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <p className={styles.subtitle}>
             Browse the latest from your favourite platforms — all in one place
           </p>
         </div>
 
-        <Suspense fallback={
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-2xl)' }}>
-            <LoadingSpinner size="lg" />
-          </div>
-        }>
-          <ProvidersExplorer initialData={initialData} />
+        <Suspense fallback={<div className={styles.fallback} />}>
+          <ProviderTabs />
+          <FilterBar
+            movieGenres={movieGenresRes.genres}
+            tvGenres={tvGenresRes.genres}
+            countries={countries}
+          />
         </Suspense>
+
+        <DiscoveryFeed
+          key={JSON.stringify(searchParams)}
+          media={media}
+          searchParams={searchParams}
+          baseParams={baseParams}
+          initialItems={initialItems}
+          totalPages={totalPages}
+          initialMovieItems={initialMovieItems}
+          initialTvItems={initialTvItems}
+          movieTotalPages={movieTotalPages}
+          tvTotalPages={tvTotalPages}
+        />
       </div>
     </main>
   )

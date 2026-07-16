@@ -1,11 +1,14 @@
 import { searchMulti } from '@/lib/tmdb'
 import SearchClient from './SearchClient'
+import FilterBar from '@/components/FilterBar'
+import { Suspense } from 'react'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SearchPage(props: { searchParams: Promise<any> | any }) {
   const searchParams = await props.searchParams
   const q = typeof searchParams.q === 'string' ? searchParams.q.trim() : ''
+  const media = searchParams.media || 'all'
 
   let results: any[] = []
   let total = 0
@@ -21,7 +24,19 @@ export default async function SearchPage(props: { searchParams: Promise<any> | a
   return (
     <main className="page-content">
       <div className="page-container">
-        <SearchClient initialQ={q} results={results} total={total} totalPages={totalPages} />
+        
+        {results.length > 0 && (
+          <Suspense fallback={<div style={{ height: 60, marginBottom: 'var(--space-xl)' }} />}>
+            <FilterBar
+              hideAdvancedFilters={true}
+              movieGenres={[]}
+              tvGenres={[]}
+              countries={[]}
+            />
+          </Suspense>
+        )}
+
+        <SearchClient initialQ={q} results={results} total={total} totalPages={totalPages} media={media} />
       </div>
     </main>
   )

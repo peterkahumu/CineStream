@@ -75,7 +75,10 @@ Each content category now has its own purpose-built route so "See All →" links
 | `/` | `app/page.tsx` | Homepage — server-rendered rows |
 | `/trending` | `app/trending/` | Full trending grid (`/trending/all/week`) |
 | `/upcoming` | `app/upcoming/` | Movies & TV releasing in the next 3 months |
-| `/provider/[id]` | `app/provider/[id]/` | Platform rows (Netflix=8, Prime=9, Disney+=337) |
+| `/now-playing` | `app/now-playing/` | Currently in theatres or on air |
+| `/popular` | `app/popular/` | Top popular media |
+| `/top-rated` | `app/top-rated/` | Highest rated media |
+| `/providers` | `app/providers/` | Unified streaming providers hub |
 | `/discover` | `app/discover/` | Generic filtered grid (genre, country, year, rating) |
 | `/details/[id]` | `app/details/[id]/` | Movie / TV show detail page |
 | `/watch/[id]` | `app/watch/[id]/` | Embedded video player |
@@ -84,10 +87,10 @@ Each content category now has its own purpose-built route so "See All →" links
 | `/api/tmdb/[...path]` | `app/api/tmdb/` | Secure server-side TMDB proxy |
 
 ### Infinite Scroll Pattern
-All infinite scroll pages (`/trending`, `/upcoming`, `/provider/[id]`, `/discover`, `/search`) share the same pattern:
-- Server component fetches page 1 and passes `initialItems` + `totalPages` as props.
-- A `*Client.tsx` sibling handles subsequent pages via `IntersectionObserver`.
-- The sentinel `<div>` is **conditionally rendered** — it's removed from the DOM once all pages are loaded to prevent the observer from re-triggering (this eliminates the "footer flash" anti-pattern).
+All discovery and grid pages (`/trending`, `/upcoming`, `/providers`, `/discover`, `/now-playing`, etc.) are powered by a single, highly re-usable `components/DiscoveryFeed.tsx` component.
+- The server component (page) fetches page 1 and passes `initialItems` to the feed.
+- `DiscoveryFeed.tsx` handles all subsequent pages via `IntersectionObserver`.
+- The sentinel `<div>` is hidden when loading or when all pages are exhausted, preventing race conditions and "footer flash".
 
 ### Streaming Providers
 `lib/streamingProvider.ts` and the `lib/providers/` directory handle video embedding. 
@@ -149,26 +152,32 @@ These are self-imposed rules enforced across the entire codebase:
 │   ├── api/tmdb/[...path]/   # Secure TMDB proxy route handler
 │   ├── details/[id]/         # Movie / TV show detail page
 │   ├── discover/             # Generic filtered discovery grid
+│   ├── now-playing/          # Currently in theatres / on air
 │   ├── person/[id]/          # Actor / crew filmography
-│   ├── provider/[id]/        # Platform-specific content (Netflix, Prime, Disney+)
+│   ├── popular/              # Top popular media
+│   ├── providers/            # Unified platform-specific content (Netflix, Prime, etc.)
 │   ├── search/               # Multi-search page
+│   ├── top-rated/            # Highest rated media
 │   ├── trending/             # Global trending grid (/trending/all/week)
 │   ├── upcoming/             # Coming soon movies & TV (next 3 months)
 │   ├── watch/[id]/           # Embedded video player
 │   ├── layout.tsx            # Global HTML shell, Navbar & Footer
+│   ├── loading.tsx           # Single global Suspense fallback loader
 │   ├── page.tsx              # Home page — server-rendered rows
 │   └── globals.css           # CSS variables, resets, utility classes
 ├── components/
 │   ├── CapacitorInit.tsx     # Native back-button & fullscreen orientation (mobile)
 │   ├── DetailsTabs.tsx       # Tabs UI (Watch / Trailers / Cast / Reviews)
+│   ├── DiscoveryFeed.tsx     # Unified infinite scroll feed for all grids
 │   ├── EpisodeSelector.tsx   # Season & episode picker for TV
 │   ├── FilterBar.tsx         # Discover page filter controls
 │   ├── Footer.tsx            # Global footer
 │   ├── HeroBanner.tsx        # Auto-rotating hero carousel
-│   ├── LoadingSpinner.tsx    # Generic loading indicator
+│   ├── Loading.tsx           # Generic full-page loading indicator
 │   ├── MediaCard.tsx         # Movie / TV poster card
 │   ├── MediaRow.tsx          # Horizontal scrolling row with "See All" link
 │   ├── Navbar.tsx            # Top navigation bar with search
+│   ├── ProviderTabs.tsx      # Platform switcher tabs (Netflix, Prime, etc.)
 │   ├── ScrollToTop.tsx       # Floating scroll-to-top button
 │   └── Top10Row.tsx          # Geo-detected Top 10 rows (movie + TV)
 ├── hooks/                    # (empty — hooks were removed as dead code)
@@ -206,5 +215,8 @@ Streaming server URLs are `NEXT_PUBLIC_*` variables and must be set at **build t
 | Netflix | 8 | US |
 | Amazon Prime Video | 9 | US |
 | Disney+ | 337 | US |
+| Apple TV+ | 350 | US |
+| Hulu | 15 | US |
+| Peacock | 386 | US |
 
-> Provider IDs are region-specific. The IDs above are for `watch_region=US`. Changing the region requires updating both `lib/tmdb.ts` (`getProviderContent`) and `app/provider/[id]/page.tsx` (`PROVIDER_META`).
+> Provider IDs are region-specific. The IDs above are for `watch_region=US`. Changing the region requires updating both `lib/tmdb.ts` (`getProviderContent`) and `components/ProviderTabs.tsx` (`PROVIDERS`).

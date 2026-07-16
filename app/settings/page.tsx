@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useSettings } from '@/components/SettingsProvider'
 import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
 import CustomSelect from '@/components/CustomSelect'
@@ -94,6 +95,7 @@ function SettingRow({
 
 export default function SettingsPage() {
   const { settings, updateSetting } = useSettings()
+  const router = useRouter()
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -102,14 +104,17 @@ export default function SettingsPage() {
   const importRef = useRef<HTMLInputElement>(null)
 
   // ── Initialize client state ────────────────────────────────────────────
+  function checkTermsCookie() {
+    return document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
+  }
+
+  function onTermsChanged() {
+    setTermsAccepted(checkTermsCookie())
+  }
+
   useEffect(() => {
     setMounted(true)
-    const checkCookie = () => document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
-    setTermsAccepted(checkCookie())
-
-    const onTermsChanged = () => {
-      setTermsAccepted(checkCookie())
-    }
+    setTermsAccepted(checkTermsCookie())
     window.addEventListener('termsAccepted', onTermsChanged)
     return () => window.removeEventListener('termsAccepted', onTermsChanged)
   }, [])
@@ -119,7 +124,7 @@ export default function SettingsPage() {
     document.cookie = 'cinemaphora_terms=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax'
     window.dispatchEvent(new Event('termsAccepted'))
     setShowRevokeConfirm(false)
-    window.location.href = '/'
+    router.push('/')
   }
 
   // ── Wishlist export ────────────────────────────────────────────────────
@@ -172,7 +177,7 @@ export default function SettingsPage() {
     })
     localStorage.clear()
     setShowClearConfirm(false)
-    window.location.href = '/'
+    router.push('/')
   }
 
   // ── Preferred providers toggle ─────────────────────────────────────────

@@ -5,7 +5,7 @@ import ContinueWatchingRow from '@/components/ContinueWatchingRow'
 import {
   getTrending, getPopular, getTopRated, getNowPlaying, getOnAir,
   getUpcomingMovies, getUpcomingTV, getProviderContent,
-  discover, MediaItem, TMDBPage,
+  discover, TMDBPage,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import styles from './page.module.css'
@@ -115,15 +115,15 @@ export default async function HomePage() {
 
         <Top10Row />
 
-        {/* Provider rows → dedicated /provider/[id] route */}
-        <MediaRow title="New Movies on Netflix" emoji="🔴" items={ok(netflixM)} seeAllHref="/provider/8?media=movie" forcedType="movie" />
-        <MediaRow title="New TV Shows on Netflix" emoji="🔴" items={ok(netflixTV)} seeAllHref="/provider/8?media=tv" forcedType="tv" />
+        {/* Provider rows → dedicated /providers route */}
+        <MediaRow title="New Movies on Netflix" emoji="🔴" items={ok(netflixM)} seeAllHref="/providers?with_watch_providers=8&media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Netflix" emoji="🔴" items={ok(netflixTV)} seeAllHref="/providers?with_watch_providers=8&media=tv" forcedType="tv" />
 
-        <MediaRow title="New Movies on Prime Video" emoji="🔵" items={ok(primeM)} seeAllHref="/provider/9?media=movie" forcedType="movie" />
-        <MediaRow title="New TV Shows on Prime Video" emoji="🔵" items={ok(primeTV)} seeAllHref="/provider/9?media=tv" forcedType="tv" />
+        <MediaRow title="New Movies on Prime Video" emoji="🔵" items={ok(primeM)} seeAllHref="/providers?with_watch_providers=9&media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Prime Video" emoji="🔵" items={ok(primeTV)} seeAllHref="/providers?with_watch_providers=9&media=tv" forcedType="tv" />
 
-        <MediaRow title="New Movies on Disney+" emoji="✨" items={ok(disneyM)} seeAllHref="/provider/337?media=movie" forcedType="movie" />
-        <MediaRow title="New TV Shows on Disney+" emoji="✨" items={ok(disneyTV)} seeAllHref="/provider/337?media=tv" forcedType="tv" />
+        <MediaRow title="New Movies on Disney+" emoji="✨" items={ok(disneyM)} seeAllHref="/providers?with_watch_providers=337&media=movie" forcedType="movie" />
+        <MediaRow title="New TV Shows on Disney+" emoji="✨" items={ok(disneyTV)} seeAllHref="/providers?with_watch_providers=337&media=tv" forcedType="tv" />
 
         <MediaRow title="Popular Movies" emoji="🎞️" items={ok(popularMovies)} seeAllHref="/popular?media=movie" forcedType="movie" />
         <MediaRow title="Popular TV Shows" emoji="📺" items={ok(popularTV)} seeAllHref="/popular?media=tv" forcedType="tv" />

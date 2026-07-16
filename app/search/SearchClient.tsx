@@ -3,23 +3,24 @@ import { useState, useRef, useEffect, useCallback, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import MediaCard from '@/components/MediaCard'
 import { MediaItem } from '@/lib/tmdb'
-import styles from './page.module.css'
+import styles from './SearchClient.module.css'
 
 export default function SearchClient({
   initialQ,
   results,
   total,
-  totalPages
+  totalPages,
+  media
 }: {
   initialQ: string
   results: MediaItem[]
   total: number
   totalPages: number
+  media: 'all' | 'movie' | 'tv'
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [query, setQuery] = useState(initialQ)
-  const [filter, setFilter] = useState<'all' | 'movie' | 'tv'>('all')
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Infinite Scroll State
@@ -104,9 +105,7 @@ export default function SearchClient({
   }, [loadMore])
 
   const typeOf = (r: MediaItem) => r.media_type || (r.first_air_date ? 'tv' : 'movie')
-  const filtered = filter === 'all' ? allResults : allResults.filter(r => typeOf(r) === filter)
-  const movieCount = allResults.filter(r => typeOf(r) === 'movie').length
-  const tvCount = allResults.filter(r => typeOf(r) === 'tv').length
+  const filtered = media === 'all' ? allResults : allResults.filter(r => typeOf(r) === media)
 
   return (
     <>
@@ -134,25 +133,6 @@ export default function SearchClient({
           Search
         </button>
       </form>
-
-      {/* Filter tabs */}
-      {allResults.length > 0 && (
-        <div className={styles.tabs}>
-          {([
-            ['all', `All (${allResults.length})`],
-            ['movie', `Movies (${movieCount})`],
-            ['tv', `TV Shows (${tvCount})`],
-          ] as [typeof filter, string][]).map(([val, label]) => (
-            <button
-              key={val}
-              className={`${styles.tab} ${filter === val ? styles.tabActive : ''}`}
-              onClick={() => setFilter(val)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
 
       {initialQ && filtered.length === 0 && (
         <div className="empty-state">

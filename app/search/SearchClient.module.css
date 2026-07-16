@@ -48,47 +48,7 @@
 }
 .clearBtn:hover { color: var(--text-primary); }
 
-/* Filter tabs */
-.tabs {
-  display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: var(--space-md);
-}
-.tab {
-  padding: 6px 16px;
-  border-radius: var(--radius-full);
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 0.825rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-.tab:hover { color: var(--text-primary); background: var(--bg-hover); }
-.tabActive {
-  background: var(--accent-light);
-  border-color: var(--accent-border);
-  color: var(--accent);
-}
 
-.error {
-  background: var(--red-light);
-  border: 1px solid rgba(220,38,38,0.2);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md) var(--space-lg);
-  color: var(--red);
-  font-size: 0.875rem;
-  margin-bottom: var(--space-lg);
-}
-
-.resultInfo {
-  font-size: 0.825rem;
-  color: var(--text-muted);
-  margin-bottom: var(--space-md);
-}
 
 @media (max-width: 480px) {
   .form { flex-direction: column; }

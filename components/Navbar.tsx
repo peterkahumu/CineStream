@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
@@ -19,6 +20,42 @@ const CATEGORY_LINKS = [
   { href: '/providers', label: 'Providers', icon: '📺' },
   { href: '/discover', label: 'Discover', icon: '🧭' },
 ]
+
+// ─── Sub-component keeps img-error state isolated per result ───────────────────
+function SearchResultThumb({ src, alt }: { src: string | null; alt: string }) {
+  const [imgErr, setImgErr] = useState(false)
+
+  if (!src || imgErr) {
+    return (
+      <div
+        style={{
+          width: 36,
+          height: 54,
+          borderRadius: 4,
+          background: 'var(--surface-raised)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.2rem',
+          flexShrink: 0,
+        }}
+      >
+        🎬
+      </div>
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={36}
+      height={54}
+      style={{ borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
+      onError={() => setImgErr(true)}
+    />
+  )
+}
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -186,7 +223,10 @@ export default function Navbar() {
                     className={styles.searchResultItem}
                     onClick={() => { setSearchOpen(false); setQuery(''); setMenuOpen(false) }}
                   >
-                    <img src={posterUrl(item.poster_path, 'w92') || 'https://via.placeholder.com/40x60?text=No+Image'} alt={item.title || item.name} />
+                    <SearchResultThumb
+                      src={posterUrl(item.poster_path, 'w92')}
+                      alt={item.title || item.name || ''}
+                    />
                     <div>
                       <div className={styles.searchResultTitle}>{item.title || item.name}</div>
                       <div className={styles.searchResultMeta}>

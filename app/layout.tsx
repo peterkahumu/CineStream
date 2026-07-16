@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Suspense } from 'react'
+import Script from 'next/script'
 import Navbar from '@/components/Navbar'
 import MobileHeader from '@/components/MobileHeader'
 import Footer from '@/components/Footer'
@@ -46,8 +47,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* No-FOUC: synchronously sets data-theme before first paint */}
-        <script
+      </head>
+      <body>
+        {/*
+          No-FOUC: synchronously sets data-theme/reduceMotion/dataSaver/layout before first paint.
+          Using next/script with strategy="beforeInteractive" ensures Next.js manages this correctly.
+        */}
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
@@ -69,8 +77,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 `,
           }}
         />
-      </head>
-      <body>
         <SettingsProvider>
           <CapacitorInit />
           <Navbar />

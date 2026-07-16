@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useEffect } from 'react'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { MediaItem, posterUrl, mediaTitle, mediaYear, mediaType as getType } from '@/lib/tmdb'
@@ -30,7 +30,7 @@ export default function FeaturedStrip({ items, title, emoji, link }: Props) {
         </div>
       )}
       <div className={styles.scroller}>
-        {items.map((item, i) => {
+        {items.map((item) => {
           const type = getType(item)
           const href = `/details/${item.id}?type=${type}`
           const poster = posterUrl(item.poster_path, 'w185')
