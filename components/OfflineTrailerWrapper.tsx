@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import styles from './OfflineTrailerWrapper.module.css'
 
 export default function OfflineTrailerWrapper({ children }: { children: React.ReactNode }) {
+  const [isReady, setIsReady] = useState(false)
   const [isOnline, setIsOnline] = useState(true)
 
   useEffect(() => {
     setIsOnline(navigator.onLine)
+    setIsReady(true)
     
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
@@ -20,6 +22,10 @@ export default function OfflineTrailerWrapper({ children }: { children: React.Re
       window.removeEventListener('offline', handleOffline)
     }
   }, [])
+
+  if (!isReady) {
+    return <div className={styles.offlineBox} style={{ animation: 'pulse 2s infinite' }} />
+  }
 
   if (!isOnline) {
     return (

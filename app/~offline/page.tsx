@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+
 import styles from './OfflineClient.module.css'
 
 export default function OfflinePage() {
@@ -19,9 +19,9 @@ export default function OfflinePage() {
         >
           🔄 Try Reconnecting
         </button>
-        <Link href="/wishlist" className={styles.wishlistBtn}>
+        <a href="/wishlist" className={styles.wishlistBtn}>
           🔖 Go to Wishlist
-        </Link>
+        </a>
       </div>
     </main>
   )
