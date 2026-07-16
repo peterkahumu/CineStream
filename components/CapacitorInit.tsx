@@ -7,12 +7,24 @@ import { StatusBar } from '@capacitor/status-bar'
 import { App } from '@capacitor/app'
 import { useRouter } from 'next/navigation'
 
+// ─── Shared orientation helper ────────────────────────────────────────────────
+// window.screen.orientation.lock/unlock are non-standard on the web and typed
+// as non-existent in lib.dom.d.ts, so we use a typed wrapper here instead of
+// scattering `as any` casts across three locations.
+function getWebOrientation(): { lock?: (o: string) => Promise<void>; unlock?: () => void } | null {
+  if (typeof window === 'undefined' || !window.screen?.orientation) return null
+  return window.screen.orientation as unknown as {
+    lock?: (o: string) => Promise<void>
+    unlock?: () => void
+  }
+}
+
 // ─── Helper functions (defined outside useEffect) ─────────────────────────────
 
 async function setupSplashAndStatusBar() {
   await SplashScreen.hide().catch((err) => console.error('Failed to hide splash screen:', err))
-  await StatusBar.setOverlaysWebView({ overlay: false }).catch((err) => console.log(err))
-  await StatusBar.setBackgroundColor({ color: '#0f172a' }).catch((err) => console.log(err))
+  await StatusBar.setOverlaysWebView({ overlay: false }).catch((err) => console.error('StatusBar.setOverlaysWebView failed:', err))
+  await StatusBar.setBackgroundColor({ color: '#0f172a' }).catch((err) => console.error('StatusBar.setBackgroundColor failed:', err))
 }
 
 function registerBackButton(router: ReturnType<typeof useRouter>) {
@@ -41,11 +53,7 @@ async function handleFullscreenEnter(immersiveRef: { interval: NodeJS.Timeout | 
         }
       }, 2500)
     } else {
-      try {
-        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).lock) {
-          await (window.screen.orientation as any).lock('landscape').catch(() => {})
-        }
-      } catch (err) {}
+      await getWebOrientation()?.lock?.('landscape')?.catch(() => {})
     }
   } catch (error) {
     console.error('Failed to enter fullscreen orientation:', error)
@@ -66,11 +74,7 @@ async function handleFullscreenExit(immersiveRef: { interval: NodeJS.Timeout | n
         immersiveRef.interval = null
       }
     } else {
-      try {
-        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
-          (window.screen.orientation as any).unlock()
-        }
-      } catch (err) {}
+      getWebOrientation()?.unlock?.()
     }
   } catch (error) {
     console.error('Failed to exit fullscreen orientation:', error)
@@ -112,11 +116,7 @@ function setupListeners(router: ReturnType<typeof useRouter>) {
       StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
       StatusBar.show().catch(() => {})
     } else {
-      try {
-        if (typeof window !== 'undefined' && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
-          (window.screen.orientation as any).unlock()
-        }
-      } catch (e) {}
+      getWebOrientation()?.unlock?.()
     }
   }
 }
