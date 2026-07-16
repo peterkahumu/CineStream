@@ -48,7 +48,7 @@ export interface Episode {
   vote_average: number
 }
 
-interface CastMember {
+export interface CastMember {
   id: number
   name: string
   character: string
@@ -56,7 +56,7 @@ interface CastMember {
   order: number
 }
 
-interface Review {
+export interface Review {
   id: string
   author: string
   content: string
@@ -65,6 +65,13 @@ interface Review {
     rating?: number
     avatar_path?: string
   }
+}
+
+export interface Video {
+  key: string
+  site: string
+  type: string
+  name: string
 }
 
 export interface ShowDetails extends MediaItem {
@@ -78,11 +85,13 @@ export interface ShowDetails extends MediaItem {
   episode_run_time?: number[]
   credits?: { cast: CastMember[] }
   similar?: { results: MediaItem[] }
-  videos?: { results: { key: string; site: string; type: string }[] }
+  videos?: { results: Video[] }
   aggregate_credits?: { cast: CastMember[] }
   reviews?: { results: Review[] }
   recommendations?: { results: MediaItem[] }
   next_episode_to_air?: { air_date: string; episode_number: number; season_number: number } | null
+  belongs_to_collection?: { id: number; name: string; poster_path: string | null } | null
+  created_by?: { id: number; name: string; profile_path: string | null }[]
 }
 
 export interface TMDBPage<T> {
@@ -206,7 +215,7 @@ export const getTVDetails = (id: number) =>
   tmdbFetch<ShowDetails>(`/tv/${id}`, { append_to_response: 'aggregate_credits,similar,videos,reviews,recommendations' })
 
 export const getSeasonDetails = (tvId: number, season: number) =>
-  tmdbFetch<{ episodes: Episode[]; videos?: { results: { key: string; site: string; type: string; name: string }[] } }>(`/tv/${tvId}/season/${season}`, { append_to_response: 'videos' })
+  tmdbFetch<{ episodes: Episode[]; videos?: { results: Video[] } }>(`/tv/${tvId}/season/${season}`, { append_to_response: 'videos' })
 
 export interface PersonDetails {
   id: number

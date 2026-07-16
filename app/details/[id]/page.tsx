@@ -11,6 +11,7 @@ import TrailerIframe from '@/components/TrailerIframe'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
+  type CastMember, type Review, type Video, type Season,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import styles from './page.module.css'
@@ -81,43 +82,43 @@ export default async function DetailsPage(props: {
   const backdrop = backdropUrl(details.backdrop_path, 'original')
   const genres = details.genres || []
   const cast = (details.credits?.cast || details.aggregate_credits?.cast || []).slice(0, 12)
-  const similar = (details.similar?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
-  const recommendations = (details.recommendations?.results || []).filter((r: any) => r.poster_path).slice(0, 12)
-  const reviews = (details.reviews?.results || [])
+  const similar = (details.similar?.results || []).filter(r => r.poster_path).slice(0, 12)
+  const recommendations = (details.recommendations?.results || []).filter(r => r.poster_path).slice(0, 12)
+  const reviews: Review[] = (details.reviews?.results || [])
 
-  let trailers: { key: string; name: string; label?: string }[] = []
-  let tvSeasons: any[] = []
-  let episodes: any[] = []
+  let trailers: Pick<Video, 'key' | 'name'> & { label?: string }[] = []
+  let tvSeasons: Season[] = []
+  let episodes: import('@/lib/tmdb').Episode[] = []
 
   if (mediaType === 'tv' && details.seasons) {
-    tvSeasons = details.seasons.filter((s: any) => s.season_number > 0)
+    tvSeasons = details.seasons.filter(s => s.season_number > 0)
     
     // Fetch trailers if we are on the trailers tab
     if (tab === 'trailers') {
       if (tvSeasons.length === 1) {
         try {
           const seasonRes = await getSeasonDetails(Number(id), tvSeasons[0].season_number)
-          const vids = (seasonRes.videos?.results || []).filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
-          trailers = vids.slice(0, 3).map((v: any) => ({ key: v.key, name: v.name, label: `${tvSeasons[0].name} Trailer` }))
+          const vids = (seasonRes.videos?.results || []).filter(v => v.site === 'YouTube' && v.type === 'Trailer')
+          trailers = vids.slice(0, 3).map(v => ({ key: v.key, name: v.name, label: `${tvSeasons[0].name} Trailer` }))
         } catch (e) {
           console.error('Failed to fetch season trailers', e)
         }
       } else if (tvSeasons.length > 1) {
         const seasonsToFetch = tvSeasons.slice(-5).reverse()
         const seasonData = await Promise.all(
-          seasonsToFetch.map((s: any) => getSeasonDetails(Number(id), s.season_number).catch(() => null))
+          seasonsToFetch.map(s => getSeasonDetails(Number(id), s.season_number).catch(() => null))
         )
 
         seasonData.forEach((sd, index) => {
           const season = seasonsToFetch[index]
-          const t = (sd?.videos?.results || []).find((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
+          const t = (sd?.videos?.results || []).find(v => v.site === 'YouTube' && v.type === 'Trailer')
           if (t) trailers.push({ key: t.key, name: t.name, label: `${season.name} Trailer` })
         })
       }
       
       if (trailers.length === 0) {
-        const vids = (details.videos?.results || []).filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
-        trailers = vids.slice(0, 2).map((v: any) => ({ key: v.key, name: v.name, label: 'Series Trailer' }))
+        const vids = (details.videos?.results || []).filter(v => v.site === 'YouTube' && v.type === 'Trailer')
+        trailers = vids.slice(0, 2).map(v => ({ key: v.key, name: v.name, label: 'Series Trailer' }))
       }
     }
 
@@ -131,8 +132,8 @@ export default async function DetailsPage(props: {
       }
     }
   } else if (tab === 'trailers') {
-    const vids = (details.videos?.results || []).filter((v: any) => v.site === 'YouTube' && v.type === 'Trailer')
-    trailers = vids.slice(0, 2).map((v: any) => ({ key: v.key, name: v.name, label: 'Trailer' }))
+    const vids = (details.videos?.results || []).filter(v => v.site === 'YouTube' && v.type === 'Trailer')
+    trailers = vids.slice(0, 2).map(v => ({ key: v.key, name: v.name, label: 'Trailer' }))
   }
 
   // Hoist upcoming detection to component scope so both hero button and DetailsTabs can use it
@@ -199,7 +200,7 @@ export default async function DetailsPage(props: {
 
           {genres.length > 0 && (
             <div className={styles.genres}>
-              {genres.map((g: any) => (
+              {genres.map(g => (
                 <Link
                   key={g.id}
                   href={`/discover?media=${mediaType}&genre=${g.id}`}
@@ -249,7 +250,7 @@ export default async function DetailsPage(props: {
             <div className={styles.tabSection}>
               {cast.length > 0 ? (
                 <div className={styles.castGrid}>
-                  {cast.map((c: any) => (
+                  {cast.map((c: CastMember) => (
                     <Link 
                       key={c.id} 
                       href={`/person/${c.id}`}
@@ -287,7 +288,7 @@ export default async function DetailsPage(props: {
               {reviews.length > 0 ? (
                 <>
                   <div className={styles.reviewGrid}>
-                    {reviews.map((review: any) => (
+                    {reviews.map((review: Review) => (
                       <div key={review.id} className={styles.reviewCard}>
                         <div className={styles.reviewHeader}>
                           <span className={styles.reviewAuthor}>{review.author}</span>
@@ -332,7 +333,7 @@ export default async function DetailsPage(props: {
             <div className={styles.tabSection}>
               {trailers.length > 0 ? (
                 <div className={styles.trailerGrid}>
-                  {trailers.map((trailer: any) => (
+                  {trailers.map(trailer => (
                     <div key={trailer.key} className={styles.trailerCard}>
                       {trailer.label && <div className={styles.trailerLabel}>{trailer.label}</div>}
                       <div className={styles.trailerWrapper}>

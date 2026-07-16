@@ -1,46 +1,47 @@
 .top10CardWrap {
   display: flex;
-  align-items: flex-end; /* Align to bottom so we can easily offset */
+  align-items: flex-end;
   position: relative;
-  flex: 0 0 200px;
+  /* Match MediaRow card widths exactly */
+  flex: 0 0 100px;
   scroll-snap-align: start;
 }
+@media (min-width: 420px)  { .top10CardWrap { flex: 0 0 134px; } }
+@media (min-width: 640px)  { .top10CardWrap { flex: 0 0 168px; } }
+@media (min-width: 1024px) { .top10CardWrap { flex: 0 0 185px; } }
 
 .numberContainer {
   position: absolute;
-  left: -20px;
-  bottom: 60px; /* Shift up so it doesn't overlap the title text */
-  z-index: 1; /* Place behind the card poster */
+  left: -14px;
+  bottom: 46px;
+  z-index: 1;
   font-family: var(--font-display, sans-serif);
-  font-size: 140px;
+  font-size: 90px;
   font-weight: 900;
   color: #000;
-  -webkit-text-stroke: 4px #fff;
+  -webkit-text-stroke: 3px #fff;
   line-height: 1;
   pointer-events: none;
-  letter-spacing: -10px;
+  letter-spacing: -8px;
+}
+@media (min-width: 420px) {
+  .numberContainer { font-size: 110px; left: -16px; bottom: 50px; }
+}
+@media (min-width: 640px) {
+  .numberContainer { font-size: 130px; left: -18px; bottom: 56px; -webkit-text-stroke: 4px #fff; }
+}
+@media (min-width: 1024px) {
+  .numberContainer { font-size: 140px; left: -20px; bottom: 60px; letter-spacing: -10px; }
 }
 
 .cardInner {
-  margin-left: 35px;
+  margin-left: 22px;
   flex: 1;
-  z-index: 2; /* Place on top of the number */
+  z-index: 2;
 }
-
-@media (max-width: 768px) {
-  .top10CardWrap {
-    flex: 0 0 160px;
-  }
-  .numberContainer {
-    font-size: 110px;
-    left: -15px;
-    bottom: 50px;
-    -webkit-text-stroke: 3px #fff;
-  }
-  .cardInner {
-    margin-left: 25px;
-  }
-}
+@media (min-width: 420px)  { .cardInner { margin-left: 26px; } }
+@media (min-width: 640px)  { .cardInner { margin-left: 30px; } }
+@media (min-width: 1024px) { .cardInner { margin-left: 35px; } }
 
 .countrySubtitle {
   display: block;
