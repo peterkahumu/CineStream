@@ -11,9 +11,11 @@ function handleScrolled(setScrolled: (v: boolean) => void) {
   setScrolled(window.scrollY > 10)
 }
 
-const CATEGORY_LINKS = [
+interface NavLink { href: string; label: string; icon?: string }
+
+const CATEGORY_LINKS: NavLink[] = [
   { href: '/trending', label: 'Trending', icon: '🔥' },
-  { href: '/popular', label: 'Popular', icon: '🎞️' },
+  { href: '/popular', label: 'Popular', icon: '🎥️' },
   { href: '/top-rated', label: 'Top Rated', icon: '⭐' },
   { href: '/now-playing', label: 'Now Playing', icon: '🎬' },
   { href: '/upcoming', label: 'Coming Soon', icon: '🍿' },
@@ -139,7 +141,7 @@ export default function Navbar() {
     setMenuOpen(false)
   }
 
-  const primaryLinks: Array<{ href: string; label: string; icon?: string }> = [
+  const primaryLinks: NavLink[] = [
     { href: '/', label: 'Home' },
     { href: '/search', label: 'Search' },
     { href: '/wishlist', label: 'My List' },
@@ -166,7 +168,7 @@ export default function Navbar() {
                 href={l.href}
                 className={`${styles.link} ${isActive ? styles.active : ''}`}
               >
-                {'icon' in l && <span className={styles.linkIcon}>{(l as any).icon}</span>}
+                {l.icon && <span className={styles.linkIcon}>{l.icon}</span>}
                 <span>{l.label}</span>
               </Link>
             )

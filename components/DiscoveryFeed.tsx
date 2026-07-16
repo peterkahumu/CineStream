@@ -63,6 +63,8 @@ export default function DiscoverClient({
   movieTotalPages = 1,
   tvTotalPages = 1,
 }: Props) {
+  // For 'all' mode, items and page are tracked per-type (movieItems/tvItems).
+  // For 'movie'/'tv' mode, a single flat list is used.
   const [items, setItems] = useState<MediaItem[]>(initialItems)
   const [page, setPage] = useState(1)
 
@@ -75,8 +77,8 @@ export default function DiscoverClient({
   const loadingRef = useRef(false)
   const [exhausted, setExhausted] = useState(
     media === 'all'
-      ? moviePage >= movieTotalPages && tvPage >= tvTotalPages
-      : page >= totalPages
+      ? movieTotalPages <= 1 && tvTotalPages <= 1
+      : totalPages <= 1
   )
   const sentinelRef = useRef<HTMLDivElement>(null)
 
