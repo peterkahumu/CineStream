@@ -44,16 +44,15 @@
 
 /* Select */
 .selectWrap {
-  position: relative;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
-.selectIcon {
-  position: absolute;
-  left: 10px;
-  font-size: 0.8rem;
-  pointer-events: none;
-  z-index: 1;
+.sortLabel {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 

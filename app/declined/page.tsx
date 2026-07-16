@@ -12,9 +12,10 @@ function DeclinedContent() {
   const handleAgree = () => {
     // Set proper HTTP cookie for Middleware
     const expires = new Date()
-    expires.setFullYear(expires.getFullYear() + 10)
+    expires.setFullYear(expires.getFullYear() + 1)
     document.cookie = `cinemaphora_terms=true; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
-    localStorage.setItem('termsAccepted', 'true')
+    
+    // Broadcast event
     window.dispatchEvent(new Event('termsAccepted'))
     // Return user to their original destination if available
     const redirect = searchParams.get('redirect')

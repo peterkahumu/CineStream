@@ -10,7 +10,7 @@ export default function RouteProtector({ children }: { children: React.ReactNode
 
   useEffect(() => {
     const checkProtection = () => {
-      const accepted = localStorage.getItem('termsAccepted') === 'true'
+      const accepted = document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
       const isUnprotected = pathname === '/terms' || pathname === '/privacy' || pathname === '/declined' || pathname === '/'
       
       if (!accepted && !isUnprotected) {

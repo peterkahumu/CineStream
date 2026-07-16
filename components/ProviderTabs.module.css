@@ -57,6 +57,9 @@
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
     margin-bottom: var(--space-lg);
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    padding-right: 15%; /* Ensures the last item can scroll fully into the unmasked area */
   }
   .tabs::-webkit-scrollbar {
     display: none;

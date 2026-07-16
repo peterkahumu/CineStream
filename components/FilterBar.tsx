@@ -130,8 +130,8 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
 
         {/* Sort */}
         <div className={styles.selectWrap}>
-          <span className={styles.selectIcon}>↕️</span>
-          <div style={{ width: '200px' }}>
+          <label className={styles.sortLabel}>Sort By:</label>
+          <div style={{ width: '200px', flex: 1 }}>
             <CustomSelect
               value={sort_by}
               options={sortOptions}
