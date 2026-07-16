@@ -43,9 +43,6 @@ yarn-error.log*
 /walkthrough.md
 
 # Playwright
-test-results/
-playwright-report/
-playwright/.auth/
 
 # typescript
 *.tsbuildinfo
