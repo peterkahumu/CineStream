@@ -9,7 +9,6 @@ interface Props {
   movieGenres: Genre[]
   tvGenres: Genre[]
   countries: Country[]
-  providers?: { provider_id: number; provider_name: string }[]
   hideAdvancedFilters?: boolean
 }
 
@@ -65,11 +64,10 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
   const year = searchParams.get('year') || ''
   const minRating = searchParams.get('minRating') || ''
   const language = searchParams.get('language') || ''
-  const provider = searchParams.get('with_watch_providers') || ''
 
   const genres = media === 'movie' ? movieGenres : media === 'tv' ? tvGenres : []
   const sortOptions = media === 'tv' ? SORT_TV : SORT_OPTIONS
-  const hasFilters = genreId || country || year || minRating || language || provider
+  const hasFilters = genreId || country || year || minRating || language
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -98,6 +96,7 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
   const reset = () => {
     const params = new URLSearchParams()
     if (searchParams.has('q')) params.set('q', searchParams.get('q')!)
+    if (searchParams.has('with_watch_providers')) params.set('with_watch_providers', searchParams.get('with_watch_providers')!)
     params.set('media', 'all')
     params.set('sort', 'popularity.desc')
     router.push(`${pathname}?${params.toString()}`)
