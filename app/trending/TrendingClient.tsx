@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import MediaCard from '@/components/MediaCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { tmdbFetch, MediaItem, TMDBPage } from '@/lib/tmdb'
+import { MediaItem, TMDBPage } from '@/lib/tmdb'
 
 interface Props {
   initialItems: MediaItem[]
@@ -24,19 +24,36 @@ function createScrollObserver(
   return () => observer.disconnect()
 }
 
+async function fetchTrendingPage(media: 'all' | 'movie' | 'tv', page: number): Promise<TMDBPage<MediaItem>> {
+  const qs = new URLSearchParams({ page: String(page), with_original_language: 'en' })
+  const res = await fetch(`/api/tmdb/trending/${media}/week?${qs}`)
+  if (!res.ok) throw new Error(`Trending fetch failed: ${res.status}`)
+  return res.json()
+}
+
 export default function TrendingClient({ initialItems, totalPages, media }: Props) {
   const [items, setItems] = useState<MediaItem[]>(initialItems)
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [exhausted, setExhausted] = useState(page >= Math.min(totalPages, 10))
+  // loadingRef prevents double-fires when the sentinel triggers during a pending request
+  const loadingRef = useRef(false)
+  const [exhausted, setExhausted] = useState(totalPages <= 1)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
+  // Client-side filter tab — works on already-fetched items without a new network request
+  const [filter, setFilter] = useState<'all' | 'movie' | 'tv'>('all')
+  const filtered = filter === 'all' ? items : items.filter(i => (i.media_type ?? 'movie') === filter)
+
   const loadMore = useCallback(async () => {
+    // Guard against concurrent calls without depending on the loadingMore state
+    if (loadingRef.current) return
     const next = page + 1
-    if (loadingMore || next > Math.min(totalPages, 10)) return
+    if (next > Math.min(totalPages, 10)) { setExhausted(true); return }
+
+    loadingRef.current = true
     setLoadingMore(true)
     try {
-      const data = await tmdbFetch<TMDBPage<MediaItem>>(`/trending/${media}/week`, { page: next, with_original_language: 'en' })
+      const data = await fetchTrendingPage(media, next)
       setItems(prev => {
         const seen = new Set(prev.map(i => i.id))
         return [...prev, ...data.results.filter(i => !seen.has(i.id))]
@@ -47,20 +64,20 @@ export default function TrendingClient({ initialItems, totalPages, media }: Prop
       console.error('Failed to load more trending', e)
     } finally {
       setLoadingMore(false)
+      loadingRef.current = false
     }
-  }, [page, loadingMore, totalPages, media])
+  }, [page, totalPages, media])
 
+  // Re-attach observer only when loadMore or exhausted changes.
+  // Sentinel is conditionally rendered below, so once exhausted the observer auto-disconnects.
   useEffect(() => {
+    if (exhausted) return
     return createScrollObserver(sentinelRef.current, loadMore)
   }, [loadMore, exhausted])
 
-  // Filter tabs
-  const [filter, setFilter] = useState<'all' | 'movie' | 'tv'>('all')
-  const filtered = filter === 'all' ? items : items.filter(i => (i.media_type ?? 'movie') === filter)
-
   return (
     <>
-      {/* Media filter tabs */}
+      {/* Media filter tabs — client-only filter on already-fetched data */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 'var(--space-lg)' }}>
         {(['all', 'movie', 'tv'] as const).map(t => (
           <button
@@ -84,7 +101,10 @@ export default function TrendingClient({ initialItems, totalPages, media }: Prop
         ))}
       </div>
 
-      <div ref={sentinelRef} style={{ height: 1, marginTop: 'var(--space-xl)' }} aria-hidden="true" />
+      {/* Sentinel only rendered while there is more content to load */}
+      {!exhausted && (
+        <div ref={sentinelRef} style={{ height: 1, marginTop: 'var(--space-xl)' }} aria-hidden="true" />
+      )}
 
       {loadingMore && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-xl)' }}>
