@@ -9,7 +9,11 @@ import { MediaItem, TMDBPage } from '@/lib/tmdb'
 interface Props {
   initialItems: MediaItem[]
   totalPages: number
-  media: 'movie' | 'tv'
+  media: 'all' | 'movie' | 'tv'
+  initialMovieItems?: MediaItem[]
+  initialTvItems?: MediaItem[]
+  movieTotalPages?: number
+  tvTotalPages?: number
 }
 
 function createScrollObserver(
@@ -25,72 +29,160 @@ function createScrollObserver(
   return () => observer.disconnect()
 }
 
-export default function TopRatedClient({ initialItems, totalPages, media }: Props) {
+async function fetchTopRatedPage(type: 'movie' | 'tv', page: number): Promise<TMDBPage<MediaItem>> {
+  const qs = new URLSearchParams({
+    sort_by: 'vote_average.desc',
+    with_original_language: 'en',
+    'vote_count.gte': '200',
+    page: String(page),
+  })
+  const res = await fetch(`/api/tmdb/discover/${type}?${qs}`)
+  if (!res.ok) throw new Error('Failed to load more')
+  return res.json()
+}
+
+function mergeInterleaved(movies: MediaItem[], tvShows: MediaItem[]): MediaItem[] {
+  const result: MediaItem[] = []
+  const seen = new Set<number>()
+  const tagged = [
+    ...movies.map(i => ({ ...i, media_type: (i.media_type || 'movie') as 'movie' | 'tv' | 'person' })),
+    ...tvShows.map(i => ({ ...i, media_type: (i.media_type || 'tv') as 'movie' | 'tv' | 'person' })),
+  ]
+  const maxLen = Math.max(movies.length, tvShows.length)
+  for (let i = 0; i < maxLen; i++) {
+    if (i < movies.length && !seen.has(movies[i].id)) {
+      result.push(tagged[i])
+      seen.add(movies[i].id)
+    }
+    if (i < tvShows.length && !seen.has(tvShows[i].id)) {
+      result.push(tagged[movies.length + i])
+      seen.add(tvShows[i].id)
+    }
+  }
+  return result
+}
+
+export default function TopRatedClient({
+  initialItems,
+  totalPages,
+  media,
+  initialMovieItems = [],
+  initialTvItems = [],
+  movieTotalPages = 1,
+  tvTotalPages = 1,
+}: Props) {
   const router = useRouter()
+
+  const [movieItems, setMovieItems] = useState<MediaItem[]>(initialMovieItems)
+  const [tvItems, setTvItems] = useState<MediaItem[]>(initialTvItems)
+  const [moviePage, setMoviePage] = useState(1)
+  const [tvPage, setTvPage] = useState(1)
+
   const [items, setItems] = useState<MediaItem[]>(initialItems)
   const [page, setPage] = useState(1)
+
   const [loadingMore, setLoadingMore] = useState(false)
-  const [exhausted, setExhausted] = useState(page >= Math.min(totalPages, 20))
+  const loadingRef = useRef(false)
+  const [exhausted, setExhausted] = useState(
+    media === 'all'
+      ? moviePage >= Math.min(movieTotalPages, 20) && tvPage >= Math.min(tvTotalPages, 20)
+      : page >= Math.min(totalPages, 20)
+  )
   const sentinelRef = useRef<HTMLDivElement>(null)
 
+  const displayItems = media === 'all' ? mergeInterleaved(movieItems, tvItems) : items
+
   const loadMore = useCallback(async () => {
-    const next = page + 1
-    if (loadingMore || next > Math.min(totalPages, 20)) return
+    if (loadingRef.current) return
+    loadingRef.current = true
     setLoadingMore(true)
+
     try {
-      const qs = new URLSearchParams({
-        sort_by: 'vote_average.desc',
-        with_original_language: 'en',
-        'vote_count.gte': '200',
-        page: String(next),
-      })
-      const res = await fetch(`/api/tmdb/discover/${media}?${qs}`)
-      if (!res.ok) throw new Error('Failed to load more')
-      const data: TMDBPage<MediaItem> = await res.json()
-      setItems(prev => {
-        const seen = new Set(prev.map(i => i.id))
-        return [...prev, ...data.results.filter(i => !seen.has(i.id))]
-      })
-      setPage(next)
-      if (next >= Math.min(totalPages, 20)) setExhausted(true)
+      if (media === 'all') {
+        const nextMovie = moviePage + 1
+        const nextTv = tvPage + 1
+        const movieDone = nextMovie > Math.min(movieTotalPages, 20)
+        const tvDone = nextTv > Math.min(tvTotalPages, 20)
+        if (movieDone && tvDone) { setExhausted(true); return }
+
+        const [newMovies, newTv] = await Promise.all([
+          !movieDone ? fetchTopRatedPage('movie', nextMovie) : Promise.resolve(null),
+          !tvDone ? fetchTopRatedPage('tv', nextTv) : Promise.resolve(null),
+        ])
+
+        if (newMovies) {
+          setMovieItems(prev => {
+            const seen = new Set(prev.map(i => i.id))
+            return [...prev, ...newMovies.results.filter(i => !seen.has(i.id))]
+          })
+          setMoviePage(nextMovie)
+        }
+        if (newTv) {
+          setTvItems(prev => {
+            const seen = new Set(prev.map(i => i.id))
+            return [...prev, ...newTv.results.filter(i => !seen.has(i.id))]
+          })
+          setTvPage(nextTv)
+        }
+
+        const newMovieDone = (newMovies ? nextMovie : moviePage) >= Math.min(movieTotalPages, 20)
+        const newTvDone = (newTv ? nextTv : tvPage) >= Math.min(tvTotalPages, 20)
+        if (newMovieDone && newTvDone) setExhausted(true)
+      } else {
+        const next = page + 1
+        if (next > Math.min(totalPages, 20)) { setExhausted(true); return }
+
+        const data = await fetchTopRatedPage(media, next)
+        setItems(prev => {
+          const seen = new Set(prev.map(i => i.id))
+          return [...prev, ...data.results.filter(i => !seen.has(i.id))]
+        })
+        setPage(next)
+        if (next >= Math.min(totalPages, 20)) setExhausted(true)
+      }
     } catch (e) {
       console.error('Failed to load more top rated', e)
     } finally {
       setLoadingMore(false)
+      loadingRef.current = false
     }
-  }, [page, loadingMore, totalPages, media])
+  }, [media, page, moviePage, tvPage, totalPages, movieTotalPages, tvTotalPages])
 
   useEffect(() => {
     if (exhausted) return
     return createScrollObserver(sentinelRef.current, loadMore)
   }, [loadMore, exhausted])
 
-  const switchMedia = (type: 'movie' | 'tv') => {
+  const switchMedia = (type: 'all' | 'movie' | 'tv') => {
     router.push(`/top-rated?media=${type}`)
   }
 
   return (
     <>
       <div style={{ display: 'flex', gap: 8, marginBottom: 'var(--space-lg)' }}>
-        {(['movie', 'tv'] as const).map(t => (
+        {(['all', 'movie', 'tv'] as const).map(t => (
           <button
             key={t}
             onClick={() => switchMedia(t)}
             className={`btn ${media === t ? 'btn-primary' : 'btn-secondary'}`}
             style={{ fontSize: '0.85rem', padding: '6px 16px' }}
           >
-            {t === 'movie' ? '🎬 Movies' : '📺 TV Shows'}
+            {t === 'all' ? '🌐 All' : t === 'movie' ? '🎬 Movies' : '📺 TV Shows'}
           </button>
         ))}
       </div>
 
       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 'var(--space-md)', textAlign: 'right' }}>
-        {items.length} titles loaded
+        {displayItems.length} titles loaded
       </p>
 
       <div className="media-grid animate-fadeIn">
-        {items.map(item => (
-          <MediaCard key={`${media}-${item.id}`} item={item} forcedType={media} />
+        {displayItems.map(item => (
+          <MediaCard
+            key={`${item.media_type ?? media}-${item.id}`}
+            item={item}
+            forcedType={media !== 'all' ? media : undefined}
+          />
         ))}
       </div>
 
@@ -104,7 +196,7 @@ export default function TopRatedClient({ initialItems, totalPages, media }: Prop
         </div>
       )}
 
-      {exhausted && items.length > 0 && (
+      {exhausted && displayItems.length > 0 && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'var(--space-xl)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
           ✓ You&apos;ve seen it all
         </div>

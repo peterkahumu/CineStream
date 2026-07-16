@@ -13,7 +13,41 @@ export default async function TopRatedPage(props: {
   searchParams: Promise<Record<string, string>>
 }) {
   const searchParams = await props.searchParams
-  const media = (searchParams.media === 'tv' ? 'tv' : 'movie') as 'movie' | 'tv'
+  const rawMedia = searchParams.media
+  const media = (rawMedia === 'tv' ? 'tv' : rawMedia === 'all' ? 'all' : 'movie') as 'all' | 'movie' | 'tv'
+
+  if (media === 'all') {
+    const [movieData, tvData] = await Promise.all([
+      getTopRated('movie'),
+      getTopRated('tv'),
+    ])
+
+    return (
+      <main className="page-content">
+        <div className="page-container">
+          <div style={{ marginBottom: 'var(--space-xl)' }}>
+            <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', marginBottom: 4 }}>
+              🌐 Top Rated — All
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              The all-time best rated movies and TV shows
+            </p>
+          </div>
+
+          <TopRatedClient
+            key="all"
+            media="all"
+            initialItems={[]}
+            totalPages={1}
+            initialMovieItems={movieData.results}
+            initialTvItems={tvData.results}
+            movieTotalPages={movieData.total_pages}
+            tvTotalPages={tvData.total_pages}
+          />
+        </div>
+      </main>
+    )
+  }
 
   const data = await getTopRated(media)
 
