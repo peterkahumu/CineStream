@@ -15,10 +15,18 @@ export default function TermsAgreementModal() {
 
   useEffect(() => {
     setMounted(true)
-    const accepted = document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
-    if (!accepted) {
-      setShowModal(true)
+    const checkTerms = () => {
+      const accepted = document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
+      if (!accepted) {
+        setShowModal(true)
+      } else {
+        setShowModal(false)
+      }
     }
+    
+    checkTerms()
+    window.addEventListener('termsAccepted', checkTerms)
+    return () => window.removeEventListener('termsAccepted', checkTerms)
   }, [])
 
   const handleAccept = () => {
