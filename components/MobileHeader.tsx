@@ -244,10 +244,14 @@ export default function MobileHeader() {
         {CATEGORIES.map(cat => {
           let active = false
           if (cat.href.includes('?')) {
-            const currentUrl = `${pathname}?${searchParams.toString()}`
-            // We do a simple includes check because searchParams ordering might differ slightly, 
-            // but for our hardcoded links it's usually safe to check if the URL contains the query
-            active = pathname === cat.href.split('?')[0] && currentUrl.includes(cat.href.split('?')[1])
+            const [catPath, catQuery] = cat.href.split('?')
+            if (pathname === catPath) {
+              // Each key=value in the category link must be present in the current URL params
+              const catParams = new URLSearchParams(catQuery)
+              active = Array.from(catParams.entries()).every(
+                ([k, v]) => searchParams.get(k) === v
+              )
+            }
           } else {
             active = cat.href === '/' ? pathname === '/' : pathname.startsWith(cat.href)
           }
