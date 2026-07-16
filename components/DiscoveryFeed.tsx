@@ -3,7 +3,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import MediaCard from '@/components/MediaCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { discover, MediaItem } from '@/lib/tmdb'
-import styles from './page.module.css'
+import styles from './DiscoveryFeed.module.css'
+
 
 function createScrollObserver(
   sentinel: HTMLDivElement | null,
@@ -42,6 +43,8 @@ interface Props {
   totalPages: number
   searchParams: Record<string, string>
   media: 'all' | 'movie' | 'tv'
+  endpointTemplate?: string | { movie: string; tv: string } // e.g. "/api/tmdb/discover/{media}" or { movie: "/api/tmdb/movie/now_playing", tv: "/api/tmdb/tv/on_the_air" }
+  baseParams?: Record<string, string | number | boolean>
   initialMovieItems?: MediaItem[]
   initialTvItems?: MediaItem[]
   movieTotalPages?: number
@@ -53,6 +56,8 @@ export default function DiscoverClient({
   totalPages,
   searchParams,
   media,
+  endpointTemplate = '/api/tmdb/discover/{media}',
+  baseParams = {},
   initialMovieItems = [],
   initialTvItems = [],
   movieTotalPages = 1,
@@ -76,7 +81,12 @@ export default function DiscoverClient({
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   // Upcoming pages have a future date filter — skip vote_count guard for those
-  const isUpcoming = !!(searchParams['primary_release_date.gte'] || searchParams['first_air_date.gte'])
+  const isUpcoming = !!(
+    searchParams['primary_release_date.gte'] || 
+    searchParams['first_air_date.gte'] ||
+    baseParams?.['primary_release_date.gte'] ||
+    baseParams?.['first_air_date.gte']
+  )
 
   const loadMore = useCallback(async () => {
     if (loadingRef.current) return
@@ -84,10 +94,13 @@ export default function DiscoverClient({
     setLoadingMore(true)
 
     try {
-      const params: Record<string, string | number | boolean> = {
-        sort_by: searchParams.sort || 'popularity.desc',
-        ...(!isUpcoming && { 'vote_count.gte': 10 }),
-      }
+      const params: Record<string, string | number | boolean> = { ...baseParams }
+
+      // We only read from searchParams if they exist and are relevant to Discovery
+      // (This allows the component to just ignore searchParams if they aren't provided)
+      if (searchParams.sort) params.sort_by = searchParams.sort
+      if (!isUpcoming && !params['vote_count.gte']) params['vote_count.gte'] = 10
+      
       if (searchParams.genre) params['with_genres'] = searchParams.genre
       if (searchParams.country) params['with_origin_country'] = searchParams.country
       if (searchParams.language) params['with_original_language'] = searchParams.language
@@ -115,15 +128,23 @@ export default function DiscoverClient({
           tvParams['first_air_date_year'] = searchParams.year
         }
 
+        const fetchPage = async (type: 'movie' | 'tv', fetchParams: Record<string, string | number | boolean>) => {
+          const qs = new URLSearchParams(Object.fromEntries(Object.entries(fetchParams).map(([k, v]) => [k, String(v)])))
+          const ep = typeof endpointTemplate === 'string' ? endpointTemplate.replace('{media}', type) : endpointTemplate[type]
+          const res = await fetch(`${ep}?${qs}`)
+          if (!res.ok) throw new Error('Fetch failed')
+          return res.json()
+        }
+
         const [newMovies, newTv] = await Promise.all([
-          !movieDone ? discover({ media: 'movie', ...movieParams } as any) : Promise.resolve(null),
-          !tvDone ? discover({ media: 'tv', ...tvParams } as any) : Promise.resolve(null),
+          !movieDone ? fetchPage('movie', movieParams) : Promise.resolve(null),
+          !tvDone ? fetchPage('tv', tvParams) : Promise.resolve(null),
         ])
 
         if (newMovies) {
           setMovieItems(prev => {
             const existingIds = new Set(prev.map(item => item.id))
-            const uniqueNew = newMovies.results.filter(item => !existingIds.has(item.id))
+            const uniqueNew = newMovies.results.filter((item: MediaItem) => !existingIds.has(item.id))
             return [...prev, ...uniqueNew]
           })
           setMoviePage(nextMovie)
@@ -131,7 +152,7 @@ export default function DiscoverClient({
         if (newTv) {
           setTvItems(prev => {
             const existingIds = new Set(prev.map(item => item.id))
-            const uniqueNew = newTv.results.filter(item => !existingIds.has(item.id))
+            const uniqueNew = newTv.results.filter((item: MediaItem) => !existingIds.has(item.id))
             return [...prev, ...uniqueNew]
           })
           setTvPage(nextTv)
@@ -151,10 +172,15 @@ export default function DiscoverClient({
           else typeParams['first_air_date_year'] = searchParams.year
         }
 
-        const data = await discover({ media, ...typeParams } as any)
+        const qs = new URLSearchParams(Object.fromEntries(Object.entries(typeParams).map(([k, v]) => [k, String(v)])))
+        const ep = typeof endpointTemplate === 'string' ? endpointTemplate.replace('{media}', media) : endpointTemplate[media as 'movie' | 'tv']
+        const res = await fetch(`${ep}?${qs}`)
+        if (!res.ok) throw new Error('Fetch failed')
+        const data = await res.json()
+        
         setItems(prev => {
           const existingIds = new Set(prev.map(item => item.id))
-          const uniqueNew = data.results.filter(item => !existingIds.has(item.id))
+          const uniqueNew = data.results.filter((item: MediaItem) => !existingIds.has(item.id))
           return [...prev, ...uniqueNew]
         })
         setPage(next)
@@ -195,8 +221,8 @@ export default function DiscoverClient({
         ))}
       </div>
 
-      {/* Sentinel — only in DOM while there is more to load; prevents footer flash */}
-      {!exhausted && (
+      {/* Sentinel — only in DOM while there is more to load and NOT currently loading; prevents fast-refresh infinite loops */}
+      {!exhausted && !loadingMore && (
         <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
       )}
 

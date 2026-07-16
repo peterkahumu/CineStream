@@ -1,6 +1,9 @@
-import { getPopular } from '@/lib/tmdb'
+import { Suspense } from 'react'
+import FilterBar from '@/components/FilterBar'
+import { getPopular, getMovieGenres, getTVGenres, getCountries, discover } from '@/lib/tmdb'
 import type { Metadata } from 'next'
-import PopularClient from './PopularClient'
+import DiscoveryFeed from '@/components/DiscoveryFeed'
+import styles from '@/components/PageHeader.module.css'
 
 export const metadata: Metadata = {
   title: 'Popular',
@@ -13,62 +16,76 @@ export default async function PopularPage(props: {
   searchParams: Promise<Record<string, string>>
 }) {
   const searchParams = await props.searchParams
+
+  const [movieGenresRes, tvGenresRes, countriesRes] = await Promise.all([
+    getMovieGenres(),
+    getTVGenres(),
+    getCountries(),
+  ])
+  const countries = countriesRes.sort((a, b) => a.english_name.localeCompare(b.english_name))
+
   const rawMedia = searchParams.media
   const media = (rawMedia === 'movie' ? 'movie' : rawMedia === 'tv' ? 'tv' : 'all') as 'all' | 'movie' | 'tv'
 
-  if (media === 'all') {
-    // Parallel-fetch both movies and TV for the All tab
-    const [movieData, tvData] = await Promise.all([
-      getPopular('movie'),
-      getPopular('tv'),
-    ])
-
-    return (
-      <main className="page-content">
-        <div className="page-container">
-          <div style={{ marginBottom: 'var(--space-xl)' }}>
-            <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', marginBottom: 4 }}>
-              🌐 Popular — All
-            </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              The most popular movies and TV shows right now
-            </p>
-          </div>
-
-          <PopularClient
-            key="all"
-            media="all"
-            initialItems={[]}
-            totalPages={1}
-            initialMovieItems={movieData.results}
-            initialTvItems={tvData.results}
-            movieTotalPages={movieData.total_pages}
-            tvTotalPages={tvData.total_pages}
-          />
-        </div>
-      </main>
-    )
+  const baseParams = {
+    sort_by: 'popularity.desc',
+    with_original_language: 'en',
+    'vote_count.gte': 50,
   }
 
-  const data = await getPopular(media)
+  let initialItems: any[] = []
+  let totalPages = 1
+  let initialMovieItems: any[] = []
+  let initialTvItems: any[] = []
+  let movieTotalPages = 1
+  let tvTotalPages = 1
+
+  if (media === 'all') {
+    const [movieData, tvData] = await Promise.all([
+      discover({ media: 'movie', ...baseParams } as any),
+      discover({ media: 'tv', ...baseParams } as any),
+    ])
+    initialMovieItems = movieData.results
+    initialTvItems = tvData.results
+    movieTotalPages = movieData.total_pages
+    tvTotalPages = tvData.total_pages
+  } else {
+    const data = await discover({ media, ...baseParams } as any)
+    initialItems = data.results
+    totalPages = data.total_pages
+  }
 
   return (
     <main className="page-content">
       <div className="page-container">
-        <div style={{ marginBottom: 'var(--space-xl)' }}>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', marginBottom: 4 }}>
-            {media === 'movie' ? '🎞️ Popular Movies' : '📺 Popular TV Shows'}
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            {media === 'all' ? '🌐 Popular — All' : media === 'movie' ? '🎞️ Popular Movies' : '📺 Popular TV Shows'}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <p className={styles.subtitle}>
             What everyone is watching right now
           </p>
         </div>
 
-        <PopularClient
-          key={media}
-          initialItems={data.results}
-          totalPages={data.total_pages}
+        <Suspense fallback={<div className={styles.fallback} />}>
+          <FilterBar
+            movieGenres={movieGenresRes.genres}
+            tvGenres={tvGenresRes.genres}
+            countries={countries}
+          />
+        </Suspense>
+
+        <DiscoveryFeed
+          key={JSON.stringify(searchParams)}
           media={media}
+          searchParams={searchParams}
+          baseParams={baseParams}
+          initialItems={initialItems}
+          totalPages={totalPages}
+          initialMovieItems={initialMovieItems}
+          initialTvItems={initialTvItems}
+          movieTotalPages={movieTotalPages}
+          tvTotalPages={tvTotalPages}
         />
       </div>
     </main>

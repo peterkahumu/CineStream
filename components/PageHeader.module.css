@@ -1,0 +1,18 @@
+.header {
+  margin-bottom: var(--space-xl);
+}
+
+.title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.fallback {
+  height: 60px;
+  margin-bottom: var(--space-xl);
+}

@@ -1,8 +1,8 @@
 import { Suspense } from 'react'
 import FilterBar from '@/components/FilterBar'
 import { discover, getMovieGenres, getTVGenres, getCountries } from '@/lib/tmdb'
-import styles from './page.module.css'
-import DiscoverClient from './DiscoverClient'
+import styles from '@/components/PageHeader.module.css'
+import DiscoveryFeed from '@/components/DiscoveryFeed'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,7 +80,7 @@ export default async function DiscoverPage(props: {
           </p>
         </div>
 
-        <Suspense fallback={<div className={styles.filterBarSkeleton} />}>
+        <Suspense fallback={<div className={styles.fallback} />}>
           <FilterBar
             movieGenres={movieGenresRes.genres}
             tvGenres={tvGenresRes.genres}
@@ -88,7 +88,7 @@ export default async function DiscoverPage(props: {
           />
         </Suspense>
 
-        <DiscoverClient
+        <DiscoveryFeed
           key={clientKey}
           initialItems={initialItems}
           totalPages={totalPages}

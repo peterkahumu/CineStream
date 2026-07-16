@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Genre, Country } from '@/lib/tmdb'
 import CustomSelect from '@/components/CustomSelect'
 import styles from './FilterBar.module.css'
@@ -9,6 +9,8 @@ interface Props {
   movieGenres: Genre[]
   tvGenres: Genre[]
   countries: Country[]
+  providers?: { provider_id: number; provider_name: string }[]
+  hideAdvancedFilters?: boolean
 }
 
 const SORT_OPTIONS = [
@@ -50,9 +52,10 @@ const LANGUAGES = [
   { code: 'it', label: 'Italian' },
 ]
 
-export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
+export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvancedFilters = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [expanded, setExpanded] = useState(false)
 
   const media = (searchParams.get('media') as 'all' | 'movie' | 'tv') || 'all'
@@ -62,10 +65,11 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
   const year = searchParams.get('year') || ''
   const minRating = searchParams.get('minRating') || ''
   const language = searchParams.get('language') || ''
+  const provider = searchParams.get('with_watch_providers') || ''
 
   const genres = media === 'movie' ? movieGenres : media === 'tv' ? tvGenres : []
   const sortOptions = media === 'tv' ? SORT_TV : SORT_OPTIONS
-  const hasFilters = genreId || country || year || minRating || language
+  const hasFilters = genreId || country || year || minRating || language || provider
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -84,11 +88,19 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
       }
     }
     
-    router.push(`/discover?${params.toString()}`)
+    
+    // Maintain q for search page
+    if (searchParams.has('q')) params.set('q', searchParams.get('q')!)
+    
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const reset = () => {
-    router.push(`/discover?media=all&sort=popularity.desc`)
+    const params = new URLSearchParams()
+    if (searchParams.has('q')) params.set('q', searchParams.get('q')!)
+    params.set('media', 'all')
+    params.set('sort', 'popularity.desc')
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   return (
@@ -130,13 +142,15 @@ export default function FilterBar({ movieGenres, tvGenres, countries }: Props) {
         </div>
 
         {/* More filters toggle */}
-        <button
-          className={`${styles.moreBtn} ${expanded ? styles.moreBtnActive : ''}`}
-          onClick={() => setExpanded(e => !e)}
-        >
-          ⚡ Filters {hasFilters && <span className={styles.filterCount}>•</span>}
-          <span className={styles.chevron}>{expanded ? '▲' : '▼'}</span>
-        </button>
+        {!hideAdvancedFilters && (
+          <button
+            className={`${styles.moreBtn} ${expanded ? styles.moreBtnActive : ''}`}
+            onClick={() => setExpanded(e => !e)}
+          >
+            ⚡ Filters {hasFilters && <span className={styles.filterCount}>•</span>}
+            <span className={styles.chevron}>{expanded ? '▲' : '▼'}</span>
+          </button>
+        )}
 
         {hasFilters && (
           <button className={styles.resetBtn} onClick={reset}>✕ Reset</button>
