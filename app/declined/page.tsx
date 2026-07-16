@@ -1,24 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { setTermsAccepted } from '@/lib/terms'
 import styles from './page.module.css'
 
 function DeclinedContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   const handleAgree = () => {
-    // Set proper HTTP cookie for Middleware
-    const expires = new Date()
-    expires.setFullYear(expires.getFullYear() + 1)
-    document.cookie = `cinemaphora_terms=true; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
-    
-    // Broadcast event
-    window.dispatchEvent(new Event('termsAccepted'))
-    // Return user to their original destination via hard navigation
-    // This ensures Next.js middleware gets the new cookie and doesn't use the client router cache
+    setTermsAccepted(true)
+    // Hard navigate so middleware sees the new cookie immediately
     const redirect = searchParams.get('redirect')
     window.location.href = redirect || '/'
   }

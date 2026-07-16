@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSettings } from '@/components/SettingsProvider'
 import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
+import { getTermsAccepted, setTermsAccepted, TERMS_EVENT } from '@/lib/terms'
 import CustomSelect from '@/components/CustomSelect'
 import Modal from '@/components/Modal'
 import styles from './page.module.css'
@@ -95,37 +95,25 @@ function SettingRow({
 
 export default function SettingsPage() {
   const { settings, updateSetting } = useSettings()
-  const router = useRouter()
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [termsAccepted, setTermsState] = useState(false)
   const [mounted, setMounted] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
 
   // ── Initialize client state ────────────────────────────────────────────
-  function checkTermsCookie() {
-    return document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
-  }
-
-  function onTermsChanged() {
-    setTermsAccepted(checkTermsCookie())
-  }
-
   useEffect(() => {
     setMounted(true)
-    setTermsAccepted(checkTermsCookie())
-    window.addEventListener('termsAccepted', onTermsChanged)
-    return () => window.removeEventListener('termsAccepted', onTermsChanged)
+    setTermsState(getTermsAccepted())
+    const sync = () => setTermsState(getTermsAccepted())
+    window.addEventListener(TERMS_EVENT, sync)
+    return () => window.removeEventListener(TERMS_EVENT, sync)
   }, [])
 
   // ── Terms revoke ───────────────────────────────────────────────────────
   const handleConfirmRevoke = () => {
-    // Explicitly set to false instead of deleting to ensure Capacitor webviews overwrite the old value
-    const expires = new Date()
-    expires.setFullYear(expires.getFullYear() + 10)
-    document.cookie = `cinemaphora_terms=false; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
-    window.dispatchEvent(new Event('termsAccepted'))
+    setTermsAccepted(false)
     setShowRevokeConfirm(false)
   }
 
@@ -172,12 +160,9 @@ export default function SettingsPage() {
 
   // ── Clear all data ─────────────────────────────────────────────────────
   const handleConfirmClearAll = () => {
-    // Overwrite the terms cookie to false for mobile persistence
-    const expires = new Date()
-    expires.setFullYear(expires.getFullYear() + 10)
-    document.cookie = `cinemaphora_terms=false; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
-    
-    // Clear other cookies
+    // Revoke terms first (fires TERMS_EVENT → TermsAgreementModal will show)
+    setTermsAccepted(false)
+    // Clear all other cookies
     document.cookie.split(';').forEach(c => {
       const key = c.trim().split('=')[0]
       if (key !== 'cinemaphora_terms') {
@@ -185,7 +170,6 @@ export default function SettingsPage() {
       }
     })
     localStorage.clear()
-    window.dispatchEvent(new Event('termsAccepted'))
     setShowClearConfirm(false)
   }
 

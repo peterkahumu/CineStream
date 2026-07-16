@@ -1,31 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import styles from './OfflineTrailerWrapper.module.css'
 
+/**
+ * Wraps an iframe-based trailer/player and hides it with a friendly
+ * placeholder when the user is offline, preventing the browser from
+ * throwing a "This page could not load" error on cached pages.
+ */
 export default function OfflineTrailerWrapper({ children }: { children: React.ReactNode }) {
-  const [isReady, setIsReady] = useState(false)
-  const [isOnline, setIsOnline] = useState(true)
-
-  useEffect(() => {
-    setIsOnline(navigator.onLine)
-    setIsReady(true)
-    
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
-
-  if (!isReady) {
-    return <div className={styles.offlineBox} style={{ animation: 'pulse 2s infinite' }} />
-  }
+  const isOnline = useOnlineStatus()
 
   if (!isOnline) {
     return (

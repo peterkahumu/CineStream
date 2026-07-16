@@ -2,75 +2,55 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import styles from './TermsAgreementModal.module.css'
 import Modal from './Modal'
+import { getTermsAccepted, setTermsAccepted, TERMS_EVENT } from '@/lib/terms'
+
+/** Routes where the modal must never appear (user needs to read the docs). */
+const SUPPRESSED_PATHS = new Set(['/terms', '/privacy', '/declined', '/~offline'])
 
 export default function TermsAgreementModal() {
   const [showModal, setShowModal] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
-  const router = useRouter()
 
   useEffect(() => {
-    setMounted(true)
-    const checkTerms = () => {
-      const accepted = document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
-      if (!accepted) {
-        setShowModal(true)
-      } else {
-        setShowModal(false)
-      }
-    }
-    
-    checkTerms()
-    window.addEventListener('termsAccepted', checkTerms)
-    return () => window.removeEventListener('termsAccepted', checkTerms)
+    const sync = () => setShowModal(!getTermsAccepted())
+
+    sync()
+    window.addEventListener(TERMS_EVENT, sync)
+    return () => window.removeEventListener(TERMS_EVENT, sync)
   }, [])
 
-  const handleAccept = () => {
-    // Set HTTP cookie so Next.js Middleware can read it server-side, and client can read it too
-    const expires = new Date()
-    expires.setFullYear(expires.getFullYear() + 10)
-    document.cookie = `cinemaphora_terms=true; path=/; expires=${expires.toUTCString()}; SameSite=Lax`
-    window.dispatchEvent(new Event('termsAccepted'))
-    setShowModal(false)
-  }
+  // Don't show on legal/declined/offline pages, and don't render until mounted
+  if (SUPPRESSED_PATHS.has(pathname)) return null
+  if (!showModal) return null
 
-  const handleDecline = () => {
-    setShowConfirm(true)
-  }
+  const handleAccept = () => setTermsAccepted(true)  // event fires → sync() → showModal=false
+
+  const handleDecline = () => setShowConfirm(true)
 
   const handleConfirmDecline = () => {
     setShowModal(false)
-    router.push('/declined')
+    // Hard navigate so middleware sees the cookie state correctly
+    window.location.href = '/declined'
   }
-
-  // Prevent hydration mismatch by not rendering anything until mounted
-  if (!mounted) return null
-  if (!showModal) return null
-  
-  // Do not show the modal on the legal pages themselves so the user can actually read them!
-  if (pathname === '/terms' || pathname === '/privacy' || pathname === '/declined') return null
 
   return (
     <>
       {/* Main Welcome Modal */}
       <Modal
-        isOpen={showModal && !showConfirm}
+        isOpen={!showConfirm}
         title="Welcome to CinemaPhora"
         description={
           <>
             Before you continue, please review our{' '}
-            <Link href="/terms" className={styles.link}>
-              Terms of Use
-            </Link>{' '}
+            <Link href="/terms" className={styles.link}>Terms of Use</Link>{' '}
             and{' '}
-            <Link href="/privacy" className={styles.link}>
-              Privacy Policy
-            </Link>. 
-            By clicking "I Agree", you acknowledge that CinemaPhora is an indexing service and does not host any media files.
+            <Link href="/privacy" className={styles.link}>Privacy Policy</Link>.{' '}
+            By clicking &ldquo;I Agree&rdquo;, you acknowledge that CinemaPhora is an
+            indexing service and does not host any media files.
           </>
         }
         confirmText="I Agree"

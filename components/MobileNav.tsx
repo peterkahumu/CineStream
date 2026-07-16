@@ -1,8 +1,17 @@
 'use client'
-import Link from 'next/link'
+
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
 import styles from './MobileNav.module.css'
+
+/**
+ * All tabs use a plain <a> tag rather than Next.js <Link>.
+ *
+ * Rationale: when the app is offline the Service Worker intercepts full
+ * document requests and serves the cached page. Next.js <Link> does a
+ * client-side RSC fetch first, which fails offline and can fall back to
+ * the offline page or throw. Native <a> bypasses the router and lets the
+ * SW handle it correctly in both online and offline modes.
+ */
 
 const TABS = [
   {
@@ -58,52 +67,21 @@ const TABS = [
 
 export default function MobileNav() {
   const pathname = usePathname()
-  const [isOnline, setIsOnline] = useState(true)
-
-  useEffect(() => {
-    setIsOnline(navigator.onLine)
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
 
   return (
     <nav className={styles.mobileNav} aria-label="Mobile navigation">
       {TABS.map(tab => {
-        // For home, exact match. For others, starts-with match.
         const active = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href)
-        const className = `${styles.tab} ${active ? styles.active : ''}`
-        
-        const content = (
-          <>
-            <span className={styles.tabIcon}>{tab.icon(active)}</span>
-            <span className={styles.tabLabel}>{tab.label}</span>
-            {active && <span className={styles.activeIndicator} />}
-          </>
-        )
-
-        return isOnline ? (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={className}
-            aria-label={tab.label}
-          >
-            {content}
-          </Link>
-        ) : (
+        return (
           <a
             key={tab.href}
             href={tab.href}
-            className={className}
+            className={`${styles.tab} ${active ? styles.active : ''}`}
             aria-label={tab.label}
           >
-            {content}
+            <span className={styles.tabIcon}>{tab.icon(active)}</span>
+            <span className={styles.tabLabel}>{tab.label}</span>
+            {active && <span className={styles.activeIndicator} />}
           </a>
         )
       })}
