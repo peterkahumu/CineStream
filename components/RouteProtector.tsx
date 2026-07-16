@@ -11,7 +11,7 @@ export default function RouteProtector({ children }: { children: React.ReactNode
   useEffect(() => {
     const checkProtection = () => {
       const accepted = document.cookie.split('; ').find(row => row.startsWith('cinemaphora_terms='))?.split('=')[1] === 'true'
-      const isUnprotected = pathname === '/terms' || pathname === '/privacy' || pathname === '/declined' || pathname === '/'
+      const isUnprotected = pathname === '/terms' || pathname === '/privacy' || pathname === '/declined' || pathname === '/' || pathname === '/~offline'
       
       if (!accepted && !isUnprotected) {
         router.push('/declined')

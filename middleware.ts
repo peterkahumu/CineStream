@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 /** Routes that never require terms acceptance */
-const PUBLIC_ROUTES = new Set(['/', '/terms', '/privacy', '/declined'])
+const PUBLIC_ROUTES = new Set(['/', '/terms', '/privacy', '/declined', '/~offline'])
 
 /** Prefixes that are always public (assets, API, PWA) */
 const PUBLIC_PREFIXES = ['/_next/', '/api/', '/favicon', '/sw.js', '/manifest', '/icons/']
