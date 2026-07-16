@@ -8,6 +8,9 @@ import CustomSelect from '@/components/CustomSelect'
 import Modal from '@/components/Modal'
 import styles from './page.module.css'
 
+/** Must stay in sync with ActionButtons.tsx and WishlistClient.tsx */
+const WISHLIST_KEY = 'cinemaphora-wishlist'
+
 // Popular streaming providers with their TMDB IDs and emoji/colors
 const STREAMING_PROVIDERS = [
   { id: 8,   name: 'Netflix',     emoji: '🔴', color: '#E50914' },
@@ -119,7 +122,7 @@ export default function SettingsPage() {
 
   // ── Wishlist export ────────────────────────────────────────────────────
   const handleExportWishlist = () => {
-    const raw = localStorage.getItem('wishlist') || '[]'
+    const raw = localStorage.getItem(WISHLIST_KEY) || '[]'
     const blob = new Blob([raw], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -138,9 +141,9 @@ export default function SettingsPage() {
       try {
         const parsed = JSON.parse(ev.target?.result as string)
         if (!Array.isArray(parsed)) throw new Error('Invalid format')
-        localStorage.setItem('wishlist', JSON.stringify(parsed))
+        localStorage.setItem(WISHLIST_KEY, JSON.stringify(parsed))
         setImportStatus('success')
-        window.dispatchEvent(new StorageEvent('storage', { key: 'wishlist' }))
+        window.dispatchEvent(new StorageEvent('storage', { key: WISHLIST_KEY }))
         setTimeout(() => setImportStatus('idle'), 3000)
       } catch {
         setImportStatus('error')
