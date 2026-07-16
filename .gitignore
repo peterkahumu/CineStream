@@ -38,7 +38,14 @@ yarn-error.log*
 .vercel
 
 # planning docs
-planning.md
+/implementation_plan.md
+/task.md
+/walkthrough.md
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.auth/
 
 # typescript
 *.tsbuildinfo
