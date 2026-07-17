@@ -23,6 +23,9 @@ export default function SearchClient({
   const [query, setQuery] = useState(initialQ)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Local Media Type Filter
+  const [activeMediaFilter, setActiveMediaFilter] = useState<'all' | 'movie' | 'tv'>(media)
+
   // Infinite Scroll State
   const [allResults, setAllResults] = useState<MediaItem[]>(results)
   const [page, setPage] = useState(1)
@@ -105,7 +108,16 @@ export default function SearchClient({
   }, [loadMore])
 
   const typeOf = (r: MediaItem) => r.media_type || (r.first_air_date ? 'tv' : 'movie')
-  const filtered = media === 'all' ? allResults : allResults.filter(r => typeOf(r) === media)
+  const filtered = activeMediaFilter === 'all' 
+    ? allResults 
+    : allResults.filter(r => typeOf(r) === activeMediaFilter)
+
+  const handleFeelingLucky = () => {
+    if (filtered.length === 0) return
+    const randomIdx = Math.floor(Math.random() * filtered.length)
+    const item = filtered[randomIdx]
+    router.push(`/details/${item.id}?type=${typeOf(item)}`)
+  }
 
   return (
     <>
@@ -152,6 +164,24 @@ export default function SearchClient({
 
       {filtered.length > 0 && (
         <>
+          <div className={styles.controlsRow}>
+            <div className={styles.mediaFilters}>
+              {(['all', 'movie', 'tv'] as const).map(type => (
+                <button
+                  key={type}
+                  className={`${styles.filterPill} ${activeMediaFilter === type ? styles.filterPillActive : ''}`}
+                  onClick={() => setActiveMediaFilter(type)}
+                >
+                  {type === 'all' ? 'All Results' : type === 'movie' ? 'Movies' : 'TV Shows'}
+                </button>
+              ))}
+            </div>
+            
+            <button className={styles.luckyBtn} onClick={handleFeelingLucky}>
+              🎲 Feeling Lucky
+            </button>
+          </div>
+
           <p className={styles.resultInfo}>
             {filtered.length} of {total.toLocaleString()} results for &ldquo;<strong>{initialQ}</strong>&rdquo;
           </p>
