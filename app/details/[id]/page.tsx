@@ -67,8 +67,9 @@ export default async function DetailsPage(props: {
   // Enforce valid tab types
   // tabs: default to watch for tv shows, trailers for movies
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
-  const tab: 'watch' | 'trailers' | 'cast' | 'reviews' = 
+  const tab: 'watch' | 'trailers' | 'cast' | 'reviews' | 'where' = 
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :
+    tabRaw === 'where' ? 'where' :
     tabRaw === 'cast' ? 'cast' :
     tabRaw === 'reviews' ? 'reviews' : 'trailers'
 
@@ -118,7 +119,7 @@ export default async function DetailsPage(props: {
   const collection = details.belongs_to_collection ?? null
   const returningBadge = mediaType === 'tv' && details.next_episode_to_air != null
 
-  let trailers: Pick<Video, 'key' | 'name'> & { label?: string }[] = []
+  let trailers: Array<Pick<Video, 'key' | 'name'> & { label?: string }> = []
   let tvSeasons: Season[] = []
   let episodes: import('@/lib/tmdb').Episode[] = []
 

@@ -112,13 +112,6 @@ export default function SearchClient({
     ? allResults 
     : allResults.filter(r => typeOf(r) === activeMediaFilter)
 
-  const handleFeelingLucky = () => {
-    if (filtered.length === 0) return
-    const randomIdx = Math.floor(Math.random() * filtered.length)
-    const item = filtered[randomIdx]
-    router.push(`/details/${item.id}?type=${typeOf(item)}`)
-  }
-
   return (
     <>
       {/* Search input */}
@@ -176,10 +169,6 @@ export default function SearchClient({
                 </button>
               ))}
             </div>
-            
-            <button className={styles.luckyBtn} onClick={handleFeelingLucky}>
-              🎲 Feeling Lucky
-            </button>
           </div>
 
           <p className={styles.resultInfo}>

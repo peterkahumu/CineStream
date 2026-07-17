@@ -73,7 +73,7 @@ export default async function HomePage() {
     getProviderContent(9, 'tv'),
     getProviderContent(337, 'movie'), // Disney+
     getProviderContent(337, 'tv'),
-    discover(theme.queryParams as Record<string, string | number | boolean>),
+    discover(theme.queryParams as import('@/lib/tmdb').DiscoverParams),
     // Hidden Gems — low popularity, high rating (movie)
     discover({ media: 'movie', 'vote_average.gte': 7.5, 'vote_count.gte': 300, 'popularity.lte': 30, sort_by: 'vote_average.desc' }),
     // Hidden Gems — TV
