@@ -21,7 +21,7 @@ const WISHLIST_KEY = 'cinemaphora-wishlist'
 export default function WishlistClient() {
   const [items, setItems] = useState<SavedWishlistItem[]>([])
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'to-watch' | 'watched'>('to-watch')
+  const [activeTab, setActiveTab] = useState<'all' | 'to-watch' | 'watched'>('all')
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'title-asc'>('date-desc')
 
   useEffect(() => {
@@ -61,9 +61,11 @@ export default function WishlistClient() {
   }, [])
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => 
-      activeTab === 'watched' ? item.watchedAt != null : item.watchedAt == null
-    )
+    return items.filter(item => {
+      if (activeTab === 'all') return true
+      if (activeTab === 'watched') return item.watchedAt != null
+      return item.watchedAt == null
+    })
   }, [items, activeTab])
 
   const sortedItems = useMemo(() => {
@@ -112,6 +114,12 @@ export default function WishlistClient() {
       <div className={styles.header}>
         <div className={styles.tabs}>
           <button 
+            className={`${styles.tabBtn} ${activeTab === 'all' ? styles.tabBtnActive : ''}`}
+            onClick={() => setActiveTab('all')}
+          >
+            All ({items.length})
+          </button>
+          <button 
             className={`${styles.tabBtn} ${activeTab === 'to-watch' ? styles.tabBtnActive : ''}`}
             onClick={() => setActiveTab('to-watch')}
           >
@@ -151,7 +159,9 @@ export default function WishlistClient() {
           <p className={styles.emptyText}>
             {activeTab === 'watched' 
               ? "You haven't marked anything as watched yet."
-              : "You've watched everything on your list!"}
+              : activeTab === 'all'
+                ? "Your list is empty."
+                : "You've watched everything on your list!"}
           </p>
         </div>
       ) : (
@@ -171,6 +181,11 @@ export default function WishlistClient() {
             return (
               <div key={item.id} className={styles.cardWrap}>
                 <MediaCard item={mediaItem} forcedType={item.mediaType} />
+                {activeTab === 'all' && (
+                  <div className={`${styles.statusPill} ${isWatched ? styles.statusWatched : styles.statusToWatch}`}>
+                    {isWatched ? '✓ Watched' : 'To Watch'}
+                  </div>
+                )}
                 <div className={styles.cardActions}>
                   <button 
                     className={`${styles.actionBtn} ${isWatched ? styles.watchedBtn : ''}`}

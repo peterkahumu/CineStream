@@ -28,13 +28,11 @@ export default function HomeHero({ items, themedItems, themeTitle, themeEmoji, t
         <FeaturedStrip items={themedItems} title={themeTitle} emoji={themeEmoji} link={themeLink} />
       )}
 
-      {/* Mood picker trigger — subtle, stays out of the hero flow */}
+      {/* Mood picker trigger — Prominent banner */}
       <div style={{
+        padding: 'var(--space-md) var(--page-gutter, 1.5rem)',
         display: 'flex',
-        justifyContent: 'flex-end',
-        padding: '0 var(--page-gutter, 1.5rem)',
-        marginTop: '-0.5rem',
-        marginBottom: '0.5rem',
+        justifyContent: 'center'
       }}>
         <button
           id="mood-picker-btn"
@@ -42,22 +40,34 @@ export default function HomeHero({ items, themedItems, themeTitle, themeEmoji, t
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-secondary)',
-            borderRadius: 'var(--radius-full)',
-            padding: '6px 16px',
-            fontSize: '0.82rem',
-            fontWeight: 600,
+            justifyContent: 'center',
+            gap: '12px',
+            width: '100%',
+            maxWidth: '600px',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.8))',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            color: '#fff',
+            borderRadius: 'var(--radius-lg)',
+            padding: '16px 24px',
+            fontSize: '1.1rem',
+            fontWeight: 700,
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
+            transition: 'all 0.3s ease',
             fontFamily: 'var(--font-sans)',
+            boxShadow: '0 8px 32px rgba(37, 99, 235, 0.2)',
+            backdropFilter: 'blur(8px)',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)' }}
+          onMouseEnter={e => { 
+            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 40px rgba(37, 99, 235, 0.4)';
+          }}
+          onMouseLeave={e => { 
+            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 32px rgba(37, 99, 235, 0.2)';
+          }}
         >
-          🎭 Pick a mood
+          <span style={{ fontSize: '1.4rem' }}>🎭</span>
+          <span>What are you in the mood for?</span>
         </button>
       </div>
 
