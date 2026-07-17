@@ -53,7 +53,10 @@ export default async function HomePage() {
     netflixM, netflixTV,
     primeM, primeTV,
     disneyM, disneyTV,
-    themedRes
+    themedRes,
+    hiddenGemsMovies, hiddenGemsTV,
+    bingeTV,
+    returningTV,
   ] = await Promise.allSettled([
     getTrending('all', 'week'),
     getPopular('movie'),
@@ -66,11 +69,19 @@ export default async function HomePage() {
     getUpcomingTV(),
     getProviderContent(8, 'movie'),   // Netflix
     getProviderContent(8, 'tv'),
-    getProviderContent(9, 'movie'),   // Prime Video (US)
+    getProviderContent(9, 'movie'),   // Prime Video
     getProviderContent(9, 'tv'),
     getProviderContent(337, 'movie'), // Disney+
     getProviderContent(337, 'tv'),
-    discover(theme.queryParams as any)
+    discover(theme.queryParams as Record<string, string | number | boolean>),
+    // Hidden Gems — low popularity, high rating (movie)
+    discover({ media: 'movie', 'vote_average.gte': 7.5, 'vote_count.gte': 300, 'popularity.lte': 30, sort_by: 'vote_average.desc' }),
+    // Hidden Gems — TV
+    discover({ media: 'tv', 'vote_average.gte': 7.5, 'vote_count.gte': 200, 'popularity.lte': 20, sort_by: 'vote_average.desc' }),
+    // Binge-Worthy TV
+    discover({ media: 'tv', 'vote_average.gte': 7.5, 'vote_count.gte': 200, sort_by: 'vote_average.desc' }),
+    // Returning Soon — TV shows with status returning
+    discover({ media: 'tv', with_status: '0', sort_by: 'popularity.desc' }),
   ])
 
   const ok = <T,>(r: PromiseSettledResult<TMDBPage<T>>): T[] =>
@@ -78,6 +89,12 @@ export default async function HomePage() {
 
   const heroItems = ok(trendingAll).filter(i => i.backdrop_path).slice(0, 8)
   const themedItems = ok(themedRes)
+  // Mix movies + TV for hidden gems (interleave)
+  const hiddenGemsRaw = [...ok(hiddenGemsMovies), ...ok(hiddenGemsTV)]
+    .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
+    .slice(0, 20)
+  const bingeItems = ok(bingeTV).slice(0, 16)
+  const returningItems = ok(returningTV).slice(0, 16)
 
   return (
     <main>
@@ -114,6 +131,38 @@ export default async function HomePage() {
         />
 
         <Top10Row />
+
+        {/* Hidden Gems — low-profile but high-rated, mixed movies + TV */}
+        {hiddenGemsRaw.length > 0 && (
+          <MediaRow
+            title="Hidden Gems"
+            emoji="💎"
+            items={hiddenGemsRaw}
+            seeAllHref="/discover?sort=vote_average.desc&minRating=7.5&maxPopularity=30"
+          />
+        )}
+
+        {/* Binge-Worthy TV */}
+        {bingeItems.length > 0 && (
+          <MediaRow
+            title="Binge-Worthy TV"
+            emoji="📺"
+            items={bingeItems}
+            seeAllHref="/discover?media=tv&sort=vote_average.desc&minRating=7.5"
+            forcedType="tv"
+          />
+        )}
+
+        {/* Returning Soon — TV shows with upcoming new seasons */}
+        {returningItems.length > 0 && (
+          <MediaRow
+            title="Returning Soon"
+            emoji="🔜"
+            items={returningItems}
+            seeAllHref="/discover?media=tv&status=returning"
+            forcedType="tv"
+          />
+        )}
 
         {/* Provider rows → dedicated /providers route */}
         <MediaRow title="New Movies on Netflix" emoji="🔴" items={ok(netflixM)} seeAllHref="/providers?with_watch_providers=8&media=movie" forcedType="movie" />

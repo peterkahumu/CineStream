@@ -4,7 +4,7 @@ import Link from 'next/link'
 import styles from './DetailsTabs.module.css'
 
 interface Props {
-  activeTab: 'watch' | 'trailers' | 'cast' | 'reviews'
+  activeTab: 'watch' | 'trailers' | 'cast' | 'reviews' | 'where'
   mediaType: 'movie' | 'tv'
   id: string
   isUpcoming?: boolean
@@ -17,7 +17,8 @@ export default function DetailsTabs({ activeTab, mediaType, id, isUpcoming, chil
     ...(mediaType === 'tv' && !isUpcoming ? [{ id: 'watch', label: 'Watch' }] : []),
     { id: 'trailers', label: 'Trailers' },
     { id: 'cast', label: 'Cast' },
-    { id: 'reviews', label: 'Reviews' }
+    { id: 'reviews', label: 'Reviews' },
+    { id: 'where', label: 'Where to Watch' },
   ]
 
   return (

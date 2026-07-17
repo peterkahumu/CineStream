@@ -8,9 +8,11 @@ import EpisodeSelector from '@/components/EpisodeSelector'
 import WatchTvButton from '@/components/WatchTvButton'
 import ActionButtons from '@/components/ActionButtons'
 import TrailerIframe from '@/components/TrailerIframe'
+import WatchProviders from '@/components/WatchProviders'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
+  discover,
   type CastMember, type Review, type Video, type Season,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
@@ -86,6 +88,36 @@ export default async function DetailsPage(props: {
   const recommendations = (details.recommendations?.results || []).filter(r => r.poster_path).slice(0, 12)
   const reviews: Review[] = (details.reviews?.results || [])
 
+  // Extract director (movies) or creators (TV) for 'More from...' row
+  const director = mediaType === 'movie'
+    ? (details.credits?.cast as unknown as { id: number; name: string; job?: string }[])
+        ?.find(m => (m as unknown as { job?: string }).job === 'Director')
+      ?? null
+    : null
+  // For TV use created_by
+  const tvCreator = mediaType === 'tv' ? (details.created_by?.[0] ?? null) : null
+  const creatorId = director?.id ?? tvCreator?.id ?? null
+  const creatorName = director?.name ?? tvCreator?.name ?? null
+
+  // Fetch 'More from Director/Creator' — both movie + TV, rated desc
+  const [moreMovies, moreTV] = creatorId
+    ? await Promise.all([
+        discover({ media: 'movie', with_crew: String(creatorId), sort_by: 'vote_average.desc', 'vote_count.gte': 50 }).catch(() => ({ results: [], page: 1, total_pages: 0, total_results: 0 })),
+        discover({ media: 'tv',    with_crew: String(creatorId), sort_by: 'vote_average.desc', 'vote_count.gte': 20 }).catch(() => ({ results: [], page: 1, total_pages: 0, total_results: 0 })),
+      ])
+    : [{ results: [] }, { results: [] }]
+
+  const moreFromCreator = [
+    ...moreMovies.results,
+    ...moreTV.results,
+  ]
+    .filter(r => r.poster_path && r.id !== details.id)
+    .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
+    .slice(0, 14)
+
+  const collection = details.belongs_to_collection ?? null
+  const returningBadge = mediaType === 'tv' && details.next_episode_to_air != null
+
   let trailers: Pick<Video, 'key' | 'name'> & { label?: string }[] = []
   let tvSeasons: Season[] = []
   let episodes: import('@/lib/tmdb').Episode[] = []
@@ -154,6 +186,15 @@ export default async function DetailsPage(props: {
         <div className={styles.gradientLeft} />
 
         <div className={`page-container ${styles.heroContent}`}>
+          {collection && (
+            <Link
+              href={`/discover?media=${mediaType}&collection=${collection.id}`}
+              className={styles.collectionBadge}
+            >
+              📚 Part of the {collection.name}
+            </Link>
+          )}
+
           <nav className={styles.breadcrumb} aria-label="Breadcrumb">
             <Link href="/" className={styles.bcLink}>Home</Link>
             <span className={styles.bcSep}>›</span>
@@ -185,6 +226,9 @@ export default async function DetailsPage(props: {
             )}
             {details.status && (
               <span className={`${styles.metaChip} ${styles.statusChip}`}>{details.status}</span>
+            )}
+            {returningBadge && (
+              <span className={`${styles.metaChip} ${styles.returningChip}`}>🔜 Returning Soon</span>
             )}
           </div>
 
@@ -351,10 +395,24 @@ export default async function DetailsPage(props: {
               )}
             </div>
           )}
+
+          {/* TAB: WHERE TO WATCH */}
+          {tab === 'where' && (
+            <div className={styles.tabSection}>
+              <WatchProviders id={id} mediaType={mediaType} />
+            </div>
+          )}
         </DetailsTabs>
 
-        {/* RECOMMENDATIONS (Always visible) */}
         <div style={{ marginTop: 'var(--space-2xl)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {moreFromCreator.length > 0 && (
+            <MediaRow
+              title={`More from ${creatorName}`}
+              emoji="🎬"
+              items={moreFromCreator}
+            />
+          )}
+
           {recommendations.length > 0 && (
             <MediaRow
               title="Recommendations"
