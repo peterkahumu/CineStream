@@ -380,8 +380,8 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 }
 
 .btn-secondary {
-  background: #fff;
-  color: var(--text-secondary);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border: 1px solid var(--border-strong);
 }
 .btn-secondary:hover {

@@ -153,7 +153,7 @@ export default function WishlistClient() {
   }, [items])
 
   if (!mounted) {
-    return <div style={{ height: '50vh' }} /> // Skeleton or empty space until hydrated
+    return <div className={styles.skeletonSpacer} /> // Skeleton or empty space until hydrated
   }
 
   if (items.length === 0) {
@@ -192,18 +192,16 @@ export default function WishlistClient() {
             Watched ({items.filter(i => i.watchedAt).length})
           </button>
           {folders.map(f => (
-            <div key={f} style={{ display: 'flex', alignItems: 'center' }}>
+            <div key={f} className={styles.folderTabWrapper}>
               <button 
-                className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''}`}
+                className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''} ${styles.folderTabName}`}
                 onClick={() => setActiveTab(f)}
-                style={{ borderRadius: 'var(--radius-full) 0 0 var(--radius-full)', borderRight: 'none' }}
               >
                 📁 {f} ({items.filter(i => i.folderName === f).length})
               </button>
               <button
-                className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''}`}
+                className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''} ${styles.folderTabDelete} ${activeTab === f ? styles.folderTabDeleteActive : ''}`}
                 onClick={() => setFolderToDelete(f)}
-                style={{ borderRadius: '0 var(--radius-full) var(--radius-full) 0', padding: '8px', color: activeTab === f ? '#fff' : 'var(--red)' }}
                 title="Delete Folder"
               >
                 ✕
@@ -211,9 +209,8 @@ export default function WishlistClient() {
             </div>
           ))}
           <button 
-            className={styles.tabBtn} 
+            className={`${styles.tabBtn} ${styles.newFolderBtn}`} 
             onClick={() => setNewFolderModalOpen(true)}
-            style={{ padding: '4px 12px', fontSize: '0.9rem' }}
           >
             + New Folder
           </button>
@@ -241,7 +238,7 @@ export default function WishlistClient() {
       )}
 
       {sortedItems.length === 0 ? (
-        <div className={styles.emptyState} style={{ padding: '4rem 1rem' }}>
+        <div className={`${styles.emptyState} ${styles.emptyStatePadding}`}>
           <p className={styles.emptyText}>
             {activeTab === 'watched' 
               ? "You haven't marked anything as watched yet."
@@ -314,28 +311,29 @@ export default function WishlistClient() {
         onConfirm={handleSaveFolder}
         onCancel={() => setFolderModalItem(null)}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '1rem' }}>
-          <input
-            type="text"
+        <div className={styles.modalContentGroup}>
+          <input 
+            type="text" 
             value={folderInput}
-            onChange={e => setFolderInput(e.target.value)}
-            placeholder="Folder name (e.g., Favorites)"
-            style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            onChange={(e) => setFolderInput(e.target.value)}
+            placeholder="E.g. Watch with Partner"
+            className={styles.modalInput}
             autoFocus
           />
-          {folders.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {folders.map(f => (
-                <button
-                  key={f}
-                  className="btn btn-secondary"
-                  onClick={() => setFolderInput(f)}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-          )}
+          
+          <div className={styles.modalFolderList}>
+            {customFolders.map(f => (
+              <button 
+                key={f} 
+                className="btn btn-secondary" 
+                onClick={() => {
+                  setFolderInput(f)
+                }}
+              >
+                📁 {f}
+              </button>
+            ))}
+          </div>
         </div>
       </Modal>
       <Modal
@@ -346,13 +344,13 @@ export default function WishlistClient() {
         onConfirm={handleCreateFolder}
         onCancel={() => setNewFolderModalOpen(false)}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'var(--space-lg)' }}>
-          <input
-            type="text"
+        <div className={styles.modalContentGroup}>
+          <input 
+            type="text" 
             value={newFolderInput}
-            onChange={e => setNewFolderInput(e.target.value)}
-            placeholder="Folder name"
-            style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            onChange={(e) => setNewFolderInput(e.target.value)}
+            placeholder="Folder Name"
+            className={styles.modalInput}
             autoFocus
           />
         </div>

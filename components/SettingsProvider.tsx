@@ -32,6 +32,24 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setSettings(loaded)
     applySettingsToDOM(loaded)
 
+    // Auto-detect region if not explicitly set
+    if (!document.cookie.includes('cp_region=')) {
+      fetch('https://countries.dev/ip')
+        .then(r => r.json())
+        .then(data => {
+          if (data.countryCode) {
+            // Update state and cookie
+            writeSetting('region', data.countryCode)
+            setSettings(prev => {
+              const next = { ...prev, region: data.countryCode }
+              applySettingsToDOM(next)
+              return next
+            })
+          }
+        })
+        .catch(console.error)
+    }
+
     // Watch system theme changes if setting is 'system'
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
 

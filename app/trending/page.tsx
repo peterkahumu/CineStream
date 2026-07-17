@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import FilterBar from '@/components/FilterBar'
-import { getTrending, getMovieGenres, getTVGenres, getCountries } from '@/lib/tmdb'
+import { getTrending, getMovieGenres, getTVGenres } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import DiscoveryFeed from '@/components/DiscoveryFeed'
 import styles from '@/components/PageHeader.module.css'
@@ -17,13 +17,11 @@ export default async function TrendingPage(props: {
 }) {
   const searchParams = await props.searchParams
 
-  const [movieGenresRes, tvGenresRes, countriesRes] = await Promise.all([
+  const [movieGenresRes, tvGenresRes] = await Promise.all([
     getMovieGenres(),
-    getTVGenres(),
-    getCountries(),
+    getTVGenres()
   ])
-  const countries = countriesRes.sort((a, b) => a.english_name.localeCompare(b.english_name))
-
+  
   const rawMedia = searchParams.media
   const media = (rawMedia === 'movie' ? 'movie' : rawMedia === 'tv' ? 'tv' : 'all') as 'all' | 'movie' | 'tv'
 
@@ -70,8 +68,7 @@ export default async function TrendingPage(props: {
           <FilterBar
             movieGenres={movieGenresRes.genres}
             tvGenres={tvGenresRes.genres}
-            countries={countries}
-          />
+            />
         </Suspense>
 
         <DiscoveryFeed

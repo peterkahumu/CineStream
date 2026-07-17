@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import FilterBar from '@/components/FilterBar'
-import { discover, getMovieGenres, getTVGenres, getCountries } from '@/lib/tmdb'
+import { discover, getMovieGenres, getTVGenres } from '@/lib/tmdb'
 import styles from '@/components/PageHeader.module.css'
 import DiscoveryFeed from '@/components/DiscoveryFeed'
 
@@ -13,14 +13,12 @@ export default async function DiscoverPage(props: {
 }) {
   const searchParams = await props.searchParams
 
-  const [movieGenresRes, tvGenresRes, countriesRes] = await Promise.all([
+  const [movieGenresRes, tvGenresRes] = await Promise.all([
     getMovieGenres(),
-    getTVGenres(),
-    getCountries(),
+    getTVGenres()
   ])
 
-  const countries = countriesRes.sort((a, b) => a.english_name.localeCompare(b.english_name))
-
+  
   const media = searchParams.media || 'all'
   const isUpcoming = searchParams['primary_release_date.gte'] || searchParams['first_air_date.gte']
 
@@ -93,8 +91,7 @@ export default async function DiscoverPage(props: {
           <FilterBar
             movieGenres={movieGenresRes.genres}
             tvGenres={tvGenresRes.genres}
-            countries={countries}
-          />
+            />
         </Suspense>
 
         <DiscoveryFeed

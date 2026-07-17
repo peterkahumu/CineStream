@@ -156,3 +156,41 @@
   }
   .filterGroup { min-width: 100%; }
 }
+
+.presetRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.presetBtn {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  margin-top: 1rem;
+}
+
+.modalBtnList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.modalPresetBtn {
+  justify-content: flex-start;
+}

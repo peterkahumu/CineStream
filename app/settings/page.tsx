@@ -6,41 +6,11 @@ import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
 import { getTermsAccepted, setTermsAccepted, TERMS_EVENT } from '@/lib/terms'
 import CustomSelect from '@/components/CustomSelect'
 import Modal from '@/components/Modal'
+import { useCountries } from '@/lib/useCountries'
 import styles from './page.module.css'
 
 /** Must stay in sync with ActionButtons.tsx and WishlistClient.tsx */
 const WISHLIST_KEY = 'cinemaphora-wishlist'
-
-const REGIONS = [
-  { code: 'US', name: '🇺🇸 United States' },
-  { code: 'GB', name: '🇬🇧 United Kingdom' },
-  { code: 'CA', name: '🇨🇦 Canada' },
-  { code: 'AU', name: '🇦🇺 Australia' },
-  { code: 'DE', name: '🇩🇪 Germany' },
-  { code: 'FR', name: '🇫🇷 France' },
-  { code: 'JP', name: '🇯🇵 Japan' },
-  { code: 'KR', name: '🇰🇷 South Korea' },
-  { code: 'IN', name: '🇮🇳 India' },
-  { code: 'BR', name: '🇧🇷 Brazil' },
-  { code: 'MX', name: '🇲🇽 Mexico' },
-  { code: 'NG', name: '🇳🇬 Nigeria' },
-  { code: 'ZA', name: '🇿🇦 South Africa' },
-  { code: 'KE', name: '🇰🇪 Kenya' },
-]
-
-const LANGUAGES = [
-  { code: 'en-US', name: 'English (US)' },
-  { code: 'en-GB', name: 'English (UK)' },
-  { code: 'es-ES', name: 'Español (Spain)' },
-  { code: 'es-MX', name: 'Español (Mexico)' },
-  { code: 'fr-FR', name: 'Français' },
-  { code: 'de-DE', name: 'Deutsch' },
-  { code: 'ja-JP', name: '日本語' },
-  { code: 'ko-KR', name: '한국어' },
-  { code: 'pt-BR', name: 'Português (Brasil)' },
-  { code: 'hi-IN', name: 'हिन्दी' },
-  { code: 'sw-KE', name: 'Kiswahili' },
-]
 
 function Toggle({
   checked,
@@ -91,6 +61,9 @@ export default function SettingsPage() {
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [termsAccepted, setTermsState] = useState(false)
   const [mounted, setMounted] = useState(false)
+  
+  const { regions, languages, loading } = useCountries()
+  
   const importRef = useRef<HTMLInputElement>(null)
   const importTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -98,6 +71,7 @@ export default function SettingsPage() {
   useEffect(() => {
     setMounted(true)
     setTermsState(getTermsAccepted())
+    
     const sync = () => setTermsState(getTermsAccepted())
     window.addEventListener(TERMS_EVENT, sync)
     return () => window.removeEventListener(TERMS_EVENT, sync)
@@ -193,13 +167,12 @@ export default function SettingsPage() {
             <h2 className={styles.sectionTitle}>🎨 Appearance</h2>
 
             <SettingRow label="Theme" description="Choose your preferred colour scheme.">
-              <div className={styles.themeButtons} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className={styles.themeButtons}>
                 {(['light', 'dark', 'system', 'cinema', 'amoled', 'dim'] as Theme[]).map(t => (
                   <button
                     key={t}
                     onClick={() => updateSetting('theme', t)}
                     className={`${styles.themeBtn} ${settings.theme === t ? styles.themeBtnActive : ''}`}
-                    style={{ flex: '1 1 calc(33.333% - 8px)', minWidth: '90px' }}
                   >
                     {t === 'light' ? '☀️' : 
                      t === 'dark' ? '🌙' : 
@@ -284,7 +257,7 @@ export default function SettingsPage() {
             <SettingRow label="Region" description="Your TMDB region affects release dates and available streaming providers.">
               <CustomSelect
                 value={settings.region}
-                options={REGIONS.map(r => ({ value: r.code, label: r.name }))}
+                options={loading ? [{ value: settings.region, label: 'Loading...' }] : regions.map(r => ({ value: r.code, label: r.name }))}
                 onChange={v => updateSetting('region', v)}
               />
             </SettingRow>
@@ -292,7 +265,7 @@ export default function SettingsPage() {
             <SettingRow label="Language" description="Preferred language for titles and descriptions.">
               <CustomSelect
                 value={settings.language}
-                options={LANGUAGES.map(l => ({ value: l.code, label: l.name }))}
+                options={loading ? [{ value: settings.language, label: 'Loading...' }] : languages.map(l => ({ value: l.code, label: l.name }))}
                 onChange={v => updateSetting('language', v)}
               />
             </SettingRow>

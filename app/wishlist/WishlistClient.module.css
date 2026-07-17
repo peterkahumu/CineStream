@@ -218,3 +218,58 @@
   color: var(--text-muted);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* ── FOLDER TABS ── */
+.folderTabWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.folderTabName {
+  border-radius: var(--radius-full) 0 0 var(--radius-full) !important;
+  border-right: none !important;
+}
+
+.folderTabDelete {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0 !important;
+  padding: 8px !important;
+  color: var(--red);
+}
+
+.folderTabDeleteActive {
+  color: #fff !important;
+}
+
+.newFolderBtn {
+  padding: 4px 12px;
+  font-size: 0.9rem;
+}
+
+.emptyStatePadding {
+  padding: 4rem 1rem;
+}
+
+.skeletonSpacer {
+  height: 50vh;
+}
+
+.modalContentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.modalInput {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.modalFolderList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

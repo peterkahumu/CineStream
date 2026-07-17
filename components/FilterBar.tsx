@@ -6,12 +6,12 @@ import CustomSelect from '@/components/CustomSelect'
 import MultiSelect from '@/components/MultiSelect'
 import Modal from '@/components/Modal'
 import { useSettings } from '@/components/SettingsProvider'
+import { useCountries } from '@/lib/useCountries'
 import styles from './FilterBar.module.css'
 
 interface Props {
   movieGenres: Genre[]
   tvGenres: Genre[]
-  countries: Country[]
   hideAdvancedFilters?: boolean
 }
 
@@ -40,21 +40,9 @@ const RATING_LABELS: Record<string, string> = {
   '': 'Any Rating', '9': '9+ ⭐', '8': '8+ ⭐', '7': '7+ ⭐', '6': '6+ ⭐', '5': '5+ ⭐',
 }
 
-const LANGUAGES = [
-  { code: '', label: 'All Languages' },
-  { code: 'en', label: 'English' },
-  { code: 'ja', label: 'Japanese' },
-  { code: 'ko', label: 'Korean' },
-  { code: 'fr', label: 'French' },
-  { code: 'es', label: 'Spanish' },
-  { code: 'de', label: 'German' },
-  { code: 'zh', label: 'Chinese' },
-  { code: 'hi', label: 'Hindi' },
-  { code: 'pt', label: 'Portuguese' },
-  { code: 'it', label: 'Italian' },
-]
+// We now use dynamic countries and languages from useCountries() hook
 
-export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvancedFilters = false }: Props) {
+export default function FilterBar({ movieGenres, tvGenres, hideAdvancedFilters = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -63,6 +51,8 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
   const [showLoadPreset, setShowLoadPreset] = useState(false)
   const [presetName, setPresetName] = useState('')
   const { settings } = useSettings()
+  
+  const { regions, languages } = useCountries()
 
   const media = (searchParams.get('media') as 'all' | 'movie' | 'tv') || 'all'
   const sort_by = searchParams.get('sort') || 'popularity.desc'
@@ -207,7 +197,7 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
             <label className={styles.filterLabel}>Country (Multi)</label>
             <MultiSelect
               values={countryValues}
-              options={countries.map(c => ({ value: c.iso_3166_1, label: c.english_name }))}
+              options={regions.map(r => ({ value: r.code, label: r.name }))}
               onChange={v => setMultiFilter('country', v)}
               placeholder="All Countries"
             />
@@ -241,7 +231,7 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
             <label className={styles.filterLabel}>Language (Multi)</label>
             <MultiSelect
               values={languageValues}
-              options={LANGUAGES.filter(l => l.code).map(l => ({ value: l.code, label: l.label }))}
+              options={languages.map(l => ({ value: l.code, label: l.name }))}
               onChange={v => setMultiFilter('language', v)}
               placeholder="All Languages"
             />
@@ -252,10 +242,10 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
 
       {/* Presets Action (Moved outside grid for full width) */}
       {expanded && (
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginTop: 'var(--space-md)', paddingTop: 'var(--space-md)', borderTop: '1px solid var(--border)' }}>
-          <button className="btn btn-secondary" style={{ padding: '8px 12px', fontSize: '0.9rem' }} onClick={() => setShowSavePreset(true)}>💾 Save Preset</button>
+        <div className={styles.presetRow}>
+          <button className={`btn btn-secondary ${styles.presetBtn}`} onClick={() => setShowSavePreset(true)}>💾 Save Preset</button>
           {savedPresets.length > 0 && (
-            <button className="btn btn-secondary" style={{ padding: '8px 12px', fontSize: '0.9rem' }} onClick={() => setShowLoadPreset(true)}>📂 Load Preset</button>
+            <button className={`btn btn-secondary ${styles.presetBtn}`} onClick={() => setShowLoadPreset(true)}>📂 Load Preset</button>
           )}
           {hasFilters && (
             <button className={styles.resetBtn} onClick={reset} style={{ marginLeft: 'auto' }}>✕ Reset Filters</button>
@@ -277,7 +267,7 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
           value={presetName}
           onChange={(e) => setPresetName(e.target.value)}
           placeholder="Preset Name"
-          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', marginTop: '1rem' }}
+          className={styles.modalInput}
           autoFocus
         />
       </Modal>
@@ -291,12 +281,11 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
         onConfirm={() => setShowLoadPreset(false)}
         hideCancel
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '1rem' }}>
+        <div className={styles.modalBtnList}>
           {savedPresets.map((p: any, i: number) => (
             <button 
               key={i}
-              className="btn btn-secondary"
-              style={{ justifyContent: 'flex-start' }}
+              className={`btn btn-secondary ${styles.modalPresetBtn}`}
               onClick={() => loadPreset(p.params)}
             >
               {p.name}
