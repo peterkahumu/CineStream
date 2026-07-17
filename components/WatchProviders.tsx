@@ -33,11 +33,24 @@ function getRegionFromCache(): string {
   return 'US'
 }
 
-async function fetchProviders(id: string, mediaType: string, region: string): Promise<ProviderSet | null> {
+async function fetchProviders(id: string, mediaType: string, region: string): Promise<{ data: ProviderSet | null, actualRegion: string }> {
   const res = await fetch(`/api/tmdb/${mediaType}/${id}/watch/providers`)
-  if (!res.ok) return null
-  const data = await res.json()
-  return data?.results?.[region] ?? null
+  if (!res.ok) return { data: null, actualRegion: region }
+  const json = await res.json()
+  
+  const localData = json?.results?.[region]
+  const hasLocal = localData && (
+    (localData.flatrate?.length ?? 0) +
+    (localData.rent?.length ?? 0) +
+    (localData.buy?.length ?? 0) +
+    (localData.ads?.length ?? 0)
+  ) > 0
+
+  if (hasLocal) return { data: localData, actualRegion: region }
+
+  // Fallback to US
+  const usData = json?.results?.['US']
+  return { data: usData ?? null, actualRegion: usData ? 'US' : region }
 }
 
 export default function WatchProviders({ id, mediaType }: Props) {
@@ -47,14 +60,14 @@ export default function WatchProviders({ id, mediaType }: Props) {
 
   const handleLoad = useCallback(async (regionCode: string) => {
     setLoading(true)
-    const data = await fetchProviders(id, mediaType, regionCode)
+    const { data, actualRegion } = await fetchProviders(id, mediaType, regionCode)
     setProviders(data)
+    setRegion(actualRegion)
     setLoading(false)
   }, [id, mediaType])
 
   useEffect(() => {
     const regionCode = getRegionFromCache()
-    setRegion(regionCode)
     handleLoad(regionCode)
   }, [handleLoad])
 

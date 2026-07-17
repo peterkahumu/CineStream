@@ -4,6 +4,8 @@ import { discover, getMovieGenres, getTVGenres, getCountries } from '@/lib/tmdb'
 import styles from '@/components/PageHeader.module.css'
 import DiscoveryFeed from '@/components/DiscoveryFeed'
 
+import { cookies } from 'next/headers'
+
 export const dynamic = 'force-dynamic'
 
 export default async function DiscoverPage(props: {
@@ -40,6 +42,13 @@ export default async function DiscoverPage(props: {
   if (searchParams['primary_release_date.lte']) apiParams['primary_release_date.lte'] = searchParams['primary_release_date.lte']
   if (searchParams['first_air_date.gte'])       apiParams['first_air_date.gte']       = searchParams['first_air_date.gte']
   if (searchParams['first_air_date.lte'])       apiParams['first_air_date.lte']       = searchParams['first_air_date.lte']
+
+  const cookieStore = await cookies()
+  const maxCert = cookieStore.get('cp_maxCertification')?.value
+  if (maxCert && maxCert !== 'none') {
+    apiParams['certification_country'] = 'US'
+    apiParams['certification.lte'] = maxCert
+  }
 
   let initialItems: any[] = []
   let totalPages = 1

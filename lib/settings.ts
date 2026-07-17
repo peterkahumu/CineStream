@@ -1,7 +1,8 @@
 /** All user-configurable preferences */
-export type Theme = 'light' | 'dark' | 'system'
+export type Theme = 'light' | 'dark' | 'system' | 'cinema' | 'amoled' | 'dim'
 export type Layout = 'grid' | 'list'
 export type WishlistSort = 'added' | 'alpha' | 'rating' | 'date'
+export type CertificationCeiling = 'G' | 'PG' | 'PG-13' | 'R' | 'NC-17' | 'none'
 
 export interface UserSettings {
   theme: Theme
@@ -15,6 +16,7 @@ export interface UserSettings {
   saveSearchHistory: boolean
   defaultSortWishlist: WishlistSort
   preferredProviders: number[] // TMDB provider IDs
+  maxCertification: CertificationCeiling
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -29,6 +31,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   saveSearchHistory: true,
   defaultSortWishlist: 'added',
   preferredProviders: [],
+  maxCertification: 'none',
 }
 
 const COOKIE_PREFIX = 'cp_'

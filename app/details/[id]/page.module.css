@@ -122,6 +122,12 @@
   background: rgba(22, 163, 74, 0.25);
   border-color: rgba(74, 222, 128, 0.3);
 }
+.ratingChip {
+  color: var(--amber, #f59e0b);
+  border-color: rgba(245, 158, 11, 0.3);
+  font-weight: 700;
+}
+
 .statusChip {
   color: #93c5fd;
   font-weight: 600;
@@ -190,10 +196,29 @@
 }
 
 /* ── ACTIONS ─────────────────────────────────────────────────────────────── */
+.actionsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.certChip {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
 .actionsRow {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   flex-wrap: wrap;
 }
 

@@ -11,18 +11,6 @@ import styles from './page.module.css'
 /** Must stay in sync with ActionButtons.tsx and WishlistClient.tsx */
 const WISHLIST_KEY = 'cinemaphora-wishlist'
 
-// Popular streaming providers with their TMDB IDs and emoji/colors
-const STREAMING_PROVIDERS = [
-  { id: 8,   name: 'Netflix',     emoji: '🔴', color: '#E50914' },
-  { id: 9,   name: 'Prime Video', emoji: '🔵', color: '#00A8E1' },
-  { id: 337, name: 'Disney+',     emoji: '✨', color: '#113CCF' },
-  { id: 384, name: 'Max',         emoji: '💙', color: '#002BE7' },
-  { id: 15,  name: 'Hulu',        emoji: '💚', color: '#1CE783' },
-  { id: 2,   name: 'Apple TV+',   emoji: '🍎', color: '#555555' },
-  { id: 283, name: 'Crunchyroll', emoji: '🍊', color: '#FF6400' },
-  { id: 531, name: 'Paramount+',  emoji: '⭐', color: '#0064FF' },
-]
-
 const REGIONS = [
   { code: 'US', name: '🇺🇸 United States' },
   { code: 'GB', name: '🇬🇧 United Kingdom' },
@@ -205,14 +193,19 @@ export default function SettingsPage() {
             <h2 className={styles.sectionTitle}>🎨 Appearance</h2>
 
             <SettingRow label="Theme" description="Choose your preferred colour scheme.">
-              <div className={styles.themeButtons}>
-                {(['light', 'dark', 'system'] as Theme[]).map(t => (
+              <div className={styles.themeButtons} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {(['light', 'dark', 'system', 'cinema', 'amoled', 'dim'] as Theme[]).map(t => (
                   <button
                     key={t}
                     onClick={() => updateSetting('theme', t)}
                     className={`${styles.themeBtn} ${settings.theme === t ? styles.themeBtnActive : ''}`}
+                    style={{ flex: '1 1 calc(33.333% - 8px)', minWidth: '90px' }}
                   >
-                    {t === 'light' ? '☀️' : t === 'dark' ? '🌙' : '💻'}
+                    {t === 'light' ? '☀️' : 
+                     t === 'dark' ? '🌙' : 
+                     t === 'system' ? '💻' : 
+                     t === 'cinema' ? '🍿' : 
+                     t === 'amoled' ? '⬛' : '🌑'}
                     <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
                   </button>
                 ))}
@@ -272,6 +265,21 @@ export default function SettingsPage() {
                 onChange={v => updateSetting('safeSearch', v)}
               />
             </SettingRow>
+            
+            <SettingRow label="Age Rating Ceiling" description="Filter content above this certification.">
+              <CustomSelect
+                value={settings.maxCertification}
+                options={[
+                  { value: 'none', label: 'No Limit' },
+                  { value: 'G', label: 'G (General Audiences)' },
+                  { value: 'PG', label: 'PG (Parental Guidance)' },
+                  { value: 'PG-13', label: 'PG-13 (Parents Strongly Cautioned)' },
+                  { value: 'R', label: 'R (Restricted)' },
+                  { value: 'NC-17', label: 'NC-17 (Adults Only)' }
+                ]}
+                onChange={v => updateSetting('maxCertification', v as any)}
+              />
+            </SettingRow>
 
             <SettingRow label="Region" description="Your TMDB region affects release dates and available streaming providers.">
               <CustomSelect
@@ -289,28 +297,6 @@ export default function SettingsPage() {
               />
             </SettingRow>
 
-            <div className={styles.providersBlock}>
-              <div className={styles.settingLabel}>
-                <span>Preferred Streaming Services</span>
-                <p>Highlight content from the services you subscribe to.</p>
-              </div>
-              <div className={styles.providerGrid}>
-                {STREAMING_PROVIDERS.map(p => {
-                  const active = settings.preferredProviders.includes(p.id)
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => toggleProvider(p.id)}
-                      className={`${styles.providerChip} ${active ? styles.providerChipActive : ''}`}
-                      style={active ? { borderColor: p.color, background: `${p.color}18` } : {}}
-                    >
-                      <span>{p.emoji}</span>
-                      <span>{p.name}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
           </section>
 
           {/* ── Search & Feed ───────────────────────────────────────────── */}

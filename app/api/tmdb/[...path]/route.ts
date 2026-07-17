@@ -25,6 +25,13 @@ export async function GET(
   const forwardedParams = new URLSearchParams(request.nextUrl.searchParams)
   forwardedParams.set('api_key', API_KEY)
 
+  // Safe Search Ceiling (Client requests)
+  const maxCert = request.cookies.get('cp_maxCertification')?.value
+  if (maxCert && maxCert !== 'none' && (tmdbPath === 'discover/movie' || tmdbPath === 'discover/tv')) {
+    forwardedParams.set('certification_country', 'US')
+    forwardedParams.set('certification.lte', maxCert)
+  }
+
   try {
     const tmdbUrl = `${TMDB_BASE}/${tmdbPath}?${forwardedParams.toString()}`
 

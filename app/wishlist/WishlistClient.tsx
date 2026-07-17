@@ -14,15 +14,24 @@ interface SavedWishlistItem {
   backdrop: string | null
   addedAt: number
   watchedAt?: number // Optional timestamp for watched items
+  folderName?: string
 }
+
+import Modal from '@/components/Modal'
 
 const WISHLIST_KEY = 'cinemaphora-wishlist'
 
 export default function WishlistClient() {
   const [items, setItems] = useState<SavedWishlistItem[]>([])
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'all' | 'to-watch' | 'watched'>('all')
+  const [activeTab, setActiveTab] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'title-asc'>('date-desc')
+  const [folderModalItem, setFolderModalItem] = useState<string | null>(null)
+  const [folderInput, setFolderInput] = useState('')
+  const [customFolders, setCustomFolders] = useState<string[]>([])
+  const [newFolderModalOpen, setNewFolderModalOpen] = useState(false)
+  const [newFolderInput, setNewFolderInput] = useState('')
+  const [folderToDelete, setFolderToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -30,6 +39,10 @@ export default function WishlistClient() {
       const stored = localStorage.getItem(WISHLIST_KEY)
       if (stored) {
         setItems(JSON.parse(stored))
+      }
+      const storedFolders = localStorage.getItem('cinemaphora-wishlist-folders')
+      if (storedFolders) {
+        setCustomFolders(JSON.parse(storedFolders))
       }
     } catch (e) {
       console.error('Failed to parse wishlist', e)
@@ -64,9 +77,56 @@ export default function WishlistClient() {
     return items.filter(item => {
       if (activeTab === 'all') return true
       if (activeTab === 'watched') return item.watchedAt != null
-      return item.watchedAt == null
+      if (activeTab === 'to-watch') return item.watchedAt == null
+      return item.folderName === activeTab
     })
   }, [items, activeTab])
+
+  const folders = useMemo(() => {
+    const itemFolders = items.map(i => i.folderName).filter(Boolean) as string[]
+    return Array.from(new Set([...customFolders, ...itemFolders]))
+  }, [items, customFolders])
+
+  const handleCreateFolder = () => {
+    if (!newFolderInput.trim()) return
+    const updated = Array.from(new Set([...customFolders, newFolderInput.trim()]))
+    setCustomFolders(updated)
+    localStorage.setItem('cinemaphora-wishlist-folders', JSON.stringify(updated))
+    setNewFolderModalOpen(false)
+    setNewFolderInput('')
+  }
+
+  const handleSaveFolder = () => {
+    if (!folderModalItem) return
+    setItems(prev => {
+      const next = prev.map(item => {
+        if (item.id === folderModalItem) {
+          return { ...item, folderName: folderInput.trim() || undefined }
+        }
+        return item
+      })
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
+      return next
+    })
+    setFolderModalItem(null)
+    setFolderInput('')
+  }
+
+  const confirmDeleteFolder = () => {
+    if (!folderToDelete) return
+    setCustomFolders(prev => {
+      const next = prev.filter(f => f !== folderToDelete)
+      localStorage.setItem('cinemaphora-wishlist-folders', JSON.stringify(next))
+      return next
+    })
+    setItems(prev => {
+      const next = prev.map(item => item.folderName === folderToDelete ? { ...item, folderName: undefined } : item)
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
+      return next
+    })
+    if (activeTab === folderToDelete) setActiveTab('all')
+    setFolderToDelete(null)
+  }
 
   const sortedItems = useMemo(() => {
     const list = [...filteredItems]
@@ -131,6 +191,32 @@ export default function WishlistClient() {
           >
             Watched ({items.filter(i => i.watchedAt).length})
           </button>
+          {folders.map(f => (
+            <div key={f} style={{ display: 'flex', alignItems: 'center' }}>
+              <button 
+                className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''}`}
+                onClick={() => setActiveTab(f)}
+                style={{ borderRadius: 'var(--radius-full) 0 0 var(--radius-full)', borderRight: 'none' }}
+              >
+                📁 {f} ({items.filter(i => i.folderName === f).length})
+              </button>
+              <button
+                className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''}`}
+                onClick={() => setFolderToDelete(f)}
+                style={{ borderRadius: '0 var(--radius-full) var(--radius-full) 0', padding: '8px', color: activeTab === f ? '#fff' : 'var(--red)' }}
+                title="Delete Folder"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button 
+            className={styles.tabBtn} 
+            onClick={() => setNewFolderModalOpen(true)}
+            style={{ padding: '4px 12px', fontSize: '0.9rem' }}
+          >
+            + New Folder
+          </button>
         </div>
 
         <div className={styles.controls}>
@@ -186,20 +272,32 @@ export default function WishlistClient() {
                     {isWatched ? '✓ Watched' : 'To Watch'}
                   </div>
                 )}
-                <div className={styles.cardActions}>
-                  <button 
-                    className={`${styles.actionBtn} ${isWatched ? styles.watchedBtn : ''}`}
-                    onClick={() => handleToggleWatched(item.id, isWatched)}
-                    title={isWatched ? "Mark as un-watched" : "Mark as watched"}
+                <div className={styles.cardActions} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button 
+                      className={`${styles.actionBtn} ${isWatched ? styles.watchedBtn : ''}`}
+                      onClick={() => handleToggleWatched(item.id, isWatched)}
+                      title={isWatched ? "Mark as un-watched" : "Mark as watched"}
+                    >
+                      {isWatched ? '✓ Watched' : 'Mark Watched'}
+                    </button>
+                    <button 
+                      className={styles.removeBtn}
+                      onClick={() => handleRemove(item.id)}
+                      title="Remove from list"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() => {
+                      setFolderModalItem(item.id)
+                      setFolderInput(item.folderName || '')
+                    }}
+                    style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white' }}
                   >
-                    {isWatched ? '✓ Watched' : 'Mark Watched'}
-                  </button>
-                  <button 
-                    className={styles.removeBtn}
-                    onClick={() => handleRemove(item.id)}
-                    title="Remove from list"
-                  >
-                    ✕
+                    📁 {item.folderName || 'Add to Folder'}
                   </button>
                 </div>
               </div>
@@ -207,6 +305,67 @@ export default function WishlistClient() {
           })}
         </div>
       )}
+
+      <Modal
+        isOpen={!!folderModalItem}
+        title="Add to Folder"
+        description="Organise your list with custom folders like 'Watch Tonight' or 'With Partner'."
+        confirmText="Save"
+        onConfirm={handleSaveFolder}
+        onCancel={() => setFolderModalItem(null)}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '1rem' }}>
+          <input
+            type="text"
+            value={folderInput}
+            onChange={e => setFolderInput(e.target.value)}
+            placeholder="Folder name (e.g., Favorites)"
+            style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            autoFocus
+          />
+          {folders.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {folders.map(f => (
+                <button
+                  key={f}
+                  className="btn btn-secondary"
+                  onClick={() => setFolderInput(f)}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </Modal>
+      <Modal
+        isOpen={newFolderModalOpen}
+        title="Create New Folder"
+        description="Organise your list with custom folders like 'Watch Tonight' or 'With Partner'."
+        confirmText="Create"
+        onConfirm={handleCreateFolder}
+        onCancel={() => setNewFolderModalOpen(false)}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'var(--space-lg)' }}>
+          <input
+            type="text"
+            value={newFolderInput}
+            onChange={e => setNewFolderInput(e.target.value)}
+            placeholder="Folder name"
+            style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+            autoFocus
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!folderToDelete}
+        title="Delete Folder"
+        description={`Are you sure you want to delete the folder "${folderToDelete}"? Items inside will not be deleted from your wishlist.`}
+        confirmText="Delete"
+        onConfirm={confirmDeleteFolder}
+        onCancel={() => setFolderToDelete(null)}
+      />
     </div>
   )
 }

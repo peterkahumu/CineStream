@@ -235,6 +235,30 @@ export interface PersonDetails {
 export const getPersonDetails = (id: number) =>
   tmdbFetch<PersonDetails>(`/person/${id}`, { append_to_response: 'combined_credits' })
 
+export interface MediaCertification {
+  certification: string
+  meaning?: string
+}
+
+export const getMediaCertifications = async (id: number, mediaType: 'movie' | 'tv'): Promise<string | null> => {
+  if (mediaType === 'movie') {
+    const data = await tmdbFetch<{ results: { iso_3166_1: string, release_dates: { certification: string }[] }[] }>(`/movie/${id}/release_dates`).catch(() => null)
+    if (!data) return null
+    const usInfo = data.results.find(r => r.iso_3166_1 === 'US')
+    if (usInfo && usInfo.release_dates.length > 0) {
+      // Find the first non-empty certification
+      const cert = usInfo.release_dates.find(d => d.certification)?.certification
+      return cert || null
+    }
+    return null
+  } else {
+    const data = await tmdbFetch<{ results: { iso_3166_1: string, rating: string }[] }>(`/tv/${id}/content_ratings`).catch(() => null)
+    if (!data) return null
+    const usInfo = data.results.find(r => r.iso_3166_1 === 'US')
+    return usInfo?.rating || null
+  }
+}
+
 export const getMovieGenres = () =>
   tmdbFetch<{ genres: Genre[] }>('/genre/movie/list')
 

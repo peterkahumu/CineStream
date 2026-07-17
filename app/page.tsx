@@ -8,6 +8,7 @@ import {
   discover, TMDBPage,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
@@ -45,6 +46,10 @@ function getThemedCollection(): { title: string, emoji: string, queryParams: any
 }
 
 export default async function HomePage() {
+  const cookieStore = await cookies()
+  const maxCert = cookieStore.get('cp_maxCertification')?.value
+  const certParams = (maxCert && maxCert !== 'none') ? { certification_country: 'US', 'certification.lte': maxCert } : {}
+
   const theme = getThemedCollection()
 
   const [
@@ -73,15 +78,15 @@ export default async function HomePage() {
     getProviderContent(9, 'tv'),
     getProviderContent(337, 'movie'), // Disney+
     getProviderContent(337, 'tv'),
-    discover(theme.queryParams as import('@/lib/tmdb').DiscoverParams),
+    discover({ ...(theme.queryParams as import('@/lib/tmdb').DiscoverParams), ...certParams }),
     // Hidden Gems — low popularity, high rating (movie)
-    discover({ media: 'movie', 'vote_average.gte': 7.5, 'vote_count.gte': 300, 'popularity.lte': 30, sort_by: 'vote_average.desc' }),
+    discover({ media: 'movie', 'vote_average.gte': 7.5, 'vote_count.gte': 300, 'popularity.lte': 30, sort_by: 'vote_average.desc', ...certParams }),
     // Hidden Gems — TV
-    discover({ media: 'tv', 'vote_average.gte': 7.5, 'vote_count.gte': 200, 'popularity.lte': 20, sort_by: 'vote_average.desc' }),
+    discover({ media: 'tv', 'vote_average.gte': 7.5, 'vote_count.gte': 200, 'popularity.lte': 20, sort_by: 'vote_average.desc', ...certParams }),
     // Binge-Worthy TV
-    discover({ media: 'tv', 'vote_average.gte': 7.5, 'vote_count.gte': 200, sort_by: 'vote_average.desc' }),
+    discover({ media: 'tv', 'vote_average.gte': 7.5, 'vote_count.gte': 200, sort_by: 'vote_average.desc', ...certParams }),
     // Returning Soon — TV shows with status returning
-    discover({ media: 'tv', with_status: '0', sort_by: 'popularity.desc' }),
+    discover({ media: 'tv', with_status: '0', sort_by: 'popularity.desc', ...certParams }),
   ])
 
   const ok = <T,>(r: PromiseSettledResult<TMDBPage<T>>): T[] =>

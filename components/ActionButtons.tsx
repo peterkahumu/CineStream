@@ -120,9 +120,9 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
         <button 
           className={`${styles.textBtn} ${inWishlist ? styles.removeBtn : styles.addBtn}`}
           onClick={toggleWishlist}
-          title={inWishlist ? "Remove from My List" : "Add to My List"}
+          title={inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
         >
-          {inWishlist ? 'Remove from My List' : 'Add to My List'}
+          {inWishlist ? '✓ Wishlist' : '+ Wishlist'}
         </button>
 
         <button 

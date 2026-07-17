@@ -12,7 +12,7 @@ import WatchProviders from '@/components/WatchProviders'
 import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
-  discover,
+  discover, getMediaCertifications,
   type CastMember, type Review, type Video, type Season,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
@@ -80,6 +80,7 @@ export default async function DetailsPage(props: {
     : await getTVDetails(Number(id))
 
   if (!details) throw new Error('Failed to load media details')
+  const certification = await getMediaCertifications(Number(id), mediaType)
 
   const title = mediaTitle(details)
   const backdrop = backdropUrl(details.backdrop_path, 'original')
@@ -228,6 +229,9 @@ export default async function DetailsPage(props: {
             {details.status && (
               <span className={`${styles.metaChip} ${styles.statusChip}`}>{details.status}</span>
             )}
+            {certification && (
+              <span className={`${styles.metaChip} ${styles.certChip}`}>{certification}</span>
+            )}
             {returningBadge && (
               <span className={`${styles.metaChip} ${styles.returningChip}`}>🔜 Returning Soon</span>
             )}
@@ -257,30 +261,32 @@ export default async function DetailsPage(props: {
             </div>
           )}
           
-          <div className={styles.actionsRow}>
-            {isUpcoming ? (
-              <span className={`btn btn-primary ${styles.watchBtn}`} style={{ opacity: 0.8, cursor: 'default' }}>
-                📅 Coming {new Date(upcomingDateStr).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-              </span>
-            ) : mediaType === 'movie' ? (
-              <Link
-                href={`/watch/${id}?type=movie`}
-                className={`btn btn-primary ${styles.watchBtn}`}
-              >
-                ▶ Watch Now
-              </Link>
-            ) : (
-              <Suspense fallback={<span className={`btn btn-primary ${styles.watchBtn}`}>▶ Choose Episode</span>}>
-                <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
-              </Suspense>
-            )}
-            <ActionButtons 
-              id={id} 
-              mediaType={mediaType} 
-              title={title} 
-              poster={details.poster_path} 
-              backdrop={details.backdrop_path} 
-            />
+          <div className={styles.actionsContainer}>
+            <div className={styles.actionsRow}>
+              {isUpcoming ? (
+                <span className={`btn btn-primary ${styles.watchBtn}`} style={{ opacity: 0.8, cursor: 'default' }}>
+                  📅 Coming {new Date(upcomingDateStr).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                </span>
+              ) : mediaType === 'movie' ? (
+                <Link
+                  href={`/watch/${id}?type=movie`}
+                  className={`btn btn-primary ${styles.watchBtn}`}
+                >
+                  ▶ Watch Now
+                </Link>
+              ) : (
+                <Suspense fallback={<span className={`btn btn-primary ${styles.watchBtn}`}>▶ Choose Episode</span>}>
+                  <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
+                </Suspense>
+              )}
+              <ActionButtons 
+                id={id} 
+                mediaType={mediaType} 
+                title={title} 
+                poster={details.poster_path} 
+                backdrop={details.backdrop_path} 
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -406,20 +412,20 @@ export default async function DetailsPage(props: {
         </DetailsTabs>
 
         <div style={{ marginTop: 'var(--space-2xl)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {moreFromCreator.length > 0 && (
-            <MediaRow
-              title={`More from ${creatorName}`}
-              emoji="🎬"
-              items={moreFromCreator}
-            />
-          )}
-
           {recommendations.length > 0 && (
             <MediaRow
               title="Recommendations"
               emoji="✨"
               items={recommendations}
               forcedType={mediaType}
+            />
+          )}
+
+          {moreFromCreator.length > 0 && (
+            <MediaRow
+              title={`More from ${creatorName}`}
+              emoji="🎬"
+              items={moreFromCreator}
             />
           )}
 

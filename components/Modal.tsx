@@ -12,6 +12,7 @@ interface Props {
   onConfirm: () => void
   onCancel?: () => void
   hideCancel?: boolean
+  children?: React.ReactNode
 }
 
 export default function Modal({
@@ -22,7 +23,8 @@ export default function Modal({
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
-  hideCancel = false
+  hideCancel = false,
+  children
 }: Props) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape' && onCancel) onCancel()
@@ -49,6 +51,7 @@ export default function Modal({
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.description}>{description}</div>
+        {children}
         <div className={styles.actions}>
           {!hideCancel && onCancel && (
             <button className={styles.btnCancel} onClick={onCancel}>

@@ -3,6 +3,9 @@ import { useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Genre, Country } from '@/lib/tmdb'
 import CustomSelect from '@/components/CustomSelect'
+import MultiSelect from '@/components/MultiSelect'
+import Modal from '@/components/Modal'
+import { useSettings } from '@/components/SettingsProvider'
 import styles from './FilterBar.module.css'
 
 interface Props {
@@ -56,6 +59,10 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const [expanded, setExpanded] = useState(false)
+  const [showSavePreset, setShowSavePreset] = useState(false)
+  const [showLoadPreset, setShowLoadPreset] = useState(false)
+  const [presetName, setPresetName] = useState('')
+  const { settings } = useSettings()
 
   const media = (searchParams.get('media') as 'all' | 'movie' | 'tv') || 'all'
   const sort_by = searchParams.get('sort') || 'popularity.desc'
@@ -63,11 +70,24 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
   const country = searchParams.get('country') || ''
   const year = searchParams.get('year') || ''
   const minRating = searchParams.get('minRating') || ''
-  const language = searchParams.get('language') || ''
+  const language = searchParams.has('language') ? (searchParams.get('language') || '') : (settings?.language?.split('-')[0] || '')
 
-  const genres = media === 'movie' ? movieGenres : media === 'tv' ? tvGenres : []
+  const allGenres = [...movieGenres, ...tvGenres].reduce((acc, curr) => {
+    if (!acc.find(g => g.id === curr.id)) acc.push(curr)
+    return acc
+  }, [] as Genre[])
+
+  const genres = media === 'movie' ? movieGenres : media === 'tv' ? tvGenres : allGenres
   const sortOptions = media === 'tv' ? SORT_TV : SORT_OPTIONS
   const hasFilters = genreId || country || year || minRating || language
+
+  const genreValues = genreId ? genreId.split(',') : []
+  const countryValues = country ? country.split(',') : []
+  const languageValues = language ? language.split(',') : []
+
+  const setMultiFilter = (key: string, values: string[]) => {
+    setFilter(key, values.join(','))
+  }
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -101,6 +121,22 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
     params.set('sort', 'popularity.desc')
     router.push(`${pathname}?${params.toString()}`)
   }
+
+  const savePreset = () => {
+    if (!presetName.trim()) return
+    const presets = JSON.parse(localStorage.getItem('cinemaphora-presets') || '[]')
+    presets.push({ name: presetName, params: searchParams.toString() })
+    localStorage.setItem('cinemaphora-presets', JSON.stringify(presets))
+    setShowSavePreset(false)
+    setPresetName('')
+  }
+
+  const loadPreset = (query: string) => {
+    router.push(`${pathname}?${query}`)
+    setShowLoadPreset(false)
+  }
+
+  const savedPresets = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('cinemaphora-presets') || '[]') : []
 
   return (
     <div className={`${styles.bar} glass`}>
@@ -150,41 +186,30 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
             <span className={styles.chevron}>{expanded ? '▲' : '▼'}</span>
           </button>
         )}
-
-        {hasFilters && (
-          <button className={styles.resetBtn} onClick={reset}>✕ Reset</button>
-        )}
       </div>
 
       {/* Secondary row — expanded filters */}
       {expanded && (
         <div className={styles.secondary}>
           {/* Genre */}
-          {/* Genre (Hidden for 'all' since IDs diverge) */}
-          {media !== 'all' && (
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Genre</label>
-              <CustomSelect
-                value={genreId}
-                options={[
-                  { value: '', label: 'All Genres' },
-                  ...genres.map(g => ({ value: String(g.id), label: g.name }))
-                ]}
-                onChange={v => setFilter('genre', v)}
-              />
-            </div>
-          )}
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Genre (Multi)</label>
+            <MultiSelect
+              values={genreValues}
+              options={genres.map(g => ({ value: String(g.id), label: g.name }))}
+              onChange={v => setMultiFilter('genre', v)}
+              placeholder="All Genres"
+            />
+          </div>
 
           {/* Country */}
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Country</label>
-            <CustomSelect
-              value={country}
-              options={[
-                { value: '', label: 'All Countries' },
-                ...countries.map(c => ({ value: c.iso_3166_1, label: c.english_name }))
-              ]}
-              onChange={v => setFilter('country', v)}
+            <label className={styles.filterLabel}>Country (Multi)</label>
+            <MultiSelect
+              values={countryValues}
+              options={countries.map(c => ({ value: c.iso_3166_1, label: c.english_name }))}
+              onChange={v => setMultiFilter('country', v)}
+              placeholder="All Countries"
             />
           </div>
 
@@ -213,15 +238,72 @@ export default function FilterBar({ movieGenres, tvGenres, countries, hideAdvanc
 
           {/* Language */}
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Language</label>
-            <CustomSelect
-              value={language}
-              options={LANGUAGES.map(l => ({ value: l.code, label: l.label }))}
-              onChange={v => setFilter('language', v)}
+            <label className={styles.filterLabel}>Language (Multi)</label>
+            <MultiSelect
+              values={languageValues}
+              options={LANGUAGES.filter(l => l.code).map(l => ({ value: l.code, label: l.label }))}
+              onChange={v => setMultiFilter('language', v)}
+              placeholder="All Languages"
             />
           </div>
+          
         </div>
       )}
+
+      {/* Presets Action (Moved outside grid for full width) */}
+      {expanded && (
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginTop: 'var(--space-md)', paddingTop: 'var(--space-md)', borderTop: '1px solid var(--border)' }}>
+          <button className="btn btn-secondary" style={{ padding: '8px 12px', fontSize: '0.9rem' }} onClick={() => setShowSavePreset(true)}>💾 Save Preset</button>
+          {savedPresets.length > 0 && (
+            <button className="btn btn-secondary" style={{ padding: '8px 12px', fontSize: '0.9rem' }} onClick={() => setShowLoadPreset(true)}>📂 Load Preset</button>
+          )}
+          {hasFilters && (
+            <button className={styles.resetBtn} onClick={reset} style={{ marginLeft: 'auto' }}>✕ Reset Filters</button>
+          )}
+        </div>
+      )}
+
+      {/* Save Preset Modal */}
+      <Modal 
+        isOpen={showSavePreset}
+        title="Save Filter Preset"
+        description="Name your current filter combination (e.g. 'My Friday Night')"
+        confirmText="Save"
+        onConfirm={savePreset}
+        onCancel={() => setShowSavePreset(false)}
+      >
+        <input 
+          type="text" 
+          value={presetName}
+          onChange={(e) => setPresetName(e.target.value)}
+          placeholder="Preset Name"
+          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', marginTop: '1rem' }}
+          autoFocus
+        />
+      </Modal>
+
+      {/* Load Preset Modal */}
+      <Modal 
+        isOpen={showLoadPreset}
+        title="Load Filter Preset"
+        description="Choose a saved preset to apply."
+        confirmText="Close"
+        onConfirm={() => setShowLoadPreset(false)}
+        hideCancel
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '1rem' }}>
+          {savedPresets.map((p: any, i: number) => (
+            <button 
+              key={i}
+              className="btn btn-secondary"
+              style={{ justifyContent: 'flex-start' }}
+              onClick={() => loadPreset(p.params)}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+      </Modal>
     </div>
   )
 }
