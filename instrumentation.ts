@@ -1,4 +1,3 @@
-const TMDB_LOG_ORIGIN = 'https://api.themoviedb.org'
 const TMDB_URL_PATTERN = /https:\/\/api\.themoviedb\.org[^\s)"']*/g
 
 function redactTmdbLogChunk(chunk: unknown): unknown {
@@ -7,13 +6,14 @@ function redactTmdbLogChunk(chunk: unknown): unknown {
   }
 
   const text = chunk.toString()
-  if (!text.includes(TMDB_LOG_ORIGIN)) {
-    return chunk
-  }
 
   const redacted = text
     .replace(TMDB_URL_PATTERN, '[TMDB_REQUEST_REDACTED]')
     .replace(/api_key=[^&\s)"']+/g, 'api_key=[REDACTED]')
+
+  if (redacted === text) {
+    return chunk
+  }
 
   return Buffer.isBuffer(chunk) ? Buffer.from(redacted) : redacted
 }
