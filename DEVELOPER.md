@@ -265,3 +265,16 @@ CinemaPhora enforces a strict Terms of Use agreement due to its nature as an ind
 | Peacock | 386 | US |
 
 > Provider IDs are region-specific. The IDs above are for `watch_region=US`. Changing the region requires updating both `lib/tmdb.ts` (`getProviderContent`) and `components/ProviderTabs.tsx` (`PROVIDERS`).
+
+## 🐛 Found an Issue?
+
+Before creating an issue, please use our [Issue Selection Guide](https://github.com/peterkahumu/Cinestream/wiki/Issue-Selection-Guide) to determine the correct template.
+
+**Quick Reference:**
+
+| Situation | Template |
+|-----------|----------|
+| Something is broken | 🐛 Bug Fix |
+| New feature request | ✨ Enhancement |
+| Idea or suggestion | 💡 Recommendation |
+| Everything else | 📄 General |

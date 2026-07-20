@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: "🤔 Not sure which template to use?"
+    url: https://github.com/peterkahumu/Cinestream/wiki/Issue-Selection-Guide
+    about: "Read our guide to choose the right issue type"
+    
+  - name: "💬 General discussion or question"
+    url: https://github.com/peterkahumu/Cinestream/discussions
+    about: "Please start a discussion instead of opening an issue"
