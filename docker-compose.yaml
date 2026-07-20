@@ -1,0 +1,38 @@
+services:
+  cinemaphora-development:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: cinemaphora:dev
+    container_name: cinemaphora-dev
+    ports:
+      - 3000:3000
+    environment:
+      - WATCHPACK_POLL=true
+      - NODE_ENV=development
+    env_file:
+      - .env.local
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+        - action: rebuild
+          path: package.json
+
+  cinemaphora-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    image: cinemaphora:prod
+    container_name: cinemaphora-prod
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_TELEMETRY_DISABLED=false NODE_ENV=production
+    env_file:
+      - .env.production

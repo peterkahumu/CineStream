@@ -1,0 +1,49 @@
+# VCS and editor metadata
+.git/
+.github/
+.vscode/
+.idea/
+
+# Dependencies and package manager state
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs and caches
+.next/
+.open-next/
+.wrangler/
+coverage/
+build/
+out/
+dist/
+*.tsbuildinfo
+public/sw.js
+public/workbox*.js
+
+# Logs and local machine noise
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Repo docs and planning files not needed for image builds
+README.md
+DEVELOPER.md
+USER.md
+planning.md
+coming_soon.md
+
+# Native / auxiliary subprojects not needed for the web build
+android/
+proxy-worker/
+
+# Misc local tooling state
+.eslintcache

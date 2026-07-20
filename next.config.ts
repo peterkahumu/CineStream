@@ -2,6 +2,13 @@ import type { NextConfig } from 'next'
 import withPWA from '@ducanh2912/next-pwa'
 
 const nextConfig: NextConfig = {
+
+  output: "standalone",
+  logging: {
+    fetches: {
+      fullUrl: false
+    }
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -12,8 +19,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Optional: Disable PWA in development if you're having issues
-  // devIndicators: process.env.NODE_ENV === 'development',
 }
 
 const withPWAConfig = withPWA({
