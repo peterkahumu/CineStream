@@ -32,6 +32,8 @@ function buildResponseHeaders() {
     // Allow the main app to embed this in an iframe
     h.set('Access-Control-Allow-Origin', '*');
     h.set('X-Content-Type-Options', 'nosniff');
+    // Ensure fullscreen requests are permitted inside proxied player documents.
+    h.set('Permissions-Policy', 'fullscreen=*');
     // Do NOT send X-Frame-Options or CSP frame-ancestors — we want iframing to work
     return h;
 }
@@ -67,6 +69,11 @@ function transformHtml(response, targetOrigin, blocklist) {
             const src = el.getAttribute('src') ?? '';
             if (blocklist.some(d => src.includes(d)))
                 el.remove();
+            el.setAttribute('allowfullscreen', '');
+            const currentAllow = el.getAttribute('allow');
+            if (!currentAllow?.toLowerCase().includes('fullscreen')) {
+                el.setAttribute('allow', currentAllow ? `${currentAllow}; fullscreen *` : 'fullscreen *');
+            }
         },
     })
         // ── Strip ad tracking pixels ────────────────────────────────────────────
