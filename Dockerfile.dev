@@ -1,0 +1,24 @@
+ARG NODE_VERSION_DEV=dhi.io/node:26-alpine3.24-dev@sha256:82e1032dbce3eac8b0c4844ca2b17788b6b8633be4502e2f6d89cc9643fa6cd9
+
+FROM ${NODE_VERSION_DEV} AS dev
+
+WORKDIR /app
+
+COPY package-lock.json package.json ./
+
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --no-audit --no-fund
+
+
+RUN mkdir -p .next && chown node:node .next
+COPY --chown=node:node . .
+
+ENV NODE_ENV=development
+ENV WATCHPACK_POLL=true
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME="0.0.0.0"
+
+USER node
+
+EXPOSE 3000
+CMD ["npm","run","dev"]
