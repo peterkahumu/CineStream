@@ -117,15 +117,27 @@ export async function tmdbFetch<T>(
   let url: string
 
   if (isServer) {
-    qs.set('api_key', process.env.TMDB_API_KEY || '')
-    url = `https://api.themoviedb.org/3${endpoint}?${qs}`
+    const apiKey = process.env.TMDB_API_KEY || ''
+    // v4 tokens are long JWTs, v3 keys are 32 chars.
+    if (apiKey.length > 100) {
+      // Use Bearer token for v4 auth to keep key out of URLs (prevents leaks in logs)
+      url = `https://api.themoviedb.org/3${endpoint}?${qs}`
+    } else {
+      qs.set('api_key', apiKey)
+      url = `https://api.themoviedb.org/3${endpoint}?${qs}`
+    }
   } else {
     url = `/api/tmdb${endpoint}?${qs}`
   }
 
   // cache server-side requests for 1 hour (3600 seconds) to heavily reduce TMDB API hits.
   const fetchOptions: RequestInit = isServer 
-    ? { next: { revalidate: 3600 } } 
+    ? { 
+        next: { revalidate: 3600 },
+        headers: (process.env.TMDB_API_KEY || '').length > 100 
+          ? { 'Authorization': `Bearer ${process.env.TMDB_API_KEY}` }
+          : undefined
+      } 
     : {}
 
   const res = await fetch(url, fetchOptions)

@@ -21,9 +21,17 @@ export async function GET(
   const { path } = await params
   const tmdbPath = path.join('/')
 
-  // Forward all query params from the client, then inject the secret key
+  // Forward all query params from the client
   const forwardedParams = new URLSearchParams(request.nextUrl.searchParams)
-  forwardedParams.set('api_key', API_KEY)
+  
+  let headers: HeadersInit | undefined = undefined;
+
+  // v4 tokens are long JWTs, v3 keys are 32 chars.
+  if (API_KEY.length > 100) {
+    headers = { 'Authorization': `Bearer ${API_KEY}` }
+  } else {
+    forwardedParams.set('api_key', API_KEY)
+  }
 
   // Safe Search Ceiling (Client requests)
   const maxCert = request.cookies.get('cp_maxCertification')?.value
@@ -36,6 +44,7 @@ export async function GET(
     const tmdbUrl = `${TMDB_BASE}/${tmdbPath}?${forwardedParams.toString()}`
 
     const res = await fetch(tmdbUrl, {
+      headers,
       // Cache responses for 5 minutes on the server — reduces TMDB calls
       next: { revalidate: 300 },
     })

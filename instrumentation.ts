@@ -1,47 +1,42 @@
-const TMDB_URL_PATTERN = /https:\/\/api\.themoviedb\.org[^\s)"']*/g
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    // Prevent double-patching if register() is called multiple times (e.g. in dev mode)
+    if ((global as any).__tmdb_redact_patched) return;
+    (global as any).__tmdb_redact_patched = true;
 
-function redactTmdbLogChunk(chunk: unknown): unknown {
-  if (typeof chunk !== 'string' && !Buffer.isBuffer(chunk)) {
-    return chunk
-  }
+    /**
+     * Defense-in-depth global stream patch.
+     * Intercepts process.stdout and process.stderr to redact TMDB v3 API keys from URLs
+     * (e.g., when Next.js fetch cache warnings print full request URLs).
+     */
+    function patchStream(stream: NodeJS.WriteStream) {
+      const originalWrite = stream.write.bind(stream);
 
-  const text = chunk.toString()
+      stream.write = function (chunk: any, encoding?: any, callback?: any): boolean {
+        if (typeof chunk === 'string') {
+          const redacted = chunk
+            .replace(/https:\/\/api\.themoviedb\.org[^\s)"']*/g, '[TMDB_REQUEST_REDACTED]')
+            .replace(/api_key=[^&\s)"']+/g, 'api_key=[REDACTED]');
+          return originalWrite(redacted, encoding, callback);
+        } else if (Buffer.isBuffer(chunk)) {
+          // Decode buffer, redact, then re-encode using the specified encoding or default utf8
+          // This preserves the original encoding to avoid corrupting non-UTF-8 output
+          const enc = typeof encoding === 'string' ? (encoding as BufferEncoding) : 'utf8';
+          const text = chunk.toString(enc);
 
-  const redacted = text
-    .replace(TMDB_URL_PATTERN, '[TMDB_REQUEST_REDACTED]')
-    .replace(/api_key=[^&\s)"']+/g, 'api_key=[REDACTED]')
+          if (text.includes('api.themoviedb.org') || text.includes('api_key=')) {
+            const redacted = text
+              .replace(/https:\/\/api\.themoviedb\.org[^\s)"']*/g, '[TMDB_REQUEST_REDACTED]')
+              .replace(/api_key=[^&\s)"']+/g, 'api_key=[REDACTED]');
+            return originalWrite(Buffer.from(redacted, enc), encoding, callback);
+          }
+        }
 
-  if (redacted === text) {
-    return chunk
-  }
-
-  return Buffer.isBuffer(chunk) ? Buffer.from(redacted) : redacted
-}
-
-function patchStreamWrite(stream: NodeJS.WriteStream) {
-  const originalWrite = stream.write.bind(stream)
-
-  stream.write = ((chunk: unknown, encoding?: BufferEncoding | ((error?: Error | null) => void), callback?: (error?: Error | null) => void) => {
-    const safeChunk = redactTmdbLogChunk(chunk)
-
-    if (typeof encoding === 'function') {
-      return originalWrite(safeChunk as never, encoding)
+        return originalWrite(chunk, encoding, callback);
+      } as any;
     }
 
-    return originalWrite(safeChunk as never, encoding, callback)
-  }) as typeof stream.write
-}
-
-declare global {
-  var __tmdbLogRedactionInstalled: boolean | undefined
-}
-
-export async function register() {
-  if (globalThis.__tmdbLogRedactionInstalled) {
-    return
+    patchStream(process.stdout);
+    patchStream(process.stderr);
   }
-
-  patchStreamWrite(process.stdout)
-  patchStreamWrite(process.stderr)
-  globalThis.__tmdbLogRedactionInstalled = true
 }
