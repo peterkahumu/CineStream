@@ -7,66 +7,68 @@ What's been shipped and what's planned next.
 ## ✅ Shipped
 
 ### Discovery & Navigation
-- [x] **Homepage Hero Carousel:** Auto-rotating banner cycling through top trending content with smooth fade transitions and indicator dots.
-- [x] **Trending This Week page** (`/trending`): Dedicated route hitting the TMDB trending endpoint — filterable by All / Movies / TV, with infinite scroll.
-- [x] **Coming Soon page** (`/upcoming`): Movies and TV shows releasing in the next 3 months. Matches the homepage row exactly.
-- [x] **Provider pages** (`/provider/[id]`): Dedicated routes for Netflix, Prime Video, and Disney+ showing releases from the last 6 months.
-- [x] **Correct "See All →" links:** Every homepage row links to its own purpose-built route (not a generic discover fallback).
-- [x] **Discover page deep-linking:** Supports `with_watch_providers`, date range, and all other TMDB filter params via URL.
+- ✅ **Homepage Hero Carousel:** Auto-rotating banner cycling through top trending content with smooth fade transitions and indicator dots.
+- ✅ **Trending This Week page** (`/trending`): Dedicated route hitting the TMDB trending endpoint — filterable by All / Movies / TV, with infinite scroll.
+- ✅ **Coming Soon page** (`/upcoming`): Movies and TV shows releasing in the next 3 months. Matches the homepage row exactly.
+- ✅ **Provider pages** (`/provider/[id]`): Dedicated routes for streaming providers showing releases from the last 6 months.
+- ✅ **Correct "See All →" links:** Every homepage row links to its own purpose-built route (not a generic discover fallback).
+- ✅ **Discover page deep-linking:** Supports `with_watch_providers`, date range, and all other TMDB filter params via URL.
 
 ### Content Sections
-- [x] **Top 10 in Your Country:** Two rows (Movies + TV) built from geo-IP detection. Toast notification on detection. Hidden gracefully on failure.
-- [x] **Now Playing / Currently On Air:** Dedicated rows for theatrical releases and actively airing shows.
-- [x] **Netflix / Prime Video / Disney+ rows:** Six rows (movie + TV per provider), linked to correct provider pages.
-- [x] **Upcoming Movies & TV Shows:** Date-bounded to the next 3 months, sorted by popularity.
-- [x] **Popular Movies / TV Shows & Top Rated:** Standard discovery rows.
+- ✅ **Top 10 in Your Country:** Two rows (Movies + TV) built from geo-IP detection. Toast notification on detection. Hidden gracefully on failure.
+- ✅ **Now Playing / Currently On Air:** Dedicated rows for theatrical releases and actively airing shows.
+- ✅ **Netflix / Prime Video / Disney+ rows:** Six rows (movie + TV per provider), linked to correct provider pages. *(Note: Other providers are available in the Discover page, and we plan to accommodate them on the homepage in the future).*
+- ✅ **Upcoming Movies & TV Shows:** Date-bounded to the next 3 months, sorted by popularity.
+- ✅ **Popular Movies / TV Shows & Top Rated:** Standard discovery rows.
 
 ### Details Page
-- [x] **"Coming on [date]" label:** For movies with a future `release_date`, and for TV shows with a future `next_episode_to_air.air_date`, the Watch button is replaced with a non-clickable date label.
-- [x] **Watch tab hidden for upcoming TV shows:** No episodes to stream yet — the tab is suppressed automatically.
-- [x] **Breadcrumb navigation:** Home → Media Type → Title.
-- [x] **Tabs:** Trailers, Cast, Reviews (Watch tab for TV when available).
-- [x] **Recommendations & Similar:** Scrollable rows below the player.
+- ✅ **"Coming on [date]" label:** For movies with a future `release_date`, and for TV shows with a future `next_episode_to_air.air_date`, the Watch button is replaced with a non-clickable date label.
+- ✅ **Watch tab hidden for upcoming TV shows:** No episodes to stream yet — the tab is suppressed automatically.
+- ✅ **Breadcrumb navigation:** Home → Media Type → Title.
+- ✅ **Tabs:** Trailers, Cast, Reviews, **Where to Watch** (Watch tab for TV when available).
+- ✅ **Recommendations & Similar:** Scrollable rows below the player.
 
 ### Player & Watch
-- [x] **Multi-server support:** Up to four streaming servers; user can switch if one fails.
-- [x] **🎬 Lights Out mode:** Dims surrounding UI for focused viewing.
-- [x] **TV Episode Selector:** Season/episode picker sidebar on the watch page.
-- [x] **URL cleanup:** Season/episode params stripped from the URL bar after load.
+- ✅ **Multi-server support:** Up to 9 streaming servers configured in `.env.local`; user can switch if one fails.
+- ✅ **🎬 Lights Out mode:** Dims surrounding UI for focused viewing.
+- ✅ **TV Episode Selector:** Season/episode picker sidebar on the watch page.
+- ✅ **URL cleanup:** Season/episode params stripped from the URL bar after load.
 
 ### Search
-- [x] **Realtime search:** Debounced — results update as you type.
-- [x] **Type filter tabs:** All / Movies / TV Shows.
-- [x] **Infinite scroll:** Loads more pages automatically.
+- ✅ **Realtime search:** Debounced — results update as you type.
+- ✅ **Type filter tabs:** All / Movies / TV Shows.
+- ✅ **Infinite scroll:** Loads more pages automatically.
 
 ### Personalisation & State
-- [x] **"Continue Watching" Row:** Tracks viewing progress locally, surfacing incomplete episodes/movies on the homepage.
-- [x] **Legal & Compliance:** Mandatory Terms of Use / Privacy Policy modal agreement. Settings page to manage agreement.
+- ✅ **"Continue Watching" Row:** Tracks viewing progress locally, surfacing incomplete episodes/movies on the homepage. *(Note: This feature depends on the active streaming server emitting progress events. Other servers just serve streaming functionality).*
+- ✅ **Legal & Compliance:** Mandatory Terms of Use / Privacy Policy modal agreement. Settings page to manage agreement.
+- 🚧 **Watchlists / Favourites (Partially Shipped):** Users can save titles for later using local storage. (Database integration planned for future scale).
 
 ### Technical
-- [x] **API key never exposed:** All TMDB calls from the client go through a server-side proxy route (`/api/tmdb/...`).
-- [x] **`Promise.allSettled` on homepage:** A single failing row never breaks the page.
-- [x] **Conditional sentinel:** IntersectionObserver sentinel is removed from the DOM when exhausted, preventing footer flash.
-- [x] **No function definitions inside `useEffect`:** Enforced across all components.
-- [x] **Dead code removed:** `ApiKeyModal`, `useApiKey`, `vercel.json`, scratch test files.
-- [x] **Installable PWA:** Offline image caching, service worker, manifest.
-- [x] **Native mobile support (Capacitor):** Back-button handling, fullscreen orientation, status bar management.
-- [x] **SEO metadata:** Dynamic `<title>` and Open Graph tags on all pages.
+- ✅ **True OLED Dark Mode:** "True Black" theme (`#000000`) implemented (`data-theme="amoled"`).
+- ✅ **API key never exposed:** All TMDB calls from the client go through a server-side proxy route (`/api/tmdb/...`).
+- ✅ **`Promise.allSettled` on homepage:** A single failing row never breaks the page.
+- ✅ **Conditional sentinel:** IntersectionObserver sentinel is removed from the DOM when exhausted, preventing footer flash.
+- ✅ **No function definitions inside `useEffect`:** Enforced across all components.
+- ✅ **Installable PWA:** Offline image caching, service worker, manifest.
+- ✅ **Native mobile support (Capacitor):** Back-button handling, fullscreen orientation, status bar management.
+- ✅ **SEO metadata:** Dynamic `<title>` and Open Graph tags on all pages.
 
 ---
 
 ## 🔜 Planned
 
-### Personalisation & State
-- [ ] **Watchlists / Favourites:** Save titles for later (initially `localStorage`, migrated to DB when users grow).
-- [ ] **Watch History:** Dedicated page showing previously watched content.
-
 ### Immersive UX
 - [ ] **Auto-playing Trailers:** Silent auto-play on the details page hero.
-- [ ] **Next Episode Auto-Play:** 10-second countdown to the next TV episode.
 - [ ] **Skeleton Loaders:** Replace spinners with animated skeleton cards.
 
 ### Technical
-- [ ] **True OLED Dark Mode:** "True Black" theme (`#000000`) for battery savings and low-light.
 - [ ] **Offline Downloads (Capacitor/Android):** Cache media for offline viewing on native builds.
 - [ ] **User accounts / database:** Required before any server-side personalisation features can ship.
+
+---
+
+## ℹ️ Notes on Features Dependent on Third-Party Servers
+*Certain features are highly dependent on whether the third-party iframe streaming provider emits the necessary postMessage events:*
+- **Watch History & Continue Watching:** Relies on progress updates from the active server.
+- **Next Episode Auto-Play:** Some servers support auto-playing the next episode natively within their iframe, but it cannot be universally enforced on our end without standard event emitters.
