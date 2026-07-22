@@ -106,7 +106,7 @@ const PROVIDERS: ProviderConfig[] = [
       return `${url}?${finalQs}`
     },
     onMessage(event, callbacks) {
-      const { type, ...data } = event.data as { type: string; [k: string]: unknown }
+      const { type, ...data } = event.data as { type: string;[k: string]: unknown }
       switch (type) {
         case 'cinesrc:timeupdate':
           if ((data.currentTime as number) > 5) {
@@ -128,6 +128,7 @@ const PROVIDERS: ProviderConfig[] = [
       }
     },
   },
+
 
   // ── 2. VidLink ───────────────────────────────────────────────────────────────
   // Standard MEDIA_DATA + PLAYER_EVENT. Supports startAt for cross-device resume.
@@ -212,7 +213,59 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 5. EmbedMaster ───────────────────────────────────────────────────────────
+  // ── 5. VidAPI ────────────────────────────────────────────────────────────────
+  // Standard postMessage PLAYER_EVENT protocol. Supports resumeAt for cross-device resume.
+  {
+    id: 'vidapi',
+    name: 'VidAPI',
+    envKey: 'NEXT_PUBLIC_VIDAPI_URL',
+    tier: 'advanced',
+    origin: 'https://vaplayer.ru',
+    buildUrl(base, type, id, s, e, opts) {
+      const params = new URLSearchParams()
+      if (opts?.startTime) params.set('resumeAt', String(Math.floor(opts.startTime)))
+      if (opts?.color) params.set('primaryColor', opts.color)
+      const qs = params.toString()
+      if (type === 'movie') return qs ? `${base}/embed/movie/${id}?${qs}` : `${base}/embed/movie/${id}`
+      return qs ? `${base}/embed/tv/${id}/${s}/${e}?${qs}` : `${base}/embed/tv/${id}/${s}/${e}`
+    },
+    onMessage(event, callbacks) {
+      if (event.data?.type === 'PLAYER_EVENT') {
+        const d = event.data.data
+        if (!d) return
+
+        const statusMap: Record<string, 'play' | 'pause' | 'seeked' | 'ended' | 'timeupdate'> = {
+          playing: 'timeupdate', // Used for frequent updates
+          paused: 'pause',
+          seeked: 'seeked',
+          completed: 'ended',
+        }
+
+        const eventType = statusMap[d.player_status] || 'timeupdate'
+
+        callbacks.onEvent({
+          event: eventType,
+          currentTime: d.player_progress || 0,
+          duration: d.player_duration || 0,
+        })
+
+        // Only trigger progress on active playback states
+        if (d.player_status === 'playing' || d.player_status === 'seeked' || d.player_status === 'paused') {
+          callbacks.onProgress({
+            watched: d.player_progress || 0,
+            duration: d.player_duration || 0,
+          })
+        }
+
+        if (d.player_status === 'completed' && d.player_info?.mediaType === 'tv') {
+          callbacks.onNextEpisode(Number(d.player_info.season), Number(d.player_info.episode) + 1)
+        }
+      }
+    },
+  },
+
+
+  // ── 6. EmbedMaster ───────────────────────────────────────────────────────────
   // PlayerJS protocol. Player ID is encoded in the base URL from env — never hardcoded.
   // No MEDIA_DATA; progress is synthesised from player events.
   // pause and seeked are used in addition to timeupdate because EmbedMaster
@@ -254,7 +307,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 6. PrimeSrc ──────────────────────────────────────────────────────────────
+  // ── 7. PrimeSrc ──────────────────────────────────────────────────────────────
   // No postMessage events. Injects startAt into URL for resume on both movies and TV.
   {
     id: 'primesrc',
@@ -273,7 +326,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 7. Multiembed ────────────────────────────────────────────────────────────
+  // ── 8. Multiembed ────────────────────────────────────────────────────────────
   // No events, no resume. Basic fallback.
   {
     id: 'multiembed',
@@ -286,7 +339,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 8. MoviesAPI ─────────────────────────────────────────────────────────────
+  // ── 9. MoviesAPI ─────────────────────────────────────────────────────────────
   // No events, no resume. Basic fallback.
   {
     id: 'moviesapi',
