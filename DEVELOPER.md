@@ -55,10 +55,15 @@ Ensure you have **Docker** and **Docker Compose** installed (recommended) or **N
    TMDB_API_KEY=your_v4_read_access_token_here
 
    # Streaming provider base URLs — only configure the servers you want active.
-   NEXT_PUBLIC_MOVIESAPI_URL=
-   NEXT_PUBLIC_PRIMESRC_URL=
+   NEXT_PUBLIC_CINESRC_URL=
    NEXT_PUBLIC_VIDLINK_URL=
+   NEXT_PUBLIC_VIDNEST_URL=
+   NEXT_PUBLIC_VIDFAST_URL=
+   NEXT_PUBLIC_VIDAPI_URL=
+   NEXT_PUBLIC_EMBEDMASTER_URL=
+   NEXT_PUBLIC_PRIMESRC_URL=
    NEXT_PUBLIC_MULTIEMBED_URL=
+   NEXT_PUBLIC_MOVIESAPI_URL=
    ```
    > `.env.local` is git-ignored. Your API key never reaches the client browser.
 
@@ -126,6 +131,8 @@ All discovery and grid pages (`/trending`, `/upcoming`, `/providers`, `/discover
 ### Streaming Providers
 `lib/streamingProvider.ts` and the `lib/providers/` directory handle video embedding. 
 The `PlayerIframe` component orchestrates these providers and provides a seamless viewing experience with error fallback mechanisms and fullscreen delegation fixes natively supported.
+
+Currently supported providers include **CineSRC**, **VidLink**, **VidNest**, **VidFast**, **VidAPI**, **EmbedMaster**, **PrimeSrc**, **Multiembed**, and **MoviesAPI**. Providers are dynamically loaded in priority order based on which environment variables are defined. Advanced providers (like VidAPI, CineSRC, and VidLink) support postMessage events for rich features such as cross-device resume tracking and auto-playing the next episode.
 
 ---
 
