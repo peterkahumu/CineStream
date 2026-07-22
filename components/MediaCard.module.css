@@ -166,6 +166,61 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+.singleLine {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Continue Watching features */
+.progressContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0,0,0,0.5);
+  width: 100%;
+  z-index: 5;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  z-index: 10;
+  opacity: 0;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(4px);
+}
+.card:hover .removeBtn { opacity: 1; }
+.removeBtn:hover { background: var(--red); border-color: var(--red); transform: scale(1.1); }
+
+@media (hover: none) {
+  .removeBtn {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.7);
+  }
+}
+
+
 /* ─── List Layout Overrides ─── */
 :global([data-layout="list"]) .card {
   flex-direction: row;
