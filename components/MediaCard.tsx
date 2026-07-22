@@ -10,6 +10,11 @@ interface Props {
   item: MediaItem
   forcedType?: 'movie' | 'tv'
   priority?: boolean
+  progress?: number
+  bottomSubtitle?: React.ReactNode
+  onRemove?: (e: React.MouseEvent) => void
+  customHref?: string
+  singleLineTitle?: boolean
 }
 
 function isUpcoming(item: MediaItem): boolean {
@@ -18,7 +23,16 @@ function isUpcoming(item: MediaItem): boolean {
   return new Date(dateStr) > new Date()
 }
 
-export default function MediaCard({ item, forcedType, priority = false }: Props) {
+export default function MediaCard({ 
+  item, 
+  forcedType, 
+  priority = false,
+  progress,
+  bottomSubtitle,
+  onRemove,
+  customHref,
+  singleLineTitle
+}: Props) {
   const [imgErr, setImgErr] = useState(false)
   const { settings } = useSettings()
   const type = forcedType ?? getType(item)
@@ -27,7 +41,7 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
   const rating = item.vote_average?.toFixed(1)
   // Data saver: use lower-res poster
   const poster = posterUrl(item.poster_path, settings.dataSaver ? 'w185' : 'w342')
-  const href = `/details/${item.id}?type=${type}`
+  const href = customHref || `/details/${item.id}?type=${type}`
   const upcoming = isUpcoming(item)
 
   return (
@@ -47,6 +61,26 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
           <div className={styles.noImg}>
             <span>🎬</span>
             <span className={styles.noImgTitle}>{title}</span>
+          </div>
+        )}
+
+        {onRemove && (
+          <button
+            className={styles.removeBtn}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onRemove(e)
+            }}
+            title="Remove"
+          >
+            ×
+          </button>
+        )}
+
+        {progress !== undefined && (
+          <div className={styles.progressContainer}>
+            <div className={styles.progressBar} style={{ width: `${progress}%` }} />
           </div>
         )}
 
@@ -82,8 +116,14 @@ export default function MediaCard({ item, forcedType, priority = false }: Props)
       </div>
 
       <div className={styles.info}>
-        <h3 className={styles.title} title={title}>{title}</h3>
-        {year && <span className={styles.year}>{year}</span>}
+        <h3 className={`${styles.title} ${singleLineTitle ? styles.singleLine : ''}`} title={title}>
+          {title}
+        </h3>
+        {bottomSubtitle ? (
+          <div className={`${styles.year} ${styles.singleLine}`}>{bottomSubtitle}</div>
+        ) : (
+          year && <span className={styles.year}>{year}</span>
+        )}
       </div>
     </Link>
   )

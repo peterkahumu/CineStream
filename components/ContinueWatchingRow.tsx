@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import Modal from './Modal'
+import MediaCard from './MediaCard'
+import type { MediaItem } from '@/lib/tmdb'
 import { getAllProgress, removeProgress, type WatchProgress } from '@/lib/progressTracker'
 import styles from './ContinueWatchingRow.module.css'
 
@@ -15,7 +16,20 @@ export default function ContinueWatchingRow() {
   // ── Data loading ─────────────────────────────────────────────────────────────
 
   const loadItems = useCallback(() => {
-    setItems(getAllProgress())
+    const rawItems = getAllProgress()
+    const validItems = rawItems.filter(item => {
+      const remaining = item.duration > 0 ? item.duration - item.watched : 0
+      if (item.duration > 0 && remaining < 60) {
+        if (item.mediaType === 'movie') {
+          removeProgress(item.id)
+          return false
+        }
+        item.episode = (item.episode || 1) + 1
+        item.watched = 0
+      }
+      return true
+    })
+    setItems(validItems)
   }, [])
 
   // ── Effects — function calls only ────────────────────────────────────────────
@@ -78,10 +92,17 @@ export default function ContinueWatchingRow() {
     return `/watch/${item.id}?type=tv&s=${s}&e=${e}`
   }
 
-  function buildPosterSrc(item: WatchProgress): string | null {
-    if (item.poster_path) return `https://image.tmdb.org/t/p/w342${item.poster_path}`
-    if (item.backdrop_path) return `https://image.tmdb.org/t/p/w500${item.backdrop_path}`
-    return null
+  function buildMediaItem(item: WatchProgress): MediaItem {
+    return {
+      id: Number(item.id),
+      title: item.title,
+      poster_path: item.poster_path || null,
+      backdrop_path: item.backdrop_path || null,
+      media_type: item.mediaType,
+      overview: '',
+      vote_average: 0,
+      vote_count: 0
+    }
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -112,52 +133,29 @@ export default function ContinueWatchingRow() {
               ? Math.min(100, Math.max(0, (item.watched / item.duration) * 100))
               : 0
             const url = buildWatchUrl(item)
-            const posterSrc = buildPosterSrc(item)
+            const mediaItem = buildMediaItem(item)
+
+            const bottomSubtitle = (
+              <>
+                {item.mediaType === 'tv' && (
+                  <span>S{item.season ?? 1} E{item.episode ?? 1} • </span>
+                )}
+                <span>{formatTimeLeft(item.watched, item.duration)}</span>
+              </>
+            )
 
             return (
-              <Link href={url} key={item.id} className={styles.cardWrap}>
-                <div className={styles.card}>
-                  <div className={styles.poster}>
-                    {posterSrc ? (
-                      <Image
-                        src={posterSrc}
-                        alt={item.title}
-                        fill
-                        className={styles.img}
-                        sizes="(max-width: 640px) 150px, (max-width: 1024px) 175px, 190px"
-                      />
-                    ) : (
-                      <div className={styles.noImg}>🎬</div>
-                    )}
-                    <button
-                      className={styles.removeBtn}
-                      onClick={(e) => requestRemove(item, e)}
-                      title="Remove from continue watching"
-                    >
-                      ×
-                    </button>
-                    <div className={styles.playOverlay}>
-                      <div className={styles.playIcon}>▶</div>
-                    </div>
-                  </div>
-
-                  <div className={styles.progressContainer}>
-                    <div className={styles.progressBar} style={{ width: `${progress}%` }} />
-                  </div>
-
-                  <div className={styles.info}>
-                    <h3 className={styles.title} title={item.title}>
-                      {item.title}
-                    </h3>
-                    <div className={styles.meta}>
-                      {item.mediaType === 'tv' && (
-                        <span>S{item.season} E{item.episode} • </span>
-                      )}
-                      <span>{formatTimeLeft(item.watched, item.duration)}</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <div key={item.id} className={styles.cardWrap}>
+                <MediaCard
+                  item={mediaItem}
+                  forcedType={item.mediaType}
+                  progress={item.watched === 0 ? undefined : progress}
+                  bottomSubtitle={bottomSubtitle}
+                  onRemove={(e) => requestRemove(item, e)}
+                  customHref={url}
+                  singleLineTitle={true}
+                />
+              </div>
             )
           })}
         </div>
