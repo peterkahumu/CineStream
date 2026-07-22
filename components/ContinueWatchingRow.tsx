@@ -26,7 +26,6 @@ export default function ContinueWatchingRow() {
         }
         item.episode = (item.episode || 1) + 1
         item.watched = 0
-        item.duration = 0
       }
       return true
     })
@@ -74,10 +73,7 @@ export default function ContinueWatchingRow() {
 
   // ── Utilities ────────────────────────────────────────────────────────────────
 
-  function formatTimeLeft(watched: number, duration: number, isNextEpisode?: boolean): string {
-    if (duration === 0 && watched === 0 && isNextEpisode) {
-      return 'Next Episode'
-    }
+  function formatTimeLeft(watched: number, duration: number): string {
     if (duration > watched + 10) {
       const remaining = duration - watched
       const h = Math.floor(remaining / 3600)
@@ -133,7 +129,6 @@ export default function ContinueWatchingRow() {
 
         <div className={styles.scroller} ref={scrollerRef}>
           {items.map((item) => {
-            const isNextEpisode = item.duration === 0 && item.watched === 0 && item.mediaType === 'tv'
             const progress = item.duration
               ? Math.min(100, Math.max(0, (item.watched / item.duration) * 100))
               : 0
@@ -145,7 +140,7 @@ export default function ContinueWatchingRow() {
                 {item.mediaType === 'tv' && (
                   <span>S{item.season ?? 1} E{item.episode ?? 1} • </span>
                 )}
-                <span>{formatTimeLeft(item.watched, item.duration, isNextEpisode)}</span>
+                <span>{formatTimeLeft(item.watched, item.duration)}</span>
               </>
             )
 
@@ -154,7 +149,7 @@ export default function ContinueWatchingRow() {
                 <MediaCard
                   item={mediaItem}
                   forcedType={item.mediaType}
-                  progress={isNextEpisode ? undefined : progress}
+                  progress={item.watched === 0 ? undefined : progress}
                   bottomSubtitle={bottomSubtitle}
                   onRemove={(e) => requestRemove(item, e)}
                   customHref={url}
