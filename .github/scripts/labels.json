@@ -1,0 +1,202 @@
+[
+    {
+        "name": "bug",
+        "color": "d73a4a",
+        "description": "Something isn't working"
+    },
+    {
+        "name": "enhancement",
+        "color": "0e8a16",
+        "description": "New feature or request"
+    },
+    {
+        "name": "recommendation",
+        "color": "d8760e",
+        "description": "Idea or suggestion needing discussion"
+    },
+    {
+        "name": "general",
+        "color": "006b75",
+        "description": "Everything else"
+    },
+    {
+        "name": "critical",
+        "color": "b60205",
+        "description": "App crashes, data loss, security breach"
+    },
+    {
+        "name": "high",
+        "color": "d93f0b",
+        "description": "Core feature broken, no workaround"
+    },
+    {
+        "name": "medium",
+        "color": "fbca04",
+        "description": "Feature partially broken, workaround exists"
+    },
+    {
+        "name": "low",
+        "color": "0e8a16",
+        "description": "Visual/cosmetic issue, minimal impact"
+    },
+    {
+        "name": "p0",
+        "color": "b60205",
+        "description": "Drop everything, must ship immediately"
+    },
+    {
+        "name": "p1",
+        "color": "d93f0b",
+        "description": "Needed for next release"
+    },
+    {
+        "name": "p2",
+        "color": "fbca04",
+        "description": "Important but can wait one release"
+    },
+    {
+        "name": "p3",
+        "color": "d4c5f9",
+        "description": "Nice to have, no deadline"
+    },
+    {
+        "name": "needs-triage",
+        "color": "5319e7",
+        "description": "New issue, hasn't been reviewed yet"
+    },
+    {
+        "name": "needs-review",
+        "color": "1d76db",
+        "description": "Ready for technical review"
+    },
+    {
+        "name": "needs-discussion",
+        "color": "d8760e",
+        "description": "Requires team conversation before proceeding"
+    },
+    {
+        "name": "investigation-needed",
+        "color": "e6a814",
+        "description": "Needs research/spike before implementation"
+    },
+    {
+        "name": "ready-for-dev",
+        "color": "0e8a16",
+        "description": "Specs clear, ready to be picked up"
+    },
+    {
+        "name": "in-progress",
+        "color": "0052cc",
+        "description": "Currently being worked on"
+    },
+    {
+        "name": "blocked",
+        "color": "333333",
+        "description": "Cannot proceed due to dependency"
+    },
+    {
+        "name": "needs-testing",
+        "color": "8b5cf6",
+        "description": "Implementation complete, needs verification"
+    },
+    {
+        "name": "header",
+        "color": "006b75",
+        "description": "Top navigation bar, title section"
+    },
+    {
+        "name": "body",
+        "color": "bfd4f2",
+        "description": "Main content area"
+    },
+    {
+        "name": "footer",
+        "color": "3b5998",
+        "description": "Bottom section"
+    },
+    {
+        "name": "mobile-nav-top",
+        "color": "6f42c1",
+        "description": "Top mobile navigation"
+    },
+    {
+        "name": "mobile-nav-bottom",
+        "color": "4a1d96",
+        "description": "Bottom mobile navigation bar"
+    },
+    {
+        "name": "media-cards",
+        "color": "e99695",
+        "description": "Media/content card components"
+    },
+    {
+        "name": "theme-system",
+        "color": "c5a300",
+        "description": "Theming and color scheme system"
+    },
+    {
+        "name": "api",
+        "color": "444444",
+        "description": "Backend API integration"
+    },
+    {
+        "name": "documentation",
+        "color": "0075ca",
+        "description": "README, wiki, code comments"
+    },
+    {
+        "name": "refactoring",
+        "color": "1d781d",
+        "description": "Code improvement without feature change"
+    },
+    {
+        "name": "devops",
+        "color": "8b4513",
+        "description": "CI/CD, deployment, infrastructure"
+    },
+    {
+        "name": "testing",
+        "color": "8b5cf6",
+        "description": "Test coverage, test infrastructure"
+    },
+    {
+        "name": "dependencies",
+        "color": "bfbfbf",
+        "description": "Package updates, dependency management"
+    },
+    {
+        "name": "performance",
+        "color": "e6a814",
+        "description": "Speed, memory, optimization"
+    },
+    {
+        "name": "security",
+        "color": "8b0000",
+        "description": "Security vulnerabilities, patches"
+    },
+    {
+        "name": "question",
+        "color": "d876e3",
+        "description": "Seeking information or clarification"
+    },
+    {
+        "name": "good-first-issue",
+        "color": "7057ff",
+        "description": "Good for newcomers/contributors"
+    },
+    {
+        "name": "help-wanted",
+        "color": "008672",
+        "description": "Extra attention needed, open to community"
+    },
+    {
+        "name": "duplicate",
+        "color": "cccccc",
+        "description": "Already reported elsewhere"
+    },
+    {
+        "name": "wontfix",
+        "color": "ffffff",
+        "description": "Will not be fixed, intentional behavior"
+    }
+]

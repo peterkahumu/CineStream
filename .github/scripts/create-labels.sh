@@ -28,7 +28,7 @@ if [ ! -f "$LABELS_FILE" ]; then
     exit 1
 fi
 
-# ─── NUKE EXISTING LABLES ──────────────────────────────
+# ─── NUKE EXISTING LABELS ──────────────────────────────
 echo "🗑️  Deleting all existing labels..."
 echo ""
 
@@ -47,19 +47,18 @@ echo "🏗️  Creating new labels from $LABELS_FILE..."
 echo ""
 
 # Count total labels
-TOTAL=$(jq -c '.[]' "$LABELS_FILE" | wc -l)
-CURRENT=0
+TOTAL=$(jq length "$LABELS_FILE")
 SUCCESS=0
 FAILED=0
 
-# Read the JSON file and create each label
-jq -c '.[]' "$LABELS_FILE" | while read -r label; do
-    CURRENT=$((CURRENT + 1))
+# FIXED: Use process substitution to avoid subshell issue
+while read -r label; do
     name=$(echo "$label" | jq -r '.name')
     color=$(echo "$label" | jq -r '.color')
     description=$(echo "$label" | jq -r '.description')
     
-    printf "[%2d/%2d] Creating: %-25s" "$CURRENT" "$TOTAL" "$name"
+    SUCCESS=$((SUCCESS + 1))
+    printf "[%2d/%2d] Creating: %-25s" "$SUCCESS" "$TOTAL" "$name"
     
     if gh label create "$name" \
         --color "$color" \
@@ -67,16 +66,15 @@ jq -c '.[]' "$LABELS_FILE" | while read -r label; do
         --repo "$REPO" \
         --force 2>/dev/null; then
         echo " ✅"
-        SUCCESS=$((SUCCESS + 1))
     else
         echo " ❌"
         FAILED=$((FAILED + 1))
     fi
-done
+done < <(jq -c '.[]' "$LABELS_FILE")
 
 echo ""
 echo "============================"
-echo "✅ Done! $TOTAL labels processed."
+echo "✅ Done! $SUCCESS created, $FAILED failed."
 echo ""
 
 # ─── SHOW SUMMARY ──────────────────────────────────────
