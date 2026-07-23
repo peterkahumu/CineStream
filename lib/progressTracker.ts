@@ -7,7 +7,7 @@
  * TV show_progress is merged per-episode using the same rule.
  */
 
-export const STORAGE_PREFIX = 'progress-'
+const STORAGE_PREFIX = 'progress-'
 
 export interface EpisodeProgress {
   season: number
@@ -104,7 +104,7 @@ export function saveProgress(
 }
 
 /** Read a single item's progress. Returns null if not found or on SSR. */
-export function getProgress(tmdbId: string): WatchProgress | null {
+function getProgress(tmdbId: string): WatchProgress | null {
   if (typeof localStorage === 'undefined') return null
   try {
     const raw = localStorage.getItem(storageKey(tmdbId))

@@ -3,7 +3,7 @@
  * All cookie reads/writes go through here — no raw document.cookie parsing elsewhere.
  */
 
-export const TERMS_COOKIE = 'cinemaphora_terms'
+const TERMS_COOKIE = 'cinemaphora_terms'
 /** Event name dispatched (client-side only) when the terms state changes. */
 export const TERMS_EVENT = 'termsAccepted'
 

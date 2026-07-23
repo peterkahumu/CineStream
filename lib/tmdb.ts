@@ -2,7 +2,7 @@
 // All calls go to /api/tmdb/* — the actual API key lives only in .env.local
 // and is never sent to the browser.
 
-export const BASE_URL = 'https://api.themoviedb.org/3'
+const BASE_URL = 'https://api.themoviedb.org/3'
 const IMG_BASE = 'https://image.tmdb.org/t/p'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ export interface TMDBPage<T> {
 // Server Components → hits TMDB directly (no proxy hop needed).
 // Client Components → hits /api/tmdb/* proxy (API key stays hidden).
 
-export async function tmdbFetch<T>(
+async function tmdbFetch<T>(
   endpoint: string,
   params: Record<string, string | number | boolean> = {}
 ): Promise<T> {
@@ -247,7 +247,7 @@ export interface PersonDetails {
 export const getPersonDetails = (id: number) =>
   tmdbFetch<PersonDetails>(`/person/${id}`, { append_to_response: 'combined_credits' })
 
-export interface MediaCertification {
+interface MediaCertification {
   certification: string
   meaning?: string
 }
@@ -277,7 +277,7 @@ export const getMovieGenres = () =>
 export const getTVGenres = () =>
   tmdbFetch<{ genres: Genre[] }>('/genre/tv/list')
 
-export const getCountries = () =>
+const getCountries = () =>
   tmdbFetch<Country[]>('/configuration/countries')
 
 export interface DiscoverParams {

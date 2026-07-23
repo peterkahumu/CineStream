@@ -354,4 +354,3 @@ const PROVIDERS: ProviderConfig[] = [
 ]
 
 export default PROVIDERS
-export type { ProviderConfig }

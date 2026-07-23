@@ -180,54 +180,6 @@
 
 
 /* ── Provider chips ────────────────────────────────────────────── */
-.providersBlock {
-  padding: 0.875rem 0 0;
-}
-
-.providersBlock > .settingLabel {
-  margin-bottom: 0.875rem;
-}
-
-.providersBlock .settingLabel span {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.providersBlock .settingLabel p {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.providerGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.providerChip {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.875rem;
-  border-radius: 999px;
-  border: 2px solid var(--border);
-  background: var(--bg-base);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.providerChip:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
-.providerChipActive {
-  color: var(--text-primary);
-}
 
 /* ── Data management actions ───────────────────────────────────── */
 .dataActions {

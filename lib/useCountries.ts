@@ -20,6 +20,10 @@ export function useCountries() {
       const res = await fetch('/api/countries')
       const data = await res.json()
       
+      if (!Array.isArray(data)) {
+        throw new Error(data.error || 'Invalid data format from countries API')
+      }
+
       // Map Regions
       const rList = data.map((d: any) => ({
         code: d.alpha2Code,
