@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useSettings } from '@/components/SettingsProvider'
 import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
 import { getTermsAccepted, setTermsAccepted, TERMS_EVENT } from '@/lib/terms'
@@ -67,15 +67,15 @@ export default function SettingsPage() {
   const importRef = useRef<HTMLInputElement>(null)
   const importTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const sync = useCallback(() => setTermsState(getTermsAccepted()), [])
+
   // ── Initialize client state ────────────────────────────────────────────
   useEffect(() => {
     setMounted(true)
-    setTermsState(getTermsAccepted())
-    
-    const sync = () => setTermsState(getTermsAccepted())
+    sync()
     window.addEventListener(TERMS_EVENT, sync)
     return () => window.removeEventListener(TERMS_EVENT, sync)
-  }, [])
+  }, [sync])
 
   // ── Terms revoke ───────────────────────────────────────────────────────
   const handleConfirmRevoke = () => {
