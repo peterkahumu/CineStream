@@ -5,21 +5,6 @@
   position: relative;
 }
 
-.iconBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 1px solid var(--border-strong);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: 1.25rem;
-}
-
 .textBtn {
   display: flex;
   align-items: center;
@@ -37,7 +22,7 @@
   gap: 8px;
 }
 
-.iconBtn:hover, .textBtn:hover {
+.textBtn:hover {
   background: var(--bg-hover);
   border-color: var(--accent);
   transform: translateY(-2px);

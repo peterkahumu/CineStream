@@ -1,4 +1,4 @@
-export interface BuildUrlOpts {
+interface BuildUrlOpts {
   startTime?: number
   color?: string
   back?: string
@@ -22,7 +22,7 @@ export interface ProviderProgressData {
   }>
 }
 
-export interface ProviderEventData {
+interface ProviderEventData {
   event: 'play' | 'pause' | 'seeked' | 'ended' | 'timeupdate'
   currentTime: number
   duration: number

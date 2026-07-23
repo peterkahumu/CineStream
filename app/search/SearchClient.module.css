@@ -98,25 +98,3 @@
   background: var(--accent-hover);
   color: #fff;
 }
-
-.luckyBtn {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.2));
-  border: 1px solid rgba(37, 99, 235, 0.3);
-  color: var(--accent);
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
-}
-.luckyBtn:hover {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(37, 99, 235, 0.3));
-  border-color: rgba(37, 99, 235, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-}

@@ -43,11 +43,6 @@
   }
   .card:active { transform: scale(0.98); }
 
-  .cardActive {
-    border-color: rgba(255,255,255,0.2);
-    background: #283548;
-  }
-
   /* ── Poster thumbnail ── */
   .thumb {
     position: relative;

@@ -174,6 +174,7 @@ Currently supported providers include **CineSRC**, **VidLink**, **VidNest**, **V
 ├── lib/
 │   ├── tmdb.ts               # TMDB types, fetch helpers, all API functions
 │   └── streamingProvider.ts  # Streaming server URL builder
+├── proxy-worker/             # [UNUSED] Cloudflare proxy worker. Intended for future use. Safe to delete if not needed.
 ├── Dockerfile                # Production multi-stage build (Standalone)
 ├── Dockerfile.dev            # Local development container
 └── public/                   # Static assets, PWA icons & manifest
