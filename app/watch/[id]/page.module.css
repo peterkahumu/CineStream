@@ -1,14 +1,21 @@
 .main {
-  position: fixed;
-  inset: 0;
-  z-index: 9999; /* Cover the entire site layout including navbars */
   background: #000;
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  flex: 1;
   padding: 0;
-  overflow-y: auto;
+  padding-top: var(--mobile-header-height);
+  padding-bottom: var(--mobile-nav-height);
 }
+
+@media (min-width: 769px) {
+  .main {
+    padding-top: var(--nav-height);
+    padding-bottom: 0;
+  }
+}
+
+
 
 .container {
   display: flex;
@@ -73,7 +80,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   position: relative;
   background: #000;
@@ -105,9 +112,11 @@
 .controlsPanel {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  width: 100%;
   gap: var(--space-md);
   padding: var(--space-md);
-  background: #0f172a; /* Dark background matching theme */
+  background: var(--nav-bg); /* Use theme variable instead of hardcoded #0f172a */
   border-top: 1px solid rgba(255,255,255,0.05);
 }
 
