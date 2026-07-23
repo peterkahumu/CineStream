@@ -26,6 +26,15 @@ export function useSettings() {
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS)
 
+  const onSystemChange = useCallback(() => {
+    setSettings(prev => {
+      if (prev.theme === 'system') {
+        applySettingsToDOM(prev)
+      }
+      return prev
+    })
+  }, [])
+
   // Read cookies on first mount and apply to DOM
   useEffect(() => {
     const loaded = readAllSettings()
@@ -50,21 +59,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         .catch(console.error)
     }
 
-    // Watch system theme changes if setting is 'system'
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
-
-    function onSystemChange() {
-      setSettings(prev => {
-        if (prev.theme === 'system') {
-          applySettingsToDOM(prev)
-        }
-        return prev
-      })
-    }
-
     mq.addEventListener('change', onSystemChange)
     return () => mq.removeEventListener('change', onSystemChange)
-  }, [])
+  }, [onSystemChange])
 
   const updateSetting = useCallback(<K extends keyof UserSettings>(
     key: K,

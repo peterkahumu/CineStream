@@ -7,7 +7,7 @@
   right: 0;
   z-index: var(--z-nav);
   height: var(--mobile-nav-height);
-  background: rgba(15, 23, 42, 0.96);
+  background: var(--nav-bg-alpha);
   border-top: 1px solid rgba(255,255,255,0.07);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);

@@ -14,6 +14,7 @@
 
   /* Nav — dark for contrast */
   --nav-bg:     #0f172a;
+  --nav-bg-alpha: rgba(15, 23, 42, 0.96);
   --nav-text:   #f8fafc;
   --nav-muted:  #94a3b8;
   --nav-hover:  rgba(255,255,255,0.08);
@@ -109,6 +110,13 @@
   --text-muted:     #64748b;
   --text-inverse:   #0f172a;
 
+  --nav-bg:       #111827;
+  --nav-bg-alpha: rgba(17, 24, 39, 0.96);
+  --nav-text:     #f1f5f9;
+  --nav-muted:    #64748b;
+  --nav-hover:    rgba(59, 130, 246, 0.08);
+  --nav-active:   rgba(59, 130, 246, 0.12);
+
   --border:       #1e293b;
   --border-strong: #334155;
 
@@ -146,6 +154,13 @@
   --text-muted:     #73684a;
   --text-inverse:   #000000;
 
+  --nav-bg:       #0a0a0a;
+  --nav-bg-alpha: rgba(10, 10, 10, 0.96);
+  --nav-text:     #fdfbf7;
+  --nav-muted:    #73684a;
+  --nav-hover:    rgba(212, 175, 55, 0.08);
+  --nav-active:   rgba(212, 175, 55, 0.12);
+
   --border:       #2a2415;
   --border-strong: #40361f;
 
@@ -182,6 +197,13 @@
   --text-muted:     #555555;
   --text-inverse:   #000000;
 
+  --nav-bg:       #000000;
+  --nav-bg-alpha: rgba(0, 0, 0, 0.96);
+  --nav-text:     #ffffff;
+  --nav-muted:    #555555;
+  --nav-hover:    rgba(59, 130, 246, 0.10);
+  --nav-active:   rgba(59, 130, 246, 0.15);
+
   --border:       #111111;
   --border-strong: #222222;
 
@@ -217,6 +239,13 @@
   --text-secondary: #768390;
   --text-muted:     #545d68;
   --text-inverse:   #1c2128;
+
+  --nav-bg:       #22272e;
+  --nav-bg-alpha: rgba(34, 39, 46, 0.96);
+  --nav-text:     #adbac7;
+  --nav-muted:    #545d68;
+  --nav-hover:    rgba(83, 155, 245, 0.08);
+  --nav-active:   rgba(83, 155, 245, 0.12);
 
   --border:       #444c56;
   --border-strong: #545d68;
