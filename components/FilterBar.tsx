@@ -40,6 +40,11 @@ const RATING_LABELS: Record<string, string> = {
   '': 'Any Rating', '9': '9+ ⭐', '8': '8+ ⭐', '7': '7+ ⭐', '6': '6+ ⭐', '5': '5+ ⭐',
 }
 
+interface Preset {
+  name: string
+  params: string
+}
+
 // We now use dynamic countries and languages from useCountries() hook
 
 export default function FilterBar({ movieGenres, tvGenres, hideAdvancedFilters = false }: Props) {
@@ -126,7 +131,11 @@ export default function FilterBar({ movieGenres, tvGenres, hideAdvancedFilters =
     setShowLoadPreset(false)
   }
 
-  const savedPresets = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('cinemaphora-presets') || '[]') : []
+  const savedPresets: Preset[] = (() => {
+    if (typeof window === 'undefined') return []
+    try { return JSON.parse(localStorage.getItem('cinemaphora-presets') || '[]') }
+    catch { return [] }
+  })()
 
   return (
     <div className={`${styles.bar} glass`}>
@@ -282,7 +291,7 @@ export default function FilterBar({ movieGenres, tvGenres, hideAdvancedFilters =
         hideCancel
       >
         <div className={styles.modalBtnList}>
-          {savedPresets.map((p: any, i: number) => (
+          {savedPresets.map((p: Preset, i: number) => (
             <button 
               key={i}
               className={`btn btn-secondary ${styles.modalPresetBtn}`}

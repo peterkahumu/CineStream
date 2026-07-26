@@ -219,7 +219,7 @@ export default function WishlistClient() {
         <div className={styles.controls}>
           <select 
             value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'date-desc' | 'date-asc' | 'title-asc')}
             className={styles.sortSelect}
           >
             <option value="date-desc">Newest First</option>

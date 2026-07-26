@@ -98,23 +98,23 @@ export default function WatchClient({
 
   // ── Event handlers ───────────────────────────────────────────────────────────
 
-  function switchServer(newId: string) {
+  const switchServer = useCallback((newId: string) => {
     setServerId(newId)
     setIframeKey(k => k + 1)
-  }
+  }, [])
 
-  function toggleDirectEmbed() {
+  const toggleDirectEmbed = useCallback(() => {
     setUseDirectEmbed(v => !v)
     setIframeKey(k => k + 1)
-  }
+  }, [])
 
-  function buildTransformUrl(url: string): string {
+  const buildTransformUrl = useCallback((url: string): string => {
     return useDirectEmbed ? url : applyProxy(url)
-  }
+  }, [useDirectEmbed])
 
-  function handleNextEpisode(newSeason: number, newEpisode: number) {
+  const handleNextEpisode = useCallback((newSeason: number, newEpisode: number) => {
     router.replace(`/watch/${id}?type=${mediaType}&s=${newSeason}&e=${newEpisode}`)
-  }
+  }, [router, id, mediaType])
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
