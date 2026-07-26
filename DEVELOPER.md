@@ -132,7 +132,11 @@ All discovery and grid pages (`/trending`, `/upcoming`, `/providers`, `/discover
 `lib/streamingProvider.ts` and the `lib/providers/` directory handle video embedding. 
 The `PlayerIframe` component orchestrates these providers and provides a seamless viewing experience with error fallback mechanisms and fullscreen delegation fixes natively supported.
 
-Currently supported providers include **CineSRC**, **VidLink**, **VidNest**, **VidFast**, **VidAPI**, **EmbedMaster**, **PrimeSrc**, **Multiembed**, and **MoviesAPI**. Providers are dynamically loaded in priority order based on which environment variables are defined. Advanced providers (like VidAPI, CineSRC, and VidLink) support postMessage events for rich features such as cross-device resume tracking and auto-playing the next episode.
+Currently supported providers include **CineSRC**, **VidLink**, **VidNest**, **VidFast**, **VidAPI**, **EmbedMaster**, **PrimeSrc**, **Multiembed**, and **MoviesAPI**. Providers are dynamically loaded in priority order based on which environment variables are defined.
+
+Providers are categorized by tier:
+- **`advanced`**: Providers (like VidAPI, CineSRC, and VidLink) that support `postMessage` events for rich features such as cross-device resume tracking, custom subtitles, and auto-playing the next episode.
+- **`basic`**: Providers that are simple iframe embeds without event tracking.
 
 ---
 
@@ -173,7 +177,13 @@ Currently supported providers include **CineSRC**, **VidLink**, **VidNest**, **V
 │   └── Top10Row.tsx          # Geo-detected Top 10 rows (movie + TV)
 ├── lib/
 │   ├── tmdb.ts               # TMDB types, fetch helpers, all API functions
-│   └── streamingProvider.ts  # Streaming server URL builder
+│   ├── streamingProvider.ts  # Streaming server URL builder
+│   ├── progressTracker.ts    # Watch progress localStorage integration
+│   ├── settings.ts           # User preferences and cookie sync
+│   ├── terms.ts              # Legal terms agreement logic
+│   ├── useCountries.ts       # Region/Language mapping hook
+│   ├── geo.ts                # Shared user location detection utility
+│   └── providers/            # Individual streaming provider implementations
 ├── proxy-worker/             # [UNUSED] Cloudflare proxy worker. Intended for future use. Safe to delete if not needed.
 ├── Dockerfile                # Production multi-stage build (Standalone)
 ├── Dockerfile.dev            # Local development container
@@ -200,6 +210,9 @@ These are self-imposed rules enforced across the entire codebase:
 
 5. **`Promise.allSettled` on the homepage.**  
    No single failing TMDB fetch can break the entire page.
+
+6. **CSS Modules Only.**  
+   No inline `style={{}}` props in `.tsx` files. All styling must live in a dedicated `.module.css` file or `globals.css` (no Tailwind).
 
 ---
 
