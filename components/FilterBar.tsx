@@ -166,7 +166,7 @@ export default function FilterBar({ movieGenres, tvGenres, hideAdvancedFilters =
         {/* Sort */}
         <div className={styles.selectWrap}>
           <label className={styles.sortLabel}>Sort By:</label>
-          <div style={{ width: '200px', flex: 1 }}>
+          <div className={styles.sortWrapper}>
             <CustomSelect
               value={sort_by}
               options={sortOptions}
@@ -257,7 +257,7 @@ export default function FilterBar({ movieGenres, tvGenres, hideAdvancedFilters =
             <button className={`btn btn-secondary ${styles.presetBtn}`} onClick={() => setShowLoadPreset(true)}>📂 Load Preset</button>
           )}
           {hasFilters && (
-            <button className={styles.resetBtn} onClick={reset} style={{ marginLeft: 'auto' }}>✕ Reset Filters</button>
+            <button className={`${styles.resetBtn} ${styles.resetBtnWrapper}`} onClick={reset}>✕ Reset Filters</button>
           )}
         </div>
       )}

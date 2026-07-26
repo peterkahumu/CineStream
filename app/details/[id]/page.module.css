@@ -486,3 +486,16 @@
     scroll-snap-align: start;
   }
 }
+
+/* ── Related content footer ─────────────────────────────────────────────── */
+.reviewsFooter {
+  margin-top: var(--space-lg);
+  text-align: center;
+}
+
+.relatedRows {
+  margin-top: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}

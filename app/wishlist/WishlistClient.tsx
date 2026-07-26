@@ -269,8 +269,8 @@ export default function WishlistClient() {
                     {isWatched ? '✓ Watched' : 'To Watch'}
                   </div>
                 )}
-                <div className={styles.cardActions} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                <div className={`${styles.cardActions} ${styles.cardActionsStack}`}>
+                  <div className={styles.cardActionsRow}>
                     <button 
                       className={`${styles.actionBtn} ${isWatched ? styles.watchedBtn : ''}`}
                       onClick={() => handleToggleWatched(item.id, isWatched)}
@@ -287,12 +287,11 @@ export default function WishlistClient() {
                     </button>
                   </div>
                   <button
-                    className={styles.actionBtn}
+                    className={`${styles.actionBtn} ${styles.folderBtn}`}
                     onClick={() => {
                       setFolderModalItem(item.id)
                       setFolderInput(item.folderName || '')
                     }}
-                    style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white' }}
                   >
                     📁 {item.folderName || 'Add to Folder'}
                   </button>

@@ -80,7 +80,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SettingsProvider>
           <CapacitorInit />
           <Navbar />
-          <Suspense fallback={<header style={{ height: 'var(--mobile-header-height)' }} />}>
+          {/* Mobile-only header (Suspense boundary so it doesn't block SSR) */}
+          <Suspense fallback={<header className="mobileHeaderFallback" />}>
             <MobileHeader />
           </Suspense>
           <div className="site-main">{children}</div>

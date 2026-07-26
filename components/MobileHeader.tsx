@@ -33,17 +33,7 @@ function ResultThumb({ src, alt, className }: { src: string | null; alt: string;
 
   if (!src || imgErr) {
     return (
-      <div
-        className={className}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--surface-raised)',
-          borderRadius: 4,
-          fontSize: '1.2rem',
-        }}
-      >
+      <div className={`${className} ${styles.resultFallback}`}>
         🎬
       </div>
     )
@@ -55,8 +45,7 @@ function ResultThumb({ src, alt, className }: { src: string | null; alt: string;
       alt={alt}
       width={40}
       height={56}
-      className={className}
-      style={{ objectFit: 'cover' }}
+      className={`${className} ${styles.resultImg}`}
       onError={() => setImgErr(true)}
     />
   )
@@ -280,22 +269,7 @@ export default function MobileHeader() {
 
       {/* One-time location detected toast */}
       {showLocationToast && (
-        <div style={{
-          position: 'fixed',
-          bottom: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'var(--surface-raised)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '0.6rem 1.2rem',
-          fontSize: '0.85rem',
-          color: 'var(--text)',
-          zIndex: 1000,
-          whiteSpace: 'nowrap',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-          animation: 'fadeIn 0.3s ease',
-        }}>
+        <div className={styles.locationToast}>
           📍 Location detected: {locationName}
         </div>
       )}

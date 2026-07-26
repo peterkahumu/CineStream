@@ -194,3 +194,13 @@
 .modalPresetBtn {
   justify-content: flex-start;
 }
+
+.sortWrapper {
+  width: 200px;
+  flex: 1;
+}
+
+.resetBtnWrapper {
+  margin-left: auto;
+}
+

@@ -533,3 +533,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 
 /* ─── Selection ─────────────────────────────────────────────────────────────── */
 ::selection { background: var(--accent-light); color: var(--accent); }
+
+.mobileHeaderFallback {
+  height: var(--mobile-header-height);
+}

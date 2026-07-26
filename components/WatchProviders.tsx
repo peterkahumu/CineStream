@@ -93,8 +93,7 @@ export default function WatchProviders({ id, mediaType }: Props) {
           href={`https://www.themoviedb.org/${mediaType}/${id}/watch`}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-secondary"
-          style={{ marginTop: '1rem' }}
+          className={`btn btn-secondary ${styles.tmdbLink}`}
         >
           Check on TMDB ↗
         </a>

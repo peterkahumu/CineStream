@@ -273,3 +273,20 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* Card action layout */
+.cardActionsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardActionsRow {
+  display: flex;
+  gap: 4px;
+}
+
+.folderBtn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}

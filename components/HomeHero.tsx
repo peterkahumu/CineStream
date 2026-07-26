@@ -4,6 +4,7 @@ import HeroBanner from './HeroBanner'
 import FeaturedStrip from './FeaturedStrip'
 import MoodPickerModal from './MoodPickerModal'
 import { MediaItem } from '@/lib/tmdb'
+import styles from './HomeHero.module.css'
 
 interface Props {
   items: MediaItem[]
@@ -29,44 +30,13 @@ export default function HomeHero({ items, themedItems, themeTitle, themeEmoji, t
       )}
 
       {/* Mood picker trigger — Prominent banner */}
-      <div style={{
-        padding: 'var(--space-md) var(--page-gutter, 1.5rem)',
-        display: 'flex',
-        justifyContent: 'center'
-      }}>
+      <div className={styles.moodSection}>
         <button
           id="mood-picker-btn"
+          className={styles.moodBtn}
           onClick={handleOpenMood}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            width: '100%',
-            maxWidth: '600px',
-            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.8))',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            color: '#fff',
-            borderRadius: 'var(--radius-lg)',
-            padding: '16px 24px',
-            fontSize: '1.1rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontFamily: 'var(--font-sans)',
-            boxShadow: '0 8px 32px rgba(37, 99, 235, 0.2)',
-            backdropFilter: 'blur(8px)',
-          }}
-          onMouseEnter={e => { 
-            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 40px rgba(37, 99, 235, 0.4)';
-          }}
-          onMouseLeave={e => { 
-            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 32px rgba(37, 99, 235, 0.2)';
-          }}
         >
-          <span style={{ fontSize: '1.4rem' }}>🎭</span>
+          <span className={styles.moodEmoji}>🎭</span>
           <span>What are you in the mood for?</span>
         </button>
       </div>
@@ -75,4 +45,3 @@ export default function HomeHero({ items, themedItems, themeTitle, themeEmoji, t
     </>
   )
 }
-

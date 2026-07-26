@@ -353,7 +353,7 @@ export default async function DetailsPage(props: {
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center' }}>
+                  <div className={styles.reviewsFooter}>
                     <a href={`https://www.themoviedb.org/${mediaType}/${id}/reviews`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
                       See all reviews on TMDB ↗
                     </a>
@@ -410,7 +410,7 @@ export default async function DetailsPage(props: {
           )}
         </DetailsTabs>
 
-        <div style={{ marginTop: 'var(--space-2xl)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className={styles.relatedRows}>
           {recommendations.length > 0 && (
             <MediaRow
               title="Recommendations"
