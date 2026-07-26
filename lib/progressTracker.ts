@@ -40,14 +40,24 @@ function storageKey(tmdbId: string): string {
 
 function mergeShowProgress(
   existing: Record<string, EpisodeProgress> | undefined,
-  incoming: Record<string, EpisodeProgress> | undefined
+  incoming: Record<string, EpisodeProgress> | undefined,
+  isRealTimeEvent?: boolean,
+  activeSeason?: number,
+  activeEpisode?: number
 ): Record<string, EpisodeProgress> | undefined {
   if (!existing && !incoming) return undefined
   const merged: Record<string, EpisodeProgress> = { ...(existing ?? {}) }
+
+  const activeEpKey = activeSeason !== undefined && activeEpisode !== undefined
+    ? `s${activeSeason}e${activeEpisode}`
+    : undefined
+
   if (incoming) {
     for (const [key, ep] of Object.entries(incoming)) {
       const prev = merged[key]
-      if (!prev || ep.watched > prev.watched) {
+      const isCurrentActive = isRealTimeEvent && key === activeEpKey
+
+      if (!prev || isCurrentActive || ep.watched > prev.watched) {
         merged[key] = ep
       }
     }
@@ -74,6 +84,9 @@ export function saveProgress(
     season?: number
     episode?: number
     show_progress?: Record<string, EpisodeProgress>
+    activeSeason?: number
+    activeEpisode?: number
+    isRealTimeEvent?: boolean
   }
 ): void {
   if (typeof localStorage === 'undefined') return
@@ -91,7 +104,10 @@ export function saveProgress(
     existing.episode !== undefined &&
     (data.season !== existing.season || data.episode !== existing.episode)
 
-  const shouldUpdateWatched = isDifferentEpisode || data.watched > (existing?.watched ?? 0)
+  const shouldUpdateWatched = 
+    isDifferentEpisode || 
+    data.isRealTimeEvent || 
+    data.watched > (existing?.watched ?? 0)
 
   const updated: WatchProgress = {
     id: tmdbId,
@@ -103,7 +119,13 @@ export function saveProgress(
     duration: data.duration || existing?.duration || 0,
     season: data.season ?? existing?.season,
     episode: data.episode ?? existing?.episode,
-    show_progress: mergeShowProgress(existing?.show_progress, data.show_progress),
+    show_progress: mergeShowProgress(
+      existing?.show_progress, 
+      data.show_progress,
+      data.isRealTimeEvent,
+      data.activeSeason,
+      data.activeEpisode
+    ),
     lastProvider: provider,
     updatedAt: Date.now(),
   }

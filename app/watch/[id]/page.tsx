@@ -78,15 +78,6 @@ export default async function WatchPage(props: {
       <ScrollToTop />
       <div className={styles.container}>
         
-        <div className={styles.header}>
-          <Link href={`/details/${id}?type=${mediaType}`} className={styles.backBtn}>
-            ← Back to Details
-          </Link>
-          <h1 className={styles.title}>
-            {title} {mediaType === 'tv' ? `- Season ${season} Episode ${episode}` : ''}
-          </h1>
-        </div>
-
         <div className={styles.layout}>
           <div className={styles.playerWrapper}>
             <WatchClient
@@ -98,6 +89,7 @@ export default async function WatchPage(props: {
               backdrop={backdrop}
               poster={poster}
               servers={getStreamingServers()}
+              seasons={details.seasons}
             />
           </div>
         </div>

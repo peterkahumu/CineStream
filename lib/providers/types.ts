@@ -10,8 +10,6 @@ export interface ProviderProgressData {
   title?: string
   poster_path?: string | null
   backdrop_path?: string | null
-  last_season_watched?: string | number
-  last_episode_watched?: string | number
   /** Provider-specific show_progress map — normalised by PlayerIframe before storage */
   show_progress?: Record<string, {
     season: string | number
@@ -20,6 +18,7 @@ export interface ProviderProgressData {
     watched?: number
     duration?: number
   }>
+  isRealTimeEvent?: boolean
 }
 
 interface ProviderEventData {
@@ -73,4 +72,11 @@ export interface ProviderConfig {
    * Only called when event.origin matches this provider's origin.
    */
   onMessage?(event: MessageEvent, callbacks: PlayerCallbacks, context: PlayerContext): void
+  /**
+   * True when the provider navigates to the next episode inside the iframe itself
+   * (e.g. CineSRC's cinesrc:nextepisode, VidFast's autoNext).
+   * When true, receiving onNextEpisode should only update UI state — the iframe
+   * src must NOT be changed, since the provider has already moved on internally.
+   */
+  selfNavigatesNextEpisode?: boolean
 }

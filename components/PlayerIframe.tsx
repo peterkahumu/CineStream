@@ -15,12 +15,19 @@ interface PlayerIframeProps {
   id: string
   season: number
   episode: number
+  /** What the iframe src is actually built from. Only differs from season/episode for
+   *  self-navigating providers, where the iframe already moved on internally. */
+  iframeSeason: number
+  iframeEpisode: number
   title: string
   backdrop?: string | null
   poster?: string | null
   iframeKey: number
   transformUrl?: (url: string) => string
   onNextEpisode?: (season: number, episode: number) => void
+  /** Called instead of onNextEpisode when the provider self-navigates (e.g. CineSRC, VidFast autoNext).
+   *  The iframe is already playing the new episode — only update UI/URL, do NOT reload src. */
+  onNextEpisodeSelfNavigated?: (season: number, episode: number) => void
   onClose?: () => void
 }
 
@@ -31,27 +38,39 @@ export default function PlayerIframe({
   id,
   season,
   episode,
+  iframeSeason,
+  iframeEpisode,
   title,
   backdrop,
   poster,
   iframeKey,
   transformUrl,
   onNextEpisode,
+  onNextEpisodeSelfNavigated,
   onClose,
 }: PlayerIframeProps) {
   const router = useRouter()
   const [isReady, setIsReady] = useState(false)
-  const [startTime, setStartTime] = useState(0)
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // ── Resume time ─────────────────────────────────────────────────────────────
+  // The start time is only resolved once per mount (or explicit server switch via iframeKey).
+  // On client-side episode changes season/episode props update but we deliberately do NOT
+  // re-run this — the iframe just has its src quietly swapped and plays from the beginning
+  // of the next episode (or from wherever the external player decides).
+  const startTimeRef = useRef<number | null>(null)
 
-  const handleResumeLoad = useCallback(() => {
+  // ── Resume time — runs only on initial mount or explicit server switch ────────
+
+  const resolveStartTime = useCallback(() => {
+    if (startTimeRef.current !== null) return
     const resumeTime = progressTracker.getResumeTime(id, season, episode)
-    setStartTime(resumeTime)
+    startTimeRef.current = resumeTime
     setIsReady(true)
-  }, [id, season, episode])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // Intentionally empty deps: we only want this to resolve on the very first render.
+  // season/episode changes are handled by updating the iframe src attribute directly,
+  // not by remounting the component.
 
   // ── Progress persistence ─────────────────────────────────────────────────────
 
@@ -92,9 +111,12 @@ export default function PlayerIframe({
         title: data.title || title,
         poster_path: data.poster_path !== undefined ? data.poster_path : (poster ?? null),
         backdrop_path: data.backdrop_path !== undefined ? data.backdrop_path : (backdrop ?? null),
-        season: mediaType === 'tv' ? (Number(data.last_season_watched) || season) : undefined,
-        episode: mediaType === 'tv' ? (Number(data.last_episode_watched) || episode) : undefined,
+        season: mediaType === 'tv' ? season : undefined,
+        episode: mediaType === 'tv' ? episode : undefined,
         show_progress,
+        activeSeason: season,
+        activeEpisode: episode,
+        isRealTimeEvent: data.isRealTimeEvent,
       })
     },
     [id, mediaType, provider.id, season, episode, title, backdrop, poster]
@@ -104,13 +126,16 @@ export default function PlayerIframe({
 
   const handleNextEpisode = useCallback(
     (newSeason: number, newEpisode: number) => {
-      if (onNextEpisode) {
+      if (provider.selfNavigatesNextEpisode && onNextEpisodeSelfNavigated) {
+        // Provider already navigated internally — only update UI, leave src alone.
+        onNextEpisodeSelfNavigated(newSeason, newEpisode)
+      } else if (onNextEpisode) {
         onNextEpisode(newSeason, newEpisode)
       } else {
         router.replace(`/watch/${id}?type=${mediaType}&s=${newSeason}&e=${newEpisode}`)
       }
     },
-    [id, mediaType, onNextEpisode, router]
+    [id, mediaType, provider.selfNavigatesNextEpisode, onNextEpisodeSelfNavigated, onNextEpisode, router]
   )
 
   const handleClose = useCallback(() => {
@@ -166,14 +191,22 @@ export default function PlayerIframe({
   // ── Effects — function calls only, no inline definitions ─────────────────────
 
   useEffect(() => {
-    handleResumeLoad()
-  }, [handleResumeLoad])
+    resolveStartTime()
+  }, [resolveStartTime])
 
   useEffect(() => {
     if (!provider.onMessage) return
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   }, [handleMessage, provider.onMessage])
+
+  // When the user explicitly switches server (iframeKey increments), reset so the
+  // resume time for the new server+episode is looked up fresh.
+  useEffect(() => {
+    startTimeRef.current = null
+    setIsReady(false)
+    resolveStartTime()
+  }, [iframeKey, resolveStartTime])
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
@@ -197,7 +230,9 @@ export default function PlayerIframe({
     return <div className={`skeleton ${styles.skeletonPlayer}`} />
   }
 
-  const rawUrl = provider.buildUrl(serverUrl, mediaType, id, season, episode, {
+  const startTime = startTimeRef.current ?? 0
+
+  const rawUrl = provider.buildUrl(serverUrl, mediaType, id, iframeSeason, iframeEpisode, {
     startTime: startTime > 0 ? startTime : undefined,
     color: '%232563eb',
     back: 'close',
@@ -209,7 +244,7 @@ export default function PlayerIframe({
     <OfflineTrailerWrapper>
       <iframe
         ref={iframeRef}
-        key={`${embedUrl}-${iframeKey}`}
+        key={iframeKey}
         src={embedUrl}
         className={pageStyles.player}
         loading="eager"
