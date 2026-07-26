@@ -15,12 +15,21 @@ interface Props {
 
 const WISHLIST_KEY = 'cinemaphora-wishlist'
 
+interface WishlistItem {
+  id: string
+  mediaType: 'movie' | 'tv'
+  title: string
+  poster: string | null
+  backdrop: string | null
+  addedAt: number
+}
+
 function readWishlistStatus(id: string): boolean {
   try {
     const stored = localStorage.getItem(WISHLIST_KEY)
     if (!stored) return false
-    const list = JSON.parse(stored)
-    return list.some((item: any) => String(item.id) === String(id))
+    const list: WishlistItem[] = JSON.parse(stored)
+    return list.some(item => String(item.id) === String(id))
   } catch (e) {
     console.error('Failed to read wishlist', e)
     return false
@@ -51,9 +60,9 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
   const toggleWishlist = useCallback(() => {
     try {
       const stored = localStorage.getItem(WISHLIST_KEY)
-      let list = stored ? JSON.parse(stored) : []
+      let list: WishlistItem[] = stored ? JSON.parse(stored) : []
       
-      const exists = list.some((item: any) => String(item.id) === String(id))
+      const exists = list.some(item => String(item.id) === String(id))
       
       if (exists) {
         setIsModalOpen(true)
@@ -80,8 +89,8 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
   const confirmRemove = useCallback(() => {
     try {
       const stored = localStorage.getItem(WISHLIST_KEY)
-      let list = stored ? JSON.parse(stored) : []
-      list = list.filter((item: any) => String(item.id) !== String(id))
+      let list: WishlistItem[] = stored ? JSON.parse(stored) : []
+      list = list.filter(item => String(item.id) !== String(id))
       localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
       setInWishlist(false)
       setIsModalOpen(false)

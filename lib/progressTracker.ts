@@ -79,7 +79,19 @@ export function saveProgress(
   if (typeof localStorage === 'undefined') return
 
   const existing = getProgress(tmdbId)
-  const shouldUpdateWatched = data.watched > (existing?.watched ?? 0)
+
+  // For TV shows, if the season or episode changed, we reset top-level watched
+  // to the new episode's watched position rather than keeping the completed episode's timestamp.
+  const isDifferentEpisode =
+    mediaType === 'tv' &&
+    existing?.mediaType === 'tv' &&
+    data.season !== undefined &&
+    data.episode !== undefined &&
+    existing.season !== undefined &&
+    existing.episode !== undefined &&
+    (data.season !== existing.season || data.episode !== existing.episode)
+
+  const shouldUpdateWatched = isDifferentEpisode || data.watched > (existing?.watched ?? 0)
 
   const updated: WatchProgress = {
     id: tmdbId,

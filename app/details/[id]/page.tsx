@@ -13,7 +13,7 @@ import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
   discover, getMediaCertifications,
-  type CastMember, type Review, type Video, type Season,
+  type CastMember, type CrewMember, type Review, type Video, type Season,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import styles from './page.module.css'
@@ -27,8 +27,8 @@ export async function generateMetadata(
   const searchParams = await props.searchParams
   const id = params.id
   const mediaType = searchParams.type === 'tv' ? 'tv' : 'movie'
-  
-  const details = mediaType === 'movie' 
+
+  const details = mediaType === 'movie'
     ? await getMovieDetails(Number(id)).catch(() => null)
     : await getTVDetails(Number(id)).catch(() => null)
 
@@ -63,15 +63,15 @@ export default async function DetailsPage(props: {
   const searchParams = await props.searchParams
   const id = params.id
   const mediaType = searchParams.type === 'tv' ? 'tv' : 'movie'
-  
+
   // Enforce valid tab types
   // tabs: default to watch for tv shows, trailers for movies
   const tabRaw = searchParams.tab || (mediaType === 'tv' ? 'watch' : 'trailers')
-  const tab: 'watch' | 'trailers' | 'cast' | 'reviews' | 'where' = 
+  const tab: 'watch' | 'trailers' | 'cast' | 'reviews' | 'where' =
     (tabRaw === 'watch' && mediaType === 'tv') ? 'watch' :
-    tabRaw === 'where' ? 'where' :
-    tabRaw === 'cast' ? 'cast' :
-    tabRaw === 'reviews' ? 'reviews' : 'trailers'
+      tabRaw === 'where' ? 'where' :
+        tabRaw === 'cast' ? 'cast' :
+          tabRaw === 'reviews' ? 'reviews' : 'trailers'
 
   const activeSeason = Number(searchParams.s || 1)
 
@@ -91,10 +91,9 @@ export default async function DetailsPage(props: {
   const reviews: Review[] = (details.reviews?.results || [])
 
   // Extract director (movies) or creators (TV) for 'More from...' row
-  const director = mediaType === 'movie'
-    ? (details.credits?.cast as unknown as { id: number; name: string; job?: string }[])
-        ?.find(m => (m as unknown as { job?: string }).job === 'Director')
-      ?? null
+  // Directors are in credits.crew (not cast) — TMDB returns the full crew here
+  const director: CrewMember | null = mediaType === 'movie'
+    ? (details.credits?.crew ?? []).find(m => m.job === 'Director') ?? null
     : null
   // For TV use created_by
   const tvCreator = mediaType === 'tv' ? (details.created_by?.[0] ?? null) : null
@@ -104,9 +103,9 @@ export default async function DetailsPage(props: {
   // Fetch 'More from Director/Creator' — both movie + TV, rated desc
   const [moreMovies, moreTV] = creatorId
     ? await Promise.all([
-        discover({ media: 'movie', with_crew: String(creatorId), sort_by: 'vote_average.desc', 'vote_count.gte': 50 }).catch(() => ({ results: [], page: 1, total_pages: 0, total_results: 0 })),
-        discover({ media: 'tv',    with_crew: String(creatorId), sort_by: 'vote_average.desc', 'vote_count.gte': 20 }).catch(() => ({ results: [], page: 1, total_pages: 0, total_results: 0 })),
-      ])
+      discover({ media: 'movie', with_crew: String(creatorId), sort_by: 'vote_average.desc', 'vote_count.gte': 50 }).catch(() => ({ results: [], page: 1, total_pages: 0, total_results: 0 })),
+      discover({ media: 'tv', with_crew: String(creatorId), sort_by: 'vote_average.desc', 'vote_count.gte': 20 }).catch(() => ({ results: [], page: 1, total_pages: 0, total_results: 0 })),
+    ])
     : [{ results: [] }, { results: [] }]
 
   const moreFromCreator = [
@@ -126,7 +125,7 @@ export default async function DetailsPage(props: {
 
   if (mediaType === 'tv' && details.seasons) {
     tvSeasons = details.seasons.filter(s => s.season_number > 0)
-    
+
     // Fetch trailers if we are on the trailers tab
     if (tab === 'trailers') {
       if (tvSeasons.length === 1) {
@@ -149,7 +148,7 @@ export default async function DetailsPage(props: {
           if (t) trailers.push({ key: t.key, name: t.name, label: `${season.name} Trailer` })
         })
       }
-      
+
       if (trailers.length === 0) {
         const vids = (details.videos?.results || []).filter(v => v.site === 'YouTube' && v.type === 'Trailer')
         trailers = vids.slice(0, 2).map(v => ({ key: v.key, name: v.name, label: 'Series Trailer' }))
@@ -260,7 +259,7 @@ export default async function DetailsPage(props: {
               ))}
             </div>
           )}
-          
+
           <div className={styles.actionsContainer}>
             <div className={styles.actionsRow}>
               {isUpcoming ? (
@@ -279,12 +278,12 @@ export default async function DetailsPage(props: {
                   <WatchTvButton id={id} className={`btn btn-primary ${styles.watchBtn}`} />
                 </Suspense>
               )}
-              <ActionButtons 
-                id={id} 
-                mediaType={mediaType} 
-                title={title} 
-                poster={details.poster_path} 
-                backdrop={details.backdrop_path} 
+              <ActionButtons
+                id={id}
+                mediaType={mediaType}
+                title={title}
+                poster={details.poster_path}
+                backdrop={details.backdrop_path}
               />
             </div>
           </div>
@@ -302,8 +301,8 @@ export default async function DetailsPage(props: {
               {cast.length > 0 ? (
                 <div className={styles.castGrid}>
                   {cast.map((c: CastMember) => (
-                    <Link 
-                      key={c.id} 
+                    <Link
+                      key={c.id}
                       href={`/person/${c.id}`}
                       className={styles.castCard}
                     >
@@ -354,7 +353,7 @@ export default async function DetailsPage(props: {
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center' }}>
+                  <div className={styles.reviewsFooter}>
                     <a href={`https://www.themoviedb.org/${mediaType}/${id}/reviews`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
                       See all reviews on TMDB ↗
                     </a>
@@ -411,7 +410,7 @@ export default async function DetailsPage(props: {
           )}
         </DetailsTabs>
 
-        <div style={{ marginTop: 'var(--space-2xl)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className={styles.relatedRows}>
           {recommendations.length > 0 && (
             <MediaRow
               title="Recommendations"
@@ -421,20 +420,20 @@ export default async function DetailsPage(props: {
             />
           )}
 
-          {moreFromCreator.length > 0 && (
-            <MediaRow
-              title={`More from ${creatorName}`}
-              emoji="🎬"
-              items={moreFromCreator}
-            />
-          )}
-
           {similar.length > 0 && (
             <MediaRow
               title="More Like This"
               emoji="🔄"
               items={similar}
               forcedType={mediaType}
+            />
+          )}
+
+          {moreFromCreator.length > 0 && (
+            <MediaRow
+              title={`More from ${creatorName}`}
+              emoji="🎬"
+              items={moreFromCreator}
             />
           )}
         </div>

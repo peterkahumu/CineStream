@@ -1,9 +1,12 @@
+'use client'
+
 import { useState, useEffect, useCallback } from 'react'
 
 export interface Region {
   code: string
   name: string
 }
+
 
 export interface Language {
   code: string

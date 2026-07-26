@@ -29,19 +29,7 @@ function SearchResultThumb({ src, alt }: { src: string | null; alt: string }) {
 
   if (!src || imgErr) {
     return (
-      <div
-        style={{
-          width: 36,
-          height: 54,
-          borderRadius: 4,
-          background: 'var(--surface-raised)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.2rem',
-          flexShrink: 0,
-        }}
-      >
+      <div className={styles.resultFallback}>
         🎬
       </div>
     )
@@ -53,7 +41,7 @@ function SearchResultThumb({ src, alt }: { src: string | null; alt: string }) {
       alt={alt}
       width={36}
       height={54}
-      style={{ borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
+      className={styles.resultImg}
       onError={() => setImgErr(true)}
     />
   )
@@ -87,7 +75,7 @@ export default function Navbar() {
     } finally {
       setIsFetching(false)
     }
-  }, [query])
+  }, [query, settings.safeSearch])
 
   useEffect(() => {
     const timer = setTimeout(() => {

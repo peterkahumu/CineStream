@@ -8,6 +8,7 @@ import {
   UserSettings, DEFAULT_SETTINGS,
   readAllSettings, writeSetting, applySettingsToDOM,
 } from '@/lib/settings'
+import { getCachedGeo } from '@/lib/geo'
 
 interface SettingsContextValue {
   settings: UserSettings
@@ -43,20 +44,31 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
     // Auto-detect region if not explicitly set
     if (!document.cookie.includes('cp_region=')) {
-      fetch('https://countries.dev/ip')
-        .then(r => r.json())
-        .then(data => {
-          if (data.countryCode) {
-            // Update state and cookie
-            writeSetting('region', data.countryCode)
-            setSettings(prev => {
-              const next = { ...prev, region: data.countryCode }
-              applySettingsToDOM(next)
-              return next
-            })
-          }
+      // Prefer the shared geo cache to avoid a redundant network request
+      const cachedGeo = getCachedGeo()
+      if (cachedGeo) {
+        writeSetting('region', cachedGeo.countryCode)
+        setSettings(prev => {
+          const next = { ...prev, region: cachedGeo.countryCode }
+          applySettingsToDOM(next)
+          return next
         })
-        .catch(console.error)
+      } else {
+        fetch('https://countries.dev/ip')
+          .then(r => r.json())
+          .then(data => {
+            if (data.countryCode) {
+              // Update state and cookie
+              writeSetting('region', data.countryCode)
+              setSettings(prev => {
+                const next = { ...prev, region: data.countryCode }
+                applySettingsToDOM(next)
+                return next
+              })
+            }
+          })
+          .catch(console.error)
+      }
     }
 
     const mq = window.matchMedia('(prefers-color-scheme: dark)')

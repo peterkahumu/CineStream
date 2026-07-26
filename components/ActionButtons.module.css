@@ -64,7 +64,7 @@
   font-weight: 500;
   white-space: nowrap;
   box-shadow: var(--shadow-md);
-  z-index: 50;
+  z-index: 150;
   animation: fadeInDown 0.2s ease-out;
   display: flex;
   align-items: center;

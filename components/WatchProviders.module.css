@@ -92,3 +92,7 @@
 .tmdbCredit a:hover {
   text-decoration: underline;
 }
+
+.tmdbLink {
+  margin-top: 1rem;
+}

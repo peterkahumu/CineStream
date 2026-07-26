@@ -147,6 +147,7 @@
     margin-bottom: 2px;
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -259,5 +260,37 @@
 
   .pillIcon {
     font-size: 0.85rem;
+  }
+
+  /* ── Search results ──────────────────────────────────────────────────────── */
+  .resultFallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-raised);
+    border-radius: 4px;
+    font-size: 1.2rem;
+  }
+
+  .resultImg {
+    object-fit: cover;
+  }
+
+  /* ── Location Toast ──────────────────────────────────────────────────────── */
+  .locationToast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    z-index: 1000;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    animation: fadeIn 0.3s ease;
   }
 }

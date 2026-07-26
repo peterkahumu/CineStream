@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
+import { getCachedGeo, fetchAndCacheGeo } from '@/lib/geo'
 import styles from './MobileHeader.module.css'
 
 const CATEGORIES = [
@@ -32,17 +33,7 @@ function ResultThumb({ src, alt, className }: { src: string | null; alt: string;
 
   if (!src || imgErr) {
     return (
-      <div
-        className={className}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--surface-raised)',
-          borderRadius: 4,
-          fontSize: '1.2rem',
-        }}
-      >
+      <div className={`${className} ${styles.resultFallback}`}>
         🎬
       </div>
     )
@@ -54,8 +45,7 @@ function ResultThumb({ src, alt, className }: { src: string | null; alt: string;
       alt={alt}
       width={40}
       height={56}
-      className={className}
-      style={{ objectFit: 'cover' }}
+      className={`${className} ${styles.resultImg}`}
       onError={() => setImgErr(true)}
     />
   )
@@ -82,27 +72,22 @@ export default function MobileHeader() {
       setHistory(h)
     } catch {}
 
-    // Use cached location; only fetch (and toast) when first detected
-    const cached = localStorage.getItem('user_location')
+    // Use shared geo utility — reads cache first, fetches+caches on first visit
+    const cached = getCachedGeo()
     if (cached) {
-      setLocationName(cached)
+      setLocationName(cached.countryName)
       return
     }
 
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(data => {
-        const name = data.country_name || 'Global'
-        setLocationName(name)
-        localStorage.setItem('user_location', name)
-        // Only toast on first-ever detection; never repeat it
-        if (!localStorage.getItem('user_location_seen')) {
-          localStorage.setItem('user_location_seen', '1')
-          setShowLocationToast(true)
-          locationTimerRef.current = setTimeout(() => setShowLocationToast(false), 4000)
-        }
-      })
-      .catch(() => setLocationName('Global'))
+    fetchAndCacheGeo().then(geo => {
+      setLocationName(geo.countryName)
+      // Only toast on first-ever detection; never repeat it
+      if (!localStorage.getItem('cinemaphora-geo-seen')) {
+        localStorage.setItem('cinemaphora-geo-seen', '1')
+        setShowLocationToast(true)
+        locationTimerRef.current = setTimeout(() => setShowLocationToast(false), 4000)
+      }
+    })
 
     return () => {
       if (locationTimerRef.current) clearTimeout(locationTimerRef.current)
@@ -271,16 +256,9 @@ export default function MobileHeader() {
         <button
           className={styles.pill}
           onClick={() => {
-            localStorage.removeItem('user_location')
+            // Force re-fetch geo and update location pill
+            fetchAndCacheGeo().then(geo => setLocationName(geo.countryName))
             setLocationName('Locating...')
-            fetch('https://ipapi.co/json/')
-              .then(res => res.json())
-              .then(data => {
-                const name = data.country_name || 'Global'
-                setLocationName(name)
-                localStorage.setItem('user_location', name)
-              })
-              .catch(() => setLocationName('Global'))
           }}
           title="Click to refresh location"
         >
@@ -291,22 +269,7 @@ export default function MobileHeader() {
 
       {/* One-time location detected toast */}
       {showLocationToast && (
-        <div style={{
-          position: 'fixed',
-          bottom: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'var(--surface-raised)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '0.6rem 1.2rem',
-          fontSize: '0.85rem',
-          color: 'var(--text)',
-          zIndex: 1000,
-          whiteSpace: 'nowrap',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-          animation: 'fadeIn 0.3s ease',
-        }}>
+        <div className={styles.locationToast}>
           📍 Location detected: {locationName}
         </div>
       )}

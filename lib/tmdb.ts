@@ -1,8 +1,9 @@
-// ─── TMDB via server-side proxy ────────────────────────────────────────────────
-// All calls go to /api/tmdb/* — the actual API key lives only in .env.local
-// and is never sent to the browser.
+// ─── TMDB data layer ────────────────────────────────────────────────────────────
+// Server Components call tmdbFetch() directly — it detects
+// `typeof window === 'undefined'` and hits TMDB using the server-side API key.
+// Client Components must call the /api/tmdb/* proxy instead, which injects the
+// API key server-side so it is never sent to the browser.
 
-const BASE_URL = 'https://api.themoviedb.org/3'
 const IMG_BASE = 'https://image.tmdb.org/t/p'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -56,6 +57,14 @@ export interface CastMember {
   order: number
 }
 
+export interface CrewMember {
+  id: number
+  name: string
+  job: string
+  department: string
+  profile_path: string | null
+}
+
 export interface Review {
   id: string
   author: string
@@ -83,7 +92,7 @@ export interface ShowDetails extends MediaItem {
   tagline?: string
   runtime?: number
   episode_run_time?: number[]
-  credits?: { cast: CastMember[] }
+  credits?: { cast: CastMember[]; crew: CrewMember[] }
   similar?: { results: MediaItem[] }
   videos?: { results: Video[] }
   aggregate_credits?: { cast: CastMember[] }
