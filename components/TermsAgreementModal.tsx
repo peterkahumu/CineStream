@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './TermsAgreementModal.module.css'
@@ -15,13 +15,14 @@ export default function TermsAgreementModal() {
   const [showConfirm, setShowConfirm] = useState(false)
   const pathname = usePathname()
 
-  useEffect(() => {
-    const sync = () => setShowModal(!getTermsAccepted())
+  // Defined outside useEffect so it can be a stable reference for the listener
+  const sync = useCallback(() => setShowModal(!getTermsAccepted()), [])
 
+  useEffect(() => {
     sync()
     window.addEventListener(TERMS_EVENT, sync)
     return () => window.removeEventListener(TERMS_EVENT, sync)
-  }, [])
+  }, [sync])
 
   // Don't show on legal/declined/offline pages, and don't render until mounted
   if (SUPPRESSED_PATHS.has(pathname)) return null
