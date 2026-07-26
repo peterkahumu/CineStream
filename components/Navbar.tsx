@@ -87,7 +87,7 @@ export default function Navbar() {
     } finally {
       setIsFetching(false)
     }
-  }, [query])
+  }, [query, settings.safeSearch])
 
   useEffect(() => {
     const timer = setTimeout(() => {

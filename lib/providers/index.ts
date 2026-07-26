@@ -100,8 +100,11 @@ const PROVIDERS: ProviderConfig[] = [
         const d = event.data.data
         if (!d) return
 
+        // Maps VidAPI player_status values to our internal event type names.
+        // 'playing' maps to 'timeupdate' because VidAPI uses player_status for
+        // periodic playback events, not separate timeupdate events.
         const statusMap: Record<string, 'play' | 'pause' | 'seeked' | 'ended' | 'timeupdate'> = {
-          playing: 'timeupdate', // Used for frequent updates
+          playing: 'timeupdate',
           paused: 'pause',
           seeked: 'seeked',
           completed: 'ended',

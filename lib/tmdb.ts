@@ -1,8 +1,9 @@
-// ─── TMDB via server-side proxy ────────────────────────────────────────────────
-// All calls go to /api/tmdb/* — the actual API key lives only in .env.local
-// and is never sent to the browser.
+// ─── TMDB data layer ────────────────────────────────────────────────────────────
+// Server Components call tmdbFetch() directly — it detects
+// `typeof window === 'undefined'` and hits TMDB using the server-side API key.
+// Client Components must call the /api/tmdb/* proxy instead, which injects the
+// API key server-side so it is never sent to the browser.
 
-const BASE_URL = 'https://api.themoviedb.org/3'
 const IMG_BASE = 'https://image.tmdb.org/t/p'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
