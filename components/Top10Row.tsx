@@ -3,10 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import MediaCard from './MediaCard'
 import { MediaItem } from '@/lib/tmdb'
+import { getGeo } from '@/lib/geo'
 import baseStyles from './MediaRow.module.css'
 import styles from './Top10Row.module.css'
-
-const GEO_CACHE_KEY = 'cinemaphora-geo'
 
 async function fetchTop10Data(
   setCountry: (v: string) => void,
@@ -17,22 +16,8 @@ async function fetchTop10Data(
   setLoading: (v: boolean) => void,
 ) {
   try {
-    // Use cached country code to avoid a geo API call on every page load
-    let countryCode: string
-    let countryName: string
-    const cached = localStorage.getItem(GEO_CACHE_KEY)
-    if (cached) {
-      const parsed = JSON.parse(cached)
-      countryCode = parsed.countryCode
-      countryName = parsed.countryName
-    } else {
-      const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json')
-      if (!geoRes.ok) throw new Error('Geo failed')
-      const geo = await geoRes.json()
-      countryCode = geo.country_code
-      countryName = geo.country
-      localStorage.setItem(GEO_CACHE_KEY, JSON.stringify({ countryCode, countryName }))
-    }
+    // Use shared geo utility — reads cache first, fetches only when needed
+    const { countryCode, countryName } = await getGeo()
     setCountry(countryName)
 
     const [movieRes, tvRes] = await Promise.all([

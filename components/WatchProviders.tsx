@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
+import { getCachedGeo, getGeo } from '@/lib/geo'
 import styles from './WatchProviders.module.css'
 
 interface Provider {
@@ -22,16 +23,6 @@ interface Props {
   mediaType: 'movie' | 'tv'
 }
 
-function getRegionFromCache(): string {
-  try {
-    const cached = localStorage.getItem('cinemaphora-geo')
-    if (cached) {
-      const parsed = JSON.parse(cached)
-      return parsed.countryCode || 'US'
-    }
-  } catch {}
-  return 'US'
-}
 
 async function fetchProviders(id: string, mediaType: string, region: string): Promise<{ data: ProviderSet | null, actualRegion: string }> {
   const res = await fetch(`/api/tmdb/${mediaType}/${id}/watch/providers`)
@@ -67,8 +58,13 @@ export default function WatchProviders({ id, mediaType }: Props) {
   }, [id, mediaType])
 
   useEffect(() => {
-    const regionCode = getRegionFromCache()
+    // Use shared geo utility — reads cache first, falls back to 'US'
+    const regionCode = getCachedGeo()?.countryCode ?? 'US'
     handleLoad(regionCode)
+    // If no cache yet, fetch in the background and reload with real location
+    if (!getCachedGeo()) {
+      getGeo().then(geo => handleLoad(geo.countryCode))
+    }
   }, [handleLoad])
 
   if (loading) {
