@@ -57,6 +57,14 @@ export interface CastMember {
   order: number
 }
 
+export interface CrewMember {
+  id: number
+  name: string
+  job: string
+  department: string
+  profile_path: string | null
+}
+
 export interface Review {
   id: string
   author: string
@@ -84,7 +92,7 @@ export interface ShowDetails extends MediaItem {
   tagline?: string
   runtime?: number
   episode_run_time?: number[]
-  credits?: { cast: CastMember[] }
+  credits?: { cast: CastMember[]; crew: CrewMember[] }
   similar?: { results: MediaItem[] }
   videos?: { results: Video[] }
   aggregate_credits?: { cast: CastMember[] }

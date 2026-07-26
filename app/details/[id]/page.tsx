@@ -13,7 +13,7 @@ import {
   getMovieDetails, getTVDetails, getSeasonDetails,
   posterUrl, backdropUrl, mediaTitle,
   discover, getMediaCertifications,
-  type CastMember, type Review, type Video, type Season,
+  type CastMember, type CrewMember, type Review, type Video, type Season,
 } from '@/lib/tmdb'
 import type { Metadata } from 'next'
 import styles from './page.module.css'
@@ -91,10 +91,9 @@ export default async function DetailsPage(props: {
   const reviews: Review[] = (details.reviews?.results || [])
 
   // Extract director (movies) or creators (TV) for 'More from...' row
-  const director = mediaType === 'movie'
-    ? (details.credits?.cast as unknown as { id: number; name: string; job?: string }[])
-        ?.find(m => (m as unknown as { job?: string }).job === 'Director')
-      ?? null
+  // Directors are in credits.crew (not cast) — TMDB returns the full crew here
+  const director: CrewMember | null = mediaType === 'movie'
+    ? (details.credits?.crew ?? []).find(m => m.job === 'Director') ?? null
     : null
   // For TV use created_by
   const tvCreator = mediaType === 'tv' ? (details.created_by?.[0] ?? null) : null
