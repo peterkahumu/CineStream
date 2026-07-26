@@ -7,6 +7,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
 import PROVIDERS from '@/lib/providers'
 import type { StreamingServer } from '@/lib/streamingProvider'
+import type { Season } from '@/lib/tmdb'
 import PlayerIframe from '@/components/PlayerIframe'
 import styles from './page.module.css'
 
@@ -22,6 +23,7 @@ interface Props {
   backdrop?: string | null
   poster?: string | null
   servers: StreamingServer[]
+  seasons?: Season[]
   children?: React.ReactNode
 }
 
@@ -63,12 +65,32 @@ export default function WatchClient({
   backdrop,
   poster,
   servers,
+  seasons,
   children,
 }: Props) {
   const router = useRouter()
   const [serverId, setServerId] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
+
+  const [currentSeason, setCurrentSeason] = useState(season)
+  const [currentEpisode, setCurrentEpisode] = useState(episode)
+  // iframeSeason/iframeEpisode track what the iframe is actually pointed at.
+  // For self-navigating providers (CineSRC, VidFast) these are NOT updated on
+  // next-episode events — the provider already moved the iframe internally.
+  const [iframeSeason, setIframeSeason] = useState(season)
+  const [iframeEpisode, setIframeEpisode] = useState(episode)
+  const [prevPropSeason, setPrevPropSeason] = useState(season)
+  const [prevPropEpisode, setPrevPropEpisode] = useState(episode)
+
+  if (season !== prevPropSeason || episode !== prevPropEpisode) {
+    setPrevPropSeason(season)
+    setPrevPropEpisode(episode)
+    setCurrentSeason(season)
+    setCurrentEpisode(episode)
+    setIframeSeason(season)
+    setIframeEpisode(episode)
+  }
 
   // ── Effects ─────────────────────────────────────────────────────────────────
 
@@ -112,9 +134,114 @@ export default function WatchClient({
     return useDirectEmbed ? url : applyProxy(url)
   }, [useDirectEmbed])
 
+  const updateDocumentTitle = useCallback((s: number, e: number) => {
+    document.title = `Watch ${title} - Season ${s} Episode ${e} | CinemaPhora`
+  }, [title])
+
+  const handleEpisodeChange = useCallback((targetS: number, targetE: number, replace: boolean = false, uiOnly: boolean = false) => {
+    setCurrentSeason(targetS)
+    setCurrentEpisode(targetE)
+    if (!uiOnly) {
+      setIframeSeason(targetS)
+      setIframeEpisode(targetE)
+    }
+    const url = `/watch/${id}?type=${mediaType}&s=${targetS}&e=${targetE}`
+    if (replace) {
+      window.history.replaceState(null, '', url)
+    } else {
+      window.history.pushState(null, '', url)
+    }
+    updateDocumentTitle(targetS, targetE)
+  }, [id, mediaType, updateDocumentTitle])
+
+  // For providers that self-navigate: only update UI, do not touch iframe src.
+  const handleNextEpisodeSelfNavigated = useCallback((newSeason: number, newEpisode: number) => {
+    let targetS = newSeason
+    let targetE = newEpisode
+
+    if (seasons) {
+      const sData = seasons.find(s => s.season_number === currentSeason)
+      if (sData && newSeason === currentSeason && newEpisode > sData.episode_count) {
+        const nextSData = seasons.find(s => s.season_number === currentSeason + 1)
+        if (nextSData && nextSData.episode_count > 0) {
+          targetS = currentSeason + 1
+          targetE = 1
+        } else {
+          return
+        }
+      }
+    }
+
+    handleEpisodeChange(targetS, targetE, true, true)
+  }, [currentSeason, seasons, handleEpisodeChange])
+
+  // For providers that do NOT self-navigate: update iframe src (reloads iframe to new episode).
   const handleNextEpisode = useCallback((newSeason: number, newEpisode: number) => {
-    router.replace(`/watch/${id}?type=${mediaType}&s=${newSeason}&e=${newEpisode}`)
-  }, [router, id, mediaType])
+    let targetS = newSeason
+    let targetE = newEpisode
+
+    if (seasons) {
+      const sData = seasons.find(s => s.season_number === currentSeason)
+      if (sData && newSeason === currentSeason && newEpisode > sData.episode_count) {
+        const nextSData = seasons.find(s => s.season_number === currentSeason + 1)
+        if (nextSData && nextSData.episode_count > 0) {
+          targetS = currentSeason + 1
+          targetE = 1
+        } else {
+          return
+        }
+      }
+    }
+
+    handleEpisodeChange(targetS, targetE, true, false)
+  }, [currentSeason, seasons, handleEpisodeChange])
+
+  // ── Calculate Navigation ───────────────────────────────────────────────────
+
+  let prevS: number | null = null
+  let prevE: number | null = null
+  let nextS: number | null = null
+  let nextE: number | null = null
+
+  if (mediaType === 'tv') {
+    if (seasons) {
+      const currentSeasonData = seasons.find(s => s.season_number === currentSeason)
+      
+      // PREV
+      if (currentEpisode > 1) {
+        prevS = currentSeason
+        prevE = currentEpisode - 1
+      } else if (currentSeason > 1) {
+        prevS = currentSeason - 1
+        const prevSeasonData = seasons.find(s => s.season_number === prevS)
+        if (prevSeasonData && prevSeasonData.episode_count > 0) {
+          prevE = prevSeasonData.episode_count
+        }
+      }
+      
+      // NEXT
+      if (currentSeasonData) {
+        if (currentEpisode < currentSeasonData.episode_count) {
+          nextS = currentSeason
+          nextE = currentEpisode + 1
+        } else {
+          const nextSeasonData = seasons.find(s => s.season_number === currentSeason + 1)
+          if (nextSeasonData && nextSeasonData.episode_count > 0) {
+            nextS = currentSeason + 1
+            nextE = 1
+          }
+        }
+      }
+    } else {
+      // Fallback if no season data
+      if (currentEpisode > 1) {
+        prevS = currentSeason
+        prevE = currentEpisode - 1
+      }
+      nextS = currentSeason
+      nextE = currentEpisode + 1
+    }
+  }
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
@@ -122,6 +249,15 @@ export default function WatchClient({
 
   return (
     <>
+      <div className={styles.header}>
+        <Link href={`/details/${id}?type=${mediaType}`} className={styles.backBtn}>
+          ← Back to Details
+        </Link>
+        <h1 className={styles.title}>
+          {title} {mediaType === 'tv' ? `- Season ${currentSeason} Episode ${currentEpisode}` : ''}
+        </h1>
+      </div>
+
       <div className={styles.playerWrapper}>
         <div className={styles.playerSection}>
           <PlayerIframe
@@ -129,14 +265,17 @@ export default function WatchClient({
             serverUrl={activeServer.url}
             mediaType={mediaType}
             id={id}
-            season={season}
-            episode={episode}
+            season={currentSeason}
+            episode={currentEpisode}
+            iframeSeason={iframeSeason}
+            iframeEpisode={iframeEpisode}
             title={title}
             backdrop={backdrop}
             poster={poster}
             iframeKey={iframeKey}
             transformUrl={PROXY_BASE ? buildTransformUrl : undefined}
             onNextEpisode={mediaType === 'tv' ? handleNextEpisode : undefined}
+            onNextEpisodeSelfNavigated={mediaType === 'tv' ? handleNextEpisodeSelfNavigated : undefined}
           />
         </div>
 
@@ -144,23 +283,33 @@ export default function WatchClient({
           {mediaType === 'tv' && (
             <div className={styles.quickEp}>
               <span className={styles.quickLabel}>
-                📺 Season {season}, Episode {episode}
+                📺 Season {currentSeason}, Episode {currentEpisode}
               </span>
               <div className={styles.epNav}>
-                {(season > 1 || episode > 1) && (
-                  <Link
-                    href={`/watch/${id}?type=tv&s=${episode > 1 ? season : season - 1}&e=${episode > 1 ? episode - 1 : 1}`}
+                {prevS !== null && prevE !== null && (
+                  <a
+                    href={`/watch/${id}?type=tv&s=${prevS}&e=${prevE}`}
                     className={`btn btn-secondary ${styles.epNavBtn}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleEpisodeChange(prevS!, prevE!)
+                    }}
                   >
                     ← Prev
-                  </Link>
+                  </a>
                 )}
-                <Link
-                  href={`/watch/${id}?type=tv&s=${season}&e=${episode + 1}`}
-                  className={`btn btn-secondary ${styles.epNavBtn}`}
-                >
-                  Next →
-                </Link>
+                {nextS !== null && nextE !== null && (
+                  <a
+                    href={`/watch/${id}?type=tv&s=${nextS}&e=${nextE}`}
+                    className={`btn btn-secondary ${styles.epNavBtn}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleEpisodeChange(nextS!, nextE!)
+                    }}
+                  >
+                    Next →
+                  </a>
+                )}
               </div>
             </div>
           )}

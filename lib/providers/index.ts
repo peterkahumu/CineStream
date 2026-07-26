@@ -48,8 +48,6 @@ function handleStandardMessages(
         title: (entry.title as string) || undefined,
         poster_path: (entry.poster_path as string) || null,
         backdrop_path: (entry.backdrop_path as string) || null,
-        last_season_watched: entry.last_season_watched as string | number | undefined,
-        last_episode_watched: entry.last_episode_watched as string | number | undefined,
         show_progress: entry.show_progress as ProviderProgressData['show_progress'],
       })
     }
@@ -70,7 +68,12 @@ function handleStandardMessages(
       callbacks.onProgress({
         watched: d.currentTime,
         duration: d.duration,
+        isRealTimeEvent: true,
       })
+    }
+
+    if (d.event === 'ended' && context.mediaType === 'tv') {
+      callbacks.onNextEpisode(context.season!, context.episode! + 1)
     }
   }
 }
@@ -123,6 +126,7 @@ const PROVIDERS: ProviderConfig[] = [
           callbacks.onProgress({
             watched: d.player_progress || 0,
             duration: d.player_duration || 0,
+            isRealTimeEvent: true,
           })
         }
 
@@ -145,6 +149,10 @@ const PROVIDERS: ProviderConfig[] = [
     envKey: 'NEXT_PUBLIC_CINESRC_URL',
     tier: 'advanced',
     origin: 'https://cinesrc.st',
+    // CineSRC navigates to the next episode inside the iframe itself.
+    // The cinesrc:nextepisode message tells us where it landed — we must not
+    // reload the iframe src, or we would undo CineSRC's own navigation.
+    selfNavigatesNextEpisode: true,
     buildUrl(base, type, id, s, e, opts) {
       const url = type === 'movie' ? `${base}/movie/${id}` : `${base}/tv/${id}`
       const params = new URLSearchParams()
@@ -172,6 +180,7 @@ const PROVIDERS: ProviderConfig[] = [
             callbacks.onProgress({
               watched: data.currentTime as number,
               duration: (data.duration as number) || 0,
+              isRealTimeEvent: true,
             })
           }
           break
@@ -255,6 +264,10 @@ const PROVIDERS: ProviderConfig[] = [
       'https://vidfast.vc',
       'https://vidfast.bz',
     ],
+    // VidFast handles the next episode internally via autoNext.
+    // MEDIA_DATA will arrive for the new episode so progress tracking stays accurate.
+    // We must not reload the iframe src when we learn the episode changed.
+    selfNavigatesNextEpisode: true,
     buildUrl(base, type, id, s, e, opts) {
       const params = new URLSearchParams({
         autoPlay: 'true',
@@ -309,6 +322,7 @@ const PROVIDERS: ProviderConfig[] = [
         callbacks.onProgress({
           watched: data.info.currentTime as number,
           duration: (data.info.duration as number) ?? 0,
+          isRealTimeEvent: true,
         })
       }
     },
