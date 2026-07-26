@@ -55,16 +55,13 @@ export default function PlayerIframe({
   // re-attached. This ref ensures we only navigate once per episode.
   const nextEpisodeTriggeredForRef = useRef<string | null>(null)
 
-  // ── Resume time — runs only on initial mount or explicit server switch ────────
+  // ── Resume time — runs on mount, explicit server switch, or episode change ──
 
   const resolveStartTime = useCallback(() => {
-    if (startTimeRef.current !== null) return
     const resumeTime = progressTracker.getResumeTime(id, season, episode)
     startTimeRef.current = resumeTime
     setIsReady(true)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  // Intentionally empty deps: season/episode changes are handled by full page reloads
-  // (fresh mount), not by re-running this effect on the same mounted instance.
+  }, [id, season, episode])
 
   // ── Progress persistence ─────────────────────────────────────────────────────
 
@@ -186,17 +183,13 @@ export default function PlayerIframe({
   // ── Effects — function calls only, no inline definitions ─────────────────────
 
   useEffect(() => {
-    resolveStartTime()
-  }, [resolveStartTime])
-
-  useEffect(() => {
     if (!provider.onMessage) return
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   }, [handleMessage, provider.onMessage])
 
-  // When the user explicitly switches server (iframeKey increments), look up the
-  // resume time fresh for the new server+episode combination.
+  // When the component mounts, when the user explicitly switches server (iframeKey increments),
+  // or when the episode changes (resolveStartTime is recreated), look up the resume time fresh.
   useEffect(() => {
     startTimeRef.current = null
     setIsReady(false)
