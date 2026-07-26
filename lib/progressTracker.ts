@@ -84,8 +84,6 @@ export function saveProgress(
     season?: number
     episode?: number
     show_progress?: Record<string, EpisodeProgress>
-    activeSeason?: number
-    activeEpisode?: number
     isRealTimeEvent?: boolean
   }
 ): void {
@@ -123,8 +121,8 @@ export function saveProgress(
       existing?.show_progress, 
       data.show_progress,
       data.isRealTimeEvent,
-      data.activeSeason,
-      data.activeEpisode
+      data.season,
+      data.episode
     ),
     lastProvider: provider,
     updatedAt: Date.now(),
