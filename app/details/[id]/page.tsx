@@ -57,7 +57,7 @@ export async function generateMetadata(
 
 export default async function DetailsPage(props: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ type?: string; tab?: string; s?: string }>
+  searchParams: Promise<{ type?: string; tab?: string; s?: string; e?: string }>
 }) {
   const params = await props.params
   const searchParams = await props.searchParams
@@ -74,6 +74,7 @@ export default async function DetailsPage(props: {
           tabRaw === 'reviews' ? 'reviews' : 'trailers'
 
   const activeSeason = Number(searchParams.s || 1)
+  const activeEpisode = Number(searchParams.e || 0)
 
   const details = mediaType === 'movie'
     ? await getMovieDetails(Number(id))
@@ -372,7 +373,7 @@ export default async function DetailsPage(props: {
                 seasons={tvSeasons}
                 tvId={Number(id)}
                 activeSeason={activeSeason}
-                activeEpisode={0}
+                activeEpisode={activeEpisode}
                 episodes={episodes}
               />
             </div>

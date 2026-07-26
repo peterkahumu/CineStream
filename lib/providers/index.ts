@@ -149,10 +149,6 @@ const PROVIDERS: ProviderConfig[] = [
     envKey: 'NEXT_PUBLIC_CINESRC_URL',
     tier: 'advanced',
     origin: 'https://cinesrc.st',
-    // CineSRC navigates to the next episode inside the iframe itself.
-    // The cinesrc:nextepisode message tells us where it landed — we must not
-    // reload the iframe src, or we would undo CineSRC's own navigation.
-    selfNavigatesNextEpisode: true,
     buildUrl(base, type, id, s, e, opts) {
       const url = type === 'movie' ? `${base}/movie/${id}` : `${base}/tv/${id}`
       const params = new URLSearchParams()
@@ -264,10 +260,6 @@ const PROVIDERS: ProviderConfig[] = [
       'https://vidfast.vc',
       'https://vidfast.bz',
     ],
-    // VidFast handles the next episode internally via autoNext.
-    // MEDIA_DATA will arrive for the new episode so progress tracking stays accurate.
-    // We must not reload the iframe src when we learn the episode changed.
-    selfNavigatesNextEpisode: true,
     buildUrl(base, type, id, s, e, opts) {
       const params = new URLSearchParams({
         autoPlay: 'true',

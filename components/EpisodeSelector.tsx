@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -30,6 +30,13 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const activeEpRef = useRef<HTMLAnchorElement>(null)
+
+  const scrollToActiveEpisode = useCallback(() => {
+    if (activeEpRef.current) {
+      activeEpRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -38,23 +45,28 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // Scroll active episode into view
+  useEffect(() => {
+    scrollToActiveEpisode()
+  }, [activeEpisode, scrollToActiveEpisode])
+
   const activeSeasonData = seasons.find(s => s.season_number === activeSeason)
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h3 className={styles.heading}>Episodes</h3>
-        
+
         {/* Custom Season Dropdown */}
         <div className={styles.dropdownContainer} ref={dropdownRef}>
-          <button 
+          <button
             className={styles.dropdownToggle}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             aria-expanded={isDropdownOpen}
           >
             {activeSeasonData?.name || `Season ${activeSeason}`}
-            <svg 
-              className={`${styles.chevron} ${isDropdownOpen ? styles.chevronOpen : ''}`} 
+            <svg
+              className={`${styles.chevron} ${isDropdownOpen ? styles.chevronOpen : ''}`}
               width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
             >
               <polyline points="6 9 12 15 18 9"></polyline>
@@ -89,12 +101,13 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
           return (
             <Link
               key={ep.id}
+              ref={isActive ? activeEpRef : undefined}
               href={`/watch/${tvId}?type=tv&s=${activeSeason}&e=${ep.episode_number}`}
               className={`${styles.episode} ${isActive ? styles.active : ''}`}
             >
               <div className={styles.epMainRow}>
                 <div className={styles.epNum}>{ep.episode_number}</div>
-                
+
                 <div className={styles.thumbnailContainer}>
                   {imgUrl ? (
                     <Image src={imgUrl} alt={ep.name} fill className={styles.thumbnail} sizes="160px" />
