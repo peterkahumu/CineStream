@@ -21,7 +21,8 @@
 }
 
 .cardWrap {
-  flex: 0 0 100px;
+  /* Using 32vw mathematically guarantees the last card is always cut off on all small devices */
+  flex: 0 0 32vw;
   scroll-snap-align: start;
 }
 @media (min-width: 420px)  { .cardWrap { flex: 0 0 134px; } }
@@ -29,7 +30,7 @@
 @media (min-width: 1024px) { .cardWrap { flex: 0 0 185px; } }
 
 .skeletonCard {
-  flex: 0 0 100px;
+  flex: 0 0 32vw;
   aspect-ratio: 2/3;
   border-radius: var(--radius-lg);
 }
