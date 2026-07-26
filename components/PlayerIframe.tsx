@@ -15,19 +15,12 @@ interface PlayerIframeProps {
   id: string
   season: number
   episode: number
-  /** What the iframe src is actually built from. Only differs from season/episode for
-   *  self-navigating providers, where the iframe already moved on internally. */
-  iframeSeason: number
-  iframeEpisode: number
   title: string
   backdrop?: string | null
   poster?: string | null
   iframeKey: number
   transformUrl?: (url: string) => string
   onNextEpisode?: (season: number, episode: number) => void
-  /** Called instead of onNextEpisode when the provider self-navigates (e.g. CineSRC, VidFast autoNext).
-   *  The iframe is already playing the new episode — only update UI/URL, do NOT reload src. */
-  onNextEpisodeSelfNavigated?: (season: number, episode: number) => void
   onClose?: () => void
 }
 
@@ -38,15 +31,12 @@ export default function PlayerIframe({
   id,
   season,
   episode,
-  iframeSeason,
-  iframeEpisode,
   title,
   backdrop,
   poster,
   iframeKey,
   transformUrl,
   onNextEpisode,
-  onNextEpisodeSelfNavigated,
   onClose,
 }: PlayerIframeProps) {
   const router = useRouter()
@@ -54,11 +44,16 @@ export default function PlayerIframe({
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // The start time is only resolved once per mount (or explicit server switch via iframeKey).
-  // On client-side episode changes season/episode props update but we deliberately do NOT
-  // re-run this — the iframe just has its src quietly swapped and plays from the beginning
-  // of the next episode (or from wherever the external player decides).
+  // Start time is resolved once per mount (or explicit server switch via iframeKey).
+  // Since episode changes trigger a full page reload, a fresh mount always picks up
+  // the correct resume time without needing to reset this manually.
   const startTimeRef = useRef<number | null>(null)
+
+  // Guard against the same episode triggering onNextEpisode more than once.
+  // Providers like VidLink can fire multiple 'ended' events in quick succession,
+  // or buffered events from the previous iframe can arrive after the listener is
+  // re-attached. This ref ensures we only navigate once per episode.
+  const nextEpisodeTriggeredForRef = useRef<string | null>(null)
 
   // ── Resume time — runs only on initial mount or explicit server switch ────────
 
@@ -68,9 +63,8 @@ export default function PlayerIframe({
     startTimeRef.current = resumeTime
     setIsReady(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  // Intentionally empty deps: we only want this to resolve on the very first render.
-  // season/episode changes are handled by updating the iframe src attribute directly,
-  // not by remounting the component.
+  // Intentionally empty deps: season/episode changes are handled by full page reloads
+  // (fresh mount), not by re-running this effect on the same mounted instance.
 
   // ── Progress persistence ─────────────────────────────────────────────────────
 
@@ -114,8 +108,6 @@ export default function PlayerIframe({
         season: mediaType === 'tv' ? season : undefined,
         episode: mediaType === 'tv' ? episode : undefined,
         show_progress,
-        activeSeason: season,
-        activeEpisode: episode,
         isRealTimeEvent: data.isRealTimeEvent,
       })
     },
@@ -126,16 +118,19 @@ export default function PlayerIframe({
 
   const handleNextEpisode = useCallback(
     (newSeason: number, newEpisode: number) => {
-      if (provider.selfNavigatesNextEpisode && onNextEpisodeSelfNavigated) {
-        // Provider already navigated internally — only update UI, leave src alone.
-        onNextEpisodeSelfNavigated(newSeason, newEpisode)
-      } else if (onNextEpisode) {
+      // Guard: only trigger once per episode to prevent rapid-fire 'ended' events
+      // from the same or a stale iframe from cascading through multiple episodes.
+      const currentEpKey = `s${season}e${episode}`
+      if (nextEpisodeTriggeredForRef.current === currentEpKey) return
+      nextEpisodeTriggeredForRef.current = currentEpKey
+
+      if (onNextEpisode) {
         onNextEpisode(newSeason, newEpisode)
       } else {
         router.replace(`/watch/${id}?type=${mediaType}&s=${newSeason}&e=${newEpisode}`)
       }
     },
-    [id, mediaType, provider.selfNavigatesNextEpisode, onNextEpisodeSelfNavigated, onNextEpisode, router]
+    [id, mediaType, season, episode, onNextEpisode, router]
   )
 
   const handleClose = useCallback(() => {
@@ -200,8 +195,8 @@ export default function PlayerIframe({
     return () => window.removeEventListener('message', handleMessage)
   }, [handleMessage, provider.onMessage])
 
-  // When the user explicitly switches server (iframeKey increments), reset so the
-  // resume time for the new server+episode is looked up fresh.
+  // When the user explicitly switches server (iframeKey increments), look up the
+  // resume time fresh for the new server+episode combination.
   useEffect(() => {
     startTimeRef.current = null
     setIsReady(false)
@@ -232,7 +227,7 @@ export default function PlayerIframe({
 
   const startTime = startTimeRef.current ?? 0
 
-  const rawUrl = provider.buildUrl(serverUrl, mediaType, id, iframeSeason, iframeEpisode, {
+  const rawUrl = provider.buildUrl(serverUrl, mediaType, id, season, episode, {
     startTime: startTime > 0 ? startTime : undefined,
     color: '%232563eb',
     back: 'close',

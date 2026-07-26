@@ -72,11 +72,4 @@ export interface ProviderConfig {
    * Only called when event.origin matches this provider's origin.
    */
   onMessage?(event: MessageEvent, callbacks: PlayerCallbacks, context: PlayerContext): void
-  /**
-   * True when the provider navigates to the next episode inside the iframe itself
-   * (e.g. CineSRC's cinesrc:nextepisode, VidFast's autoNext).
-   * When true, receiving onNextEpisode should only update UI state — the iframe
-   * src must NOT be changed, since the provider has already moved on internally.
-   */
-  selfNavigatesNextEpisode?: boolean
 }
