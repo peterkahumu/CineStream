@@ -9,6 +9,9 @@ import MobileNav from '@/components/MobileNav'
 import CapacitorInit from '@/components/CapacitorInit'
 import TermsAgreementModal from '@/components/TermsAgreementModal'
 import { SettingsProvider } from '@/components/SettingsProvider'
+import { SessionProvider } from 'next-auth/react'
+import { Toaster } from 'react-hot-toast'
+import SyncManager from '@/components/SyncManager'
 
 export const viewport: Viewport = {
   themeColor: [
@@ -77,18 +80,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 `,
           }}
         />
-        <SettingsProvider>
-          <CapacitorInit />
-          <Navbar />
-          {/* Mobile-only header (Suspense boundary so it doesn't block SSR) */}
-          <Suspense fallback={<header className="mobileHeaderFallback" />}>
-            <MobileHeader />
-          </Suspense>
-          <div className="site-main">{children}</div>
-          <Footer />
-          <MobileNav />
-          <TermsAgreementModal />
-        </SettingsProvider>
+        <SessionProvider>
+          <SettingsProvider>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: '#1f2937',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            />
+            <SyncManager />
+            <CapacitorInit />
+            <Navbar />
+            {/* Mobile-only header (Suspense boundary so it doesn't block SSR) */}
+            <Suspense fallback={<header className="mobileHeaderFallback" />}>
+              <MobileHeader />
+            </Suspense>
+            <div className="site-main">{children}</div>
+            <Footer />
+            <MobileNav />
+            <TermsAgreementModal />
+          </SettingsProvider>
+        </SessionProvider>
       </body>
     </html>
   )

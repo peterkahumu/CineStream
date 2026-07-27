@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { searchMulti, MediaItem, posterUrl, mediaType } from '@/lib/tmdb'
 import { useSettings } from '@/components/SettingsProvider'
+import { useSession } from 'next-auth/react'
 import styles from './Navbar.module.css'
 
 function handleScrolled(setScrolled: (v: boolean) => void) {
@@ -56,6 +57,7 @@ export default function Navbar() {
   const [results, setResults] = useState<MediaItem[]>([])
   const [history, setHistory] = useState<string[]>([])
   const [isFetching, setIsFetching] = useState(false)
+  const { data: session } = useSession()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -265,6 +267,24 @@ export default function Navbar() {
           >
             ⚙️
           </Link>
+
+          {session ? (
+            <Link
+              href="/profile"
+              className={styles.iconBtn}
+              aria-label="Profile"
+              title="Profile"
+            >
+              👤
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-semibold transition-colors"
+            >
+              Sign In
+            </Link>
+          )}
 
           {/* Hamburger (mobile) */}
           <button

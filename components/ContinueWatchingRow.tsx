@@ -5,13 +5,15 @@ import Link from 'next/link'
 import Modal from './Modal'
 import MediaCard from './MediaCard'
 import type { MediaItem } from '@/lib/tmdb'
-import { getAllProgress, removeProgress, type WatchProgress } from '@/lib/progressTracker'
+import { getAllProgress, removeProgress, mergeRemoteProgress, type WatchProgress } from '@/lib/progressTracker'
+import { useSession } from 'next-auth/react'
 import styles from './ContinueWatchingRow.module.css'
 
 export default function ContinueWatchingRow() {
   const [items, setItems] = useState<WatchProgress[]>([])
   const [itemToRemove, setItemToRemove] = useState<WatchProgress | null>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
+  const { status } = useSession()
 
   // ── Data loading ─────────────────────────────────────────────────────────────
 
@@ -37,6 +39,21 @@ export default function ContinueWatchingRow() {
   useEffect(() => {
     loadItems()
   }, [loadItems])
+
+  // Background DB sync if user is logged in
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetch('/api/get-progress')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            mergeRemoteProgress(data)
+            loadItems() // Refresh UI with synced data
+          }
+        })
+        .catch(err => console.error('[ContinueWatchingRow] sync failed:', err))
+    }
+  }, [status, loadItems])
 
   // Storage events fire when another tab modifies localStorage
   useEffect(() => {
