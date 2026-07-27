@@ -5,9 +5,16 @@
  * Conflict resolution: only overwrites the top-level `watched` time when the
  * incoming value is strictly greater (so switching servers never loses progress).
  * TV show_progress is merged per-episode using the same rule.
+ *
+ * Sync strategy:
+ * - Writes go to localStorage immediately (no latency, offline-safe)
+ * - A debounced background sync pushes to /api/sync-progress after 10s of inactivity
+ * - flushProgress() sends all items immediately via sendBeacon (reliable on unload)
+ * - mergeRemoteProgress() merges DB items into localStorage using latest-updatedAt-wins
  */
 
 const STORAGE_PREFIX = 'progress-'
+const SYNC_DEBOUNCE_MS = 10_000
 
 export interface EpisodeProgress {
   season: number
@@ -33,6 +40,8 @@ export interface WatchProgress {
   lastProvider: string
   updatedAt: number
 }
+
+// -- Internal helpers ----------------------------------------------------------
 
 function storageKey(tmdbId: string): string {
   return `${STORAGE_PREFIX}${tmdbId}`
@@ -65,11 +74,28 @@ function mergeShowProgress(
   return merged
 }
 
-// ── Public API ───────────────────────────────────────────────────────────────
+// -- Debounced background sync -------------------------------------------------
+
+let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+function scheduleDebouncedSync(item: WatchProgress): void {
+  if (typeof window === 'undefined') return
+  if (syncTimer) clearTimeout(syncTimer)
+  syncTimer = setTimeout(() => {
+    syncTimer = null
+    fetch('/api/sync-progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([item]),
+    }).catch(err => console.error('[progressTracker] Background sync failed:', err))
+  }, SYNC_DEBOUNCE_MS)
+}
+
+// -- Public API ----------------------------------------------------------------
 
 /**
  * Persist progress for a media item.
- * Overwrites top-level `watched` only when `data.watched` is greater than stored.
+ * Writes to localStorage immediately, then schedules a debounced DB sync.
  */
 export function saveProgress(
   tmdbId: string,
@@ -91,8 +117,6 @@ export function saveProgress(
 
   const existing = getProgress(tmdbId)
 
-  // For TV shows, if the season or episode changed, we reset top-level watched
-  // to the new episode's watched position rather than keeping the completed episode's timestamp.
   const isDifferentEpisode =
     mediaType === 'tv' &&
     existing?.mediaType === 'tv' &&
@@ -102,9 +126,9 @@ export function saveProgress(
     existing.episode !== undefined &&
     (data.season !== existing.season || data.episode !== existing.episode)
 
-  const shouldUpdateWatched = 
-    isDifferentEpisode || 
-    data.isRealTimeEvent || 
+  const shouldUpdateWatched =
+    isDifferentEpisode ||
+    data.isRealTimeEvent ||
     data.watched > (existing?.watched ?? 0)
 
   const updated: WatchProgress = {
@@ -118,7 +142,7 @@ export function saveProgress(
     season: data.season ?? existing?.season,
     episode: data.episode ?? existing?.episode,
     show_progress: mergeShowProgress(
-      existing?.show_progress, 
+      existing?.show_progress,
       data.show_progress,
       data.isRealTimeEvent,
       data.season,
@@ -130,6 +154,7 @@ export function saveProgress(
 
   try {
     localStorage.setItem(storageKey(tmdbId), JSON.stringify(updated))
+    scheduleDebouncedSync(updated)
   } catch (err) {
     console.error('[progressTracker] Failed to save:', err)
   }
@@ -172,7 +197,6 @@ export function getResumeTime(tmdbId: string, season?: number, episode?: number)
 
 /**
  * All tracked items, sorted by most recently updated.
- * Performs a single O(n) scan of localStorage keys with the known prefix.
  */
 export function getAllProgress(): WatchProgress[] {
   if (typeof localStorage === 'undefined') return []
@@ -194,4 +218,52 @@ export function getAllProgress(): WatchProgress[] {
 export function removeProgress(tmdbId: string): void {
   if (typeof localStorage === 'undefined') return
   localStorage.removeItem(storageKey(tmdbId))
+}
+
+/**
+ * Flush all localStorage progress to the server immediately.
+ * Uses sendBeacon when available (works reliably on tab close/unload).
+ * Falls back to fetch() for older browsers.
+ */
+export function flushProgress(): void {
+  if (typeof window === 'undefined') return
+  const items = getAllProgress()
+  if (items.length === 0) return
+
+  if (syncTimer) {
+    clearTimeout(syncTimer)
+    syncTimer = null
+  }
+
+  const payload = JSON.stringify(items)
+  const url = '/api/sync-progress'
+
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))
+  } else {
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true,
+    }).catch(err => console.error('[progressTracker] Flush sync failed:', err))
+  }
+}
+
+/**
+ * Merge remote DB items into localStorage using latest-updatedAt-wins strategy.
+ * Call this after fetching history from the server on login.
+ */
+export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
+  if (typeof localStorage === 'undefined') return
+  for (const remote of remoteItems) {
+    const local = getProgress(remote.id)
+    if (!local || remote.updatedAt > local.updatedAt) {
+      try {
+        localStorage.setItem(storageKey(remote.id), JSON.stringify(remote))
+      } catch (err) {
+        console.error('[progressTracker] Failed to merge remote item:', err)
+      }
+    }
+  }
 }
