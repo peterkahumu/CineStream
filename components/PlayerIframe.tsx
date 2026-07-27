@@ -160,6 +160,11 @@ export default function PlayerIframe({
         if (!trusted) return
       }
 
+      // Ignore messages from old/stale iframes
+      if (iframeRef.current && event.source !== iframeRef.current.contentWindow) {
+        return
+      }
+
       const context: PlayerContext = { id, mediaType, season, episode, title }
       const callbacks: PlayerCallbacks = {
         onProgress: handleProgress,
@@ -232,7 +237,7 @@ export default function PlayerIframe({
     <OfflineTrailerWrapper>
       <iframe
         ref={iframeRef}
-        key={iframeKey}
+        key={`${iframeKey}-${season}-${episode}`}
         src={embedUrl}
         className={pageStyles.player}
         loading="eager"
