@@ -153,10 +153,20 @@ function getProgress(tmdbId: string): WatchProgress | null {
 export function getResumeTime(tmdbId: string, season?: number, episode?: number): number {
   const p = getProgress(tmdbId)
   if (!p) return 0
+  
   if (p.mediaType === 'tv' && season != null && episode != null) {
     const epKey = `s${season}e${episode}`
-    return p.show_progress?.[epKey]?.watched ?? 0
+    const ep = p.show_progress?.[epKey]
+    if (ep) {
+      // If completed (over 95%), reset to beginning
+      if (ep.duration > 0 && (ep.watched / ep.duration) > 0.95) return 0
+      return ep.watched
+    }
+    return 0
   }
+  
+  // Movie completed check
+  if (p.duration > 0 && (p.watched / p.duration) > 0.95) return 0
   return p.watched ?? 0
 }
 
