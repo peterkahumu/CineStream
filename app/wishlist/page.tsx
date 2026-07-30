@@ -11,8 +11,8 @@ export default function WishlistPage() {
     <main className="page-content">
       <ScrollToTop />
       <div className="page-container">
-        <h1 style={{ fontSize: '2rem', marginBottom: 'var(--space-lg)' }}>
-          <span style={{ marginRight: '8px' }}>💖</span>
+        <h1 className="page-heading">
+          <span className="heading-icon">💖</span>
           My List
         </h1>
         <WishlistClient />

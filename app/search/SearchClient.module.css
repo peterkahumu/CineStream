@@ -98,3 +98,27 @@
   background: var(--accent-hover);
   color: #fff;
 }
+
+.searchBtn {
+  flex-shrink: 0;
+}
+
+.resultsGrid {
+  transition: opacity 0.2s;
+}
+
+.pending {
+  opacity: 0.6;
+}
+
+.loadingMore {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.endOfResults {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+}

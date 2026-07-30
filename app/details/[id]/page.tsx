@@ -263,7 +263,7 @@ export default async function DetailsPage(props: {
           <div className={styles.actionsContainer}>
             <div className={styles.actionsRow}>
               {isUpcoming ? (
-                <span className={`btn btn-primary ${styles.watchBtn}`} style={{ opacity: 0.8, cursor: 'default' }}>
+                <span className={`btn btn-primary ${styles.watchBtn} ${styles.disabledUpcomingBtn}`}>
                   📅 Coming {new Date(upcomingDateStr).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                 </span>
               ) : mediaType === 'movie' ? (
