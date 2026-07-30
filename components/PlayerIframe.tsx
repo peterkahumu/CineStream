@@ -67,6 +67,10 @@ export default function PlayerIframe({
 
   const handleProgress = useCallback(
     (data: ProviderProgressData) => {
+      // Guard: if we are already navigating to the next episode, ignore further 
+      // progress updates for the current episode to prevent stale state overwrites.
+      if (nextEpisodeTriggeredForRef.current) return
+
       const watched = data.watched ?? 0
       const duration = data.duration ?? 0
 
