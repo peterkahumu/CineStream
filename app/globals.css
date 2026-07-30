@@ -430,6 +430,11 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
   border-color: var(--border);
 }
 
+.btn-large {
+  padding: 12px 28px;
+  font-size: 1rem;
+}
+
 /* ─── Badges ─────────────────────────────────────────────────────────────────── */
 .badge {
   display: inline-flex;
@@ -483,6 +488,16 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
   .section-title { font-size: 0.95rem; }
 }
 
+.page-heading {
+  font-size: 2rem;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+}
+.heading-icon {
+  margin-right: 8px;
+}
+
 /* ─── Empty state ────────────────────────────────────────────────────────────── */
 .empty-state {
   display: flex;
@@ -497,6 +512,28 @@ input, select, textarea { font-family: inherit; font-size: inherit; outline: non
 .empty-state .icon { font-size: 2.5rem; }
 .empty-state h3 { font-size: 1rem; color: var(--text-secondary); font-weight: 600; }
 .empty-state p  { font-size: 0.875rem; max-width: 340px; line-height: 1.6; }
+
+/* ─── Error / Not Found ──────────────────────────────────────────────────────── */
+.full-page-error {
+  min-height: 80vh;
+}
+.full-page-error.not-found {
+  min-height: 100dvh;
+}
+.full-page-error h2, .full-page-error h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+}
+.full-page-error .icon {
+  font-size: 3rem;
+}
+.full-page-error.not-found .icon {
+  font-size: 5rem;
+}
+.full-page-error p {
+  color: var(--text-secondary);
+  max-width: 360px;
+}
 
 /* ─── Media grid ─────────────────────────────────────────────────────────────── */
 .media-grid {

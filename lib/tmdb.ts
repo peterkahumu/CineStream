@@ -153,6 +153,13 @@ async function tmdbFetch<T>(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
+    
+    // Mask API key errors from end users
+    if (res.status === 401 || err?.status_message?.toLowerCase().includes('api key')) {
+      console.error('[TMDB] Auth Error:', err?.status_message || 'Missing/Invalid API Key')
+      throw new Error('The movie database service is currently unavailable. Please try again later.')
+    }
+
     throw new Error(
       err?.error || err?.status_message || `API error ${res.status}`
     )

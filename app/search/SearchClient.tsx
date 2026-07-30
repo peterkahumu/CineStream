@@ -134,7 +134,7 @@ export default function SearchClient({
             >✕</button>
           )}
         </div>
-        <button type="submit" className="btn btn-primary" style={{ flexShrink: 0 }}>
+        <button type="submit" className={`btn btn-primary ${styles.searchBtn}`}>
           Search
         </button>
       </form>
@@ -174,7 +174,7 @@ export default function SearchClient({
           <p className={styles.resultInfo}>
             {filtered.length} of {total.toLocaleString()} results for &ldquo;<strong>{initialQ}</strong>&rdquo;
           </p>
-          <div className="media-grid animate-fadeIn" style={{ opacity: isPending ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+          <div className={`media-grid animate-fadeIn ${styles.resultsGrid} ${isPending ? styles.pending : ''}`}>
             {filtered.map(item => (
               <MediaCard key={`${item.media_type}-${item.id}`} item={item} />
             ))}
@@ -182,14 +182,14 @@ export default function SearchClient({
 
           {/* Infinite Scroll Trigger */}
           {page < totalPages && (
-            <div ref={observerTarget} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div ref={observerTarget} className={styles.loadingMore}>
               {loadingMore ? 'Loading more...' : 'Scroll for more'}
             </div>
           )}
 
           {/* End of Results */}
           {page >= totalPages && filtered.length > 0 && (
-            <div style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div className={styles.endOfResults}>
               <p>End of results</p>
             </div>
           )}
