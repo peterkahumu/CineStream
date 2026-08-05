@@ -2,31 +2,29 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import MediaCard from '@/components/MediaCard'
 import { MediaItem } from '@/lib/tmdb'
+import {
+  type WishlistItem as SavedWishlistItem,
+  getWishlist,
+  mergeRemoteWishlist,
+  setWatched,
+  removeFromWishlist,
+  setFolder,
+} from '@/lib/wishlistTracker'
 import styles from './WishlistClient.module.css'
-
-interface SavedWishlistItem {
-  id: string
-  mediaType: 'movie' | 'tv'
-  title: string
-  poster: string | null
-  backdrop: string | null
-  addedAt: number
-  watchedAt?: number // Optional timestamp for watched items
-  folderName?: string
-}
 
 import Modal from '@/components/Modal'
 
-const WISHLIST_KEY = 'cinemaphora-wishlist'
-
 export default function WishlistClient() {
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const [items, setItems] = useState<SavedWishlistItem[]>([])
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'title-asc'>('date-desc')
-  const [folderModalItem, setFolderModalItem] = useState<string | null>(null)
+  const [folderModalItem, setFolderModalItem] = useState<{ id: string; mediaType: 'movie' | 'tv' } | null>(null)
   const [folderInput, setFolderInput] = useState('')
   const [customFolders, setCustomFolders] = useState<string[]>([])
   const [newFolderModalOpen, setNewFolderModalOpen] = useState(false)
@@ -35,43 +33,39 @@ export default function WishlistClient() {
 
   useEffect(() => {
     setMounted(true)
+    setItems(getWishlist())
     try {
-      const stored = localStorage.getItem(WISHLIST_KEY)
-      if (stored) {
-        setItems(JSON.parse(stored))
-      }
       const storedFolders = localStorage.getItem('cinemaphora-wishlist-folders')
       if (storedFolders) {
         setCustomFolders(JSON.parse(storedFolders))
       }
     } catch (e) {
-      console.error('Failed to parse wishlist', e)
+      console.error('Failed to parse wishlist folders', e)
     }
   }, [])
 
-  const handleToggleWatched = useCallback((id: string, currentlyWatched: boolean) => {
-    setItems(prev => {
-      const next = prev.map(item => {
-        if (item.id === id) {
-          return {
-            ...item,
-            watchedAt: currentlyWatched ? undefined : Date.now()
-          }
+  // Reconcile with the DB copy whenever a signed-in user visits this page —
+  // same background-sync pattern as ContinueWatchingRow.
+  useEffect(() => {
+    if (!isAuthenticated) return
+    fetch('/api/get-watchlist')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          mergeRemoteWishlist(data)
+          setItems(getWishlist())
         }
-        return item
       })
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [])
+      .catch(err => console.error('[WishlistClient] sync failed:', err))
+  }, [isAuthenticated])
 
-  const handleRemove = useCallback((id: string) => {
-    setItems(prev => {
-      const next = prev.filter(i => i.id !== id)
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [])
+  const handleToggleWatched = useCallback((id: string, mediaType: 'movie' | 'tv', currentlyWatched: boolean) => {
+    setItems(setWatched(id, mediaType, !currentlyWatched, isAuthenticated))
+  }, [isAuthenticated])
+
+  const handleRemove = useCallback((id: string, mediaType: 'movie' | 'tv') => {
+    setItems(removeFromWishlist(id, mediaType, isAuthenticated))
+  }, [isAuthenticated])
 
   const filteredItems = useMemo(() => {
     return items.filter(item => {
@@ -98,16 +92,7 @@ export default function WishlistClient() {
 
   const handleSaveFolder = () => {
     if (!folderModalItem) return
-    setItems(prev => {
-      const next = prev.map(item => {
-        if (item.id === folderModalItem) {
-          return { ...item, folderName: folderInput.trim() || undefined }
-        }
-        return item
-      })
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
-      return next
-    })
+    setItems(setFolder(folderModalItem.id, folderModalItem.mediaType, folderInput.trim() || undefined, isAuthenticated))
     setFolderModalItem(null)
     setFolderInput('')
   }
@@ -119,11 +104,13 @@ export default function WishlistClient() {
       localStorage.setItem('cinemaphora-wishlist-folders', JSON.stringify(next))
       return next
     })
-    setItems(prev => {
-      const next = prev.map(item => item.folderName === folderToDelete ? { ...item, folderName: undefined } : item)
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(next))
-      return next
-    })
+    let next = items
+    for (const item of items) {
+      if (item.folderName === folderToDelete) {
+        next = setFolder(item.id, item.mediaType, undefined, isAuthenticated)
+      }
+    }
+    setItems(next)
     if (activeTab === folderToDelete) setActiveTab('all')
     setFolderToDelete(null)
   }
@@ -271,16 +258,16 @@ export default function WishlistClient() {
                 )}
                 <div className={`${styles.cardActions} ${styles.cardActionsStack}`}>
                   <div className={styles.cardActionsRow}>
-                    <button 
+                    <button
                       className={`${styles.actionBtn} ${isWatched ? styles.watchedBtn : ''}`}
-                      onClick={() => handleToggleWatched(item.id, isWatched)}
+                      onClick={() => handleToggleWatched(item.id, item.mediaType, isWatched)}
                       title={isWatched ? "Mark as un-watched" : "Mark as watched"}
                     >
                       {isWatched ? '✓ Watched' : 'Mark Watched'}
                     </button>
-                    <button 
+                    <button
                       className={styles.removeBtn}
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => handleRemove(item.id, item.mediaType)}
                       title="Remove from list"
                     >
                       ✕
@@ -289,7 +276,7 @@ export default function WishlistClient() {
                   <button
                     className={`${styles.actionBtn} ${styles.folderBtn}`}
                     onClick={() => {
-                      setFolderModalItem(item.id)
+                      setFolderModalItem({ id: item.id, mediaType: item.mediaType })
                       setFolderInput(item.folderName || '')
                     }}
                   >

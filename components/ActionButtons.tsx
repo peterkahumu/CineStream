@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import Modal from './Modal'
+import { isInWishlist, addToWishlist, removeFromWishlist } from '@/lib/wishlistTracker'
 import styles from './ActionButtons.module.css'
 
 interface Props {
@@ -13,30 +15,9 @@ interface Props {
   backdrop: string | null
 }
 
-const WISHLIST_KEY = 'cinemaphora-wishlist'
-
-interface WishlistItem {
-  id: string
-  mediaType: 'movie' | 'tv'
-  title: string
-  poster: string | null
-  backdrop: string | null
-  addedAt: number
-}
-
-function readWishlistStatus(id: string): boolean {
-  try {
-    const stored = localStorage.getItem(WISHLIST_KEY)
-    if (!stored) return false
-    const list: WishlistItem[] = JSON.parse(stored)
-    return list.some(item => String(item.id) === String(id))
-  } catch (e) {
-    console.error('Failed to read wishlist', e)
-    return false
-  }
-}
-
 export default function ActionButtons({ id, mediaType, title, poster, backdrop }: Props) {
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const [inWishlist, setInWishlist] = useState(false)
   const [showWishlistToast, setShowWishlistToast] = useState(false)
   const [showShareToast, setShowShareToast] = useState(false)
@@ -53,51 +34,27 @@ export default function ActionButtons({ id, mediaType, title, poster, backdrop }
   }, [])
 
   useEffect(() => {
-    setInWishlist(readWishlistStatus(id))
-  }, [id])
-
+    setInWishlist(isInWishlist(id, mediaType))
+  }, [id, mediaType])
 
   const toggleWishlist = useCallback(() => {
-    try {
-      const stored = localStorage.getItem(WISHLIST_KEY)
-      let list: WishlistItem[] = stored ? JSON.parse(stored) : []
-      
-      const exists = list.some(item => String(item.id) === String(id))
-      
-      if (exists) {
-        setIsModalOpen(true)
-      } else {
-        list.push({
-          id,
-          mediaType,
-          title,
-          poster,
-          backdrop,
-          addedAt: Date.now()
-        })
-        setInWishlist(true)
-        setShowWishlistToast(true)
-        if (wishlistTimerRef.current) clearTimeout(wishlistTimerRef.current)
-        wishlistTimerRef.current = setTimeout(() => setShowWishlistToast(false), 3000)
-        localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
-      }
-    } catch (e) {
-      console.error('Failed to update wishlist', e)
+    if (isInWishlist(id, mediaType)) {
+      setIsModalOpen(true)
+      return
     }
-  }, [id, mediaType, title, poster, backdrop])
+
+    addToWishlist({ id, mediaType, title, poster, backdrop }, isAuthenticated)
+    setInWishlist(true)
+    setShowWishlistToast(true)
+    if (wishlistTimerRef.current) clearTimeout(wishlistTimerRef.current)
+    wishlistTimerRef.current = setTimeout(() => setShowWishlistToast(false), 3000)
+  }, [id, mediaType, title, poster, backdrop, isAuthenticated])
 
   const confirmRemove = useCallback(() => {
-    try {
-      const stored = localStorage.getItem(WISHLIST_KEY)
-      let list: WishlistItem[] = stored ? JSON.parse(stored) : []
-      list = list.filter(item => String(item.id) !== String(id))
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
-      setInWishlist(false)
-      setIsModalOpen(false)
-    } catch (e) {
-      console.error('Failed to remove from wishlist', e)
-    }
-  }, [id])
+    removeFromWishlist(id, mediaType, isAuthenticated)
+    setInWishlist(false)
+    setIsModalOpen(false)
+  }, [id, mediaType, isAuthenticated])
 
   const handleShare = useCallback(async () => {
     const url = window.location.href
