@@ -77,28 +77,30 @@ export default function PlayerIframe({
       // progress updates for the current episode to prevent stale state overwrites.
       if (nextEpisodeTriggeredForRef.current) return
 
-      const watched = data.watched ?? 0
-      const duration = data.duration ?? 0
+      const watched = Math.round(Number(data.watched) || 0)
+      const duration = Math.round(Number(data.duration) || 0)
 
       // Normalise provider-specific show_progress into our EpisodeProgress shape
       let show_progress: Record<string, EpisodeProgress> | undefined
       if (data.show_progress) {
         show_progress = {}
         for (const [rawKey, v] of Object.entries(data.show_progress)) {
-          const s = Number(v.season)
-          const e = Number(v.episode)
-          const epWatched = v.progress?.watched ?? v.watched ?? 0
-          const epDuration = v.progress?.duration ?? v.duration ?? 0
+          const s = Math.round(Number(v.season) || 1)
+          const e = Math.round(Number(v.episode) || 1)
+          const epWatched = Math.round(Number(v.progress?.watched ?? v.watched ?? 0))
+          const epDuration = Math.round(Number(v.progress?.duration ?? v.duration ?? 0))
           // Normalise key to sXeY format
           const epKey = rawKey.toLowerCase().startsWith('s') ? rawKey : `s${s}e${e}`
           show_progress[epKey] = { season: s, episode: e, watched: epWatched, duration: epDuration, updatedAt: Date.now() }
         }
       } else if (mediaType === 'tv') {
         // Synthesise from current episode position (for EmbedMaster / CineSRC)
+        const s = typeof season === 'number' && !isNaN(season) ? Math.round(season) : 1
+        const e = typeof episode === 'number' && !isNaN(episode) ? Math.round(episode) : 1
         show_progress = {
-          [`s${season}e${episode}`]: {
-            season,
-            episode,
+          [`s${s}e${e}`]: {
+            season: s,
+            episode: e,
             watched,
             duration,
             updatedAt: Date.now(),

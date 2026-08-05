@@ -209,19 +209,30 @@ export function saveProgress(
 
   const existing = getProgress(tmdbId)
 
+  const rawWatched = data.watched ?? 0
+  const rawDuration = data.duration ?? 0
+  const watchedNum = Math.round(Number(rawWatched) || 0)
+  const durationNum = Math.round(Number(rawDuration) || 0)
+  const seasonNum = typeof data.season === 'number' && !isNaN(data.season)
+    ? Math.round(data.season)
+    : (data.season ? parseInt(String(data.season), 10) || undefined : undefined)
+  const episodeNum = typeof data.episode === 'number' && !isNaN(data.episode)
+    ? Math.round(data.episode)
+    : (data.episode ? parseInt(String(data.episode), 10) || undefined : undefined)
+
   const isDifferentEpisode =
     mediaType === 'tv' &&
     existing?.mediaType === 'tv' &&
-    data.season !== undefined &&
-    data.episode !== undefined &&
+    seasonNum !== undefined &&
+    episodeNum !== undefined &&
     existing.season !== undefined &&
     existing.episode !== undefined &&
-    (data.season !== existing.season || data.episode !== existing.episode)
+    (seasonNum !== existing.season || episodeNum !== existing.episode)
 
   const shouldUpdateWatched =
     isDifferentEpisode ||
     data.isRealTimeEvent ||
-    data.watched > (existing?.watched ?? 0)
+    watchedNum > (existing?.watched ?? 0)
 
   const title = data.title || existing?.title || ''
   const poster_path = data.poster_path !== undefined ? data.poster_path : existing?.poster_path ?? null
@@ -230,28 +241,28 @@ export function saveProgress(
   const { events: historyEvents, flags: history } = detectHistoryEvents(
     mediaType,
     existing?.history,
-    data.season,
-    data.episode,
-    data.watched,
-    data.duration
+    seasonNum,
+    episodeNum,
+    watchedNum,
+    durationNum
   )
 
   const updated: WatchProgress = {
-    id: tmdbId,
+    id: String(tmdbId),
     mediaType,
     title,
     poster_path,
     backdrop_path: data.backdrop_path !== undefined ? data.backdrop_path : existing?.backdrop_path ?? null,
-    watched: shouldUpdateWatched ? data.watched : (existing?.watched ?? 0),
-    duration: data.duration || existing?.duration || 0,
-    season: data.season ?? existing?.season,
-    episode: data.episode ?? existing?.episode,
+    watched: shouldUpdateWatched ? watchedNum : (existing?.watched ?? 0),
+    duration: durationNum || existing?.duration || 0,
+    season: seasonNum ?? existing?.season,
+    episode: episodeNum ?? existing?.episode,
     show_progress: mergeShowProgress(
       existing?.show_progress,
       data.show_progress,
       data.isRealTimeEvent,
-      data.season,
-      data.episode
+      seasonNum,
+      episodeNum
     ),
     genres,
     lastProvider: provider,
@@ -260,15 +271,15 @@ export function saveProgress(
   }
 
   try {
-    localStorage.setItem(storageKey(tmdbId), JSON.stringify(updated))
+    localStorage.setItem(storageKey(String(tmdbId)), JSON.stringify(updated))
     if (isAuthenticated) scheduleDebouncedSync(updated)
 
     for (const event of historyEvents) {
-      logHistoryEvent(tmdbId, mediaType, event, {
+      logHistoryEvent(String(tmdbId), mediaType, event, {
         title,
         poster_path,
-        season: data.season,
-        episode: data.episode,
+        season: seasonNum,
+        episode: episodeNum,
         genres,
       }, isAuthenticated)
     }
@@ -426,14 +437,21 @@ export function logHistoryEvent(
 ): void {
   if (typeof localStorage === 'undefined') return
 
+  const seasonNum = typeof data.season === 'number' && !isNaN(data.season)
+    ? Math.round(data.season)
+    : (data.season ? parseInt(String(data.season), 10) || undefined : undefined)
+  const episodeNum = typeof data.episode === 'number' && !isNaN(data.episode)
+    ? Math.round(data.episode)
+    : (data.episode ? parseInt(String(data.episode), 10) || undefined : undefined)
+
   const entry: HistoryEvent = {
     id: crypto.randomUUID(),
-    tmdbId,
+    tmdbId: String(tmdbId),
     mediaType,
-    title: data.title,
+    title: data.title || '',
     poster_path: data.poster_path ?? null,
-    season: data.season,
-    episode: data.episode,
+    season: seasonNum,
+    episode: episodeNum,
     event,
     genres: data.genres ?? null,
     occurredAt: Date.now(),
