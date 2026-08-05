@@ -177,7 +177,7 @@ const worker = {
         if (reason) {
             return new Response(`Request blocked: ${reason}. If this domain should be allowed, add it to ALLOWED_DOMAINS in the Worker environment.`, { status: 403 });
         }
-        // ── Fetch provider page, re-validating every redirect hop ────────────────
+        // Fetch provider page, re-validating every redirect hop
         let providerRes;
         try {
             providerRes = await fetchValidated(targetUrl, buildProviderHeaders(request, targetUrl.origin), allowedDomains);

@@ -222,7 +222,7 @@ const worker = {
       )
     }
 
-    // ── Fetch provider page, re-validating every redirect hop ────────────────
+    // Fetch provider page, re-validating every redirect hop
     let providerRes: Response
     try {
       providerRes = await fetchValidated(
