@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
+import { db, dbQuery } from "@/lib/db";
 import { watchHistory } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
@@ -26,27 +26,31 @@ export async function POST(request: Request) {
     for (const item of items) {
       if (!item?.id) continue;
 
-      const existing = await db
-        .select({ id: watchHistory.id })
-        .from(watchHistory)
-        .where(and(eq(watchHistory.id, item.id), eq(watchHistory.userId, userId)))
-        .limit(1);
+      const existing = await dbQuery(() =>
+        db
+          .select({ id: watchHistory.id })
+          .from(watchHistory)
+          .where(and(eq(watchHistory.id, item.id), eq(watchHistory.userId, userId)))
+          .limit(1)
+      );
 
       if (existing.length > 0) continue;
 
-      await db.insert(watchHistory).values({
-        id: item.id,
-        userId,
-        tmdbId: item.tmdbId,
-        mediaType: item.mediaType,
-        title: item.title,
-        poster_path: item.poster_path,
-        season: item.season,
-        episode: item.episode,
-        event: item.event,
-        genres: item.genres,
-        occurredAt: item.occurredAt,
-      });
+      await dbQuery(() =>
+        db.insert(watchHistory).values({
+          id: item.id,
+          userId,
+          tmdbId: item.tmdbId,
+          mediaType: item.mediaType,
+          title: item.title,
+          poster_path: item.poster_path,
+          season: item.season,
+          episode: item.episode,
+          event: item.event,
+          genres: item.genres,
+          occurredAt: item.occurredAt,
+        })
+      );
     }
 
     return NextResponse.json({ success: true });

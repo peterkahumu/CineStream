@@ -7,10 +7,14 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
-@media (min-width: 640px) {
+/* In the sidebar (≥1024px), the stats card is narrower — keep 2 columns
+   but let them breathe with smaller padding/font. On wider mobile they
+   already look fine at 2 columns. On very wide screens (≥1400px) with
+   enough sidebar room, bump to 2×2 comfortably. */
+@media (min-width: 640px) and (max-width: 1023px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -24,6 +28,11 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  transition: border-color var(--transition-fast);
+}
+
+.tile:hover {
+  border-color: var(--accent-border);
 }
 
 .tileSkeleton {

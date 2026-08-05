@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
+import { db, dbQuery } from "@/lib/db";
 import { userSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -19,22 +19,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
 
-    const existing = await db
-      .select()
-      .from(userSettings)
-      .where(eq(userSettings.userId, userId))
-      .limit(1);
+    const existing = await dbQuery(() =>
+      db
+        .select()
+        .from(userSettings)
+        .where(eq(userSettings.userId, userId))
+        .limit(1)
+    );
 
     if (existing.length > 0) {
       // Latest-updatedAt-wins, same pattern as /api/sync-progress
       if (updatedAt > existing[0].updatedAt) {
-        await db
-          .update(userSettings)
-          .set({ settings, updatedAt })
-          .where(eq(userSettings.userId, userId));
+        await dbQuery(() =>
+          db
+            .update(userSettings)
+            .set({ settings, updatedAt })
+            .where(eq(userSettings.userId, userId))
+        );
       }
     } else {
-      await db.insert(userSettings).values({ userId, settings, updatedAt });
+      await dbQuery(() =>
+        db.insert(userSettings).values({ userId, settings, updatedAt })
+      );
     }
 
     return NextResponse.json({ success: true });

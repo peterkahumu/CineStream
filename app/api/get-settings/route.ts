@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
+import { db, dbQuery } from "@/lib/db";
 import { userSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -11,11 +11,15 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const [row] = await db
-      .select()
-      .from(userSettings)
-      .where(eq(userSettings.userId, session.user.id))
-      .limit(1);
+    const userId = session.user.id;
+
+    const [row] = await dbQuery(() =>
+      db
+        .select()
+        .from(userSettings)
+        .where(eq(userSettings.userId, userId))
+        .limit(1)
+    );
 
     if (!row) return NextResponse.json(null);
 

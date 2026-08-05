@@ -3,7 +3,7 @@
   margin: 0 auto;
 }
 
-/* ── Page header ───────────────────────────────────────────────── */
+/* header */
 .header {
   display: flex;
   flex-direction: column;
@@ -46,7 +46,7 @@
   font-size: 1rem;
 }
 
-/* ── Section cards ─────────────────────────────────────────────── */
+/* section */
 .section {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -65,7 +65,7 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* ── Setting row ───────────────────────────────────────────────── */
+/* row */
 .settingRow {
   display: flex;
   align-items: center;
@@ -77,6 +77,12 @@
 
 .settingRow:last-of-type {
   border-bottom: none;
+}
+
+.settingRowStacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.875rem;
 }
 
 .settingLabel {
@@ -102,7 +108,11 @@
   flex-shrink: 0;
 }
 
-/* ── Toggle ────────────────────────────────────────────────────── */
+.settingRowStacked .settingControl {
+  width: 100%;
+}
+
+/* toggle */
 .toggle {
   position: relative;
   width: 44px;
@@ -136,43 +146,58 @@
   transform: translateX(20px);
 }
 
-/* ── Theme buttons ─────────────────────────────────────────────── */
+/* theme */
 .themeButtons {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 0.5rem;
+  width: 100%;
 }
 
 .themeBtn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1 1 auto;
-  min-width: 100px;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 12px;
   border: 2px solid var(--border);
-  background: var(--bg-base);
+  background: var(--bg-surface);
   color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  min-width: 0;
+  width: 100%;
+}
+
+.themeIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.themeName {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .themeBtn:hover {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
 .themeBtnActive {
   border-color: var(--accent);
   background: var(--accent-light);
   color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* ── Layout buttons ────────────────────────────────────────────── */
+/* layout */
 .layoutButtons {
   display: flex;
   gap: 0.5rem;
@@ -182,7 +207,7 @@
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
   border: 2px solid var(--border);
-  background: var(--bg-base);
+  background: var(--bg-surface);
   color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 600;
@@ -201,11 +226,7 @@
   color: var(--accent);
 }
 
-
-
-/* ── Provider chips ────────────────────────────────────────────── */
-
-/* ── Data management actions ───────────────────────────────────── */
+/* data */
 .dataActions {
   display: flex;
   flex-direction: column;
@@ -246,7 +267,7 @@
   padding: 0.45rem 1rem;
   border-radius: 8px;
   border: 1.5px solid var(--border-strong);
-  background: var(--bg-base);
+  background: var(--bg-surface);
   color: var(--text-secondary);
   font-size: 0.82rem;
   font-weight: 600;
@@ -284,7 +305,7 @@
   font-weight: 600;
 }
 
-/* ── Status badges ─────────────────────────────────────────────── */
+/* badges */
 .statusAccepted {
   display: inline-flex;
   align-items: center;
@@ -327,7 +348,7 @@
   background: rgba(239, 68, 68, 0.08);
 }
 
-/* ── Danger zone ───────────────────────────────────────────────── */
+/* danger */
 .dangerZone {
   border-color: rgba(239, 68, 68, 0.3);
 }
@@ -336,16 +357,16 @@
   color: #ef4444;
 }
 
-/* ── Responsive ────────────────────────────────────────────────── */
+/* responsive */
+@media (max-width: 700px) {
+  .themeButtons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 600px) {
   .section {
     padding: 1.25rem;
-  }
-
-  .themeBtn {
-    flex-direction: row;
-    justify-content: center;
-    gap: 0.5rem;
   }
 
   .settingRow {
@@ -362,5 +383,11 @@
   .actionBtn {
     width: 100%;
     text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .themeButtons {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

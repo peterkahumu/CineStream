@@ -17,7 +17,7 @@ interface Props {
   children?: ReactNode
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+/* helpers */
 
 function initialsFor(name: string | null, email: string): string {
   const source = name?.trim() || email
@@ -31,7 +31,7 @@ function formatMemberSince(iso: string | null): string | null {
   return new Date(iso).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+/* component */
 
 export default function ProfileClient({ name, email, memberSince, children }: Props) {
   const [displayName, setDisplayName] = useState(name)
@@ -71,71 +71,92 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
 
   return (
     <div className={styles.profilePage}>
-      {/* ── Identity header ─────────────────────────────────────────────── */}
-      <div className={styles.header}>
-        <div className={styles.identity}>
-          <div className={styles.avatar} aria-hidden="true">
-            {initialsFor(displayName, email)}
-          </div>
-          <div className={styles.identityText}>
-            {editing ? (
-              <div className={styles.nameEditRow}>
-                <input
-                  ref={inputRef}
-                  className={styles.nameInput}
-                  value={draft}
-                  maxLength={60}
-                  onChange={e => setDraft(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') saveName()
-                    if (e.key === 'Escape') cancelEditing()
-                  }}
-                  disabled={saving}
-                  aria-label="Display name"
-                />
-                <button className={styles.nameSaveBtn} onClick={saveName} disabled={saving}>
-                  {saving ? 'Saving…' : 'Save'}
+      {/* hero */}
+      <div className={styles.headerCard}>
+        <div className={styles.headerAccent} />
+        <div className={styles.headerInner}>
+          <div className={styles.identity}>
+            <div className={styles.avatar} aria-hidden="true">
+              {initialsFor(displayName, email)}
+            </div>
+            <div className={styles.identityText}>
+              {editing ? (
+                <div className={styles.nameEditRow}>
+                  <input
+                    ref={inputRef}
+                    className={styles.nameInput}
+                    value={draft}
+                    maxLength={60}
+                    onChange={e => setDraft(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') saveName()
+                      if (e.key === 'Escape') cancelEditing()
+                    }}
+                    disabled={saving}
+                    aria-label="Display name"
+                  />
+                  <button className={styles.nameSaveBtn} onClick={saveName} disabled={saving}>
+                    {saving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button className={styles.nameCancelBtn} onClick={cancelEditing} disabled={saving}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button className={styles.nameRow} onClick={startEditing} title="Edit display name">
+                  <h1 className={styles.title}>{displayName || 'Add a display name'}</h1>
+                  <span className={styles.editIcon} aria-hidden="true">✎</span>
                 </button>
-                <button className={styles.nameCancelBtn} onClick={cancelEditing} disabled={saving}>
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button className={styles.nameRow} onClick={startEditing} title="Edit display name">
-                <h1 className={styles.title}>{displayName || 'Add a display name'}</h1>
-                <span className={styles.editIcon} aria-hidden="true">✎</span>
-              </button>
-            )}
-            <p className={styles.subtitle}>{email}</p>
-            {memberSinceLabel && (
-              <p className={styles.memberSince}>Member since {memberSinceLabel}</p>
-            )}
+              )}
+              <p className={styles.subtitle}>{email}</p>
+              {memberSinceLabel && (
+                <p className={styles.memberSince}>
+                  <span aria-hidden="true">📅</span> Member since {memberSinceLabel}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className={styles.headerActions}>
-          <Link href="/settings" className={styles.settingsLink}>⚙️ Settings</Link>
-          {children}
+          <div className={styles.headerActions}>
+            <Link href="/settings" className={styles.settingsLink}>⚙️ Settings</Link>
+            {children}
+          </div>
         </div>
       </div>
 
-      {/* ── Continue Watching ───────────────────────────────────────────── */}
-      <ContinueWatchingRow />
+      {/* grid */}
+      <div className={styles.contentGrid}>
+        {/* main */}
+        <div className={styles.mainColumn}>
+          {/* continue watching */}
+          <div className={styles.sectionCard}>
+            <div className={styles.continueWatchingWrap}>
+              <ContinueWatchingRow />
+            </div>
+          </div>
 
-      {/* ── Stats ────────────────────────────────────────────────────────── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>📊 Your Stats</h2>
-        <ProfileStats />
-      </section>
+          {/* history */}
+          <div className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Watch History</h2>
+            </div>
+            <p className={styles.sectionSubtitle}>
+              Everything you&apos;ve started or finished watching, synced across your devices.
+            </p>
+            <WatchHistoryList />
+          </div>
+        </div>
 
-      {/* ── Watch History ────────────────────────────────────────────────── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>🕘 Watch History</h2>
-        <p className={styles.sectionSubtitle}>
-          Everything you&apos;ve started or finished watching, synced across your devices.
-        </p>
-        <WatchHistoryList />
-      </section>
+        {/* side */}
+        <div className={styles.sideColumn}>
+          <div className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Your Stats</h2>
+            </div>
+            <ProfileStats />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
