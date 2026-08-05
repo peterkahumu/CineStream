@@ -46,14 +46,15 @@ export default function PlayerIframe({
   const router = useRouter()
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
-  const [isReady, setIsReady] = useState(false)
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // Start time is resolved once per mount (or explicit server switch via iframeKey).
   // Since episode changes trigger a full page reload, a fresh mount always picks up
-  // the correct resume time without needing to reset this manually.
-  const startTimeRef = useRef<number | null>(null)
+  // the correct resume time without needing to reset this manually. `null` doubles
+  // as "not resolved yet" (gates the skeleton below) — plain state rather than a
+  // ref, since reading a ref's value during render isn't safe (react-hooks/refs).
+  const [startTime, setStartTime] = useState<number | null>(null)
 
   // Guard against the same episode triggering onNextEpisode more than once.
   // Providers like VidLink can fire multiple 'ended' events in quick succession,
@@ -65,8 +66,7 @@ export default function PlayerIframe({
 
   const resolveStartTime = useCallback(() => {
     const resumeTime = progressTracker.getResumeTime(id, season, episode)
-    startTimeRef.current = resumeTime
-    setIsReady(true)
+    setStartTime(resumeTime)
   }, [id, season, episode])
 
   // ── Progress persistence ─────────────────────────────────────────────────────
@@ -209,8 +209,7 @@ export default function PlayerIframe({
   // When the component mounts, when the user explicitly switches server (iframeKey increments),
   // or when the episode changes (resolveStartTime is recreated), look up the resume time fresh.
   useEffect(() => {
-    startTimeRef.current = null
-    setIsReady(false)
+    setStartTime(null)
     resolveStartTime()
   }, [iframeKey, resolveStartTime])
 
@@ -232,11 +231,9 @@ export default function PlayerIframe({
     )
   }
 
-  if (!isReady) {
+  if (startTime === null) {
     return <div className={`skeleton ${styles.skeletonPlayer}`} />
   }
-
-  const startTime = startTimeRef.current ?? 0
 
   const rawUrl = provider.buildUrl(serverUrl, mediaType, id, season, episode, {
     startTime: startTime > 0 ? startTime : undefined,
