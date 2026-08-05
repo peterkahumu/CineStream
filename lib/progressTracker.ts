@@ -10,7 +10,9 @@
  * - Writes go to localStorage immediately (no latency, offline-safe)
  * - A debounced background sync pushes to /api/sync-progress after 10s of inactivity
  * - flushProgress() sends all items immediately via sendBeacon (reliable on unload)
- * - mergeRemoteProgress() merges DB items into localStorage using latest-updatedAt-wins
+ * - mergeRemoteProgress() merges DB items into localStorage, preferring whichever
+ *   side has the more advanced watch position (later season/episode beats a merely
+ *   more recent updatedAt — see isProgressAtLeastAsAdvanced)
  *
  * DB sync is opt-in per call via `isAuthenticated` (callers read this from
  * `useSession()`, since the session cookie is httpOnly and can't be sniffed from a
@@ -380,19 +382,61 @@ export function flushProgress(): void {
 }
 
 /**
- * Merge remote DB items into localStorage using latest-updatedAt-wins strategy.
+ * True when `a`'s watch position is at least as advanced as `b`'s.
+ *
+ * For TV, a later season/episode always wins regardless of raw timestamps —
+ * two devices can drift out of clock sync, but "further into the show" is
+ * never wrong as a source of truth. Ties (same episode) fall back to watched
+ * seconds, then updatedAt. Movies, and any TV item missing season/episode,
+ * skip straight to the watched/updatedAt comparison.
+ */
+function isProgressAtLeastAsAdvanced(a: WatchProgress, b: WatchProgress): boolean {
+  if (
+    a.mediaType === 'tv' && b.mediaType === 'tv' &&
+    a.season != null && a.episode != null &&
+    b.season != null && b.episode != null
+  ) {
+    if (a.season !== b.season) return a.season > b.season
+    if (a.episode !== b.episode) return a.episode > b.episode
+  }
+  if (a.watched !== b.watched) return a.watched > b.watched
+  return a.updatedAt >= b.updatedAt
+}
+
+/**
+ * Merge remote DB items into localStorage. The item with the more advanced
+ * watch position (see `isProgressAtLeastAsAdvanced`) becomes the source of
+ * truth for the top-level pointer (season/episode/watched/title/etc.), while
+ * per-episode `show_progress` is unioned from both — same higher-watched-wins
+ * rule `saveProgress` uses — so neither device's episode progress is lost.
  * Call this after fetching history from the server on login.
  */
 export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
   if (typeof localStorage === 'undefined') return
   for (const remote of remoteItems) {
     const local = getProgress(remote.id)
-    if (!local || remote.updatedAt > local.updatedAt) {
+    if (!local) {
       try {
         localStorage.setItem(storageKey(remote.id), JSON.stringify(remote))
       } catch (err) {
         console.error('[progressTracker] Failed to merge remote item:', err)
       }
+      continue
+    }
+
+    const remoteWins = isProgressAtLeastAsAdvanced(remote, local)
+    const winner = remoteWins ? remote : local
+    const loser = remoteWins ? local : remote
+
+    const merged: WatchProgress = {
+      ...winner,
+      show_progress: mergeShowProgress(loser.show_progress, winner.show_progress),
+    }
+
+    try {
+      localStorage.setItem(storageKey(remote.id), JSON.stringify(merged))
+    } catch (err) {
+      console.error('[progressTracker] Failed to merge remote item:', err)
     }
   }
 }
