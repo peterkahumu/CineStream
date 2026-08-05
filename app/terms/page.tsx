@@ -45,7 +45,7 @@ export default function TermsPage() {
 
         <h2>5. Disclaimer of Warranties</h2>
         <p>
-          Your use of the service is at your sole risk. The service is provided on an "AS IS" and "AS AVAILABLE" basis. 
+          Your use of the service is at your sole risk. The service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis.
           CinemaPhora makes no warranty that the service will meet your requirements or be uninterrupted, timely, secure, or error-free.
         </p>
 

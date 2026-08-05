@@ -23,14 +23,14 @@ export default function PrivacyPage() {
 
         <h2>2. Local Storage</h2>
         <p>
-          We use your browser's local storage (and/or Capacitor local storage on mobile apps) to save certain preferences and states to enhance your experience:
+          We use your browser&apos;s local storage (and/or Capacitor local storage on mobile apps) to save certain preferences and states to enhance your experience:
         </p>
         <ul>
           <li><strong>Terms Agreement:</strong> We store a flag indicating that you have agreed to our Terms of Use so you are not repeatedly prompted.</li>
-          <li><strong>Watch History/Progress:</strong> We may store your video watch progress locally on your device to enable the "Continue Watching" feature. This data never leaves your device.</li>
+          <li><strong>Watch History/Progress:</strong> We may store your video watch progress locally on your device to enable the &quot;Continue Watching&quot; feature. This data never leaves your device.</li>
         </ul>
         <p>
-          You can clear this data at any time by clearing your browser cache and local storage, or via the app's settings.
+          You can clear this data at any time by clearing your browser cache and local storage, or via the app&apos;s settings.
         </p>
 
         <h2>3. Third-Party Services</h2>
