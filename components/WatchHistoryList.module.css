@@ -123,11 +123,16 @@
   color: var(--green-text);
 }
 
-.loadMoreBtn {
-  display: block;
-  width: 100%;
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
   margin-top: var(--space-md);
-  padding: 10px;
+}
+
+.pageBtn {
+  padding: 8px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--bg-surface);
@@ -138,7 +143,18 @@
   transition: all var(--transition-fast);
 }
 
-.loadMoreBtn:hover {
+.pageBtn:hover:not(:disabled) {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
 }

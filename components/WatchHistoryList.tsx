@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import styles from './WatchHistoryList.module.css'
@@ -27,45 +27,60 @@ function formatDate(timestamp: number): string {
   const date = new Date(timestamp)
   const now = new Date()
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays === 0) return 'Today'
+
+  if (diffDays <= 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) return `${diffDays} days ago`
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-async function loadHistory(
-  setHistory: (items: HistoryEntry[]) => void,
-  setLoading: (v: boolean) => void
-) {
-  try {
-    const res = await fetch('/api/get-history')
-    if (!res.ok) throw new Error('Failed to load history')
-    const data = await res.json()
-    if (Array.isArray(data)) setHistory(data as HistoryEntry[])
-  } catch (err) {
-    console.error('[WatchHistoryList] Failed to load history:', err)
-  } finally {
-    setLoading(false)
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7)
+    return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`
   }
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30)
+    return months === 1 ? '1 month ago' : `${months} months ago`
+  }
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function WatchHistoryList() {
   const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<FilterType>('all')
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
-    loadHistory(setHistory, setLoading)
-  }, [])
+    let cancelled = false
+    fetch(`/api/get-history?page=${page}&pageSize=${PAGE_SIZE}&type=${filter}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load history')
+        return res.json()
+      })
+      .then((data: { items: HistoryEntry[]; total: number }) => {
+        if (cancelled) return
+        setHistory(Array.isArray(data.items) ? data.items : [])
+        setTotal(data.total ?? 0)
+      })
+      .catch(err => console.error('[WatchHistoryList] Failed to load history:', err))
+      .finally(() => { if (!cancelled) setLoading(false) })
 
-  const filtered = useMemo(
-    () => (filter === 'all' ? history : history.filter(h => h.mediaType === filter)),
-    [history, filter]
-  )
-  const visible = filtered.slice(0, visibleCount)
+    return () => { cancelled = true }
+  }, [filter, page])
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const changeFilter = (f: FilterType) => {
+    setLoading(true)
+    setFilter(f)
+    setPage(1)
+  }
+
+  const changePage = (p: number) => {
+    setLoading(true)
+    setPage(p)
+  }
 
   if (loading) {
     return (
@@ -84,14 +99,14 @@ export default function WatchHistoryList() {
           <button
             key={f}
             className={`${styles.filterBtn} ${filter === f ? styles.filterBtnActive : ''}`}
-            onClick={() => { setFilter(f); setVisibleCount(PAGE_SIZE) }}
+            onClick={() => changeFilter(f)}
           >
             {f === 'all' ? 'All' : f === 'movie' ? 'Movies' : 'TV Shows'}
           </button>
         ))}
       </div>
 
-      {filtered.length === 0 ? (
+      {history.length === 0 ? (
         <div className="empty-state">
           <div className="icon">🕘</div>
           <h3>No history yet</h3>
@@ -100,7 +115,7 @@ export default function WatchHistoryList() {
       ) : (
         <>
           <ul className={styles.list}>
-            {visible.map(entry => (
+            {history.map(entry => (
               <li key={entry.id} className={styles.row}>
                 <Link href={`/details/${entry.tmdbId}?type=${entry.mediaType}`} className={styles.rowLink}>
                   <div className={styles.poster}>
@@ -133,10 +148,24 @@ export default function WatchHistoryList() {
             ))}
           </ul>
 
-          {visibleCount < filtered.length && (
-            <button className={styles.loadMoreBtn} onClick={() => setVisibleCount(c => c + PAGE_SIZE)}>
-              Show more
-            </button>
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                className={styles.pageBtn}
+                onClick={() => changePage(Math.max(1, page - 1))}
+                disabled={page === 1}
+              >
+                ← Previous
+              </button>
+              <span className={styles.pageInfo}>Page {page} of {totalPages}</span>
+              <button
+                className={styles.pageBtn}
+                onClick={() => changePage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+              >
+                Next →
+              </button>
+            </div>
           )}
         </>
       )}
