@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
+import { db, dbQuery } from "@/lib/db";
 import { watchHistory } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -11,11 +11,15 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rows = await db
-      .select()
-      .from(watchHistory)
-      .where(eq(watchHistory.userId, session.user.id))
-      .orderBy(desc(watchHistory.occurredAt));
+    const userId = session.user.id;
+
+    const rows = await dbQuery(() =>
+      db
+        .select()
+        .from(watchHistory)
+        .where(eq(watchHistory.userId, userId))
+        .orderBy(desc(watchHistory.occurredAt))
+    );
 
     // Map to the local HistoryEvent shape (see lib/progressTracker.ts)
     const formatted = rows.map(r => ({

@@ -40,13 +40,15 @@ function SettingRow({
   label,
   description,
   children,
+  stacked = false,
 }: {
   label: string
   description?: string
   children: React.ReactNode
+  stacked?: boolean
 }) {
   return (
-    <div className={styles.settingRow}>
+    <div className={`${styles.settingRow} ${stacked ? styles.settingRowStacked : ''}`}>
       <div className={styles.settingLabel}>
         <span>{label}</span>
         {description && <p>{description}</p>}
@@ -72,7 +74,7 @@ export default function SettingsClient() {
 
   const sync = useCallback(() => setTermsState(getTermsAccepted()), [])
 
-  // ── Initialize client state ────────────────────────────────────────────
+  /* init */
   useEffect(() => {
     setMounted(true)
     sync()
@@ -80,13 +82,13 @@ export default function SettingsClient() {
     return () => window.removeEventListener(TERMS_EVENT, sync)
   }, [sync])
 
-  // ── Terms revoke ───────────────────────────────────────────────────────
+  /* terms */
   const handleConfirmRevoke = () => {
     setTermsAccepted(false)
     setShowRevokeConfirm(false)
   }
 
-  // ── Wishlist export ────────────────────────────────────────────────────
+  /* export */
   const handleExportWishlist = () => {
     const raw = localStorage.getItem(WISHLIST_KEY) || '[]'
     const blob = new Blob([raw], { type: 'application/json' })
@@ -98,7 +100,7 @@ export default function SettingsClient() {
     URL.revokeObjectURL(url)
   }
 
-  // ── Wishlist import ────────────────────────────────────────────────────
+  /* import */
   const handleImportWishlist = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -123,15 +125,15 @@ export default function SettingsClient() {
     if (importRef.current) importRef.current.value = ''
   }
 
-  // ── Clear search history ───────────────────────────────────────────────
+  /* clear history */
   const handleClearSearchHistory = () => {
     localStorage.removeItem('searchHistory')
     window.dispatchEvent(new StorageEvent('storage', { key: 'searchHistory' }))
   }
 
-  // ── Clear all data ─────────────────────────────────────────────────────
+  /* clear all */
   const handleConfirmClearAll = () => {
-    // Revoke terms first (fires TERMS_EVENT → TermsAgreementModal will show)
+    // Revoke terms first (fires TERMS_EVENT -> TermsAgreementModal will show)
     setTermsAccepted(false)
     // Clear all other cookies
     document.cookie.split(';').forEach(c => {
@@ -144,22 +146,11 @@ export default function SettingsClient() {
     setShowClearConfirm(false)
   }
 
-  // ── Preferred providers toggle ─────────────────────────────────────────
-  const toggleProvider = (id: number) => {
-    const current = settings.preferredProviders
-    const next = current.includes(id)
-      ? current.filter(p => p !== id)
-      : [...current, id]
-    updateSetting('preferredProviders', next)
-  }
-
-  // Removed synchronous termsAccepted check to prevent hydration errors
-
   return (
     <>
       <div className="page-content page-container">
         <div className={styles.container}>
-          {/* Page Header */}
+          {/* header */}
           <div className={styles.header}>
             <div>
               <h1 className={styles.title}>⚙️ Settings</h1>
@@ -176,24 +167,27 @@ export default function SettingsClient() {
             )}
           </div>
 
-          {/* ── Appearance ──────────────────────────────────────────────── */}
+          {/* appearance */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>🎨 Appearance</h2>
 
-            <SettingRow label="Theme" description="Choose your preferred colour scheme.">
+            <SettingRow label="Theme" description="Choose your preferred colour scheme." stacked>
               <div className={styles.themeButtons}>
                 {(['light', 'dark', 'system', 'cinema', 'amoled', 'dim'] as Theme[]).map(t => (
                   <button
                     key={t}
                     onClick={() => updateSetting('theme', t)}
                     className={`${styles.themeBtn} ${settings.theme === t ? styles.themeBtnActive : ''}`}
+                    type="button"
                   >
-                    {t === 'light' ? '☀️' : 
-                     t === 'dark' ? '🌙' : 
-                     t === 'system' ? '💻' : 
-                     t === 'cinema' ? '🍿' : 
-                     t === 'amoled' ? '⬛' : '🌑'}
-                    <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
+                    <span className={styles.themeIcon}>
+                      {t === 'light' ? '☀️' : 
+                       t === 'dark' ? '🌙' : 
+                       t === 'system' ? '💻' : 
+                       t === 'cinema' ? '🍿' : 
+                       t === 'amoled' ? '⬛' : '🌑'}
+                    </span>
+                    <span className={styles.themeName}>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
                   </button>
                 ))}
               </div>
@@ -211,7 +205,7 @@ export default function SettingsClient() {
             </SettingRow>
           </section>
 
-          {/* ── Playback & Data ─────────────────────────────────────────── */}
+          {/* playback */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>🎬 Playback & Data</h2>
 
@@ -238,7 +232,7 @@ export default function SettingsClient() {
             </SettingRow>
           </section>
 
-          {/* ── Content & Discovery ─────────────────────────────────────── */}
+          {/* content */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>🧭 Content & Discovery</h2>
 
@@ -286,7 +280,7 @@ export default function SettingsClient() {
 
           </section>
 
-          {/* ── Search & Feed ───────────────────────────────────────────── */}
+          {/* search */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>🔍 Search & Feed</h2>
 
@@ -308,6 +302,7 @@ export default function SettingsClient() {
                     key={l}
                     onClick={() => updateSetting('defaultLayout', l)}
                     className={`${styles.layoutBtn} ${settings.defaultLayout === l ? styles.layoutBtnActive : ''}`}
+                    type="button"
                   >
                     {l === 'grid' ? '⊞ Grid' : '☰ List'}
                   </button>
@@ -329,7 +324,7 @@ export default function SettingsClient() {
             </SettingRow>
           </section>
 
-          {/* ── Data Management ─────────────────────────────────────────── */}
+          {/* data */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>💾 Data Management</h2>
 
@@ -339,7 +334,7 @@ export default function SettingsClient() {
                   <strong>Export Wishlist</strong>
                   <p>Download your saved movies and TV shows as a JSON file.</p>
                 </div>
-                <button className={styles.actionBtn} onClick={handleExportWishlist}>
+                <button className={styles.actionBtn} onClick={handleExportWishlist} type="button">
                   ⬇ Export
                 </button>
               </div>
@@ -353,7 +348,7 @@ export default function SettingsClient() {
                     {importStatus === 'error' && <span className={styles.importError}>✗ Invalid file</span>}
                   </p>
                 </div>
-                <button className={styles.actionBtn} onClick={() => importRef.current?.click()}>
+                <button className={styles.actionBtn} onClick={() => importRef.current?.click()} type="button">
                   ⬆ Import
                 </button>
                 <input
@@ -370,14 +365,14 @@ export default function SettingsClient() {
                   <strong>Clear Search History</strong>
                   <p>Remove all saved search queries from this device.</p>
                 </div>
-                <button className={styles.actionBtn} onClick={handleClearSearchHistory}>
+                <button className={styles.actionBtn} onClick={handleClearSearchHistory} type="button">
                   🗑 Clear
                 </button>
               </div>
             </div>
           </section>
 
-          {/* ── Legal & Compliance ──────────────────────────────────────── */}
+          {/* legal */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>📜 Legal & Compliance</h2>
             <div className={styles.settingRow}>
@@ -396,13 +391,13 @@ export default function SettingsClient() {
               </div>
             </div>
             {termsAccepted && (
-              <button className={styles.revokeButton} onClick={() => setShowRevokeConfirm(true)}>
+              <button className={styles.revokeButton} onClick={() => setShowRevokeConfirm(true)} type="button">
                 Revoke Agreement
               </button>
             )}
           </section>
 
-          {/* ── Danger Zone ─────────────────────────────────────────────── */}
+          {/* danger */}
           <section className={`${styles.section} ${styles.dangerZone}`}>
             <h2 className={styles.sectionTitle}>⚠️ Danger Zone</h2>
             <div className={styles.dataAction}>
@@ -410,7 +405,7 @@ export default function SettingsClient() {
                 <strong>Clear All Data</strong>
                 <p>Wipe your wishlist, search history, settings, and terms agreement from this device. This cannot be undone.</p>
               </div>
-              <button className={`${styles.actionBtn} ${styles.dangerBtn}`} onClick={() => setShowClearConfirm(true)}>
+              <button className={`${styles.actionBtn} ${styles.dangerBtn}`} onClick={() => setShowClearConfirm(true)} type="button">
                 🗑 Clear All
               </button>
             </div>
@@ -418,7 +413,7 @@ export default function SettingsClient() {
         </div>
       </div>
 
-      {/* ── Revoke Confirmation Modal ─────────────────────────────────── */}
+      {/* modals */}
       <Modal
         isOpen={showRevokeConfirm}
         title="Are you sure?"
@@ -429,7 +424,6 @@ export default function SettingsClient() {
         onCancel={() => setShowRevokeConfirm(false)}
       />
 
-      {/* ── Clear All Confirmation Modal ──────────────────────────────── */}
       <Modal
         isOpen={showClearConfirm}
         title="Clear All Data?"

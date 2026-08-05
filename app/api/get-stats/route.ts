@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
+import { db, dbQuery } from "@/lib/db";
 import { watchHistory, watchProgress } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -41,10 +41,12 @@ export async function GET() {
     }
     const userId = session.user.id;
 
-    const [historyRows, progressRows] = await Promise.all([
-      db.select().from(watchHistory).where(eq(watchHistory.userId, userId)),
-      db.select().from(watchProgress).where(eq(watchProgress.userId, userId)),
-    ]);
+    const [historyRows, progressRows] = await dbQuery(() =>
+      Promise.all([
+        db.select().from(watchHistory).where(eq(watchHistory.userId, userId)),
+        db.select().from(watchProgress).where(eq(watchProgress.userId, userId)),
+      ])
+    );
 
     const now = Date.now();
     const titleKeys = new Set<string>();
