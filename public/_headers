@@ -2,3 +2,14 @@
 # https://opennext.js.org/cloudflare/caching#static-assets-caching
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Baseline security headers on every route. SAMEORIGIN (not DENY) only blocks
+# *other* sites from framing cinemaphora — it doesn't affect this site framing
+# third-party streaming providers in /watch, which is a separate direction.
+# No CSP here yet: the provider iframe domains and the theme-init inline
+# script (app/layout.tsx) would need to be enumerated carefully first, and a
+# wrong one fails closed for the whole site rather than open.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
