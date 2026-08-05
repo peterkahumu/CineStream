@@ -87,3 +87,81 @@ export async function updateDisplayName(name: string) {
     return { error: "Failed to update display name." };
   }
 }
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Unauthorized." };
+  }
+
+  if (!currentPassword || !newPassword) {
+    return { error: "Current and new password are required." };
+  }
+  if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    return { error: `New password must be at least ${MIN_PASSWORD_LENGTH} characters.` };
+  }
+
+  const userId = session.user.id;
+
+  try {
+    const [user] = await dbQuery((db) =>
+      db.select().from(users).where(eq(users.id, userId)).limit(1)
+    );
+    if (!user?.password) {
+      return { error: "Unable to verify current password." };
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return { error: "Current password is incorrect." };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await dbQuery((db) =>
+      db.update(users).set({ password: hashedPassword }).where(eq(users.id, userId))
+    );
+    return { success: true };
+  } catch (error) {
+    console.error("Change password error:", error);
+    return { error: "Failed to change password." };
+  }
+}
+
+/**
+ * Deletes the signed-in user's account after re-verifying their password.
+ * All owned rows (progress, history, watchlist, settings) cascade-delete via
+ * the `onDelete: "cascade"` foreign keys in lib/db/schema.ts. The caller is
+ * responsible for signing the user out afterward.
+ */
+export async function deleteAccount(password: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Unauthorized." };
+  }
+
+  if (!password) {
+    return { error: "Enter your password to confirm." };
+  }
+
+  const userId = session.user.id;
+
+  try {
+    const [user] = await dbQuery((db) =>
+      db.select().from(users).where(eq(users.id, userId)).limit(1)
+    );
+    if (!user?.password) {
+      return { error: "Unable to verify password." };
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return { error: "Incorrect password." };
+    }
+
+    await dbQuery((db) => db.delete(users).where(eq(users.id, userId)));
+    return { success: true };
+  } catch (error) {
+    console.error("Delete account error:", error);
+    return { error: "Failed to delete account." };
+  }
+}

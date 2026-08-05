@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { updateDisplayName } from '@/app/actions/auth'
 import ProfileStats from '@/components/ProfileStats'
 import WatchHistoryList from '@/components/WatchHistoryList'
+import AccountSettings from '@/components/AccountSettings'
 import styles from './Profile.module.css'
 
 interface Props {
@@ -146,6 +147,13 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
               <h2 className={styles.sectionTitle}>Your Stats</h2>
             </div>
             <ProfileStats />
+          </div>
+
+          <div className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Account</h2>
+            </div>
+            <AccountSettings />
           </div>
         </div>
       </div>
