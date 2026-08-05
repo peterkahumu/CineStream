@@ -2,14 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { dbQuery } from "@/lib/db";
 import { watchHistory } from "@/lib/db/schema";
+import { sql } from "drizzle-orm";
 
 /**
- * Watch history events are immutable once created (see lib/progressTracker.ts), so
- * syncing is a simple idempotent insert keyed on the client-generated `id` — unlike
- * /api/sync-progress there is no "newer wins" comparison to make.
- *
- * Uses `onConflictDoNothing` so concurrent flushes or duplicate sync requests
- * never fail with unique constraint violations on `watch_history_pkey`.
+ * Watch history: one row per episode/movie (see lib/db/schema.ts), upserted by
+ * (userId, episodeKey) with latest-occurredAt-wins — matches lib/progressTracker.ts's
+ * logHistoryEvent, which updates the same local row in place rather than appending.
  */
 export async function POST(request: Request) {
   try {
@@ -25,9 +23,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
 
-    // Deduplicate items in the batch by ID first
-    const seenIds = new Set<string>();
-    const validItems: {
+    // Dedupe the incoming batch by episode identity, keeping the latest occurredAt —
+    // avoids sending two conflicting rows for the same episode in one statement.
+    const byEpisode = new Map<string, {
       id: string;
       userId: string;
       tmdbId: string;
@@ -39,14 +37,14 @@ export async function POST(request: Request) {
       event: "started" | "completed";
       genres: unknown;
       occurredAt: number;
-    }[] = [];
+      episodeKey: string;
+    }>();
 
     for (const item of items) {
       if (!item || typeof item !== "object") continue;
       const eventId = item.id ? String(item.id).trim() : null;
       const tmdbId = item.tmdbId ? String(item.tmdbId).trim() : (item.id ? String(item.id).trim() : null);
-      if (!eventId || !tmdbId || seenIds.has(eventId)) continue;
-      seenIds.add(eventId);
+      if (!eventId || !tmdbId) continue;
 
       const mediaType = item.mediaType === "tv" ? "tv" : "movie";
       const title = typeof item.title === "string" && item.title.trim() ? item.title.trim() : "Untitled";
@@ -63,21 +61,27 @@ export async function POST(request: Request) {
         ? item.occurredAt
         : Date.now();
 
-      validItems.push({
-        id: eventId,
-        userId,
-        tmdbId,
-        mediaType,
-        title,
-        poster_path,
-        season,
-        episode,
-        event,
-        genres,
-        occurredAt,
-      });
+      const episodeKey = `${mediaType}-${tmdbId}-${season ?? "x"}-${episode ?? "x"}`;
+      const existing = byEpisode.get(episodeKey);
+      if (!existing || occurredAt >= existing.occurredAt) {
+        byEpisode.set(episodeKey, {
+          id: eventId,
+          userId,
+          tmdbId,
+          mediaType,
+          title,
+          poster_path,
+          season,
+          episode,
+          event,
+          genres,
+          occurredAt,
+          episodeKey,
+        });
+      }
     }
 
+    const validItems = Array.from(byEpisode.values());
     if (validItems.length === 0) {
       return NextResponse.json({ success: true, count: 0 });
     }
@@ -87,7 +91,19 @@ export async function POST(request: Request) {
         await db
           .insert(watchHistory)
           .values(item)
-          .onConflictDoNothing({ target: watchHistory.id });
+          .onConflictDoUpdate({
+            target: [watchHistory.userId, watchHistory.episodeKey],
+            set: {
+              title: item.title,
+              poster_path: item.poster_path,
+              event: item.event,
+              genres: item.genres,
+              occurredAt: item.occurredAt,
+            },
+            // Only apply if this update is at least as new as what's already stored —
+            // sync requests can arrive out of order.
+            setWhere: sql`${watchHistory.occurredAt} <= ${item.occurredAt}`,
+          });
       }
     });
 

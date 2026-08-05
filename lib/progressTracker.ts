@@ -19,10 +19,12 @@
  * plain module). Guests never hit the sync endpoints — localStorage remains their
  * entire experience, with zero wasted network calls.
  *
- * Watch History (`logHistoryEvent`/`getAllHistoryEvents`) is a parallel, append-only
- * log of "started"/"completed" events — distinct from the mutable progress pointer
- * above. It powers the Profile page's real history & stats, and survives a title
- * being removed from Continue Watching or watched again later.
+ * Watch History (`logHistoryEvent`/`getAllHistoryEvents`) is a parallel log of
+ * "started"/"completed" events — distinct from the mutable progress pointer above.
+ * One row per episode/movie (see historyEpisodeKey), updated in place rather than
+ * appended, so resuming or rewatching the same episode doesn't pile up duplicate
+ * rows. It powers the Profile page's real history & stats, and survives a title
+ * being removed from Continue Watching.
  */
 
 import type { Genre } from '@/lib/tmdb'
@@ -461,10 +463,17 @@ function writeHistoryEvents(events: HistoryEvent[]): void {
   }
 }
 
+/** Stable per-episode/movie identity, used to upsert a single history row instead of appending. */
+function historyEpisodeKey(mediaType: 'movie' | 'tv', tmdbId: string, season?: number, episode?: number): string {
+  return `${mediaType}-${tmdbId}-${season ?? 'x'}-${episode ?? 'x'}`
+}
+
 /**
- * Append a single "started"/"completed" event to the local history log, and (when
- * `isAuthenticated`) schedule a debounced DB sync. Normally called internally by
- * `saveProgress` — exported for cases like manual "mark as watched" actions.
+ * Record a "started"/"completed" event for an episode/movie — updating its existing
+ * history row if one already exists (same episode, resumed or rewatched) rather than
+ * appending a new one — and (when `isAuthenticated`) schedule a debounced DB sync.
+ * Normally called internally by `saveProgress` — exported for cases like manual
+ * "mark as watched" actions.
  */
 export function logHistoryEvent(
   tmdbId: string,
@@ -488,21 +497,42 @@ export function logHistoryEvent(
     ? Math.round(data.episode)
     : (data.episode ? parseInt(String(data.episode), 10) || undefined : undefined)
 
-  const entry: HistoryEvent = {
-    id: crypto.randomUUID(),
-    tmdbId: String(tmdbId),
-    mediaType,
-    title: data.title || '',
-    poster_path: data.poster_path ?? null,
-    season: seasonNum,
-    episode: episodeNum,
-    event,
-    genres: data.genres ?? null,
-    occurredAt: Date.now(),
+  const key = historyEpisodeKey(mediaType, String(tmdbId), seasonNum, episodeNum)
+  const events = readHistoryEvents()
+  const existingIdx = events.findIndex(
+    e => historyEpisodeKey(e.mediaType, e.tmdbId, e.season, e.episode) === key
+  )
+
+  let entry: HistoryEvent
+  if (existingIdx !== -1) {
+    // Same episode/movie — update its row in place, keeping the same id so a DB
+    // sync updates the existing record instead of inserting a duplicate.
+    entry = {
+      ...events[existingIdx],
+      title: data.title || events[existingIdx].title,
+      poster_path: data.poster_path ?? events[existingIdx].poster_path,
+      genres: data.genres ?? events[existingIdx].genres,
+      event,
+      occurredAt: Date.now(),
+    }
+    events[existingIdx] = entry
+  } else {
+    entry = {
+      id: crypto.randomUUID(),
+      tmdbId: String(tmdbId),
+      mediaType,
+      title: data.title || '',
+      poster_path: data.poster_path ?? null,
+      season: seasonNum,
+      episode: episodeNum,
+      event,
+      genres: data.genres ?? null,
+      occurredAt: Date.now(),
+    }
+    events.unshift(entry)
   }
 
-  const events = [entry, ...readHistoryEvents()].slice(0, HISTORY_MAX_ITEMS)
-  writeHistoryEvents(events)
+  writeHistoryEvents(events.slice(0, HISTORY_MAX_ITEMS))
   if (isAuthenticated) scheduleHistorySync([entry])
 }
 
@@ -518,15 +548,30 @@ export function clearHistoryEvents(): void {
 }
 
 /**
- * Merge remote DB history events into localStorage. Events are immutable once
- * created, so this is a simple union by id (no conflict resolution needed).
+ * Merge remote DB history events into localStorage, one row per episode/movie
+ * (latest-occurredAt-wins). Merges by episode identity rather than `id` — two
+ * devices can independently generate different ids for the same episode before
+ * ever syncing with each other, so id-only matching would leave duplicates.
  * Call this after fetching history from the server on login.
  */
 export function mergeRemoteHistory(remoteItems: HistoryEvent[]): void {
   if (typeof localStorage === 'undefined') return
   const local = readHistoryEvents()
-  const knownIds = new Set(local.map(e => e.id))
-  const merged = [...local, ...remoteItems.filter(e => !knownIds.has(e.id))]
+  const byKey = new Map<string, HistoryEvent>()
+
+  for (const e of local) {
+    byKey.set(historyEpisodeKey(e.mediaType, e.tmdbId, e.season, e.episode), e)
+  }
+
+  for (const remote of remoteItems) {
+    const key = historyEpisodeKey(remote.mediaType, remote.tmdbId, remote.season, remote.episode)
+    const existing = byKey.get(key)
+    if (!existing || remote.occurredAt > existing.occurredAt) {
+      byKey.set(key, remote)
+    }
+  }
+
+  const merged = Array.from(byKey.values())
   merged.sort((a, b) => b.occurredAt - a.occurredAt)
   writeHistoryEvents(merged.slice(0, HISTORY_MAX_ITEMS))
 }

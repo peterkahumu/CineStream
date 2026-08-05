@@ -5,6 +5,7 @@ import {
   integer,
   bigint,
   json,
+  uniqueIndex,
 } from "drizzle-orm/pg-core"
 
 export const users = pgTable("user", {
@@ -61,10 +62,13 @@ export const watchlist = pgTable("watchlist", {
 })
 
 /**
- * Append-only watch history log — distinct from `watchProgress` (the mutable
- * resume pointer behind Continue Watching). Each row is a "started" or "completed"
- * event, so the timeline survives progress being overwritten/removed and supports
- * rewatches and stats (see /api/get-stats).
+ * Watch history log — distinct from `watchProgress` (the mutable resume pointer
+ * behind Continue Watching). One row per (userId, episode/movie), holding its
+ * latest "started"/"completed" status — not append-only, so rewatching or
+ * resuming an episode updates its existing row instead of piling up duplicates.
+ * `episodeKey` is `${mediaType}-${tmdbId}-${season ?? 'x'}-${episode ?? 'x'}`
+ * (see lib/progressTracker.ts), giving each episode/movie a stable identity to
+ * upsert against.
  */
 export const watchHistory = pgTable("watch_history", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -78,7 +82,10 @@ export const watchHistory = pgTable("watch_history", {
   event: text("event").notNull(), // 'started' | 'completed'
   genres: json("genres"), // { id: number, name: string }[] | null
   occurredAt: bigint("occurredAt", { mode: "number" }).notNull(),
-})
+  episodeKey: text("episodeKey").notNull(),
+}, (t) => [
+  uniqueIndex("watch_history_user_episode_idx").on(t.userId, t.episodeKey),
+])
 
 /** Cross-device preference sync for signed-in users (see lib/settings.ts UserSettings). */
 export const userSettings = pgTable("user_settings", {
