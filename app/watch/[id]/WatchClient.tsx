@@ -85,23 +85,10 @@ export default function WatchClient({
     return cleanupOrientation
   }, [cleanupOrientation])
 
-  // ── Early returns ────────────────────────────────────────────────────────────
-
-  if (servers.length === 0) {
-    return (
-      <div className={`${styles.playerSection} empty-state`}>
-        <h3>No Streaming Servers Configured</h3>
-        <p>Please configure the streaming provider URLs in your .env.local file.</p>
-      </div>
-    )
-  }
-
-  // ── Resolve active provider ──────────────────────────────────────────────────
-
-  const activeServer = servers.find(s => s.id === serverId) || servers[0]
-  const activeProvider = PROVIDERS.find(p => p.id === activeServer.id) || PROVIDERS[0]
-
   // ── Event handlers ───────────────────────────────────────────────────────────
+  // Declared before the early return below — none of them depend on `activeServer`/
+  // `activeProvider` (which do), so hooks stay in the same order on every render
+  // regardless of whether `servers` is empty (see Rules of Hooks).
 
   const switchServer = useCallback((newId: string) => {
     setServerId(newId)
@@ -138,6 +125,22 @@ export default function WatchClient({
 
     router.replace(`/watch/${id}?type=${mediaType}&s=${targetS}&e=${targetE}`)
   }, [router, id, mediaType, seasons, season])
+
+  // ── Early returns ────────────────────────────────────────────────────────────
+
+  if (servers.length === 0) {
+    return (
+      <div className={`${styles.playerSection} empty-state`}>
+        <h3>No Streaming Servers Configured</h3>
+        <p>Please configure the streaming provider URLs in your .env.local file.</p>
+      </div>
+    )
+  }
+
+  // ── Resolve active provider ──────────────────────────────────────────────────
+
+  const activeServer = servers.find(s => s.id === serverId) || servers[0]
+  const activeProvider = PROVIDERS.find(p => p.id === activeServer.id) || PROVIDERS[0]
 
   // ── Calculate Navigation ───────────────────────────────────────────────────
 
