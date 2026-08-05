@@ -27,8 +27,8 @@
   background: linear-gradient(
     to top,
     var(--bg-base) 0%,
-    rgba(248, 250, 252, 0.8) 5%,
-    rgba(248, 250, 252, 0.2) 20%,
+    color-mix(in srgb, var(--bg-base) 85%, transparent) 10%,
+    color-mix(in srgb, var(--bg-base) 30%, transparent) 30%,
     transparent 100%
   );
   pointer-events: none;

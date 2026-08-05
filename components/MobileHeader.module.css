@@ -13,7 +13,7 @@
     right: 0;
     z-index: var(--z-nav);
     background: var(--nav-bg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--nav-border);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
@@ -43,7 +43,7 @@
     font-family: var(--font-display);
     font-size: 1rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--nav-text);
     letter-spacing: -0.02em;
   }
 
@@ -61,15 +61,15 @@
   .searchForm {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--nav-overlay);
+    border: 1px solid var(--nav-overlay-strong);
     border-radius: var(--radius-full);
     padding: 7px 12px 7px 10px;
     gap: 6px;
   }
 
   .searchIcon {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--nav-muted);
     display: flex;
     flex-shrink: 0;
   }
@@ -78,7 +78,7 @@
     flex: 1;
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--nav-text);
     font-size: 0.875rem;
     min-width: 0;
   }
@@ -88,12 +88,12 @@
   }
 
   .searchInput::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--nav-muted);
   }
 
   .clearBtn {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--nav-muted);
     background: none;
     border: none;
     cursor: pointer;
@@ -102,15 +102,19 @@
   }
 
   /* ── Search dropdown ── */
+  /* A dropdown of search results is a card floating over the page, not an
+     extension of the header bar — so it uses the general card tokens
+     (--bg-surface/--text-*) rather than the --nav-* ones, matching how
+     Navbar.module.css's .searchResults already does this on desktop. */
   .searchDropdown {
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    background: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-lg);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -124,12 +128,12 @@
     padding: 10px 12px;
     align-items: center;
     text-decoration: none;
-    color: #fff;
+    color: var(--text-primary);
     transition: background var(--transition-fast);
   }
 
   .resultItem:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-hover);
   }
 
   .resultThumb {
@@ -137,7 +141,7 @@
     height: 48px;
     object-fit: cover;
     border-radius: 4px;
-    background: #1e293b;
+    background: var(--bg-muted);
     flex-shrink: 0;
   }
 
@@ -154,7 +158,7 @@
 
   .resultMeta {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--text-secondary);
     text-transform: capitalize;
   }
 
@@ -165,7 +169,7 @@
     color: var(--accent);
     background: none;
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--border);
     cursor: pointer;
     width: 100%;
   }
@@ -174,7 +178,7 @@
     padding: 14px;
     text-align: center;
     font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-muted);
   }
 
   /* ── Recent Searches ── */
@@ -183,7 +187,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     font-weight: 600;
   }
 
@@ -198,14 +202,14 @@
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    color: #fff;
+    color: var(--text-primary);
     text-decoration: none;
     font-size: 0.85rem;
     transition: background var(--transition-fast);
   }
 
   .historyItem:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-hover);
   }
 
   .historyIcon {
@@ -238,8 +242,8 @@
     font-weight: 500;
     white-space: nowrap;
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.55);
-    background: rgba(255, 255, 255, 0.06);
+    color: var(--nav-muted);
+    background: var(--nav-overlay);
     border: 1px solid transparent;
     scroll-snap-align: start;
     transition: all var(--transition-fast);
@@ -247,12 +251,12 @@
   }
 
   .pill:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.12);
+    color: var(--nav-text);
+    background: var(--nav-overlay-strong);
   }
 
   .pillActive {
-    color: #fff;
+    color: var(--text-inverse);
     background: var(--accent);
     border-color: var(--accent);
     font-weight: 600;
@@ -267,7 +271,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface-raised);
+    background: var(--bg-muted);
     border-radius: 4px;
     font-size: 1.2rem;
   }
@@ -282,12 +286,12 @@
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--surface-raised);
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 0.6rem 1.2rem;
     font-size: 0.85rem;
-    color: var(--text);
+    color: var(--text-primary);
     z-index: 1000;
     white-space: nowrap;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);

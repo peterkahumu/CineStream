@@ -1,5 +1,5 @@
 /** All user-configurable preferences */
-export type Theme = 'light' | 'dark' | 'system' | 'cinema' | 'amoled' | 'dim'
+export type Theme = 'light' | 'warm' | 'dark' | 'system' | 'cinema' | 'amoled' | 'dim'
 export type Layout = 'grid' | 'list'
 export type WishlistSort = 'added' | 'alpha' | 'rating' | 'date'
 type CertificationCeiling = 'G' | 'PG' | 'PG-13' | 'R' | 'NC-17' | 'none'
