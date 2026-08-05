@@ -1,67 +1,86 @@
+/* ─── Container ────────────────────────────────────────────────────────────── */
+.container {
+  width: 100%;
+}
+
+/* ─── Empty State ───────────────────────────────────────────────────────────── */
 .emptyState {
   text-align: center;
-  padding: 4rem 1rem;
+  padding: 4rem 1.5rem;
   background: var(--bg-card);
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius-lg);
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .emptyIcon {
   font-size: 3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
   display: block;
 }
 
 .emptyTitle {
   font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .emptyText {
   color: var(--text-secondary);
-  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  max-width: 400px;
+  line-height: 1.5;
+  margin: 0 0 0.5rem 0;
 }
 
-/* ── HEADER (Tabs & Sort) ── */
+.skeletonSpacer {
+  height: 50vh;
+}
+
+/* ─── Header & Controls Bar (Option 3) ───────────────────────────────────────── */
 .header {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  margin-top: 0;
   margin-bottom: var(--space-md);
 }
 
-@media (min-width: 640px) {
-  .header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
+.tabsWrapper {
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tabs {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-sm);
+  min-width: max-content;
 }
 
 .tabBtn {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   color: var(--text-muted);
-  padding: 8px 16px;
+  padding: 7px 15px;
   border-radius: var(--radius-full);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
+  white-space: nowrap;
   transition: all var(--transition-fast);
 }
 
 .tabBtn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 
 .tabBtnActive {
@@ -75,118 +94,6 @@
   color: #fff;
 }
 
-.controls {
-  display: flex;
-  align-items: center;
-}
-
-.sortSelect {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  padding: 8px 32px 8px 16px;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  font-family: inherit;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 10px auto;
-}
-
-.sortSelect:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-/* ── STATS BAR ── */
-.statsBar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: var(--space-xl);
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--border);
-}
-
-.statsDot {
-  color: var(--border-strong);
-}
-
-/* ── CARD + ACTIONS ── */
-/* cardWrap holds the standard MediaCard plus a small icon toolbar below it —
-   actions live in normal flow instead of overlaid on the poster, so they stay
-   usable at the standard (much smaller) card size used across the rest of the app. */
-.cardWrap {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Stacked, always-labelled rows — icon-only buttons would need a hover (desktop)
-   or a wasted tap (mobile) before their meaning is clear, so each action carries
-   a visible text label at all times instead. */
-.actionsBar {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
-}
-
-.iconBtn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 5px 7px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.iconBtn:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--border-strong);
-}
-
-.watchedActive {
-  background: var(--green-light);
-  border-color: var(--green);
-  color: var(--green-text, var(--green));
-}
-
-.watchedActive:hover {
-  background: var(--green-light);
-  color: var(--green-text, var(--green));
-}
-
-.removeIconBtn:hover {
-  background: var(--red-light);
-  border-color: var(--red);
-  color: var(--red);
-}
-
-@media (max-width: 480px) {
-  .iconBtn {
-    font-size: 0.65rem;
-    padding: 4px 6px;
-  }
-}
-
-/* ── FOLDER TABS ── */
 .folderTabWrapper {
   display: flex;
   align-items: center;
@@ -199,7 +106,8 @@
 
 .folderTabDelete {
   border-radius: 0 var(--radius-full) var(--radius-full) 0 !important;
-  padding: 8px !important;
+  padding: 7px 10px !important;
+  font-size: 0.9rem !important;
   color: var(--red);
 }
 
@@ -208,36 +116,441 @@
 }
 
 .newFolderBtn {
-  padding: 4px 12px;
-  font-size: 0.9rem;
+  border-style: dashed;
+  color: var(--accent);
 }
 
-.emptyStatePadding {
-  padding: 4rem 1rem;
-}
-
-.skeletonSpacer {
-  height: 50vh;
-}
-
-.modalContentGroup {
+.controlsBar {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 1rem;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
-.modalInput {
-  padding: 10px;
-  border-radius: 8px;
+/* Search Box */
+.searchBox {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
-  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.searchClearBtn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+.searchClearBtn:hover {
   color: var(--text-primary);
 }
 
-/* ── FOLDER PICKER (Add to Folder modal) ── */
-/* A plain select-list: tapping a folder assigns it immediately — no typing,
-   even for an existing folder. Creating a new one stays a separate, explicit step. */
+/* Sort Dropdown */
+.sortSelect {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 32px 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 9px auto;
+  white-space: nowrap;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* View Mode Toggle */
+.viewModeToggle {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.viewToggleBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewToggleBtn:hover {
+  color: var(--text-primary);
+}
+
+.viewToggleBtnActive {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ─── Stats Bar ──────────────────────────────────────────────────────────────── */
+.statsBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.statsDot {
+  color: var(--border-strong);
+}
+
+/* ─── Standard Media Grid Layout (Option 1) ─────────────────────────────────── */
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .mediaGrid {
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mediaGrid {
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* ─── Grid Card & Poster ─────────────────────────────────────────────────────── */
+.gridCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.posterContainer {
+  position: relative;
+  aspect-ratio: 2/3;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-normal);
+}
+
+.gridCard:hover .posterContainer {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+  transform: translateY(-3px);
+}
+
+.posterLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  text-decoration: none;
+}
+
+.posterImage {
+  object-fit: cover;
+  transition: filter var(--transition-normal), transform var(--transition-normal);
+}
+
+.gridCard:hover .posterImage {
+  transform: scale(1.02);
+}
+
+.posterWatched .posterImage {
+  filter: brightness(0.6) grayscale(30%);
+}
+
+.noPoster {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 1.8rem;
+  background: var(--bg-muted);
+}
+
+.noPosterTitle {
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 0 6px;
+  line-height: 1.2;
+  color: var(--text-muted);
+}
+
+/* ─── Floating Poster Micro-Actions ────────────────────────────────────────── */
+.watchedBadge {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e2e8f0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.watchedBadge:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.04);
+}
+
+.watchedBadgeActive {
+  background: rgba(16, 185, 129, 0.9) !important;
+  color: #ffffff !important;
+  border-color: rgba(52, 211, 153, 0.8) !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 4;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  opacity: 0.85;
+}
+
+.gridCard:hover .removeBtn {
+  opacity: 1;
+}
+
+.removeBtn:hover {
+  background: rgba(239, 68, 68, 0.92);
+  color: #fff;
+  border-color: rgba(248, 113, 113, 0.8);
+  transform: scale(1.08);
+}
+
+.folderOverlayChip {
+  position: absolute;
+  bottom: 7px;
+  left: 7px;
+  right: 7px;
+  z-index: 4;
+  padding: 3px 8px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-full);
+  color: #cbd5e1;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.folderOverlayChip:hover {
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ─── Card Info Below Poster ─────────────────────────────────────────────────── */
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.gridCard:hover .cardTitle {
+  color: var(--accent);
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.mediaTypeBadge {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.62rem;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── List View Mode ────────────────────────────────────────────────────────── */
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.listRow:hover {
+  border-color: var(--accent);
+  background: var(--bg-surface);
+}
+
+.listThumb {
+  position: relative;
+  width: 50px;
+  aspect-ratio: 2/3;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+}
+
+.listContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.listTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.listActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.listActionBtn {
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* ─── Modals ────────────────────────────────────────────────────────────────── */
 .folderPickerList {
   display: flex;
   flex-direction: column;
@@ -261,33 +574,6 @@
   text-align: left;
   cursor: pointer;
   transition: all var(--transition-fast);
-}
-
-.folderPickerRow:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-strong);
-}
-
-.folderPickerRowActive {
-  background: var(--accent-subtle);
-  border-color: var(--accent);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.folderPickerRowActive:hover {
-  background: var(--accent-subtle);
-}
-
-.folderPickerNew {
-  justify-content: center;
-  color: var(--accent);
-  font-weight: 600;
-  border-style: dashed;
-}
-
-cursor: pointer;
-transition: all var(--transition-fast);
 }
 
 .folderPickerRow:hover {

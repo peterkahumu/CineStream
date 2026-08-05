@@ -31,10 +31,58 @@ import type { Genre } from '@/lib/tmdb'
 
 const STORAGE_PREFIX = 'progress-'
 const HISTORY_STORAGE_KEY = 'cinemaphora-history-events'
+const PROGRESS_TOMBSTONES_KEY = 'cinemaphora-deleted-progress'
 const HISTORY_MAX_ITEMS = 500
 const SYNC_DEBOUNCE_MS = 10_000
 const STARTED_THRESHOLD_SECONDS = 30
 const COMPLETED_RATIO = 0.9
+
+function getProgressTombstones(): Record<string, number> {
+  if (typeof localStorage === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(PROGRESS_TOMBSTONES_KEY)
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {}
+  } catch {
+    return {}
+  }
+}
+
+function setProgressTombstone(tmdbId: string, timestamp = Date.now()): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const tombstones = getProgressTombstones()
+    tombstones[tmdbId] = timestamp
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
+    for (const key of Object.keys(tombstones)) {
+      if (tombstones[key] < thirtyDaysAgo) delete tombstones[key]
+    }
+    localStorage.setItem(PROGRESS_TOMBSTONES_KEY, JSON.stringify(tombstones))
+  } catch (err) {
+    console.error('[progressTracker] Failed to write tombstone:', err)
+  }
+}
+
+function clearProgressTombstone(tmdbId: string): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const tombstones = getProgressTombstones()
+    if (tmdbId in tombstones) {
+      delete tombstones[tmdbId]
+      localStorage.setItem(PROGRESS_TOMBSTONES_KEY, JSON.stringify(tombstones))
+    }
+  } catch (err) {
+    console.error('[progressTracker] Failed to clear tombstone:', err)
+  }
+}
+
+function syncProgressDelete(tmdbId: string): void {
+  fetch('/api/sync-progress', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tmdbId }),
+  }).catch(err => console.error('[progressTracker] Delete progress sync failed:', err))
+}
+
 
 export interface EpisodeProgress {
   season: number
@@ -276,6 +324,7 @@ export function saveProgress(
 
   try {
     localStorage.setItem(storageKey(String(tmdbId)), JSON.stringify(updated))
+    clearProgressTombstone(String(tmdbId))
     if (isAuthenticated) scheduleDebouncedSync(updated)
 
     for (const event of historyEvents) {
@@ -347,9 +396,14 @@ export function getAllProgress(): WatchProgress[] {
 }
 
 /** Remove a single item from the tracker. */
-export function removeProgress(tmdbId: string): void {
+export function removeProgress(tmdbId: string, isAuthenticated = false): void {
   if (typeof localStorage === 'undefined') return
-  localStorage.removeItem(storageKey(tmdbId))
+  const idStr = String(tmdbId).trim()
+  localStorage.removeItem(storageKey(idStr))
+  setProgressTombstone(idStr)
+  if (isAuthenticated) {
+    syncProgressDelete(idStr)
+  }
 }
 
 /**
@@ -360,7 +414,11 @@ export function removeProgress(tmdbId: string): void {
  */
 export function flushProgress(): void {
   if (typeof window === 'undefined') return
-  const items = getAllProgress()
+  const tombstones = getProgressTombstones()
+  const items = getAllProgress().filter(item => {
+    const deletedAt = tombstones[item.id]
+    return !deletedAt || item.updatedAt > deletedAt
+  })
   if (items.length === 0) return
 
   if (syncTimer) {
@@ -415,11 +473,28 @@ function isProgressAtLeastAsAdvanced(a: WatchProgress, b: WatchProgress): boolea
  */
 export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
   if (typeof localStorage === 'undefined') return
+  const tombstones = getProgressTombstones()
+
   for (const remote of remoteItems) {
-    const local = getProgress(remote.id)
+    const remoteId = String(remote.id).trim()
+    const deletedAt = tombstones[remoteId]
+
+    // If item was deleted locally and remote item hasn't been updated since deletion:
+    if (deletedAt && (Number(remote.updatedAt) || 0) <= deletedAt) {
+      // Suppress resurrection and ensure server row is deleted
+      syncProgressDelete(remoteId)
+      continue
+    }
+
+    // If remote item is newer than the deletion, user re-watched it after deletion! Clear tombstone.
+    if (deletedAt && (Number(remote.updatedAt) || 0) > deletedAt) {
+      clearProgressTombstone(remoteId)
+    }
+
+    const local = getProgress(remoteId)
     if (!local) {
       try {
-        localStorage.setItem(storageKey(remote.id), JSON.stringify(remote))
+        localStorage.setItem(storageKey(remoteId), JSON.stringify(remote))
       } catch (err) {
         console.error('[progressTracker] Failed to merge remote item:', err)
       }
@@ -436,7 +511,7 @@ export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
     }
 
     try {
-      localStorage.setItem(storageKey(remote.id), JSON.stringify(merged))
+      localStorage.setItem(storageKey(remoteId), JSON.stringify(merged))
     } catch (err) {
       console.error('[progressTracker] Failed to merge remote item:', err)
     }

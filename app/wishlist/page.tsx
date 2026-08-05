@@ -11,7 +11,7 @@ export default function WishlistPage() {
     <main className="page-content">
       <ScrollToTop />
       <div className="page-container">
-        <h1 className="page-heading">
+        <h1 className="page-heading" style={{ marginBottom: 'var(--space-sm)' }}>
           <span className="heading-icon">💖</span>
           My List
         </h1>

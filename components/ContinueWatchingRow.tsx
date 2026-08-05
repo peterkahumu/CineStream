@@ -22,7 +22,7 @@ export default function ContinueWatchingRow() {
       const remaining = item.duration > 0 ? item.duration - item.watched : 0
       if (item.duration > 0 && remaining < 60) {
         if (item.mediaType === 'movie') {
-          removeProgress(item.id)
+          removeProgress(item.id, status === 'authenticated')
           return false
         }
         item.episode = (item.episode || 1) + 1
@@ -31,7 +31,7 @@ export default function ContinueWatchingRow() {
       return true
     })
     setItems(validItems)
-  }, [])
+  }, [status])
 
   // Effects — function calls only
   useEffect(() => {
@@ -68,11 +68,11 @@ export default function ContinueWatchingRow() {
 
   const confirmRemove = useCallback(() => {
     if (itemToRemove) {
-      removeProgress(itemToRemove.id)
+      removeProgress(itemToRemove.id, status === 'authenticated')
       loadItems()
       setItemToRemove(null)
     }
-  }, [itemToRemove, loadItems])
+  }, [itemToRemove, loadItems, status])
 
   const cancelRemove = useCallback(() => {
     setItemToRemove(null)

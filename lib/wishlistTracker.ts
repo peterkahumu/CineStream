@@ -14,6 +14,7 @@
 
 /** Exported so SettingsClient's export/import/backup tools read the same key. */
 export const WISHLIST_KEY = 'cinemaphora-wishlist'
+const WISHLIST_TOMBSTONES_KEY = 'cinemaphora-deleted-watchlist'
 const SYNC_DEBOUNCE_MS = 10_000
 
 export interface WishlistItem {
@@ -29,6 +30,46 @@ export interface WishlistItem {
 }
 
 // Internal helpers
+
+function getWishlistTombstones(): Record<string, number> {
+  if (typeof localStorage === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(WISHLIST_TOMBSTONES_KEY)
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {}
+  } catch {
+    return {}
+  }
+}
+
+function setWishlistTombstone(id: string, mediaType: 'movie' | 'tv', timestamp = Date.now()): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const tombstones = getWishlistTombstones()
+    const key = `${mediaType}-${id}`
+    tombstones[key] = timestamp
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
+    for (const k of Object.keys(tombstones)) {
+      if (tombstones[k] < thirtyDaysAgo) delete tombstones[k]
+    }
+    localStorage.setItem(WISHLIST_TOMBSTONES_KEY, JSON.stringify(tombstones))
+  } catch (err) {
+    console.error('[wishlistTracker] Failed to write tombstone:', err)
+  }
+}
+
+function clearWishlistTombstone(id: string, mediaType: 'movie' | 'tv'): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const tombstones = getWishlistTombstones()
+    const key = `${mediaType}-${id}`
+    if (key in tombstones) {
+      delete tombstones[key]
+      localStorage.setItem(WISHLIST_TOMBSTONES_KEY, JSON.stringify(tombstones))
+    }
+  } catch (err) {
+    console.error('[wishlistTracker] Failed to clear tombstone:', err)
+  }
+}
 
 function readWishlist(): WishlistItem[] {
   if (typeof localStorage === 'undefined') return []
@@ -101,6 +142,7 @@ export function addToWishlist(
   const list = readWishlist()
   if (findIndex(list, item.id, item.mediaType) !== -1) return list
 
+  clearWishlistTombstone(item.id, item.mediaType)
   const now = Date.now()
   const entry: WishlistItem = { ...item, addedAt: now, updatedAt: now }
   const next = [entry, ...list]
@@ -117,6 +159,8 @@ export function removeFromWishlist(
   const list = readWishlist()
   const next = list.filter(i => !(i.id === id && i.mediaType === mediaType))
   writeWishlist(next)
+  setWishlistTombstone(id, mediaType)
+  pendingSync.delete(`${mediaType}-${id}`)
   if (isAuthenticated) syncDelete(id, mediaType)
   return next
 }
@@ -159,14 +203,30 @@ export function setFolder(
 
 /**
  * Merge remote DB items into localStorage using latest-updatedAt-wins per item.
- * Call this after fetching the wishlist from the server on login / on visiting
- * the My List page while authenticated.
+ * Suppresses resurrection of items that were deleted locally.
+ * Returns the final merged list.
  */
-export function mergeRemoteWishlist(remoteItems: WishlistItem[]): void {
-  if (typeof localStorage === 'undefined') return
+export function mergeRemoteWishlist(remoteItems: WishlistItem[]): WishlistItem[] {
+  if (typeof localStorage === 'undefined') return []
   const local = readWishlist()
+  const tombstones = getWishlistTombstones()
 
   for (const remote of remoteItems) {
+    const key = `${remote.mediaType}-${remote.id}`
+    const deletedAt = tombstones[key]
+
+    // If item was deleted locally and remote item hasn't been updated since deletion:
+    if (deletedAt && (Number(remote.updatedAt) || 0) <= deletedAt) {
+      // Suppress resurrection and ensure server row is deleted
+      syncDelete(remote.id, remote.mediaType)
+      continue
+    }
+
+    // If remote item is newer than deletion, user re-added it on another device! Clear tombstone.
+    if (deletedAt && (Number(remote.updatedAt) || 0) > deletedAt) {
+      clearWishlistTombstone(remote.id, remote.mediaType)
+    }
+
     const idx = findIndex(local, remote.id, remote.mediaType)
     if (idx === -1) {
       local.push(remote)
@@ -176,6 +236,7 @@ export function mergeRemoteWishlist(remoteItems: WishlistItem[]): void {
   }
 
   writeWishlist(local)
+  return local
 }
 
 /**
@@ -185,7 +246,12 @@ export function mergeRemoteWishlist(remoteItems: WishlistItem[]): void {
  */
 export function flushWishlist(): void {
   if (typeof window === 'undefined') return
-  const items = readWishlist()
+  const tombstones = getWishlistTombstones()
+  const items = readWishlist().filter(item => {
+    const key = `${item.mediaType}-${item.id}`
+    const deletedAt = tombstones[key]
+    return !deletedAt || item.updatedAt > deletedAt
+  })
   if (items.length === 0) return
 
   if (syncTimer) {
@@ -208,3 +274,4 @@ export function flushWishlist(): void {
     }).catch(err => console.error('[wishlistTracker] Flush sync failed:', err))
   }
 }
+
