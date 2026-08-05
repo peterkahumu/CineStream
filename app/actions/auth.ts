@@ -7,6 +7,9 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 const MAX_DISPLAY_NAME_LENGTH = 60;
+const MIN_PASSWORD_LENGTH = 6;
+// Loose sanity check, not full RFC 5322 — just enough to reject obvious garbage.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function checkEmailExists(email: string) {
   if (!email) return false;
@@ -18,11 +21,20 @@ export async function checkEmailExists(email: string) {
 }
 
 export async function registerUser(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim();
   const password = formData.get("password") as string;
 
   if (!email || !password) {
     return { error: "Email and password are required." };
+  }
+
+  // The client form enforces these too (type="email", minLength={6}), but that's
+  // trivially bypassed by calling this server action directly — this is the real gate.
+  if (!EMAIL_RE.test(email)) {
+    return { error: "Please enter a valid email address." };
+  }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` };
   }
 
   let existingUser = false;
