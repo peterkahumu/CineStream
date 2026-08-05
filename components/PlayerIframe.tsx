@@ -1,9 +1,11 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import type { ProviderConfig, PlayerCallbacks, PlayerContext, ProviderProgressData } from '@/lib/providers/types'
 import type { EpisodeProgress } from '@/lib/progressTracker'
 import * as progressTracker from '@/lib/progressTracker'
+import type { Genre } from '@/lib/tmdb'
 import OfflineTrailerWrapper from './OfflineTrailerWrapper'
 import pageStyles from '@/app/watch/[id]/page.module.css'
 import styles from './PlayerIframe.module.css'
@@ -18,6 +20,7 @@ interface PlayerIframeProps {
   title: string
   backdrop?: string | null
   poster?: string | null
+  genres?: Genre[]
   iframeKey: number
   transformUrl?: (url: string) => string
   onNextEpisode?: (season: number, episode: number) => void
@@ -34,12 +37,15 @@ export default function PlayerIframe({
   title,
   backdrop,
   poster,
+  genres,
   iframeKey,
   transformUrl,
   onNextEpisode,
   onClose,
 }: PlayerIframeProps) {
   const router = useRouter()
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const [isReady, setIsReady] = useState(false)
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -109,10 +115,11 @@ export default function PlayerIframe({
         season: mediaType === 'tv' ? season : undefined,
         episode: mediaType === 'tv' ? episode : undefined,
         show_progress,
+        genres,
         isRealTimeEvent: data.isRealTimeEvent,
-      })
+      }, isAuthenticated)
     },
-    [id, mediaType, provider.id, season, episode, title, backdrop, poster]
+    [id, mediaType, provider.id, season, episode, title, backdrop, poster, genres, isAuthenticated]
   )
 
   // ── Navigation callbacks ─────────────────────────────────────────────────────

@@ -88,6 +88,7 @@ export default async function WatchPage(props: {
               title={title}
               backdrop={backdrop}
               poster={poster}
+              genres={details.genres}
               servers={getStreamingServers()}
               seasons={details.seasons}
             />

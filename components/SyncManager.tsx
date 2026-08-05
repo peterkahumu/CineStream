@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { flushProgress } from '@/lib/progressTracker'
+import { flushProgress, flushHistoryEvents } from '@/lib/progressTracker'
 
 /**
- * SyncManager — Flushes localStorage progress to the DB on:
+ * SyncManager — Flushes localStorage progress & watch history to the DB on:
  * - Tab becoming hidden (visibilitychange)
  * - Page unload (beforeunload)
  *
@@ -16,11 +16,13 @@ import { flushProgress } from '@/lib/progressTracker'
 function handleVisibilityChange() {
   if (document.visibilityState === 'hidden') {
     flushProgress()
+    flushHistoryEvents()
   }
 }
 
 function handleBeforeUnload() {
   flushProgress()
+  flushHistoryEvents()
 }
 
 export default function SyncManager() {

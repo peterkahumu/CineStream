@@ -64,8 +64,19 @@ Ensure you have **Docker** and **Docker Compose** installed (recommended) or **N
    NEXT_PUBLIC_PRIMESRC_URL=
    NEXT_PUBLIC_MULTIEMBED_URL=
    NEXT_PUBLIC_MOVIESAPI_URL=
+
+   # User accounts (see "User Accounts & Cross-Device Sync" below)
+   DATABASE_URL=your_neon_postgres_connection_string
+   AUTH_SECRET=generate_with_npx_auth_secret
    ```
    > `.env.local` is git-ignored. Your API key never reaches the client browser.
+
+   After setting `DATABASE_URL`, push the schema to your Postgres instance:
+   ```bash
+   npm run db:push
+   ```
+   > This project uses `drizzle-kit push` (schema-diffing), not migration files — there is
+   > no `lib/db/migrations` folder to run. Re-run `db:push` any time `lib/db/schema.ts` changes.
 
 ### 3a. Run via Docker (Recommended)
 CinemaPhora provides a hot-reloading Docker setup for local development.
@@ -101,7 +112,26 @@ Open [http://localhost:3000](http://localhost:3000).
 All homepage rows are fetched in a single `Promise.allSettled()` on the server, so a failure in one row never blocks the rest. The `ok()` helper extracts results, returning `[]` on rejection — rows with no data simply don't render.
 
 ### Progress Tracking (Continue Watching)
-`lib/progressTracker.ts` handles saving media watch progress to `localStorage`. The `ContinueWatchingRow` component reads this data to display partially watched content on the homepage.
+`lib/progressTracker.ts` handles saving media watch progress to `localStorage`. The `ContinueWatchingRow` component reads this data to display partially watched content on the homepage. For signed-in users, progress is additionally synced to Postgres (see below) so it resumes across devices.
+
+### User Accounts & Cross-Device Sync
+CinemaPhora has email/password accounts (`next-auth` + `@auth/drizzle-adapter`, JWT sessions) backed by Postgres via Drizzle (`lib/db/schema.ts`). **Guests get the full local-storage/cookie experience with zero account required** — accounts only add cross-device sync on top.
+
+Three things sync this way, all following the same "local-first, DB second" pattern:
+
+| What | Local store | DB table | Sync routes |
+|---|---|---|---|
+| Watch progress (resume position) | `progress-{tmdbId}` in `localStorage` | `watch_progress` | `/api/get-progress`, `/api/sync-progress` |
+| Watch history (started/completed events) | `cinemaphora-history-events` in `localStorage` | `watch_history` | `/api/get-history`, `/api/sync-history` |
+| Settings (theme, region, etc.) | `cp_*` cookies | `user_settings` | `/api/get-settings`, `/api/sync-settings` |
+
+- **Writes go to the local store immediately** (no latency, works offline/logged-out) and are debounced up to the DB only when `useSession()` reports `authenticated` — guests never hit the sync endpoints.
+- **Conflict resolution is latest-`updatedAt`-wins** for progress and settings. Watch history events are immutable once created, so syncing is a simple idempotent insert by client-generated id (no conflict to resolve).
+- **On login/register** (`lib/authSync.ts`), the client pulls the user's DB progress + history, merges it into localStorage, and pushes up anything local-only (e.g. watched as a guest before signing in).
+- **On tab-hide/unload** (`components/SyncManager.tsx`), progress and history are flushed immediately via `navigator.sendBeacon` so nothing is lost mid-debounce.
+- Watch history thresholds (`lib/progressTracker.ts`): an item is logged "started" at 30s watched, and "completed" at ≥90% watched — each fires once per title (or per episode for TV).
+- `/profile` surfaces all of this: Continue Watching, a stats strip (`components/ProfileStats.tsx`, reading `/api/get-stats`), and the full history list (`components/WatchHistoryList.tsx`).
+- ⚠️ **Schema gotcha:** `updatedAt`/`occurredAt`/`addedAt` columns are `bigint`, not `integer` — they store `Date.now()` (epoch-ms), which overflows Postgres's 4-byte `integer` type. If you add a new synced timestamp column, use `bigint("col", { mode: "number" })`.
 
 ### Route Architecture
 Each content category now has its own purpose-built route so "See All →" links show exactly the same content as the homepage row:
@@ -144,14 +174,24 @@ Providers are categorized by tier:
 
 ```text
 ├── app/
-│   ├── api/tmdb/[...path]/   # Secure TMDB proxy route handler
+│   ├── actions/auth.ts        # Server actions: register, check-email, update display name
+│   ├── api/
+│   │   ├── auth/[...nextauth]/           # next-auth route handler
+│   │   ├── tmdb/[...path]/               # Secure TMDB proxy route handler
+│   │   ├── get-progress/, sync-progress/ # Watch progress DB sync
+│   │   ├── get-history/, sync-history/   # Watch history DB sync
+│   │   ├── get-settings/, sync-settings/ # Settings DB sync
+│   │   └── get-stats/                    # Aggregated profile stats
 │   ├── details/[id]/         # Movie / TV show detail page
 │   ├── discover/             # Generic filtered discovery grid
+│   ├── login/, register/     # Auth pages
 │   ├── now-playing/          # Currently in theatres / on air
 │   ├── person/[id]/          # Actor / crew filmography
 │   ├── popular/              # Top popular media
+│   ├── profile/              # Signed-in user profile — continue watching, stats, history
 │   ├── providers/            # Unified platform-specific content (Netflix, Prime, etc.)
 │   ├── search/               # Multi-search page
+│   ├── settings/             # Preferences — available to guests and signed-in users
 │   ├── top-rated/            # Highest rated media
 │   ├── trending/             # Global trending grid (/trending/all/week)
 │   ├── upcoming/             # Coming soon movies & TV (next 3 months)
@@ -162,6 +202,7 @@ Providers are categorized by tier:
 │   └── globals.css           # CSS variables, resets, utility classes
 ├── components/
 │   ├── CapacitorInit.tsx     # Native back-button & fullscreen orientation (mobile)
+│   ├── ContinueWatchingRow.tsx # In-progress items, local + DB-synced
 │   ├── DetailsTabs.tsx       # Tabs UI (Watch / Trailers / Cast / Reviews)
 │   ├── DiscoveryFeed.tsx     # Unified infinite scroll feed for all grids
 │   ├── EpisodeSelector.tsx   # Season & episode picker for TV
@@ -172,18 +213,26 @@ Providers are categorized by tier:
 │   ├── MediaCard.tsx         # Movie / TV poster card
 │   ├── MediaRow.tsx          # Horizontal scrolling row with "See All" link
 │   ├── Navbar.tsx            # Top navigation bar with search
+│   ├── ProfileStats.tsx      # Profile stats strip (titles watched, hours, top genres…)
 │   ├── ProviderTabs.tsx      # Platform switcher tabs (Netflix, Prime, etc.)
 │   ├── ScrollToTop.tsx       # Floating scroll-to-top button
-│   └── Top10Row.tsx          # Geo-detected Top 10 rows (movie + TV)
+│   ├── SettingsProvider.tsx  # Settings context — cookie read/write + DB sync
+│   ├── SyncManager.tsx       # Flushes progress/history to the DB on tab hide/unload
+│   ├── Top10Row.tsx          # Geo-detected Top 10 rows (movie + TV)
+│   └── WatchHistoryList.tsx  # Full watch history list (Profile page)
 ├── lib/
 │   ├── tmdb.ts               # TMDB types, fetch helpers, all API functions
 │   ├── streamingProvider.ts  # Streaming server URL builder
-│   ├── progressTracker.ts    # Watch progress localStorage integration
-│   ├── settings.ts           # User preferences and cookie sync
+│   ├── progressTracker.ts    # Watch progress + watch history — local-first, DB-synced
+│   ├── authSync.ts           # Post-login/register reconciliation of progress & history
+│   ├── settings.ts           # User preferences — cookie storage + DB sync
+│   ├── db/schema.ts          # Drizzle schema (users, watch_progress, watch_history, user_settings, watchlist)
+│   ├── db/index.ts           # Drizzle + Neon client
 │   ├── terms.ts              # Legal terms agreement logic
 │   ├── useCountries.ts       # Region/Language mapping hook
 │   ├── geo.ts                # Shared user location detection utility
 │   └── providers/            # Individual streaming provider implementations
+├── auth.ts                   # next-auth config (Credentials provider, JWT sessions)
 ├── proxy-worker/             # [UNUSED] Cloudflare proxy worker. Intended for future use. Safe to delete if not needed.
 ├── Dockerfile                # Production multi-stage build (Standalone)
 ├── Dockerfile.dev            # Local development container

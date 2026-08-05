@@ -1,5 +1,15 @@
 # Future Improvements & Planning 🚀
-## 1. Server-Side Route Protection (Next.js Middleware)
+
+## ✅ Shipped: Server-Side Route Protection & Deep-Link Memory
+Items #1 and #2 below (as originally planned) are now live in `middleware.ts`:
+- The `cinemaphora_terms` flag is a **cookie**, not `localStorage`, so it's readable server-side.
+- **Next.js Middleware** intercepts every request before the page renders — unaccepted users never receive protected HTML/data, with zero flash-of-content, and `Googlebot`/other crawler user-agents pass through untouched for SEO.
+- Unaccepted users on a protected route are redirected to `/declined?redirect=<original-path>`, and accepting terms sends them back to exactly where they were headed.
+
+<details>
+<summary>Original plan (for reference)</summary>
+
+### 1. Server-Side Route Protection (Next.js Middleware)
 Currently, our `RouteProtector` uses Client-Side validation (`localStorage`). This means the server renders and sends protected content before the client hides it and redirects. 
 
 **The Plan:**
@@ -10,13 +20,18 @@ Currently, our `RouteProtector` uses Client-Side validation (`localStorage`). Th
   - Zero "flash of content" or layout shifts.
   - We can configure the Middleware to allow `Googlebot` user-agents through, preserving SEO rankings for movie details and discover pages while still blocking real human users who haven't agreed.
 
-## 2. Deep Linking & Redirection Memory
+### 2. Deep Linking & Redirection Memory
 Currently, if a user opens a direct link (e.g., `/details/1234`) without having accepted the terms, they are kicked to the `/declined` page and lose their original destination. 
 
 **The Plan:**
 - When the Middleware intercepts an unaccepted user on a protected route, it will append their intended destination as a query parameter (e.g., `/declined?redirect=/details/1234`).
 - When the user clicks "I Agree", the system will read the `redirect` parameter and send them exactly where they originally intended to go, instead of blindly sending them to the Home page.
 - **Benefits:** Massive improvement in User Experience, especially for users arriving from shared links or search engines.
+
+</details>
+
+## ✅ Shipped (partially): Settings Sync
+Item #3 below originally proposed a *cookie-based* store so Server Components could read preferences pre-render. We now have the sync half of that story: signed-in users' settings sync to Postgres (latest-change-wins, same pattern as watch progress) so preferences carry across devices — see `lib/settings.ts` and `/api/get-settings` · `/api/sync-settings`. Guests remain cookie-only, unchanged. **Still open:** Server Components don't yet read the settings cookies to pre-render theme/layout server-side (see item 3's original benefits below) — the `theme-init` inline script in `app/layout.tsx` still applies theme client-side just before paint to avoid flashing.
 
 ## 3. Universal Cookie-Based Settings Store
 As the application grows, more settings will be introduced (e.g., Default Streaming Provider, Subtitle Preferences, Theme). 
@@ -28,36 +43,33 @@ As the application grows, more settings will be introduced (e.g., Default Stream
   - This prevents UI issues like "theme flashing" (where a page loads in light mode and suddenly snaps to dark mode when the client reads `localStorage`).
   - Provides a unified, server-accessible state management strategy that works perfectly with Next.js App Router architectures.
 
-## 4. Settings Page Features & UX Vision
-Based on our design session, we have defined the scope of what the user should be able to customize within the Settings page:
+## 4 & 5. Settings Page Features & UX Vision — ✅ mostly shipped
+Everything below except **Hide "Watched" Items** and **High Contrast Mode / UI Scaling**
+now ships in `/settings` (`app/settings/SettingsClient.tsx`), available to guests and
+signed-in users alike, with signed-in users additionally getting it synced across
+devices (see the Settings Sync note above). The "guest-only" framing this section
+originally had is stale — accounts exist now; guests just don't get the DB sync.
 
 ### Content & Personalization
-- **Preferred Streaming Providers:** Allow users to select their favorite services (Netflix, Hulu, Max, etc.) so the app can prioritize showing where a movie is streaming based on what they actually subscribe to.
-- **Region & Language:** Let users default the TMDB data to their specific region (e.g., US/English, ES/Spanish) for localized titles, posters, and release dates.
-- **Safe Search (Adult Content Filter):** A toggle to strictly filter out adult/explicit content from search results and discover feeds.
+- ✅ **Preferred Streaming Providers**, **Region & Language**, **Safe Search** (plus an
+  **Age Rating Ceiling** control that wasn't in the original scope).
 
 ### UI & User Experience
-- **Theme Engine:** A robust toggle for Light Mode, Dark Mode, and System Default. (Powered by the Cookie-based settings store discussed above).
-- **View Layouts:** Allow users to globally switch between a dense "Grid View" (posters only) and a detailed "List View" (posters + descriptions) for search results and feeds.
+- ✅ **Theme Engine:** Light / Dark / System, plus three extra themes (Cinema, AMOLED, Dim).
+- ✅ **View Layouts:** Grid / List toggle.
+- [ ] **High Contrast Mode / UI Scaling** — still not implemented.
 
 ### Data Management & Privacy
-- **Wishlist Export/Import:** Since the Wishlist is entirely local, provide a simple JSON export/import tool so users can back up their curated lists.
-- **Clear All Data:** A master "factory reset" button to instantly wipe all local data, cached history, and agreements from the browser.
-
-## 5. Additional Guest-Specific Quality-of-Life Settings
-Since CinemaPhora operates without a backend user account system (everyone is effectively a local "guest"), giving users granular control over their local experience is essential for a premium feel:
+- ✅ **Wishlist Export/Import**, **Clear All Data**.
 
 ### Accessibility & Visuals (A11y)
-- **Reduce Motion:** A toggle to disable heavy animations, smooth scrolling, and parallax effects, drastically improving the experience for older devices or users with motion sensitivities.
-- **High Contrast Mode / UI Scaling:** Allow users to bump up the contrast ratio or scale up text and poster sizes for better readability, particularly in the Capacitor mobile app.
+- ✅ **Reduce Motion**.
 
 ### Media & Playback Defaults
-- **Autoplay Trailers:** A toggle to decide if trailers on the details page should automatically start playing (and whether they start muted).
-- **Data Saver Mode:** A toggle to prevent auto-fetching trailers and load lower-resolution posters to save bandwidth for users on cellular data.
+- ✅ **Autoplay Trailers**, **Data Saver Mode**.
 
 ### Search & Feed Management
-- **Search History Control:** A toggle to opt-out of saving recent searches, plus a dedicated "Clear Recent Searches" button.
-- **Hide "Watched" Items:** Allow users to mark Wishlist items as "Watched", and provide a global setting to hide these items from the Discover feed so they only see new recommendations.
-- **Default Sort Orders:** Let users set a persistent default sort method (e.g., Alphabetical, Release Date, Highest Rated) for their Wishlist and Search Results.
+- ✅ **Search History Control**, **Default Sort Orders**.
+- [ ] **Hide "Watched" Items** — still not implemented.
 
 
