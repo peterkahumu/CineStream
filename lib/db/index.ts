@@ -25,7 +25,23 @@ type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>;
  * own Hyperdrive + postgres.js examples.
  */
 async function withDb<T>(fn: (db: DrizzleDb) => Promise<T>): Promise<T> {
-  const url = getCloudflareContext().env.HYPERDRIVE.connectionString;
+  let url: string | undefined;
+  try {
+    url = getCloudflareContext()?.env?.HYPERDRIVE?.connectionString;
+  } catch {
+    // Outside Cloudflare / OpenNext context
+  }
+
+  if (!url) {
+    url = process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE || process.env.DATABASE_URL;
+  }
+
+  if (!url) {
+    throw new Error(
+      'No database connection string configured. Please set CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE in .dev.vars or DATABASE_URL in .env.local for local development.'
+    );
+  }
+
   const client = postgres(url, {
     prepare: false,
     max: 1,

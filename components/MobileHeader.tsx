@@ -27,7 +27,7 @@ const CATEGORIES = [
   { href: '/discover?sort=revenue.desc', label: 'Blockbusters', icon: '🍿' },
 ]
 
-// ─── Sub-component keeps img-error state isolated per search result ────────────
+// Sub-component keeps img-error state isolated per search result
 function ResultThumb({ src, alt, className }: { src: string | null; alt: string; className?: string }) {
   const [imgErr, setImgErr] = useState(false)
 

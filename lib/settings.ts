@@ -116,7 +116,7 @@ export function applySettingsToDOM(settings: UserSettings) {
   html.dataset.layout = settings.defaultLayout
 }
 
-// -- Cross-device sync (signed-in users only) ------------------------------------
+// Cross-device sync (signed-in users only)
 // Guests never call these — cookies remain their entire experience. See
 // components/SettingsProvider.tsx for when/how these are invoked.
 

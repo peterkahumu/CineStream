@@ -83,7 +83,7 @@ export interface HistoryEvent {
   occurredAt: number
 }
 
-// -- Internal helpers ----------------------------------------------------------
+// Internal helpers
 
 function storageKey(tmdbId: string): string {
   return `${STORAGE_PREFIX}${tmdbId}`
@@ -151,7 +151,7 @@ function detectHistoryEvents(
   return { events, flags }
 }
 
-// -- Debounced background sync -------------------------------------------------
+// Debounced background sync
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null
 let historySyncTimer: ReturnType<typeof setTimeout> | null = null
@@ -182,7 +182,7 @@ function scheduleHistorySync(items: HistoryEvent[]): void {
   }, SYNC_DEBOUNCE_MS)
 }
 
-// -- Public API — progress ------------------------------------------------------
+// Public API — progress
 
 /**
  * Persist progress for a media item.
@@ -441,7 +441,7 @@ export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
   }
 }
 
-// -- Public API — watch history --------------------------------------------------
+// Public API — watch history
 
 function readHistoryEvents(): HistoryEvent[] {
   if (typeof localStorage === 'undefined') return []

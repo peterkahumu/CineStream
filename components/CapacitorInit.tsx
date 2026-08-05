@@ -7,7 +7,7 @@ import { StatusBar } from '@capacitor/status-bar'
 import { App } from '@capacitor/app'
 import { useRouter } from 'next/navigation'
 
-// ─── Shared orientation helper ────────────────────────────────────────────────
+// Shared orientation helper
 // window.screen.orientation.lock/unlock are non-standard on the web and typed
 // as non-existent in lib.dom.d.ts, so we use a typed wrapper here instead of
 // scattering `as any` casts across three locations.
@@ -19,7 +19,7 @@ function getWebOrientation(): { lock?: (o: string) => Promise<void>; unlock?: ()
   }
 }
 
-// ─── Helper functions (defined outside useEffect) ─────────────────────────────
+// Helper functions (defined outside useEffect)
 
 async function setupSplashAndStatusBar() {
   await SplashScreen.hide().catch((err) => console.error('Failed to hide splash screen:', err))
@@ -121,7 +121,7 @@ function setupListeners(router: ReturnType<typeof useRouter>) {
   }
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// Component
 
 export default function CapacitorInit() {
   const router = useRouter()

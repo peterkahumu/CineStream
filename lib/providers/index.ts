@@ -5,7 +5,7 @@ import type {
   ProviderProgressData,
 } from './types'
 
-// ── Shared helpers ───────────────────────────────────────────────────────────
+// Shared helpers
 
 /**
  * Resolves the correct media entry from a MEDIA_DATA payload.
@@ -78,11 +78,11 @@ function handleStandardMessages(
   }
 }
 
-// ── Provider registry — ordered by priority ──────────────────────────────────
+// Provider registry — ordered by priority
 
 const PROVIDERS: ProviderConfig[] = [
 
-  // ── 1. VidAPI ────────────────────────────────────────────────────────────────
+  // 1. VidAPI
   // Standard postMessage PLAYER_EVENT protocol. Supports resumeAt for cross-device resume.
   {
     id: 'vidapi',
@@ -141,7 +141,7 @@ const PROVIDERS: ProviderConfig[] = [
   },
 
 
-  // ── 2. CineSRC ──────────────────────────────────────────────────────────────
+  // 2. CineSRC
   // Custom cinesrc:* event protocol; supports auto-resume, next-episode, and close.
   {
     id: 'cinesrc',
@@ -194,7 +194,7 @@ const PROVIDERS: ProviderConfig[] = [
   },
 
 
-  // ── 3. VidLink ───────────────────────────────────────────────────────────────
+  // 3. VidLink
   // Standard MEDIA_DATA + PLAYER_EVENT. Supports startAt for cross-device resume.
   {
     id: 'vidlink',
@@ -214,7 +214,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 4. VidNest ───────────────────────────────────────────────────────────────
+  // 4. VidNest
   // Standard MEDIA_DATA + PLAYER_EVENT. Uses 'progress' param name for resume on TV.
   {
     id: 'vidnest',
@@ -239,7 +239,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 5. VidFast ───────────────────────────────────────────────────────────────
+  // 5. VidFast
   // Standard MEDIA_DATA + PLAYER_EVENT. Supports autoNext in-player for TV.
   // Trusts all documented VidFast domains — the player may send from any of them
   // regardless of which URL loaded the iframe. The embed URL itself is still
@@ -277,7 +277,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 6. EmbedMaster ───────────────────────────────────────────────────────────
+  // 6. EmbedMaster
   // PlayerJS protocol. Player ID is encoded in the base URL from env — never hardcoded.
   // No MEDIA_DATA; progress is synthesised from player events.
   // pause and seeked are used in addition to timeupdate because EmbedMaster
@@ -320,7 +320,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 7. PrimeSrc ──────────────────────────────────────────────────────────────
+  // 7. PrimeSrc
   // No postMessage events. Injects startAt into URL for resume on both movies and TV.
   {
     id: 'primesrc',
@@ -339,7 +339,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 8. Multiembed ────────────────────────────────────────────────────────────
+  // 8. Multiembed
   // No events, no resume. Basic fallback.
   {
     id: 'multiembed',
@@ -352,7 +352,7 @@ const PROVIDERS: ProviderConfig[] = [
     },
   },
 
-  // ── 9. MoviesAPI ─────────────────────────────────────────────────────────────
+  // 9. MoviesAPI
   // No events, no resume. Basic fallback.
   {
     id: 'moviesapi',

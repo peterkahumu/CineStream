@@ -6,7 +6,7 @@
  * to extend or override this list at runtime without redeploying.
  */
 export const STATIC_BLOCKLIST: string[] = [
-  // ── Google Ads / Analytics ───────────────────────────────────────────────
+  // Google Ads / Analytics
   'doubleclick.net',
   'googlesyndication.com',
   'googletagmanager.com',
@@ -16,7 +16,7 @@ export const STATIC_BLOCKLIST: string[] = [
   'imasdk.googleapis.com',
   'securepubads.g.doubleclick.net',
 
-  // ── Major Programmatic Ad Networks ───────────────────────────────────────
+  // Major Programmatic Ad Networks
   'adnxs.com',           // AppNexus / Xandr
   'rubiconproject.com',
   'pubmatic.com',
@@ -56,7 +56,7 @@ export const STATIC_BLOCKLIST: string[] = [
   'everesttech.net',     // Adobe Ad Cloud
   'adobedtm.com',
 
-  // ── Pop-under / Redirect Networks (common on streaming sites) ────────────
+  // Pop-under / Redirect Networks (common on streaming sites)
   'popads.net',
   'popcash.net',
   'propellerads.com',
@@ -87,7 +87,7 @@ export const STATIC_BLOCKLIST: string[] = [
   'popunder.net',
   'rockyou.com',
 
-  // ── Tracking / Data Brokers ───────────────────────────────────────────────
+  // Tracking / Data Brokers
   'scorecardresearch.com',
   'quantserve.com',
   'bluekai.com',
@@ -109,7 +109,7 @@ export const STATIC_BLOCKLIST: string[] = [
   'logrocket.com',
   'crazyegg.com',
 
-  // ── Coin-miners & Malvertising ────────────────────────────────────────────
+  // Coin-miners & Malvertising
   'coinhive.com',
   'coin-hive.com',
   'crypto-loot.com',

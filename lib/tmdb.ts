@@ -1,4 +1,4 @@
-// ─── TMDB data layer ────────────────────────────────────────────────────────────
+// TMDB data layer
 // Server Components call tmdbFetch() directly — it detects
 // `typeof window === 'undefined'` and hits TMDB using the server-side API key.
 // Client Components must call the /api/tmdb/* proxy instead, which injects the
@@ -6,7 +6,7 @@
 
 const IMG_BASE = 'https://image.tmdb.org/t/p'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types
 
 export interface MediaItem {
   id: number
@@ -110,7 +110,7 @@ export interface TMDBPage<T> {
   total_results: number
 }
 
-// ─── Core fetcher ─────────────────────────────────────────────────────────────
+// Core fetcher
 // Server Components → hits TMDB directly (no proxy hop needed).
 // Client Components → hits /api/tmdb/* proxy (API key stays hidden).
 
@@ -167,7 +167,7 @@ async function tmdbFetch<T>(
   return res.json() as Promise<T>
 }
 
-// ─── API helpers ──────────────────────────────────────────────────────────────
+// API helpers
 
 export const getTrending = (media: 'movie' | 'tv' | 'all' = 'all', window: 'day' | 'week' = 'week') =>
   tmdbFetch<TMDBPage<MediaItem>>(`/trending/${media}/${window}`, { with_original_language: 'en' })
@@ -319,7 +319,7 @@ export const discover = ({ media, ...rest }: DiscoverParams) => {
   )
 }
 
-// ─── Image helpers ────────────────────────────────────────────────────────────
+// Image helpers
 
 export function posterUrl(path: string | null, size: 'w92' | 'w185' | 'w342' | 'w500' | 'original' = 'w342') {
   return path ? `${IMG_BASE}/${size}${path}` : null

@@ -21,7 +21,7 @@ type FilterType = 'all' | 'movie' | 'tv'
 
 const PAGE_SIZE = 20
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers
 
 function formatDate(timestamp: number): string {
   const date = new Date(timestamp)
@@ -53,7 +53,7 @@ function historyHref(entry: HistoryEntry): string {
   return base
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// Component
 
 export default function WatchHistoryList() {
   const [history, setHistory] = useState<HistoryEntry[]>([])

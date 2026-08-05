@@ -20,8 +20,7 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
   const scrollerRef = useRef<HTMLDivElement>(null)
   const { status } = useSession()
 
-  // ── Data loading ─────────────────────────────────────────────────────────────
-
+  // Data loading
   const loadItems = useCallback(() => {
     const rawItems = getAllProgress()
     const validItems = rawItems.filter(item => {
@@ -39,8 +38,7 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
     setItems(validItems)
   }, [])
 
-  // ── Effects — function calls only ────────────────────────────────────────────
-
+  // Effects — function calls only
   useEffect(() => {
     loadItems()
   }, [loadItems])
@@ -66,8 +64,7 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
     return () => window.removeEventListener('storage', loadItems)
   }, [loadItems])
 
-  // ── Interaction handlers ─────────────────────────────────────────────────────
-
+  // Interaction handlers
   const requestRemove = useCallback((item: WatchProgress, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -93,8 +90,7 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
     scrollerRef.current.scrollBy({ left: amount, behavior: 'smooth' })
   }, [])
 
-  // ── Utilities ────────────────────────────────────────────────────────────────
-
+  // Utilities
   function formatTimeLeft(watched: number, duration: number): string {
     if (duration > watched + 10) {
       const remaining = duration - watched
@@ -127,8 +123,7 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
     }
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-
+  // Render
   if (items.length === 0) return null
 
   const content = (

@@ -24,7 +24,7 @@ const CATEGORY_LINKS: NavLink[] = [
   { href: '/discover', label: 'Discover', icon: '🧭' },
 ]
 
-// ─── Sub-component keeps img-error state isolated per result ───────────────────
+// Sub-component keeps img-error state isolated per result
 function SearchResultThumb({ src, alt }: { src: string | null; alt: string }) {
   const [imgErr, setImgErr] = useState(false)
 

@@ -28,7 +28,7 @@ interface Props {
   children?: React.ReactNode
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers
 
 function restorePortraitOrientation() {
   if (Capacitor.isNativePlatform()) {
@@ -55,7 +55,7 @@ function getCapabilityNotice(providerId: string, tier: 'advanced' | 'basic'): st
   }
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// Component
 
 export default function WatchClient({
   mediaType,
@@ -75,7 +75,7 @@ export default function WatchClient({
   const [iframeKey, setIframeKey] = useState(0)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
 
-  // ── Effects ─────────────────────────────────────────────────────────────────
+  // Effects
 
   const cleanupOrientation = useCallback(() => {
     restorePortraitOrientation()
@@ -85,7 +85,7 @@ export default function WatchClient({
     return cleanupOrientation
   }, [cleanupOrientation])
 
-  // ── Event handlers ───────────────────────────────────────────────────────────
+  // Event handlers
   // Declared before the early return below — none of them depend on `activeServer`/
   // `activeProvider` (which do), so hooks stay in the same order on every render
   // regardless of whether `servers` is empty (see Rules of Hooks).
@@ -126,7 +126,7 @@ export default function WatchClient({
     router.replace(`/watch/${id}?type=${mediaType}&s=${targetS}&e=${targetE}`)
   }, [router, id, mediaType, seasons, season])
 
-  // ── Early returns ────────────────────────────────────────────────────────────
+  // Early returns
 
   if (servers.length === 0) {
     return (
@@ -137,12 +137,12 @@ export default function WatchClient({
     )
   }
 
-  // ── Resolve active provider ──────────────────────────────────────────────────
+  // Resolve active provider
 
   const activeServer = servers.find(s => s.id === serverId) || servers[0]
   const activeProvider = PROVIDERS.find(p => p.id === activeServer.id) || PROVIDERS[0]
 
-  // ── Calculate Navigation ───────────────────────────────────────────────────
+  // Calculate Navigation
 
   let prevS: number | null = null
   let prevE: number | null = null
@@ -189,7 +189,7 @@ export default function WatchClient({
     }
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // Render
 
   const capabilityNotice = getCapabilityNotice(activeServer.id, activeServer.tier)
   const backHref = mediaType === 'tv'

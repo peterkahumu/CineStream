@@ -13,7 +13,7 @@ export interface Env {
   ALLOWED_DOMAINS?: string
 }
 
-// ─── Security helpers ─────────────────────────────────────────────────────────
+// Security helpers
 
 // Covers IPv4 loopback/private ranges plus 169.254.0.0/16 — the link-local range
 // that includes the cloud-metadata IP (169.254.169.254) most SSRF payloads target —
@@ -73,7 +73,7 @@ async function fetchValidated(
   throw new Error('Too many redirects')
 }
 
-// ─── Header helpers ───────────────────────────────────────────────────────────
+// Header helpers
 
 function buildProviderHeaders(request: Request, targetOrigin: string): HeadersInit {
   return {
@@ -100,7 +100,7 @@ function buildResponseHeaders(): Headers {
   return h
 }
 
-// ─── Blocklist loader ─────────────────────────────────────────────────────────
+// Blocklist loader
 
 async function getBlocklist(env: Env): Promise<string[]> {
   try {
@@ -115,7 +115,7 @@ async function getBlocklist(env: Env): Promise<string[]> {
   return STATIC_BLOCKLIST
 }
 
-// ─── HTML transformer ─────────────────────────────────────────────────────────
+// HTML transformer
 
 function transformHtml(
   response: Response,
@@ -125,35 +125,35 @@ function transformHtml(
   const spoofFn = buildLocationSpoofScript()
 
   const rewriter = new HTMLRewriter()
-    // ── Strip external ad scripts ───────────────────────────────────────────
+    // Strip external ad scripts
     .on('script[src]', {
       element(el) {
         const src = el.getAttribute('src') ?? ''
         if (blocklist.some(d => src.includes(d))) el.remove()
       },
     })
-    // ── Strip ad iframes ────────────────────────────────────────────────────
+    // Strip ad iframes
     .on('iframe[src]', {
       element(el) {
         const src = el.getAttribute('src') ?? ''
         if (blocklist.some(d => src.includes(d))) el.remove()
       },
     })
-    // ── Strip ad tracking pixels ────────────────────────────────────────────
+    // Strip ad tracking pixels
     .on('img[src]', {
       element(el) {
         const src = el.getAttribute('src') ?? ''
         if (blocklist.some(d => src.includes(d))) el.remove()
       },
     })
-    // ── Strip ad preload / stylesheet links ─────────────────────────────────
+    // Strip ad preload / stylesheet links
     .on('link[href]', {
       element(el) {
         const href = el.getAttribute('href') ?? ''
         if (blocklist.some(d => href.includes(d))) el.remove()
       },
     })
-    // ── Inject into <head>: base tag + spoof script + ad-hiding CSS ─────────
+    // Inject into <head>: base tag + spoof script + ad-hiding CSS
     .on('head', {
       element(el) {
         // <base> must come first so subsequent relative URL resolution uses it
@@ -176,7 +176,7 @@ function transformHtml(
   )
 }
 
-// ─── Main fetch handler ───────────────────────────────────────────────────────
+// Main fetch handler
 
 const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -195,7 +195,7 @@ const worker = {
       return new Response('Method Not Allowed', { status: 405 })
     }
 
-    // ── Parse & validate target URL ─────────────────────────────────────────
+    // Parse & validate target URL
     const reqUrl = new URL(request.url)
     const rawTarget = reqUrl.searchParams.get('url')
 
@@ -238,7 +238,7 @@ const worker = {
     const finalOrigin = new URL(providerRes.url || rawTarget).origin
     const contentType = providerRes.headers.get('Content-Type') ?? ''
 
-    // ── Pass non-HTML responses through unchanged ───────────────────────────
+    // Pass non-HTML responses through unchanged
     if (!contentType.includes('text/html')) {
       return new Response(providerRes.body, {
         status: providerRes.status,
@@ -246,7 +246,7 @@ const worker = {
       })
     }
 
-    // ── Transform HTML ──────────────────────────────────────────────────────
+    // Transform HTML
     const blocklist = await getBlocklist(env)
     return transformHtml(providerRes, finalOrigin, blocklist)
   },

@@ -62,15 +62,13 @@ export default function PlayerIframe({
   // re-attached. This ref ensures we only navigate once per episode.
   const nextEpisodeTriggeredForRef = useRef<string | null>(null)
 
-  // ── Resume time — runs on mount, explicit server switch, or episode change ──
-
+  // Resume time — runs on mount, explicit server switch, or episode change
   const resolveStartTime = useCallback(() => {
     const resumeTime = progressTracker.getResumeTime(id, season, episode)
     setStartTime(resumeTime)
   }, [id, season, episode])
 
-  // ── Progress persistence ─────────────────────────────────────────────────────
-
+  // Progress persistence
   const handleProgress = useCallback(
     (data: ProviderProgressData) => {
       // Guard: if we are already navigating to the next episode, ignore further 
@@ -124,8 +122,7 @@ export default function PlayerIframe({
     [id, mediaType, provider.id, season, episode, title, backdrop, poster, genres, isAuthenticated]
   )
 
-  // ── Navigation callbacks ─────────────────────────────────────────────────────
-
+  // Navigation callbacks
   const handleNextEpisode = useCallback(
     (newSeason: number, newEpisode: number) => {
       // Guard: only trigger once per episode to prevent rapid-fire 'ended' events
@@ -159,8 +156,7 @@ export default function PlayerIframe({
     [provider.id]
   )
 
-  // ── postMessage listener ─────────────────────────────────────────────────────
-
+  // postMessage listener
   const handleMessage = useCallback(
     (event: MessageEvent) => {
       if (!provider.onMessage) return
@@ -198,8 +194,7 @@ export default function PlayerIframe({
     setHasError(false)
   }, [])
 
-  // ── Effects — function calls only, no inline definitions ─────────────────────
-
+  // Effects — function calls only, no inline definitions
   useEffect(() => {
     if (!provider.onMessage) return
     window.addEventListener('message', handleMessage)
@@ -213,7 +208,7 @@ export default function PlayerIframe({
     resolveStartTime()
   }, [iframeKey, resolveStartTime])
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // Render
 
   if (hasError) {
     return (

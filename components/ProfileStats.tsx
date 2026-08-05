@@ -20,7 +20,7 @@ interface Stats {
   topGenres: GenreTally[]
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers
 
 function formatWatchTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
@@ -50,7 +50,7 @@ async function loadStats(
   }
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// Component
 
 export default function ProfileStats() {
   const [stats, setStats] = useState<Stats | null>(null)
