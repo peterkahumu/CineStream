@@ -4,12 +4,13 @@ export async function register() {
     if ((global as any).__tmdb_redact_patched) return;
     (global as any).__tmdb_redact_patched = true;
 
-    // Prefer IPv4 for outbound fetch() calls (Neon, TMDB, etc). Node's undici fetch
-    // tries IPv6 first by default; in Docker/dev-container networking IPv6 routes
-    // often exist but don't actually work, so every request pays for a failed IPv6
-    // attempt before falling back — and sometimes that attempt hard-fails instead of
-    // falling back, surfacing as "TypeError: fetch failed" / AggregateError. This
-    // makes IPv4 the first (and effectively only) attempt.
+    // Prefer IPv4 for outbound connections (Supabase Postgres, TMDB fetch(), etc).
+    // Node resolves and tries IPv6 first by default; in Docker/dev-container
+    // networking IPv6 routes often exist but don't actually work, so every
+    // request/connection pays for a failed IPv6 attempt before falling back —
+    // and sometimes that attempt hard-fails instead of falling back, surfacing
+    // as "TypeError: fetch failed" / AggregateError / ETIMEDOUT. This makes
+    // IPv4 the first (and effectively only) attempt.
     const dns = await import('node:dns');
     dns.setDefaultResultOrder('ipv4first');
 

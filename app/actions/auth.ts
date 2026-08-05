@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { db, dbQuery } from "@/lib/db";
+import { dbQuery } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -11,7 +11,7 @@ const MAX_DISPLAY_NAME_LENGTH = 60;
 export async function checkEmailExists(email: string) {
   if (!email) return false;
 
-  const [user] = await dbQuery(() =>
+  const [user] = await dbQuery((db) =>
     db.select().from(users).where(eq(users.email, email)).limit(1)
   );
   return !!user;
@@ -39,7 +39,7 @@ export async function registerUser(formData: FormData) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    await dbQuery(() =>
+    await dbQuery((db) =>
       db.insert(users).values({
         email,
         password: hashedPassword,
@@ -66,7 +66,7 @@ export async function updateDisplayName(name: string) {
   }
 
   try {
-    await dbQuery(() =>
+    await dbQuery((db) =>
       db.update(users).set({ name: trimmed }).where(eq(users.id, userId))
     );
     return { success: true, name: trimmed };

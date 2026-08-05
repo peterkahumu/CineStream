@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, dbQuery } from "@/lib/db";
+import { dbQuery } from "@/lib/db";
 import { watchHistory } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
@@ -23,21 +23,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
 
-    for (const item of items) {
-      if (!item?.id) continue;
+    // One dbQuery call for the whole batch, so every item in the loop shares a
+    // single connection instead of opening one per query.
+    await dbQuery(async (db) => {
+      for (const item of items) {
+        if (!item?.id) continue;
 
-      const existing = await dbQuery(() =>
-        db
+        const existing = await db
           .select({ id: watchHistory.id })
           .from(watchHistory)
           .where(and(eq(watchHistory.id, item.id), eq(watchHistory.userId, userId)))
-          .limit(1)
-      );
+          .limit(1);
 
-      if (existing.length > 0) continue;
+        if (existing.length > 0) continue;
 
-      await dbQuery(() =>
-        db.insert(watchHistory).values({
+        await db.insert(watchHistory).values({
           id: item.id,
           userId,
           tmdbId: item.tmdbId,
@@ -49,9 +49,9 @@ export async function POST(request: Request) {
           event: item.event,
           genres: item.genres,
           occurredAt: item.occurredAt,
-        })
-      );
-    }
+        });
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

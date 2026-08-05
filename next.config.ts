@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next'
 import withPWA from '@ducanh2912/next-pwa'
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
 
 const nextConfig: NextConfig = {
 
@@ -64,3 +65,11 @@ const withPWAConfig = withPWA({
 })
 
 export default withPWAConfig(nextConfig)
+
+// Lets `next dev` (not just `wrangler dev`) resolve Cloudflare bindings
+// (e.g. the Hyperdrive binding in lib/db) via getCloudflareContext(). Gated to
+// dev only — calling this during `next build` fails since there's no local
+// Hyperdrive connection string to emulate at build time.
+if (process.env.NODE_ENV === 'development') {
+  initOpenNextCloudflareForDev()
+}

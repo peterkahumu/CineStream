@@ -1,0 +1,5 @@
+AUTH_SECRET=
+AUTH_TRUST_HOST=true
+# Supabase connection string, used only to bypass Hyperdrive during local dev
+# (`next dev` / `wrangler dev`). See DATABASE_URL in .env.example for where to find it.
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://postgres.your-project-ref:[YOUR-PASSWORD]@aws-0-your-region.pooler.supabase.com:5432/postgres?sslmode=require

@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { db, dbQuery } from "./lib/db"
+import { dbQuery } from "./lib/db"
 import { eq } from "drizzle-orm"
 import { users } from "./lib/db/schema"
 import bcrypt from "bcryptjs"
@@ -20,7 +20,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         let user;
         try {
-          const result = await dbQuery(() =>
+          const result = await dbQuery((db) =>
             db.select().from(users).where(eq(users.email, email)).limit(1)
           );
           user = result[0];
