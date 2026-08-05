@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { settings, updatedAt } = body ?? {};
 
-    if (!settings || typeof updatedAt !== "number") {
+    if (!settings || typeof settings !== "object" || typeof updatedAt !== "number" || isNaN(updatedAt)) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
 
@@ -27,15 +27,21 @@ export async function POST(request: Request) {
         .limit(1);
 
       if (existing.length > 0) {
-        // Latest-updatedAt-wins, same pattern as /api/sync-progress
-        if (updatedAt > existing[0].updatedAt) {
+        // Latest-updatedAt-wins
+        if (updatedAt >= Number(existing[0].updatedAt || 0)) {
           await db
             .update(userSettings)
             .set({ settings, updatedAt })
             .where(eq(userSettings.userId, userId));
         }
       } else {
-        await db.insert(userSettings).values({ userId, settings, updatedAt });
+        await db
+          .insert(userSettings)
+          .values({ userId, settings, updatedAt })
+          .onConflictDoUpdate({
+            target: userSettings.userId,
+            set: { settings, updatedAt },
+          });
       }
     });
 
@@ -45,3 +51,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
