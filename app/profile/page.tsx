@@ -39,23 +39,25 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="page-content page-container">
-      <ProfileClient
-        name={user?.name ?? session.user.name ?? null}
-        email={user?.email ?? session.user.email ?? ""}
-        memberSince={user?.createdAt?.toISOString() ?? null}
-      >
-        <form
-          action={async () => {
-            "use server"
-            await signOut()
-          }}
+    <main className="page-content">
+      <div className="page-container">
+        <ProfileClient
+          name={user?.name ?? session.user.name ?? null}
+          email={user?.email ?? session.user.email ?? ""}
+          memberSince={user?.createdAt?.toISOString() ?? null}
         >
-          <button type="submit" className={buttonStyles.signOutBtn}>
-            Sign Out
-          </button>
-        </form>
-      </ProfileClient>
-    </div>
+          <form
+            action={async () => {
+              "use server"
+              await signOut()
+            }}
+          >
+            <button type="submit" className={buttonStyles.signOutBtn}>
+              Sign Out
+            </button>
+          </form>
+        </ProfileClient>
+      </div>
+    </main>
   )
 }
