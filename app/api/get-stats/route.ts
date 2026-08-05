@@ -52,9 +52,11 @@ export async function GET() {
     const titleKeys = new Set<string>();
     const movieKeys = new Set<string>();
     const tvKeys = new Set<string>();
+    // Distinct titles, not raw event rows — a title can log several started/completed
+    // events (resumes, rewatches), so counting rows reads as a meaningless number.
+    const titlesThisWeek = new Set<string>();
+    const titlesThisMonth = new Set<string>();
     let completedCount = 0;
-    let thisWeek = 0;
-    let thisMonth = 0;
 
     for (const row of historyRows) {
       const key = `${row.mediaType}-${row.tmdbId}`;
@@ -63,8 +65,8 @@ export async function GET() {
       else tvKeys.add(key);
 
       if (row.event === "completed") completedCount += 1;
-      if (now - row.occurredAt <= WEEK_MS) thisWeek += 1;
-      if (now - row.occurredAt <= MONTH_MS) thisMonth += 1;
+      if (now - row.occurredAt <= WEEK_MS) titlesThisWeek.add(key);
+      if (now - row.occurredAt <= MONTH_MS) titlesThisMonth.add(key);
     }
 
     // Total watch time comes from watch_progress (the authoritative per-item position),
@@ -81,8 +83,8 @@ export async function GET() {
       tvShowsWatched: tvKeys.size,
       completedCount,
       totalWatchSeconds,
-      thisWeek,
-      thisMonth,
+      thisWeek: titlesThisWeek.size,
+      thisMonth: titlesThisMonth.size,
       topGenres: tallyGenres(historyRows),
     });
   } catch (error) {

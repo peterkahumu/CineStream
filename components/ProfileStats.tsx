@@ -101,7 +101,7 @@ export default function ProfileStats() {
         </div>
         <div className={styles.tile}>
           <span className={styles.tileValue}>{stats.thisWeek}</span>
-          <span className={styles.tileLabel}>This Week</span>
+          <span className={styles.tileLabel}>Titles This Week</span>
         </div>
       </div>
 
