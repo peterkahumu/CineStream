@@ -8,7 +8,7 @@
   z-index: var(--z-nav);
   height: var(--mobile-nav-height);
   background: var(--nav-bg-alpha);
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid var(--nav-border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 0;
@@ -24,14 +24,14 @@
   justify-content: center;
   gap: 4px;
   text-decoration: none;
-  color: rgba(148,163,184,0.7);
+  color: var(--nav-muted);
   transition: color var(--transition-fast);
   padding: 8px 4px 6px;
   min-width: 0;
 }
 
 .tab:active {
-  color: rgba(255,255,255,0.7);
+  color: var(--nav-text);
 }
 
 .tab.active {

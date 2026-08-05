@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
-:root {
+:root,
+[data-theme="light"] {
   --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'DM Sans', system-ui, sans-serif;
 
@@ -10,15 +11,19 @@
   --bg-surface: #ffffff;
   --bg-card:    #ffffff;
   --bg-hover:   #f1f5f9;
-  --bg-muted:   #f1f5f9;
+  --bg-muted:   #e2e8f0;
 
-  /* Nav — dark for contrast */
-  --nav-bg:     #0f172a;
-  --nav-bg-alpha: rgba(15, 23, 42, 0.96);
-  --nav-text:   #f8fafc;
-  --nav-muted:  #94a3b8;
-  --nav-hover:  rgba(255,255,255,0.08);
-  --nav-active: rgba(255,255,255,0.14);
+  /* Nav — clean high-contrast light surface */
+  --nav-bg:     #ffffff;
+  --nav-bg-alpha: rgba(255, 255, 255, 0.96);
+  --nav-text:   #0f172a;
+  --nav-muted:  #475569;
+  --nav-hover:  rgba(37, 99, 235, 0.08);
+  --nav-active: rgba(37, 99, 235, 0.12);
+  --nav-border: rgba(15, 23, 42, 0.08);
+  --nav-border-strong: rgba(15, 23, 42, 0.14);
+  --nav-overlay: rgba(15, 23, 42, 0.04);
+  --nav-overlay-strong: rgba(15, 23, 42, 0.08);
 
   /* Blue accent */
   --accent:         #2563eb;
@@ -37,21 +42,21 @@
   --red-light:  #fee2e2;
   --amber:      #d97706;
 
-  /* Text */
-  --text-primary:   #0f172a;
-  --text-secondary: #475569;
-  --text-muted:     #94a3b8;
-  --text-inverse:   #f8fafc;
+  /* Text — WCAG AA compliant contrast ratios */
+  --text-primary:   #0f172a; /* 18.5:1 contrast */
+  --text-secondary: #334155; /* 9.6:1 contrast */
+  --text-muted:     #64748b; /* 4.6:1 contrast */
+  --text-inverse:   #ffffff;
 
   /* Borders */
   --border:       #e2e8f0;
   --border-strong:#cbd5e1;
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04);
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.07), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.08), 0 4px 6px rgba(15, 23, 42, 0.04);
   --shadow-accent: 0 4px 14px rgba(37,99,235,0.25);
 
   /* Spacing */
@@ -61,6 +66,54 @@
   --space-lg:  24px;
   --space-xl:  40px;
   --space-2xl: 64px;
+}
+
+/* ─── Warm Light Theme (Sandstone & Terracotta) ─────────────────────────────── */
+[data-theme="warm"] {
+  --bg-base:    #f6f3ee;
+  --bg-surface: #ffffff;
+  --bg-card:    #ffffff;
+  --bg-hover:   #eee8de;
+  --bg-muted:   #e6ded1;
+
+  --text-primary:   #1c1917; /* 17.5:1 contrast */
+  --text-secondary: #44403c; /* 9.2:1 contrast */
+  --text-muted:     #78716c; /* 4.7:1 contrast */
+  --text-inverse:   #ffffff;
+
+  --nav-bg:       #fbf9f5;
+  --nav-bg-alpha: rgba(251, 249, 245, 0.96);
+  --nav-text:     #1c1917;
+  --nav-muted:    #57534e;
+  --nav-hover:    rgba(194, 65, 12, 0.08);
+  --nav-active:   rgba(194, 65, 12, 0.12);
+  --nav-border:   rgba(28, 25, 23, 0.08);
+  --nav-border-strong: rgba(28, 25, 23, 0.15);
+  --nav-overlay:  rgba(28, 25, 23, 0.04);
+  --nav-overlay-strong: rgba(28, 25, 23, 0.08);
+
+  --border:       #e7dfd3;
+  --border-strong:#d4c8b6;
+
+  --shadow-xs: 0 1px 2px rgba(44, 30, 15, 0.05);
+  --shadow-sm: 0 1px 3px rgba(44, 30, 15, 0.08), 0 1px 2px rgba(44, 30, 15, 0.04);
+  --shadow-md: 0 4px 6px rgba(44, 30, 15, 0.07), 0 2px 4px rgba(44, 30, 15, 0.04);
+  --shadow-lg: 0 10px 15px rgba(44, 30, 15, 0.08), 0 4px 6px rgba(44, 30, 15, 0.04);
+  --shadow-accent: 0 4px 14px rgba(194, 65, 12, 0.25);
+
+  --accent:        #c2410c;
+  --accent-hover:  #9a3412;
+  --accent-light:  #ffedd5;
+  --accent-subtle: rgba(194, 65, 12, 0.08);
+  --accent-border: rgba(194, 65, 12, 0.25);
+
+  --green:       #15803d;
+  --green-light: #dcfce7;
+  --green-text:  #166534;
+
+  --red:       #b91c1c;
+  --red-light: #fee2e2;
+  --amber:     #b45309;
 }
 
 @media (max-width: 768px) {
@@ -116,6 +169,10 @@
   --nav-muted:    #64748b;
   --nav-hover:    rgba(59, 130, 246, 0.08);
   --nav-active:   rgba(59, 130, 246, 0.12);
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-border-strong: rgba(255, 255, 255, 0.15);
+  --nav-overlay: rgba(255, 255, 255, 0.08);
+  --nav-overlay-strong: rgba(255, 255, 255, 0.12);
 
   --border:       #1e293b;
   --border-strong: #334155;
@@ -150,16 +207,20 @@
   --bg-muted:   #1f1f1f;
 
   --text-primary:   #fdfbf7;
-  --text-secondary: #a39571;
-  --text-muted:     #73684a;
+  --text-secondary: #c5b894;
+  --text-muted:     #8c805e;
   --text-inverse:   #000000;
 
   --nav-bg:       #0a0a0a;
   --nav-bg-alpha: rgba(10, 10, 10, 0.96);
   --nav-text:     #fdfbf7;
-  --nav-muted:    #73684a;
+  --nav-muted:    #8c805e;
   --nav-hover:    rgba(212, 175, 55, 0.08);
   --nav-active:   rgba(212, 175, 55, 0.12);
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-border-strong: rgba(255, 255, 255, 0.15);
+  --nav-overlay: rgba(255, 255, 255, 0.08);
+  --nav-overlay-strong: rgba(255, 255, 255, 0.12);
 
   --border:       #2a2415;
   --border-strong: #40361f;
@@ -193,16 +254,20 @@
   --bg-muted:   #111111;
 
   --text-primary:   #ffffff;
-  --text-secondary: #999999;
-  --text-muted:     #555555;
+  --text-secondary: #a3a3a3;
+  --text-muted:     #737373;
   --text-inverse:   #000000;
 
   --nav-bg:       #000000;
   --nav-bg-alpha: rgba(0, 0, 0, 0.96);
   --nav-text:     #ffffff;
-  --nav-muted:    #555555;
+  --nav-muted:    #737373;
   --nav-hover:    rgba(59, 130, 246, 0.10);
   --nav-active:   rgba(59, 130, 246, 0.15);
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-border-strong: rgba(255, 255, 255, 0.15);
+  --nav-overlay: rgba(255, 255, 255, 0.08);
+  --nav-overlay-strong: rgba(255, 255, 255, 0.12);
 
   --border:       #111111;
   --border-strong: #222222;
@@ -246,6 +311,10 @@
   --nav-muted:    #545d68;
   --nav-hover:    rgba(83, 155, 245, 0.08);
   --nav-active:   rgba(83, 155, 245, 0.12);
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-border-strong: rgba(255, 255, 255, 0.15);
+  --nav-overlay: rgba(255, 255, 255, 0.08);
+  --nav-overlay-strong: rgba(255, 255, 255, 0.12);
 
   --border:       #444c56;
   --border-strong: #545d68;

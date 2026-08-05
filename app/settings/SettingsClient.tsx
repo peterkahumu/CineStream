@@ -171,7 +171,7 @@ export default function SettingsClient() {
 
             <SettingRow label="Theme" description="Choose your preferred colour scheme." stacked>
               <div className={styles.themeButtons}>
-                {(['light', 'dark', 'system', 'cinema', 'amoled', 'dim'] as Theme[]).map(t => (
+                {(['light', 'warm', 'dark', 'system', 'cinema', 'amoled', 'dim'] as Theme[]).map(t => (
                   <button
                     key={t}
                     onClick={() => updateSetting('theme', t)}
@@ -180,6 +180,7 @@ export default function SettingsClient() {
                   >
                     <span className={styles.themeIcon}>
                       {t === 'light' ? '☀️' : 
+                       t === 'warm' ? '☕' :
                        t === 'dark' ? '🌙' : 
                        t === 'system' ? '💻' : 
                        t === 'cinema' ? '🍿' : 
