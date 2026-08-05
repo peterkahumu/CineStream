@@ -5,9 +5,33 @@
 
 /* ── Page header ───────────────────────────────────────────────── */
 .header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 640px) {
+  .header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.accountLink {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.accountLink:hover {
+  text-decoration: underline;
 }
 
 .title {

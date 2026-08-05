@@ -6,34 +6,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { checkEmailExists } from "@/app/actions/auth";
-import { getAllProgress, mergeRemoteProgress } from "@/lib/progressTracker";
+import { syncOnLogin } from "@/lib/authSync";
 import styles from "@/components/Auth.module.css";
-
-async function syncOnLogin() {
-  try {
-    // 1. Fetch user's history from DB
-    const res = await fetch("/api/get-progress");
-    if (res.ok) {
-      const dbItems = await res.json();
-      if (Array.isArray(dbItems) && dbItems.length > 0) {
-        // 2. Merge DB items into localStorage (latest-wins)
-        mergeRemoteProgress(dbItems);
-        toast.success("Watch history synced across devices!");
-      }
-    }
-    // 3. Push any local-only items back to DB
-    const localItems = getAllProgress();
-    if (localItems.length > 0) {
-      await fetch("/api/sync-progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(localItems),
-      });
-    }
-  } catch (err) {
-    console.error("[LoginClient] Sync on login failed:", err);
-  }
-}
 
 export default function LoginClient() {
   const router = useRouter();

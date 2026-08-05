@@ -7,7 +7,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
 import PROVIDERS from '@/lib/providers'
 import type { StreamingServer } from '@/lib/streamingProvider'
-import type { Season } from '@/lib/tmdb'
+import type { Season, Genre } from '@/lib/tmdb'
 import PlayerIframe from '@/components/PlayerIframe'
 import styles from './page.module.css'
 
@@ -22,6 +22,7 @@ interface Props {
   title: string
   backdrop?: string | null
   poster?: string | null
+  genres?: Genre[]
   servers: StreamingServer[]
   seasons?: Season[]
   children?: React.ReactNode
@@ -64,6 +65,7 @@ export default function WatchClient({
   title,
   backdrop,
   poster,
+  genres,
   servers,
   seasons,
   children,
@@ -214,6 +216,7 @@ export default function WatchClient({
             title={title}
             backdrop={backdrop}
             poster={poster}
+            genres={genres}
             iframeKey={iframeKey}
             transformUrl={PROXY_BASE ? buildTransformUrl : undefined}
             onNextEpisode={mediaType === 'tv' ? handleNextEpisode : undefined}

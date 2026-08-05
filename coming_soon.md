@@ -40,9 +40,12 @@ What's been shipped and what's planned next.
 - ✅ **Infinite scroll:** Loads more pages automatically.
 
 ### Personalisation & State
-- ✅ **"Continue Watching" Row:** Tracks viewing progress locally, surfacing incomplete episodes/movies on the homepage. *(Note: This feature depends on the active streaming server emitting progress events. Other servers just serve streaming functionality).*
+- ✅ **User Accounts:** Email/password accounts (`next-auth` + Postgres via Drizzle). Guests keep the full local-storage experience; signed-in users additionally get everything below synced across devices.
+- ✅ **"Continue Watching" Row:** Tracks viewing progress locally first, then syncs to the DB for signed-in users — resume on any device, Netflix-style. *(Note: This feature depends on the active streaming server emitting progress events. Other servers just serve streaming functionality).*
+- ✅ **Watch History & Stats:** A durable "started"/"completed" event log (`/profile`), separate from Continue Watching's resume pointer — survives rewatches and removal from Continue Watching. Powers a stats strip (titles watched, total watch time, movies/TV split, weekly activity, top genres).
+- ✅ **Cross-Device Settings Sync:** Signed-in users' preferences (`/settings`) sync to the DB, latest-change-wins. Guests keep the cookie-only experience — Settings is available to everyone, signed in or not.
 - ✅ **Legal & Compliance:** Mandatory Terms of Use / Privacy Policy modal agreement. Settings page to manage agreement.
-- 🚧 **Watchlists / Favourites (Partially Shipped):** Users can save titles for later using local storage. (Database integration planned for future scale).
+- 🚧 **Watchlists / Favourites (Partially Shipped):** Users can save titles for later using local storage. (Database integration planned for future scale — the `watchlist` table exists but isn't wired up yet).
 
 ### Technical
 - ✅ **True OLED Dark Mode:** "True Black" theme (`#000000`) implemented (`data-theme="amoled"`).
@@ -64,7 +67,7 @@ What's been shipped and what's planned next.
 
 ### Technical
 - [ ] **Offline Downloads (Capacitor/Android):** Cache media for offline viewing on native builds.
-- [ ] **User accounts / database:** Required before any server-side personalisation features can ship.
+- [ ] **Watchlist DB Sync:** Wire the existing `watchlist` table up to the same local-first/DB-synced pattern used by watch progress, history, and settings.
 
 ---
 

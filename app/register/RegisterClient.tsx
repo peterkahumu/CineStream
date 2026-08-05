@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { registerUser } from "@/app/actions/auth";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
+import { syncOnLogin } from "@/lib/authSync";
 import styles from "@/components/Auth.module.css";
 import Link from "next/link";
 
@@ -47,6 +48,8 @@ export default function RegisterClient() {
           toast.error("Registered successfully, but failed to log in.");
         } else {
           toast.success("Account created successfully!");
+          // Carries over anything watched as a guest before creating the account.
+          await syncOnLogin();
           router.push("/profile");
           router.refresh();
         }

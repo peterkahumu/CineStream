@@ -1,160 +1,141 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import styles from "./Profile.module.css";
-import SettingsClient from "@/app/settings/SettingsClient";
+import { useState, useRef, useCallback, type ReactNode } from 'react'
+import Link from 'next/link'
+import toast from 'react-hot-toast'
+import { updateDisplayName } from '@/app/actions/auth'
+import ContinueWatchingRow from '@/components/ContinueWatchingRow'
+import ProfileStats from '@/components/ProfileStats'
+import WatchHistoryList from '@/components/WatchHistoryList'
+import styles from './Profile.module.css'
 
-interface HistoryItem {
-  id: string;
-  mediaType: "movie" | "tv";
-  title: string;
-  poster_path: string | null;
-  season?: number;
-  episode?: number;
-  watched: number;
-  duration: number;
-  updatedAt: number;
+interface Props {
+  name: string | null
+  email: string
+  memberSince: string | null
+  /** Server-rendered Sign Out form, injected as a slot (see page.tsx). */
+  children?: ReactNode
 }
 
-function formatDate(timestamp: number): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+function initialsFor(name: string | null, email: string): string {
+  const source = name?.trim() || email
+  const parts = source.split(/\s+/).filter(Boolean)
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return source.slice(0, 2).toUpperCase()
 }
 
-function formatProgress(watched: number, duration: number): string {
-  if (!duration) return "";
-  const pct = Math.round((watched / duration) * 100);
-  return `${pct}%`;
+function formatMemberSince(iso: string | null): string | null {
+  if (!iso) return null
+  return new Date(iso).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
 
-async function loadHistory(
-  setHistory: (items: HistoryItem[]) => void,
-  setLoading: (v: boolean) => void
-) {
-  try {
-    const res = await fetch("/api/get-progress");
-    if (!res.ok) throw new Error("Failed to load history");
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      setHistory(data as HistoryItem[]);
+// ── Component ────────────────────────────────────────────────────────────────
+
+export default function ProfileClient({ name, email, memberSince, children }: Props) {
+  const [displayName, setDisplayName] = useState(name)
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(name ?? '')
+  const [saving, setSaving] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEditing = useCallback(() => {
+    setDraft(displayName ?? '')
+    setEditing(true)
+    setTimeout(() => inputRef.current?.focus(), 0)
+  }, [displayName])
+
+  const cancelEditing = useCallback(() => {
+    setEditing(false)
+  }, [])
+
+  const saveName = useCallback(async () => {
+    if (!draft.trim() || draft.trim() === displayName) {
+      setEditing(false)
+      return
     }
-  } catch (err) {
-    console.error("[ProfileClient] Failed to load history:", err);
-  } finally {
-    setLoading(false);
-  }
-}
+    setSaving(true)
+    const result = await updateDisplayName(draft)
+    setSaving(false)
+    if (result.error) {
+      toast.error(result.error)
+      return
+    }
+    setDisplayName(result.name ?? draft.trim())
+    setEditing(false)
+    toast.success('Display name updated!')
+  }, [draft, displayName])
 
-export default function ProfileClient() {
-  const [activeTab, setActiveTab] = useState<"history" | "settings">("history");
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadHistory(setHistory, setLoading);
-  }, []);
+  const memberSinceLabel = formatMemberSince(memberSince)
 
   return (
-    <div className={styles.clientContainer}>
-      <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === "history" ? styles.activeTab : ""}`}
-          onClick={() => setActiveTab("history")}
-        >
-          Watch History
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === "settings" ? styles.activeTab : ""}`}
-          onClick={() => setActiveTab("settings")}
-        >
-          Settings
-        </button>
-      </div>
-
-      <div className={styles.tabContent}>
-        {activeTab === "history" && (
-          <div>
-            <h2 className={styles.sectionTitle}>Watch History</h2>
-            <p className={styles.sectionSubtitle}>
-              All movies and episodes you&apos;ve watched, synced across your devices.
-            </p>
-            {loading ? (
-              <p className={styles.loadingState}>Loading history...</p>
-            ) : history.length === 0 ? (
-              <p className={styles.emptyState}>
-                No watch history yet.{" "}
-                <Link href="/" className={styles.emptyLink}>Start watching something!</Link>
-              </p>
-            ) : (
-              <div className={styles.historyGrid}>
-                {history.map((item) => (
-                  <Link
-                    key={`${item.id}-${item.season ?? ""}-${item.episode ?? ""}`}
-                    href={`/details/${item.mediaType}-${item.id}`}
-                    className={styles.historyCard}
-                  >
-                    <div className={styles.historyPoster}>
-                      {item.poster_path ? (
-                        <Image
-                          src={`https://image.tmdb.org/t/p/w185${item.poster_path}`}
-                          alt={item.title}
-                          fill
-                          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 15vw"
-                          className={styles.historyPosterImg}
-                        />
-                      ) : (
-                        <div className={styles.historyPosterFallback}>
-                          <span>{item.title.charAt(0)}</span>
-                        </div>
-                      )}
-                      <span className={styles.historyBadge}>
-                        {item.mediaType === "movie" ? "Movie" : "TV"}
-                      </span>
-                      {item.duration > 0 && (
-                        <div className={styles.historyProgressBar}>
-                          <div
-                            className={styles.historyProgressFill}
-                            style={{ width: `${Math.min(100, Math.round((item.watched / item.duration) * 100))}%` }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className={styles.historyInfo}>
-                      <p className={styles.historyTitle}>{item.title}</p>
-                      {item.mediaType === "tv" && item.season != null && item.episode != null && (
-                        <p className={styles.historyEpisode}>
-                          S{item.season} E{item.episode}
-                        </p>
-                      )}
-                      <p className={styles.historyMeta}>
-                        <span className={styles.historyDate}>{formatDate(item.updatedAt)}</span>
-                        {item.duration > 0 && (
-                          <span className={styles.historyProgress}>
-                            {formatProgress(item.watched, item.duration)}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+    <div className={styles.profilePage}>
+      {/* ── Identity header ─────────────────────────────────────────────── */}
+      <div className={styles.header}>
+        <div className={styles.identity}>
+          <div className={styles.avatar} aria-hidden="true">
+            {initialsFor(displayName, email)}
+          </div>
+          <div className={styles.identityText}>
+            {editing ? (
+              <div className={styles.nameEditRow}>
+                <input
+                  ref={inputRef}
+                  className={styles.nameInput}
+                  value={draft}
+                  maxLength={60}
+                  onChange={e => setDraft(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') saveName()
+                    if (e.key === 'Escape') cancelEditing()
+                  }}
+                  disabled={saving}
+                  aria-label="Display name"
+                />
+                <button className={styles.nameSaveBtn} onClick={saveName} disabled={saving}>
+                  {saving ? 'Saving…' : 'Save'}
+                </button>
+                <button className={styles.nameCancelBtn} onClick={cancelEditing} disabled={saving}>
+                  Cancel
+                </button>
               </div>
+            ) : (
+              <button className={styles.nameRow} onClick={startEditing} title="Edit display name">
+                <h1 className={styles.title}>{displayName || 'Add a display name'}</h1>
+                <span className={styles.editIcon} aria-hidden="true">✎</span>
+              </button>
+            )}
+            <p className={styles.subtitle}>{email}</p>
+            {memberSinceLabel && (
+              <p className={styles.memberSince}>Member since {memberSinceLabel}</p>
             )}
           </div>
-        )}
+        </div>
 
-        {activeTab === "settings" && (
-          <SettingsClient />
-        )}
+        <div className={styles.headerActions}>
+          <Link href="/settings" className={styles.settingsLink}>⚙️ Settings</Link>
+          {children}
+        </div>
       </div>
+
+      {/* ── Continue Watching ───────────────────────────────────────────── */}
+      <ContinueWatchingRow />
+
+      {/* ── Stats ────────────────────────────────────────────────────────── */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>📊 Your Stats</h2>
+        <ProfileStats />
+      </section>
+
+      {/* ── Watch History ────────────────────────────────────────────────── */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>🕘 Watch History</h2>
+        <p className={styles.sectionSubtitle}>
+          Everything you&apos;ve started or finished watching, synced across your devices.
+        </p>
+        <WatchHistoryList />
+      </section>
     </div>
-  );
+  )
 }

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { useSettings } from '@/components/SettingsProvider'
 import { type Theme, type Layout, type WishlistSort } from '@/lib/settings'
 import { getTermsAccepted, setTermsAccepted, TERMS_EVENT } from '@/lib/terms'
@@ -55,6 +57,7 @@ function SettingRow({
 }
 
 export default function SettingsClient() {
+  const { status } = useSession()
   const { settings, updateSetting } = useSettings()
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
@@ -158,8 +161,19 @@ export default function SettingsClient() {
         <div className={styles.container}>
           {/* Page Header */}
           <div className={styles.header}>
-            <h1 className={styles.title}>⚙️ Settings</h1>
-            <p className={styles.subtitle}>Personalise your CinemaPhora experience</p>
+            <div>
+              <h1 className={styles.title}>⚙️ Settings</h1>
+              <p className={styles.subtitle}>
+                {status === 'authenticated'
+                  ? 'Personalise your CinemaPhora experience — synced across your devices.'
+                  : 'Personalise your CinemaPhora experience on this device.'}
+              </p>
+            </div>
+            {status === 'authenticated' && (
+              <Link href="/profile" className={styles.accountLink}>
+                👤 Manage your account →
+              </Link>
+            )}
           </div>
 
           {/* ── Appearance ──────────────────────────────────────────────── */}

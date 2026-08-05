@@ -3,6 +3,7 @@ import {
   text,
   timestamp,
   integer,
+  bigint,
   json,
 } from "drizzle-orm/pg-core"
 
@@ -15,8 +16,12 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
   password: text("password"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 })
 
+// NOTE: `updatedAt`/`addedAt`/`occurredAt` below store `Date.now()` (epoch-ms, ~13
+// digits) from the client. Postgres `integer` tops out at 2,147,483,647 (~10 digits),
+// so these must be `bigint` — using `integer` here silently overflows every write.
 export const watchProgress = pgTable("watch_progress", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -30,8 +35,9 @@ export const watchProgress = pgTable("watch_progress", {
   season: integer("season"),
   episode: integer("episode"),
   show_progress: json("show_progress"), // Record<string, EpisodeProgress>
+  genres: json("genres"), // { id: number, name: string }[] | null — captured at watch time
   lastProvider: text("lastProvider"),
-  updatedAt: integer("updatedAt").notNull(),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 })
 
 export const watchlist = pgTable("watchlist", {
@@ -41,6 +47,32 @@ export const watchlist = pgTable("watchlist", {
   mediaType: text("mediaType").notNull(), // 'movie' | 'tv'
   title: text("title").notNull(),
   poster_path: text("poster_path"),
-  addedAt: integer("addedAt").notNull(),
+  addedAt: bigint("addedAt", { mode: "number" }).notNull(),
 })
 
+/**
+ * Append-only watch history log — distinct from `watchProgress` (the mutable
+ * resume pointer behind Continue Watching). Each row is a "started" or "completed"
+ * event, so the timeline survives progress being overwritten/removed and supports
+ * rewatches and stats (see /api/get-stats).
+ */
+export const watchHistory = pgTable("watch_history", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tmdbId: text("tmdbId").notNull(),
+  mediaType: text("mediaType").notNull(), // 'movie' | 'tv'
+  title: text("title").notNull(),
+  poster_path: text("poster_path"),
+  season: integer("season"),
+  episode: integer("episode"),
+  event: text("event").notNull(), // 'started' | 'completed'
+  genres: json("genres"), // { id: number, name: string }[] | null
+  occurredAt: bigint("occurredAt", { mode: "number" }).notNull(),
+})
+
+/** Cross-device preference sync for signed-in users (see lib/settings.ts UserSettings). */
+export const userSettings = pgTable("user_settings", {
+  userId: text("userId").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  settings: json("settings").notNull(), // UserSettings blob
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
+})

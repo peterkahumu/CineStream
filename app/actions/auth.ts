@@ -1,9 +1,12 @@
 "use server";
 
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+
+const MAX_DISPLAY_NAME_LENGTH = 60;
 
 export async function checkEmailExists(email: string) {
   if (!email) return false;
@@ -36,5 +39,25 @@ export async function registerUser(formData: FormData) {
   } catch (error) {
     console.error("Registration error:", error);
     return { error: "Failed to register user." };
+  }
+}
+
+export async function updateDisplayName(name: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Unauthorized." };
+  }
+
+  const trimmed = name.trim();
+  if (!trimmed || trimmed.length > MAX_DISPLAY_NAME_LENGTH) {
+    return { error: `Name must be between 1 and ${MAX_DISPLAY_NAME_LENGTH} characters.` };
+  }
+
+  try {
+    await db.update(users).set({ name: trimmed }).where(eq(users.id, session.user.id));
+    return { success: true, name: trimmed };
+  } catch (error) {
+    console.error("Update display name error:", error);
+    return { error: "Failed to update display name." };
   }
 }

@@ -78,7 +78,14 @@ CinemaPhora is a Progressive Web App — install it directly to your device from
 
 ### 11. Legal & Settings
 When you first open CinemaPhora, you will be prompted to agree to our Terms of Use and Privacy Policy. This is required because CinemaPhora acts as a search engine for third-party streams.
-- **Settings:** You can view your agreement status or revoke it at any time by clicking "Settings" in the footer, or navigating to `/settings`.
+- **Settings:** Available to everyone — click "Settings" in the footer or navigate to `/settings`, no account required. From there you can view your agreement status or revoke it, along with every other preference (theme, region/language, safe search, autoplay, data saver, and more).
+- **Signed in?** Your settings sync across every device you're logged into. Change your theme on your phone, it's already changed next time you open CinemaPhora on your laptop.
+
+### 12. Accounts & Your Profile
+Creating an account (`/register`) is optional, but it unlocks cross-device continuity:
+- **Continue Watching, everywhere:** Start a movie on your phone, pick it up exactly where you left off on your TV or laptop.
+- **Profile page (`/profile`):** Your avatar (click your name to give yourself a display name), a stats strip (titles watched, total watch time, movies vs. TV split, this week's activity, and your top genres), and your full **Watch History** — every title you've started or finished, filterable by Movies/TV.
+- **Guests keep everything too** — Continue Watching, your wishlist, and settings all still work perfectly without an account; they just live on that one device/browser instead of syncing.
 
 ---
 
