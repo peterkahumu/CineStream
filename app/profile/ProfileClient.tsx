@@ -4,7 +4,6 @@ import { useState, useRef, useCallback, type ReactNode } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { updateDisplayName } from '@/app/actions/auth'
-import ContinueWatchingRow from '@/components/ContinueWatchingRow'
 import ProfileStats from '@/components/ProfileStats'
 import WatchHistoryList from '@/components/WatchHistoryList'
 import styles from './Profile.module.css'
@@ -128,12 +127,6 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
       <div className={styles.contentGrid}>
         {/* main */}
         <div className={styles.mainColumn}>
-          {/* continue watching */}
-          <ContinueWatchingRow
-            cardClassName={styles.sectionCard}
-            wrapClassName={styles.continueWatchingWrap}
-          />
-
           {/* history */}
           <div className={styles.sectionCard}>
             <div className={styles.sectionHeader}>

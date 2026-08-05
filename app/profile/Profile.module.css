@@ -321,12 +321,6 @@
   margin: -2px 0 var(--space-sm);
 }
 
-/* continue watching */
-.continueWatchingWrap {
-  margin: 0 calc(-1 * var(--space-lg));
-  padding: 0 var(--space-lg);
-}
-
 /* responsive */
 
 @media (max-width: 640px) {
@@ -338,11 +332,6 @@
   .sectionCard {
     padding: var(--space-md);
     border-radius: var(--radius-lg);
-  }
-
-  .continueWatchingWrap {
-    margin: 0 calc(-1 * var(--space-md));
-    padding: 0 var(--space-md);
   }
 
   .sectionTitle {

@@ -9,12 +9,7 @@ import { getAllProgress, removeProgress, mergeRemoteProgress, type WatchProgress
 import { useSession } from 'next-auth/react'
 import styles from './ContinueWatchingRow.module.css'
 
-interface ContinueWatchingRowProps {
-  cardClassName?: string
-  wrapClassName?: string
-}
-
-export default function ContinueWatchingRow({ cardClassName, wrapClassName }: ContinueWatchingRowProps = {}) {
+export default function ContinueWatchingRow() {
   const [items, setItems] = useState<WatchProgress[]>([])
   const [itemToRemove, setItemToRemove] = useState<WatchProgress | null>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
@@ -126,7 +121,7 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
   // Render
   if (items.length === 0) return null
 
-  const content = (
+  return (
     <section className={styles.section}>
       <div className="section-header">
         <h2 className="section-title">
@@ -196,14 +191,4 @@ export default function ContinueWatchingRow({ cardClassName, wrapClassName }: Co
       />
     </section>
   )
-
-  if (cardClassName) {
-    return (
-      <div className={cardClassName}>
-        {wrapClassName ? <div className={wrapClassName}>{content}</div> : content}
-      </div>
-    )
-  }
-
-  return content
 }
