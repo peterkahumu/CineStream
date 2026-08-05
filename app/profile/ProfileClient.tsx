@@ -129,11 +129,10 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
         {/* main */}
         <div className={styles.mainColumn}>
           {/* continue watching */}
-          <div className={styles.sectionCard}>
-            <div className={styles.continueWatchingWrap}>
-              <ContinueWatchingRow />
-            </div>
-          </div>
+          <ContinueWatchingRow
+            cardClassName={styles.sectionCard}
+            wrapClassName={styles.continueWatchingWrap}
+          />
 
           {/* history */}
           <div className={styles.sectionCard}>
