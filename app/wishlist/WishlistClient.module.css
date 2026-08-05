@@ -1,22 +1,3 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: var(--space-md);
-}
-
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: var(--space-lg);
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-  }
-}
-
 .emptyState {
   text-align: center;
   padding: 4rem 1rem;
@@ -51,6 +32,7 @@
   gap: var(--space-md);
   margin-bottom: var(--space-md);
 }
+
 @media (min-width: 640px) {
   .header {
     flex-direction: row;
@@ -76,15 +58,18 @@
   cursor: pointer;
   transition: all var(--transition-fast);
 }
+
 .tabBtn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+
 .tabBtnActive {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
 }
+
 .tabBtnActive:hover {
   background: var(--accent-hover);
   color: #fff;
@@ -110,6 +95,7 @@
   background-position: right 12px center;
   background-size: 10px auto;
 }
+
 .sortSelect:focus {
   outline: none;
   border-color: var(--accent);
@@ -126,97 +112,78 @@
   padding-bottom: var(--space-md);
   border-bottom: 1px solid var(--border);
 }
+
 .statsDot {
   color: var(--border-strong);
 }
 
-/* ── CARD ACTIONS ── */
+/* ── CARD + ACTIONS ── */
+/* cardWrap holds the standard MediaCard plus a small icon toolbar below it —
+   actions live in normal flow instead of overlaid on the poster, so they stay
+   usable at the standard (much smaller) card size used across the rest of the app. */
 .cardWrap {
-  position: relative;
   display: flex;
   flex-direction: column;
 }
 
-.cardActions {
+/* Stacked, always-labelled rows — icon-only buttons would need a hover (desktop)
+   or a wasted tap (mobile) before their meaning is clear, so each action carries
+   a visible text label at all times instead. */
+.actionsBar {
   display: flex;
+  flex-direction: column;
   gap: 4px;
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-@media (max-width: 768px) {
-  .cardActions { opacity: 1; }
-}
-.cardWrap:hover .cardActions {
-  opacity: 1;
+  margin-top: 6px;
 }
 
-.actionBtn, .removeBtn {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
+.iconBtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-.actionBtn {
-  padding: 4px 8px;
-}
-.actionBtn:hover {
-  background: rgba(37, 99, 235, 0.9);
-  border-color: rgba(37, 99, 235, 1);
-}
-.watchedBtn {
-  background: rgba(34, 197, 94, 0.9);
-  border-color: rgba(34, 197, 94, 1);
-}
-.watchedBtn:hover {
-  background: rgba(220, 38, 38, 0.9); /* hover red to un-watch */
-  border-color: rgba(220, 38, 38, 1);
-}
-
-.removeBtn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-}
-.removeBtn:hover {
-  background: rgba(220, 38, 38, 0.9);
-  border-color: rgba(220, 38, 38, 1);
-}
-
-/* ── STATUS PILL (For 'All' tab) ── */
-.statusPill {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 700;
-  backdrop-filter: blur(4px);
-  z-index: 5;
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-}
-.statusWatched {
-  background: rgba(34, 197, 94, 0.9);
-  color: #fff;
-  border: 1px solid rgba(34, 197, 94, 0.5);
-}
-.statusToWatch {
-  background: rgba(15, 23, 42, 0.85);
+  gap: 6px;
+  width: 100%;
+  padding: 5px 7px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.iconBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.watchedActive {
+  background: var(--green-light);
+  border-color: var(--green);
+  color: var(--green-text, var(--green));
+}
+
+.watchedActive:hover {
+  background: var(--green-light);
+  color: var(--green-text, var(--green));
+}
+
+.removeIconBtn:hover {
+  background: var(--red-light);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+@media (max-width: 480px) {
+  .iconBtn {
+    font-size: 0.65rem;
+    padding: 4px 6px;
+  }
 }
 
 /* ── FOLDER TABS ── */
@@ -268,25 +235,97 @@
   color: var(--text-primary);
 }
 
-.modalFolderList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Card action layout */
-.cardActionsStack {
+/* ── FOLDER PICKER (Add to Folder modal) ── */
+/* A plain select-list: tapping a folder assigns it immediately — no typing,
+   even for an existing folder. Creating a new one stays a separate, explicit step. */
+.folderPickerList {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-.cardActionsRow {
+.folderPickerRow {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-.folderBtn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+.folderPickerRow:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.folderPickerRowActive {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.folderPickerRowActive:hover {
+  background: var(--accent-subtle);
+}
+
+.folderPickerNew {
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 600;
+  border-style: dashed;
+}
+
+cursor: pointer;
+transition: all var(--transition-fast);
+}
+
+.folderPickerRow:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.folderPickerRowActive {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.folderPickerNew {
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 600;
+  border-style: dashed;
+}
+
+.modalContentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.modalInput {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.modalInput:focus {
+  outline: none;
+  border-color: var(--accent);
 }

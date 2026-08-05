@@ -24,12 +24,12 @@ export default function WishlistClient() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'title-asc'>('date-desc')
-  const [folderModalItem, setFolderModalItem] = useState<{ id: string; mediaType: 'movie' | 'tv' } | null>(null)
-  const [folderInput, setFolderInput] = useState('')
+  const [folderModalItem, setFolderModalItem] = useState<{ id: string; mediaType: 'movie' | 'tv'; folderName?: string } | null>(null)
   const [customFolders, setCustomFolders] = useState<string[]>([])
   const [newFolderModalOpen, setNewFolderModalOpen] = useState(false)
   const [newFolderInput, setNewFolderInput] = useState('')
   const [folderToDelete, setFolderToDelete] = useState<string | null>(null)
+  const [itemToRemove, setItemToRemove] = useState<SavedWishlistItem | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -63,9 +63,11 @@ export default function WishlistClient() {
     setItems(setWatched(id, mediaType, !currentlyWatched, isAuthenticated))
   }, [isAuthenticated])
 
-  const handleRemove = useCallback((id: string, mediaType: 'movie' | 'tv') => {
-    setItems(removeFromWishlist(id, mediaType, isAuthenticated))
-  }, [isAuthenticated])
+  const confirmRemove = useCallback(() => {
+    if (!itemToRemove) return
+    setItems(removeFromWishlist(itemToRemove.id, itemToRemove.mediaType, isAuthenticated))
+    setItemToRemove(null)
+  }, [isAuthenticated, itemToRemove])
 
   const filteredItems = useMemo(() => {
     return items.filter(item => {
@@ -82,19 +84,25 @@ export default function WishlistClient() {
   }, [items, customFolders])
 
   const handleCreateFolder = () => {
-    if (!newFolderInput.trim()) return
-    const updated = Array.from(new Set([...customFolders, newFolderInput.trim()]))
+    const name = newFolderInput.trim()
+    if (!name) return
+    const updated = Array.from(new Set([...customFolders, name]))
     setCustomFolders(updated)
     localStorage.setItem('cinemaphora-wishlist-folders', JSON.stringify(updated))
     setNewFolderModalOpen(false)
     setNewFolderInput('')
+    // If we got here from a card's folder picker, assign the new folder right away
+    // instead of leaving the user to reopen the picker and select it themselves.
+    if (folderModalItem) {
+      setItems(setFolder(folderModalItem.id, folderModalItem.mediaType, name, isAuthenticated))
+      setFolderModalItem(null)
+    }
   }
 
-  const handleSaveFolder = () => {
+  const handleSelectFolder = (folderName: string | undefined) => {
     if (!folderModalItem) return
-    setItems(setFolder(folderModalItem.id, folderModalItem.mediaType, folderInput.trim() || undefined, isAuthenticated))
+    setItems(setFolder(folderModalItem.id, folderModalItem.mediaType, folderName, isAuthenticated))
     setFolderModalItem(null)
-    setFolderInput('')
   }
 
   const confirmDeleteFolder = () => {
@@ -160,19 +168,19 @@ export default function WishlistClient() {
     <div>
       <div className={styles.header}>
         <div className={styles.tabs}>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === 'all' ? styles.tabBtnActive : ''}`}
             onClick={() => setActiveTab('all')}
           >
             All ({items.length})
           </button>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === 'to-watch' ? styles.tabBtnActive : ''}`}
             onClick={() => setActiveTab('to-watch')}
           >
             To Watch ({items.filter(i => !i.watchedAt).length})
           </button>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === 'watched' ? styles.tabBtnActive : ''}`}
             onClick={() => setActiveTab('watched')}
           >
@@ -180,7 +188,7 @@ export default function WishlistClient() {
           </button>
           {folders.map(f => (
             <div key={f} className={styles.folderTabWrapper}>
-              <button 
+              <button
                 className={`${styles.tabBtn} ${activeTab === f ? styles.tabBtnActive : ''} ${styles.folderTabName}`}
                 onClick={() => setActiveTab(f)}
               >
@@ -195,8 +203,8 @@ export default function WishlistClient() {
               </button>
             </div>
           ))}
-          <button 
-            className={`${styles.tabBtn} ${styles.newFolderBtn}`} 
+          <button
+            className={`${styles.tabBtn} ${styles.newFolderBtn}`}
             onClick={() => setNewFolderModalOpen(true)}
           >
             + New Folder
@@ -204,8 +212,8 @@ export default function WishlistClient() {
         </div>
 
         <div className={styles.controls}>
-          <select 
-            value={sortBy} 
+          <select
+            value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'date-desc' | 'date-asc' | 'title-asc')}
             className={styles.sortSelect}
           >
@@ -227,7 +235,7 @@ export default function WishlistClient() {
       {sortedItems.length === 0 ? (
         <div className={`${styles.emptyState} ${styles.emptyStatePadding}`}>
           <p className={styles.emptyText}>
-            {activeTab === 'watched' 
+            {activeTab === 'watched'
               ? "You haven't marked anything as watched yet."
               : activeTab === 'all'
                 ? "Your list is empty."
@@ -235,7 +243,7 @@ export default function WishlistClient() {
           </p>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <div className="media-grid">
           {sortedItems.map(item => {
             const mediaItem: MediaItem = {
               id: Number(item.id),
@@ -250,37 +258,32 @@ export default function WishlistClient() {
 
             return (
               <div key={item.id} className={styles.cardWrap}>
-                <MediaCard item={mediaItem} forcedType={item.mediaType} />
-                {activeTab === 'all' && (
-                  <div className={`${styles.statusPill} ${isWatched ? styles.statusWatched : styles.statusToWatch}`}>
-                    {isWatched ? '✓ Watched' : 'To Watch'}
-                  </div>
-                )}
-                <div className={`${styles.cardActions} ${styles.cardActionsStack}`}>
-                  <div className={styles.cardActionsRow}>
-                    <button
-                      className={`${styles.actionBtn} ${isWatched ? styles.watchedBtn : ''}`}
-                      onClick={() => handleToggleWatched(item.id, item.mediaType, isWatched)}
-                      title={isWatched ? "Mark as un-watched" : "Mark as watched"}
-                    >
-                      {isWatched ? '✓ Watched' : 'Mark Watched'}
-                    </button>
-                    <button
-                      className={styles.removeBtn}
-                      onClick={() => handleRemove(item.id, item.mediaType)}
-                      title="Remove from list"
-                    >
-                      ✕
-                    </button>
-                  </div>
+                <MediaCard
+                  item={mediaItem}
+                  forcedType={item.mediaType}
+                  bottomSubtitle={item.folderName ? <>📁 {item.folderName}</> : undefined}
+                />
+                <div className={styles.actionsBar}>
                   <button
-                    className={`${styles.actionBtn} ${styles.folderBtn}`}
-                    onClick={() => {
-                      setFolderModalItem({ id: item.id, mediaType: item.mediaType })
-                      setFolderInput(item.folderName || '')
-                    }}
+                    className={`${styles.iconBtn} ${isWatched ? styles.watchedActive : ''}`}
+                    onClick={() => handleToggleWatched(item.id, item.mediaType, isWatched)}
+                    title={isWatched ? 'Mark as un-watched' : 'Mark as watched'}
                   >
-                    📁 {item.folderName || 'Add to Folder'}
+                    <span aria-hidden="true">{isWatched ? '☑' : '☐'}</span> Watched
+                  </button>
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => setFolderModalItem({ id: item.id, mediaType: item.mediaType, folderName: item.folderName })}
+                    title={item.folderName ? `Folder: ${item.folderName}` : 'Add to folder'}
+                  >
+                    <span aria-hidden="true">🏷</span> Folder
+                  </button>
+                  <button
+                    className={`${styles.iconBtn} ${styles.removeIconBtn}`}
+                    onClick={() => setItemToRemove(item)}
+                    title="Remove from list"
+                  >
+                    <span aria-hidden="true">🗑</span> Remove
                   </button>
                 </div>
               </div>
@@ -292,34 +295,36 @@ export default function WishlistClient() {
       <Modal
         isOpen={!!folderModalItem}
         title="Add to Folder"
-        description="Organise your list with custom folders like 'Watch Tonight' or 'With Partner'."
-        confirmText="Save"
-        onConfirm={handleSaveFolder}
+        description="Pick a folder to file this under."
+        confirmText="Done"
+        hideCancel
+        onConfirm={() => setFolderModalItem(null)}
         onCancel={() => setFolderModalItem(null)}
       >
-        <div className={styles.modalContentGroup}>
-          <input 
-            type="text" 
-            value={folderInput}
-            onChange={(e) => setFolderInput(e.target.value)}
-            placeholder="E.g. Watch with Partner"
-            className={styles.modalInput}
-            autoFocus
-          />
-          
-          <div className={styles.modalFolderList}>
-            {customFolders.map(f => (
-              <button 
-                key={f} 
-                className="btn btn-secondary" 
-                onClick={() => {
-                  setFolderInput(f)
-                }}
-              >
-                📁 {f}
-              </button>
-            ))}
-          </div>
+        <div className={styles.folderPickerList}>
+          <button
+            className={`${styles.folderPickerRow} ${!folderModalItem?.folderName ? styles.folderPickerRowActive : ''}`}
+            onClick={() => handleSelectFolder(undefined)}
+          >
+            <span>🚫 No Folder</span>
+            {!folderModalItem?.folderName && <span aria-hidden="true">✓</span>}
+          </button>
+          {customFolders.map(f => (
+            <button
+              key={f}
+              className={`${styles.folderPickerRow} ${folderModalItem?.folderName === f ? styles.folderPickerRowActive : ''}`}
+              onClick={() => handleSelectFolder(f)}
+            >
+              <span>📁 {f}</span>
+              {folderModalItem?.folderName === f && <span aria-hidden="true">✓</span>}
+            </button>
+          ))}
+          <button
+            className={`${styles.folderPickerRow} ${styles.folderPickerNew}`}
+            onClick={() => setNewFolderModalOpen(true)}
+          >
+            + New Folder
+          </button>
         </div>
       </Modal>
       <Modal
@@ -331,8 +336,8 @@ export default function WishlistClient() {
         onCancel={() => setNewFolderModalOpen(false)}
       >
         <div className={styles.modalContentGroup}>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={newFolderInput}
             onChange={(e) => setNewFolderInput(e.target.value)}
             placeholder="Folder Name"
@@ -349,6 +354,15 @@ export default function WishlistClient() {
         confirmText="Delete"
         onConfirm={confirmDeleteFolder}
         onCancel={() => setFolderToDelete(null)}
+      />
+
+      <Modal
+        isOpen={!!itemToRemove}
+        title="Remove from My List"
+        description={`Are you sure you want to remove "${itemToRemove?.title}" from your list?`}
+        confirmText="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setItemToRemove(null)}
       />
     </div>
   )
