@@ -28,7 +28,7 @@ export interface WishlistItem {
   updatedAt: number
 }
 
-// -- Internal helpers ----------------------------------------------------------
+// Internal helpers
 
 function readWishlist(): WishlistItem[] {
   if (typeof localStorage === 'undefined') return []
@@ -52,7 +52,7 @@ function findIndex(items: WishlistItem[], id: string, mediaType: 'movie' | 'tv')
   return items.findIndex(i => i.id === id && i.mediaType === mediaType)
 }
 
-// -- Debounced background sync -------------------------------------------------
+// Debounced background sync
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null
 // Keyed by `${mediaType}-${id}` so distinct items changed within the same
@@ -83,7 +83,7 @@ function syncDelete(id: string, mediaType: 'movie' | 'tv'): void {
   }).catch(err => console.error('[wishlistTracker] Delete sync failed:', err))
 }
 
-// -- Public API ------------------------------------------------------------------
+// Public API
 
 export function getWishlist(): WishlistItem[] {
   return readWishlist()
