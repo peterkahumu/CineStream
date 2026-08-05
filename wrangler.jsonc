@@ -23,6 +23,8 @@
     {
       "binding": "HYPERDRIVE",
       "id": "722c9505cf8542978ac078e7a3d837f6"
+      // Local dev connection string is supplied via CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE
+      // in .dev.vars (gitignored) — never hardcode it here, this file is tracked.
     }
   ],
   "observability": {
