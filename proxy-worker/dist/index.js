@@ -1,7 +1,7 @@
 import { STATIC_BLOCKLIST } from './blocklist';
 import { AD_HIDING_CSS } from './adCss';
 import { buildLocationSpoofScript } from './locationSpoof';
-// ─── Security helpers ─────────────────────────────────────────────────────────
+// Security helpers
 // Covers IPv4 loopback/private ranges plus 169.254.0.0/16 — the link-local range
 // that includes the cloud-metadata IP (169.254.169.254) most SSRF payloads target —
 // and the IPv6 equivalents (::1, fe80::/10 link-local, fc00::/7 unique-local).
@@ -51,7 +51,7 @@ async function fetchValidated(initialUrl, headers, allowedDomains) {
     }
     throw new Error('Too many redirects');
 }
-// ─── Header helpers ───────────────────────────────────────────────────────────
+// Header helpers
 function buildProviderHeaders(request, targetOrigin) {
     return {
         'User-Agent': request.headers.get('User-Agent')
@@ -75,7 +75,7 @@ function buildResponseHeaders() {
     // Do NOT send X-Frame-Options or CSP frame-ancestors — we want iframing to work
     return h;
 }
-// ─── Blocklist loader ─────────────────────────────────────────────────────────
+// Blocklist loader
 async function getBlocklist(env) {
     try {
         const extra = await env.BLOCKLIST.get('domains');
@@ -89,11 +89,11 @@ async function getBlocklist(env) {
     }
     return STATIC_BLOCKLIST;
 }
-// ─── HTML transformer ─────────────────────────────────────────────────────────
+// HTML transformer
 function transformHtml(response, targetOrigin, blocklist) {
     const spoofFn = buildLocationSpoofScript();
     const rewriter = new HTMLRewriter()
-        // ── Strip external ad scripts ───────────────────────────────────────────
+        // Strip external ad scripts
         .on('script[src]', {
         element(el) {
             const src = el.getAttribute('src') ?? '';
@@ -101,7 +101,7 @@ function transformHtml(response, targetOrigin, blocklist) {
                 el.remove();
         },
     })
-        // ── Strip ad iframes ────────────────────────────────────────────────────
+        // Strip ad iframes
         .on('iframe[src]', {
         element(el) {
             const src = el.getAttribute('src') ?? '';
@@ -109,7 +109,7 @@ function transformHtml(response, targetOrigin, blocklist) {
                 el.remove();
         },
     })
-        // ── Strip ad tracking pixels ────────────────────────────────────────────
+        // Strip ad tracking pixels
         .on('img[src]', {
         element(el) {
             const src = el.getAttribute('src') ?? '';
@@ -117,7 +117,7 @@ function transformHtml(response, targetOrigin, blocklist) {
                 el.remove();
         },
     })
-        // ── Strip ad preload / stylesheet links ─────────────────────────────────
+        // Strip ad preload / stylesheet links
         .on('link[href]', {
         element(el) {
             const href = el.getAttribute('href') ?? '';
@@ -125,7 +125,7 @@ function transformHtml(response, targetOrigin, blocklist) {
                 el.remove();
         },
     })
-        // ── Inject into <head>: base tag + spoof script + ad-hiding CSS ─────────
+        // Inject into <head>: base tag + spoof script + ad-hiding CSS
         .on('head', {
         element(el) {
             // <base> must come first so subsequent relative URL resolution uses it
@@ -141,7 +141,7 @@ function transformHtml(response, targetOrigin, blocklist) {
         headers: buildResponseHeaders(),
     }));
 }
-// ─── Main fetch handler ───────────────────────────────────────────────────────
+// Main fetch handler
 const worker = {
     async fetch(request, env) {
         // CORS preflight
@@ -157,7 +157,7 @@ const worker = {
         if (request.method !== 'GET') {
             return new Response('Method Not Allowed', { status: 405 });
         }
-        // ── Parse & validate target URL ─────────────────────────────────────────
+        // Parse & validate target URL
         const reqUrl = new URL(request.url);
         const rawTarget = reqUrl.searchParams.get('url');
         if (!rawTarget) {
@@ -188,14 +188,14 @@ const worker = {
         // Use the URL after any redirects as the base for relative URL resolution
         const finalOrigin = new URL(providerRes.url || rawTarget).origin;
         const contentType = providerRes.headers.get('Content-Type') ?? '';
-        // ── Pass non-HTML responses through unchanged ───────────────────────────
+        // Pass non-HTML responses through unchanged
         if (!contentType.includes('text/html')) {
             return new Response(providerRes.body, {
                 status: providerRes.status,
                 headers: { 'Access-Control-Allow-Origin': '*' },
             });
         }
-        // ── Transform HTML ──────────────────────────────────────────────────────
+        // Transform HTML
         const blocklist = await getBlocklist(env);
         return transformHtml(providerRes, finalOrigin, blocklist);
     },
