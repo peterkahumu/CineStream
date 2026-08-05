@@ -49,8 +49,10 @@ export default function RegisterClient() {
         } else {
           toast.success("Account created successfully!");
           // Carries over anything watched as a guest before creating the account.
-          await syncOnLogin();
-          router.push("/profile");
+          // Not awaited — don't block the redirect on a handful of DB round trips;
+          // it keeps running in the background (see LoginClient for the same pattern).
+          syncOnLogin();
+          router.push("/");
           router.refresh();
         }
       }

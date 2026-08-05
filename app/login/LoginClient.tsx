@@ -49,8 +49,12 @@ export default function LoginClient() {
         toast.error("Invalid email or password.");
       } else {
         toast.success("Successfully logged in!");
-        await syncOnLogin();
-        router.push("/profile");
+        // Don't block the redirect on this — it's a handful of DB round trips
+        // (progress/history/watchlist merge + push) that can take a few seconds.
+        // It keeps running in the background; the pages it feeds re-sync on
+        // their own mount anyway (see ContinueWatchingRow, WishlistClient, etc).
+        syncOnLogin();
+        router.push("/");
         router.refresh();
       }
     } catch {
