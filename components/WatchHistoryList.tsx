@@ -42,6 +42,17 @@ function formatDate(timestamp: number): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+// For TV entries, deep-links straight into the episode that was watched —
+// same `tab=watch&s=&e=` shape WatchClient's "Back to Details" link uses,
+// which EpisodeSelector reads to highlight and smooth-scroll to that episode.
+function historyHref(entry: HistoryEntry): string {
+  const base = `/details/${entry.tmdbId}?type=${entry.mediaType}`
+  if (entry.mediaType === 'tv' && entry.season != null && entry.episode != null) {
+    return `${base}&tab=watch&s=${entry.season}&e=${entry.episode}`
+  }
+  return base
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function WatchHistoryList() {
@@ -117,7 +128,7 @@ export default function WatchHistoryList() {
           <ul className={styles.list}>
             {history.map(entry => (
               <li key={entry.id} className={styles.row}>
-                <Link href={`/details/${entry.tmdbId}?type=${entry.mediaType}`} className={styles.rowLink}>
+                <Link href={historyHref(entry)} className={styles.rowLink}>
                   <div className={styles.poster}>
                     {entry.poster_path ? (
                       <Image
