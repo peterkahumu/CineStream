@@ -40,6 +40,12 @@ export const watchProgress = pgTable("watch_progress", {
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 })
 
+/**
+ * "My List" — one row per (userId, tmdbId, mediaType), enforced in application
+ * logic rather than a DB constraint (same approach as `watchProgress`). Mutable
+ * fields (`watchedAt`, `folderName`) make this closer to `watchProgress` than
+ * the append-only `watchHistory` log — sync-watchlist upserts by last-updatedAt-wins.
+ */
 export const watchlist = pgTable("watchlist", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -47,7 +53,11 @@ export const watchlist = pgTable("watchlist", {
   mediaType: text("mediaType").notNull(), // 'movie' | 'tv'
   title: text("title").notNull(),
   poster_path: text("poster_path"),
+  backdrop_path: text("backdrop_path"),
   addedAt: bigint("addedAt", { mode: "number" }).notNull(),
+  watchedAt: bigint("watchedAt", { mode: "number" }),
+  folderName: text("folderName"),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 })
 
 /**
