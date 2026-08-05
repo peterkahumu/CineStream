@@ -24,6 +24,12 @@ jobs:
         # Using npm ci ensures a clean install based on your package-lock.json
         run: npm ci
 
+      - name: Generate Cloudflare binding types
+        # worker-configuration.d.ts is gitignored (it's generated, not committed) — without
+        # this, `CloudflareEnv` falls back to @opennextjs/cloudflare's bare-minimum global
+        # declaration, missing project bindings like HYPERDRIVE, and typecheck fails.
+        run: npm run cf-typegen
+
       - name: Type Check
         # Uses the newly added typecheck script in package.json
         run: npm run typecheck

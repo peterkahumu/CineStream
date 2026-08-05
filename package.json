@@ -8,7 +8,7 @@
     "build:worker": "npx @opennextjs/cloudflare build",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
-    "cf-typegen": "wrangler types",
+    "cf-typegen": "wrangler types --include-runtime=false --env-interface=CloudflareEnv",
     "deploy": "npm run build && npm run build:worker && npx wrangler deploy"
   },
   "dependencies": {
