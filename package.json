@@ -8,6 +8,7 @@
     "build:worker": "npx @opennextjs/cloudflare build",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
+    "cf-typegen": "wrangler types",
     "deploy": "npm run build && npm run build:worker && npx wrangler deploy"
   },
   "dependencies": {
@@ -20,11 +21,11 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.0",
     "@ducanh2912/next-pwa": "^10.2.9",
-    "@neondatabase/serverless": "^1.1.0",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.9",
     "next-auth": "^5.0.0-beta.32",
+    "postgres": "^3.4.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0"

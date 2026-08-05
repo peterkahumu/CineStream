@@ -1,7 +1,7 @@
 import { auth, signOut } from "@/auth"
 import { redirect } from "next/navigation"
 import { eq } from "drizzle-orm"
-import { db, dbQuery } from "@/lib/db"
+import { dbQuery } from "@/lib/db"
 import { users } from "@/lib/db/schema"
 import type { Metadata } from "next"
 import ProfileClient from "./ProfileClient"
@@ -23,10 +23,10 @@ export default async function ProfilePage() {
 
   // Read fresh from the DB rather than trusting the JWT, so a just-edited display
   // name is always reflected without needing to force a session/token refresh.
-  // dbQuery handles transient Neon connection failures automatically.
+  // dbQuery handles transient connection failures automatically.
   let user: { name: string | null; email: string | null; createdAt: Date | null } | undefined
   try {
-    const [dbUser] = await dbQuery(() =>
+    const [dbUser] = await dbQuery((db) =>
       db
         .select({ name: users.name, email: users.email, createdAt: users.createdAt })
         .from(users)

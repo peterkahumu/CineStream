@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, dbQuery } from "@/lib/db";
+import { dbQuery } from "@/lib/db";
 import { watchProgress } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -13,7 +13,7 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    const progress = await dbQuery(() =>
+    const progress = await dbQuery((db) =>
       db
         .select()
         .from(watchProgress)

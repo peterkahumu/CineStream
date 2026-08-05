@@ -19,6 +19,12 @@
   "images": {
     "binding": "IMAGES"
   },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "722c9505cf8542978ac078e7a3d837f6"
+    }
+  ],
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,

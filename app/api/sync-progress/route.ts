@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, dbQuery } from "@/lib/db";
+import { dbQuery } from "@/lib/db";
 import { watchProgress } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
@@ -18,11 +18,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
 
-    for (const item of items) {
-      // Upsert logic for each progress item
-      // We will check if it exists for this user + tmdbId
-      const existing = await dbQuery(() =>
-        db
+    // One dbQuery call for the whole batch, so every item in the loop shares a
+    // single connection instead of opening one per query.
+    await dbQuery(async (db) => {
+      for (const item of items) {
+        // Upsert logic for each progress item
+        // We will check if it exists for this user + tmdbId
+        const existing = await db
           .select()
           .from(watchProgress)
           .where(
@@ -31,14 +33,12 @@ export async function POST(request: Request) {
               eq(watchProgress.tmdbId, item.id)
             )
           )
-          .limit(1)
-      );
+          .limit(1);
 
-      if (existing.length > 0) {
-        // If the incoming timestamp is newer, update it
-        if (item.updatedAt > existing[0].updatedAt) {
-          await dbQuery(() =>
-            db
+        if (existing.length > 0) {
+          // If the incoming timestamp is newer, update it
+          if (item.updatedAt > existing[0].updatedAt) {
+            await db
               .update(watchProgress)
               .set({
                 watched: item.watched,
@@ -50,13 +50,11 @@ export async function POST(request: Request) {
                 lastProvider: item.lastProvider,
                 updatedAt: item.updatedAt,
               })
-              .where(eq(watchProgress.id, existing[0].id))
-          );
-        }
-      } else {
-        // Insert new
-        await dbQuery(() =>
-          db.insert(watchProgress).values({
+              .where(eq(watchProgress.id, existing[0].id));
+          }
+        } else {
+          // Insert new
+          await db.insert(watchProgress).values({
             userId,
             tmdbId: item.id,
             mediaType: item.mediaType,
@@ -71,10 +69,10 @@ export async function POST(request: Request) {
             genres: item.genres,
             lastProvider: item.lastProvider,
             updatedAt: item.updatedAt,
-          })
-        );
+          });
+        }
       }
-    }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
