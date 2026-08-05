@@ -9,10 +9,8 @@ import { getTermsAccepted, setTermsAccepted, TERMS_EVENT } from '@/lib/terms'
 import CustomSelect from '@/components/CustomSelect'
 import Modal from '@/components/Modal'
 import { useCountries } from '@/lib/useCountries'
+import { WISHLIST_KEY } from '@/lib/wishlistTracker'
 import styles from './page.module.css'
-
-/** Must stay in sync with ActionButtons.tsx and WishlistClient.tsx */
-const WISHLIST_KEY = 'cinemaphora-wishlist'
 
 function Toggle({
   checked,
