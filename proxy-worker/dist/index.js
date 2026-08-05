@@ -2,7 +2,10 @@ import { STATIC_BLOCKLIST } from './blocklist';
 import { AD_HIDING_CSS } from './adCss';
 import { buildLocationSpoofScript } from './locationSpoof';
 // ─── Security helpers ─────────────────────────────────────────────────────────
-const PRIVATE_IP_RE = /^(localhost|127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)/;
+// Covers IPv4 loopback/private ranges plus 169.254.0.0/16 — the link-local range
+// that includes the cloud-metadata IP (169.254.169.254) most SSRF payloads target —
+// and the IPv6 equivalents (::1, fe80::/10 link-local, fc00::/7 unique-local).
+const PRIVATE_IP_RE = /^(localhost|127\.|0\.0\.0\.0|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2[0-9]|3[01])\.|\[?(::1|fe80:|fc[0-9a-f]{2}:|fd[0-9a-f]{2}:))/i;
 function isPrivateHost(hostname) {
     return PRIVATE_IP_RE.test(hostname);
 }
@@ -10,6 +13,43 @@ function isAllowedDomain(hostname, allowed) {
     if (allowed.length === 0)
         return true; // allowlist disabled
     return allowed.some(d => hostname === d || hostname.endsWith('.' + d));
+}
+/**
+ * True (with a reason) when `url` should be rejected — same checks the initial
+ * request goes through. Re-run on every redirect hop below: `redirect: 'follow'`
+ * would otherwise let an allowlisted origin 302 the fetch straight past the
+ * private-IP/allowlist checks to an internal target.
+ */
+function rejectionReason(url, allowedDomains) {
+    if (!['http:', 'https:'].includes(url.protocol))
+        return 'disallowed protocol';
+    if (isPrivateHost(url.hostname))
+        return 'private/loopback address';
+    if (!isAllowedDomain(url.hostname, allowedDomains))
+        return `domain not in allowlist: ${url.hostname}`;
+    return null;
+}
+const MAX_REDIRECTS = 5;
+/**
+ * Follows redirects manually (rather than `redirect: 'follow'`) so every hop —
+ * not just the initial URL — is validated against the private-IP/allowlist checks.
+ */
+async function fetchValidated(initialUrl, headers, allowedDomains) {
+    let current = initialUrl;
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+        const res = await fetch(current.toString(), { headers, redirect: 'manual' });
+        if (res.status < 300 || res.status >= 400)
+            return res;
+        const location = res.headers.get('Location');
+        if (!location)
+            return res;
+        const next = new URL(location, current);
+        const reason = rejectionReason(next, allowedDomains);
+        if (reason)
+            throw new Error(`Blocked redirect to ${next.hostname}: ${reason}`);
+        current = next;
+    }
+    throw new Error('Too many redirects');
 }
 // ─── Header helpers ───────────────────────────────────────────────────────────
 function buildProviderHeaders(request, targetOrigin) {
@@ -102,7 +142,7 @@ function transformHtml(response, targetOrigin, blocklist) {
     }));
 }
 // ─── Main fetch handler ───────────────────────────────────────────────────────
-export default {
+const worker = {
     async fetch(request, env) {
         // CORS preflight
         if (request.method === 'OPTIONS') {
@@ -130,26 +170,17 @@ export default {
         catch {
             return new Response('Invalid URL in ?url= parameter', { status: 400 });
         }
-        if (!['http:', 'https:'].includes(targetUrl.protocol)) {
-            return new Response('Only http and https URLs are allowed', { status: 400 });
-        }
-        if (isPrivateHost(targetUrl.hostname)) {
-            return new Response('Private/loopback addresses are not allowed', { status: 403 });
-        }
-        // ── Allowlist check ─────────────────────────────────────────────────────
         const allowedDomains = env.ALLOWED_DOMAINS
             ? env.ALLOWED_DOMAINS.split(',').map(d => d.trim()).filter(Boolean)
             : [];
-        if (!isAllowedDomain(targetUrl.hostname, allowedDomains)) {
-            return new Response(`Domain not in allowlist: ${targetUrl.hostname}. Add it to ALLOWED_DOMAINS in the Worker environment.`, { status: 403 });
+        const reason = rejectionReason(targetUrl, allowedDomains);
+        if (reason) {
+            return new Response(`Request blocked: ${reason}. If this domain should be allowed, add it to ALLOWED_DOMAINS in the Worker environment.`, { status: 403 });
         }
-        // ── Fetch provider page ─────────────────────────────────────────────────
+        // Fetch provider page, re-validating every redirect hop
         let providerRes;
         try {
-            providerRes = await fetch(rawTarget, {
-                headers: buildProviderHeaders(request, targetUrl.origin),
-                redirect: 'follow',
-            });
+            providerRes = await fetchValidated(targetUrl, buildProviderHeaders(request, targetUrl.origin), allowedDomains);
         }
         catch (err) {
             return new Response(`Upstream fetch failed: ${err}`, { status: 502 });
@@ -169,3 +200,4 @@ export default {
         return transformHtml(providerRes, finalOrigin, blocklist);
     },
 };
+export default worker;
