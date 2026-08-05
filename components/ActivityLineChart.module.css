@@ -1,0 +1,201 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  min-height: 42px;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Quick Summary Bar */
+.summaryRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.summaryItem {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.summaryLabel {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.summaryValue {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* SVG Chart Container */
+.chartContainer {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 180px;
+  user-select: none;
+  touch-action: pan-y;
+  display: flex;
+  align-items: center;
+}
+
+.svgChart {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: var(--border);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+}
+
+.gridLabel {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+
+.linePath {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.areaFill {
+  fill: url(#activityGradient);
+  pointer-events: none;
+}
+
+.point {
+  fill: var(--bg-surface);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  cursor: pointer;
+  transition: r 150ms ease, stroke-width 150ms ease;
+}
+
+.pointActive {
+  r: 6;
+  fill: var(--accent);
+  stroke: var(--bg-surface);
+  stroke-width: 3;
+}
+
+.crosshair {
+  stroke: var(--accent-border);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+
+/* Floating Tooltip */
+.tooltip {
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  background: var(--nav-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: opacity 150ms ease;
+  backdrop-filter: blur(8px);
+}
+
+.tooltipDate {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.tooltipCount {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tooltipBreakdown {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.emptyNotice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  background: var(--bg-hover);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+}
+
+@media (max-width: 640px) {
+  .chartContainer {
+    min-height: 160px;
+  }
+
+  .summaryRow {
+    gap: var(--space-sm);
+    padding: 6px 10px;
+  }
+}

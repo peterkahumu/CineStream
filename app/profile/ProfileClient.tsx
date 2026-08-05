@@ -17,8 +17,6 @@ interface Props {
   children?: ReactNode
 }
 
-/* helpers */
-
 function initialsFor(name: string | null, email: string): string {
   const source = name?.trim() || email
   const parts = source.split(/\s+/).filter(Boolean)
@@ -30,8 +28,6 @@ function formatMemberSince(iso: string | null): string | null {
   if (!iso) return null
   return new Date(iso).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
-
-/* component */
 
 export default function ProfileClient({ name, email, memberSince, children }: Props) {
   const [displayName, setDisplayName] = useState(name)
@@ -71,7 +67,7 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
 
   return (
     <div className={styles.profilePage}>
-      {/* hero */}
+      {/* Hero Header Card */}
       <div className={styles.headerCard}>
         <div className={styles.headerAccent} />
         <div className={styles.headerInner}>
@@ -95,15 +91,15 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
                     disabled={saving}
                     aria-label="Display name"
                   />
-                  <button className={styles.nameSaveBtn} onClick={saveName} disabled={saving}>
+                  <button className={styles.nameSaveBtn} onClick={saveName} disabled={saving} type="button">
                     {saving ? 'Saving…' : 'Save'}
                   </button>
-                  <button className={styles.nameCancelBtn} onClick={cancelEditing} disabled={saving}>
+                  <button className={styles.nameCancelBtn} onClick={cancelEditing} disabled={saving} type="button">
                     Cancel
                   </button>
                 </div>
               ) : (
-                <button className={styles.nameRow} onClick={startEditing} title="Edit display name">
+                <button className={styles.nameRow} onClick={startEditing} title="Edit display name" type="button">
                   <h1 className={styles.title}>{displayName || 'Add a display name'}</h1>
                   <span className={styles.editIcon} aria-hidden="true">✎</span>
                 </button>
@@ -124,38 +120,59 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
         </div>
       </div>
 
-      {/* grid */}
-      <div className={styles.contentGrid}>
-        {/* main */}
-        <div className={styles.mainColumn}>
-          {/* history */}
-          <div className={styles.sectionCard}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Watch History</h2>
-            </div>
+      {/* Quick Navigation Tabs */}
+      <nav className={styles.quickNav} aria-label="Profile sections">
+        <a href="#stats" className={styles.navTab}>
+          <span>📊</span> Overview &amp; Stats
+        </a>
+        <a href="#history" className={styles.navTab}>
+          <span>🕘</span> Watch History
+        </a>
+        <a href="#account" className={styles.navTab}>
+          <span>⚙️</span> Account Management
+        </a>
+      </nav>
+
+      {/* Stacked Layout: Stats Top -> History Middle -> Account Bottom */}
+      <div className={styles.sectionsWrapper}>
+        {/* Top: Stats & Visualisations */}
+        <section id="stats" className={styles.sectionCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span>📊</span> Your Viewing Stats &amp; Insights
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              Comprehensive breakdown of your watching habits, momentum, and favorite genres.
+            </p>
+          </div>
+          <ProfileStats />
+        </section>
+
+        {/* Middle: Watch History */}
+        <section id="history" className={styles.sectionCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span>🕘</span> Watch History
+            </h2>
             <p className={styles.sectionSubtitle}>
               Everything you&apos;ve started or finished watching, synced across your devices.
             </p>
-            <WatchHistoryList />
           </div>
-        </div>
+          <WatchHistoryList />
+        </section>
 
-        {/* side */}
-        <div className={styles.sideColumn}>
-          <div className={styles.sectionCard}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Your Stats</h2>
-            </div>
-            <ProfileStats />
+        {/* Bottom: Account Management */}
+        <section id="account" className={styles.sectionCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span>⚙️</span> Account Management
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              Update your password or manage account settings.
+            </p>
           </div>
-
-          <div className={styles.sectionCard}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Account</h2>
-            </div>
-            <AccountSettings />
-          </div>
-        </div>
+          <AccountSettings />
+        </section>
       </div>
     </div>
   )

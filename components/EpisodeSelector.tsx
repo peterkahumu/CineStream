@@ -34,7 +34,7 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
 
   const scrollToActiveEpisode = useCallback(() => {
     if (activeEpRef.current) {
-      activeEpRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      activeEpRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }, [])
 
@@ -47,7 +47,12 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
 
   // Scroll active episode into view
   useEffect(() => {
-    scrollToActiveEpisode()
+    if (activeEpisode > 0) {
+      const timer = setTimeout(() => {
+        scrollToActiveEpisode()
+      }, 120)
+      return () => clearTimeout(timer)
+    }
   }, [activeEpisode, scrollToActiveEpisode])
 
   const activeSeasonData = seasons.find(s => s.season_number === activeSeason)
@@ -126,7 +131,10 @@ export default function EpisodeSelector({ seasons, tvId, activeSeason, activeEpi
                 </div>
 
                 <div className={styles.epHeader}>
-                  <div className={styles.epTitle}>{ep.name || `Episode ${ep.episode_number}`}</div>
+                  <div className={styles.epTitleRow}>
+                    <div className={styles.epTitle}>{ep.name || `Episode ${ep.episode_number}`}</div>
+                    {isActive && <span className={styles.activeEpBadge}>Selected</span>}
+                  </div>
                   <div className={styles.epMeta}>
                     {ep.air_date && <span className={styles.epDate}>{ep.air_date.slice(0, 4)}</span>}
                     {ep.vote_average > 0 && <span className={styles.epRating}>★ {ep.vote_average.toFixed(1)}</span>}

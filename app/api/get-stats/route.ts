@@ -7,13 +7,21 @@ import { eq } from "drizzle-orm";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 const MONTH_MS = 30 * DAY_MS;
-const TOP_GENRES_LIMIT = 5;
-const ACTIVITY_DAYS = 7;
+const THREE_MONTHS_MS = 90 * DAY_MS;
+const TOP_GENRES_LIMIT = 8;
+const MAX_ACTIVITY_DAYS = 90;
 
-interface GenreTally {
+export interface GenreTally {
   id: number;
   name: string;
   count: number;
+}
+
+export interface ActivityPoint {
+  date: string;
+  count: number;
+  movies: number;
+  tvShows: number;
 }
 
 interface HistoryRow {
@@ -24,11 +32,6 @@ interface HistoryRow {
   occurredAt: number;
 }
 
-/**
- * Tallies genres once per distinct title, not once per history row — a show
- * watched across many episodes would otherwise dominate a movie watched once,
- * since each episode is its own row (see lib/db/schema.ts watchHistory).
- */
 function tallyGenres(rows: HistoryRow[]): GenreTally[] {
   const genresByTitle = new Map<string, { id: number; name: string }[]>();
   for (const row of rows) {
@@ -52,19 +55,62 @@ function tallyGenres(rows: HistoryRow[]): GenreTally[] {
     .slice(0, TOP_GENRES_LIMIT);
 }
 
-/** Distinct titles touched per day over the last ACTIVITY_DAYS days, oldest first. */
-function buildActivity(rows: HistoryRow[], now: number): { date: string; count: number }[] {
-  const byDay = new Map<string, Set<string>>();
-  for (let i = ACTIVITY_DAYS - 1; i >= 0; i--) {
-    byDay.set(new Date(now - i * DAY_MS).toISOString().slice(0, 10), new Set());
+function buildActivitySeries(rows: HistoryRow[], now: number, daysCount = MAX_ACTIVITY_DAYS): ActivityPoint[] {
+  const byDay = new Map<string, { movies: Set<string>; tv: Set<string> }>();
+  for (let i = daysCount - 1; i >= 0; i--) {
+    const dateStr = new Date(now - i * DAY_MS).toISOString().slice(0, 10);
+    byDay.set(dateStr, { movies: new Set(), tv: new Set() });
   }
 
   for (const row of rows) {
     const dateStr = new Date(row.occurredAt).toISOString().slice(0, 10);
-    byDay.get(dateStr)?.add(`${row.mediaType}-${row.tmdbId}`);
+    const dayEntry = byDay.get(dateStr);
+    if (dayEntry) {
+      if (row.mediaType === "movie") {
+        dayEntry.movies.add(row.tmdbId);
+      } else {
+        dayEntry.tv.add(row.tmdbId);
+      }
+    }
   }
 
-  return Array.from(byDay.entries()).map(([date, titles]) => ({ date, count: titles.size }));
+  return Array.from(byDay.entries()).map(([date, sets]) => ({
+    date,
+    count: sets.movies.size + sets.tv.size,
+    movies: sets.movies.size,
+    tvShows: sets.tv.size,
+  }));
+}
+
+function calculateStreak(activitySeries: ActivityPoint[]): number {
+  let streak = 0;
+  for (let i = activitySeries.length - 1; i >= 0; i--) {
+    if (activitySeries[i].count > 0) {
+      streak++;
+    } else if (i === activitySeries.length - 1) {
+      continue;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function calculatePeakDay(rows: HistoryRow[]): { day: string; count: number } {
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const counts = [0, 0, 0, 0, 0, 0, 0];
+
+  for (const row of rows) {
+    const d = new Date(row.occurredAt);
+    counts[d.getDay()]++;
+  }
+
+  let maxIdx = 0;
+  for (let i = 1; i < 7; i++) {
+    if (counts[i] > counts[maxIdx]) maxIdx = i;
+  }
+
+  return { day: days[maxIdx], count: counts[maxIdx] };
 }
 
 export async function GET() {
@@ -83,14 +129,19 @@ export async function GET() {
     );
 
     const now = Date.now();
+    const currentMonthStr = new Date(now).toISOString().slice(0, 7);
+
     const titleKeys = new Set<string>();
     const movieKeys = new Set<string>();
     const tvKeys = new Set<string>();
     const titlesCompleted = new Set<string>();
-    // Distinct titles, not raw event rows — a title can log several started/completed
-    // events (resumes, rewatches), so counting rows reads as a meaningless number.
     const titlesThisWeek = new Set<string>();
     const titlesThisMonth = new Set<string>();
+
+    const rows7d: HistoryRow[] = [];
+    const rows30d: HistoryRow[] = [];
+    const rowsMtd: HistoryRow[] = [];
+    const rows90d: HistoryRow[] = [];
 
     for (const row of historyRows) {
       const key = `${row.mediaType}-${row.tmdbId}`;
@@ -99,28 +150,64 @@ export async function GET() {
       else tvKeys.add(key);
 
       if (row.event === "completed") titlesCompleted.add(key);
-      if (now - row.occurredAt <= WEEK_MS) titlesThisWeek.add(key);
-      if (now - row.occurredAt <= MONTH_MS) titlesThisMonth.add(key);
+      if (now - row.occurredAt <= WEEK_MS) {
+        titlesThisWeek.add(key);
+        rows7d.push(row);
+      }
+      if (now - row.occurredAt <= MONTH_MS) {
+        titlesThisMonth.add(key);
+        rows30d.push(row);
+      }
+      if (new Date(row.occurredAt).toISOString().slice(0, 7) === currentMonthStr) {
+        rowsMtd.push(row);
+      }
+      if (now - row.occurredAt <= THREE_MONTHS_MS) {
+        rows90d.push(row);
+      }
     }
 
-    // Total watch time comes from watch_progress (the authoritative per-item position),
-    // capped at each item's duration so a stray over-report can't inflate the total.
+    let movieWatchSeconds = 0;
+    let tvWatchSeconds = 0;
+
     const totalWatchSeconds = progressRows.reduce((sum, row) => {
       const watched = row.watched ?? 0;
       const duration = row.duration ?? 0;
-      return sum + (duration > 0 ? Math.min(watched, duration) : watched);
+      const validSeconds = duration > 0 ? Math.min(watched, duration) : watched;
+      if (row.mediaType === "movie") movieWatchSeconds += validSeconds;
+      else tvWatchSeconds += validSeconds;
+      return sum + validSeconds;
     }, 0);
+
+    const activitySeries = buildActivitySeries(historyRows, now, MAX_ACTIVITY_DAYS);
+    const activeStreak = calculateStreak(activitySeries);
+    const peakDay = calculatePeakDay(historyRows);
+
+    const genresByRange = {
+      "7d": tallyGenres(rows7d),
+      "30d": tallyGenres(rows30d),
+      mtd: tallyGenres(rowsMtd),
+      "90d": tallyGenres(rows90d),
+      all: tallyGenres(historyRows),
+    };
 
     return NextResponse.json({
       titlesWatched: titleKeys.size,
+      titlesCompleted: titlesCompleted.size,
       moviesWatched: movieKeys.size,
       tvShowsWatched: tvKeys.size,
       completionRate: titleKeys.size > 0 ? Math.round((titlesCompleted.size / titleKeys.size) * 100) : 0,
       totalWatchSeconds,
+      movieWatchSeconds,
+      tvWatchSeconds,
       thisWeek: titlesThisWeek.size,
       thisMonth: titlesThisMonth.size,
-      topGenres: tallyGenres(historyRows),
-      activity: buildActivity(historyRows, now),
+      totalWatchEvents: historyRows.length,
+      activeStreak,
+      peakDay,
+      topGenres: genresByRange["all"],
+      genresByRange,
+      activity: activitySeries.slice(-7),
+      activitySeries,
     });
   } catch (error) {
     console.error("Get stats error:", error);
