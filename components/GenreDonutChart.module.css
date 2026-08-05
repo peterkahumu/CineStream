@@ -1,0 +1,274 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  min-height: 42px;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Quick Summary Bar */
+.summaryRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.summaryItem {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.summaryLabel {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.summaryValue {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.contentRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex: 1;
+  min-height: 180px;
+}
+
+/* Donut container */
+.donutContainer {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.svgDonut {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.slice {
+  fill: none;
+  stroke-width: 22;
+  cursor: pointer;
+  transition: stroke-width 150ms ease, opacity 150ms ease;
+}
+
+.slice:hover,
+.sliceActive {
+  stroke-width: 28;
+  opacity: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
+}
+
+.sliceDimmed {
+  opacity: 0.35;
+}
+
+/* Center readout inside Donut hole */
+.centerInfo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  padding: 10px;
+}
+
+.centerValue {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.centerLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.centerSub {
+  font-size: 0.6875rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Legend list */
+.legend {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.legendItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.legendItem:hover,
+.legendItemActive {
+  background: var(--bg-hover);
+}
+
+.legendItemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.legendNameGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.colorDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.genreName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.genreStats {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.genreCount {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.genrePercent {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.miniBarTrack {
+  height: 3px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  width: 100%;
+}
+
+.miniBarFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 300ms ease;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  background: var(--bg-hover);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+}
+
+@media (max-width: 640px) {
+  .contentRow {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .donutContainer {
+    width: 150px;
+    height: 150px;
+  }
+
+  .legend {
+    width: 100%;
+    min-width: 0;
+    max-height: none;
+  }
+}

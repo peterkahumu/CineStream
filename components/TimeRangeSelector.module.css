@@ -1,0 +1,41 @@
+.filterControls {
+  display: inline-flex;
+  background: var(--bg-hover);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  gap: 2px;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filterBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filterBtn:hover {
+  color: var(--text-primary);
+}
+
+.filterBtnActive {
+  background: var(--accent);
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+@media (max-width: 640px) {
+  .filterBtn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+}

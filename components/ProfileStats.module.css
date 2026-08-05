@@ -1,49 +1,63 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-xl);
+  width: 100%;
 }
 
-.grid {
+/* Metric Cards Grid */
+.metricsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-sm);
-}
-
-/* In the sidebar (≥1024px), the stats card is narrower — keep 2 columns
-   but let them breathe with smaller padding/font. On wider mobile they
-   already look fine at 2 columns. On very wide screens (≥1400px) with
-   enough sidebar room, bump to 2×2 comfortably. */
-@media (min-width: 640px) and (max-width: 1023px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--space-md);
+  width: 100%;
 }
 
 .tile {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
   padding: var(--space-md);
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: border-color var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .tile:hover {
-  border-color: var(--accent-border);
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
 }
 
-.tileSkeleton {
-  height: 76px;
+.tileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.tileLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tileIcon {
+  font-size: 1.125rem;
 }
 
 .tileValue {
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 800;
   color: var(--text-primary);
-  line-height: 1.1;
+  line-height: 1.2;
+  font-family: var(--font-display);
 }
 
 .tileSplit {
@@ -52,145 +66,174 @@
   color: var(--text-muted);
 }
 
-.tileLabel {
-  font-size: 0.8125rem;
+.tileSubtitle {
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.genresCard {
-  padding: var(--space-md);
+.tileProgressTrack {
+  margin-top: 8px;
+  height: 5px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: flex;
+}
+
+.tileProgressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 400ms ease;
+}
+
+.tileProgressFillPrimary {
+  background: var(--accent);
+}
+
+.tileProgressFillSecondary {
+  background: var(--green);
+}
+
+/* Tooltip container for completion rate */
+.infoBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+}
+
+.infoBadge:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--nav-bg);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: normal;
+  width: 200px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  pointer-events: none;
+  line-height: 1.3;
+}
+
+/* Visualisations Grid */
+.visualsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .visualsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    align-items: stretch;
+  }
+}
+
+.visualCard {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
 }
 
-.genresTitle {
-  font-size: 1rem;
+/* Insights Banner */
+.insightsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.insightCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.insightIcon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.insightText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.insightTitle {
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 var(--space-md);
-}
-
-.genresList {
-  list-style: none;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
 }
 
-.genreRow {
-  display: grid;
-  grid-template-columns: 90px 1fr 28px;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.genreName {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.genreBarTrack {
-  height: 8px;
-  border-radius: var(--radius-full);
-  background: var(--bg-muted);
-  overflow: hidden;
-}
-
-.genreBarFill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
-  transition: width var(--transition-normal);
-}
-
-.genreCount {
+.insightDesc {
   font-size: 0.75rem;
   color: var(--text-muted);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  margin: 0;
 }
 
-/* Static width buckets (10% steps) — keeps dynamic bar widths out of inline styles. */
-.p0   { width: 0%; }
-.p10  { width: 10%; }
-.p20  { width: 20%; }
-.p30  { width: 30%; }
-.p40  { width: 40%; }
-.p50  { width: 50%; }
-.p60  { width: 60%; }
-.p70  { width: 70%; }
-.p80  { width: 80%; }
-.p90  { width: 90%; }
-.p100 { width: 100%; }
-
-.activityChart {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--space-xs);
-  padding-top: var(--space-sm);
+/* Skeletons */
+.tileSkeleton {
+  height: 100px;
+  border-radius: var(--radius-lg);
 }
 
-.activityCol {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
+.chartSkeleton {
+  height: 260px;
+  border-radius: var(--radius-lg);
 }
 
-.activityCount {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  height: 14px;
+@media (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .tile {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .tileValue {
+    font-size: 1.375rem;
+  }
+
+  .visualCard {
+    padding: var(--space-md);
+  }
 }
 
-.activityBarTrack {
-  position: relative;
-  width: 100%;
-  max-width: 28px;
-  height: 56px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-muted);
-  overflow: hidden;
+@media (max-width: 480px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
 }
-
-.activityBarFill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: linear-gradient(180deg, var(--accent-hover), var(--accent));
-  transition: height var(--transition-normal);
-}
-
-.activityDayLabel {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-/* Static height buckets (10% steps) for the activity bars — same reasoning as .p0-.p100. */
-.h0   { height: 0%; }
-.h10  { height: 10%; }
-.h20  { height: 20%; }
-.h30  { height: 30%; }
-.h40  { height: 40%; }
-.h50  { height: 50%; }
-.h60  { height: 60%; }
-.h70  { height: 70%; }
-.h80  { height: 80%; }
-.h90  { height: 90%; }
-.h100 { height: 100%; }

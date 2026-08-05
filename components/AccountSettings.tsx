@@ -106,9 +106,11 @@ export default function AccountSettings() {
       </form>
 
       <div className={styles.dangerZone}>
-        <h3 className={styles.subheading}>Danger Zone</h3>
+        <h3 className={styles.dangerTitle}>
+          <span>⚠️</span> Danger Zone
+        </h3>
         <p className={styles.dangerText}>
-          Permanently delete your account, watch history, progress, and My List. This cannot be undone.
+          Permanently delete your account, watch history, progress, and My List. This action cannot be undone.
         </p>
         <button type="button" className={styles.deleteBtn} onClick={() => setDeleteModalOpen(true)}>
           Delete Account
