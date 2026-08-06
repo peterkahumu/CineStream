@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Modal from './Modal'
 import MediaCard from './MediaCard'
 import type { MediaItem } from '@/lib/tmdb'
-import { getAllProgress, removeProgress, mergeRemoteProgress, type WatchProgress } from '@/lib/progressTracker'
+import { getAllProgress, removeProgress, mergeRemoteProgress, PROGRESS_SYNC_EVENT, type WatchProgress } from '@/lib/progressTracker'
 import { useSession } from 'next-auth/react'
 import styles from './ContinueWatchingRow.module.css'
 
@@ -53,10 +53,15 @@ export default function ContinueWatchingRow() {
     }
   }, [status, loadItems])
 
-  // Storage events fire when another tab modifies localStorage
+  // Storage events fire when another tab modifies localStorage; PROGRESS_SYNC_EVENT
+  // fires when SyncManager's periodic poll merges in a change within this same tab.
   useEffect(() => {
     window.addEventListener('storage', loadItems)
-    return () => window.removeEventListener('storage', loadItems)
+    window.addEventListener(PROGRESS_SYNC_EVENT, loadItems)
+    return () => {
+      window.removeEventListener('storage', loadItems)
+      window.removeEventListener(PROGRESS_SYNC_EVENT, loadItems)
+    }
   }, [loadItems])
 
   // Interaction handlers
