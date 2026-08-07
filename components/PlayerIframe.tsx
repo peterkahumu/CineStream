@@ -208,6 +208,15 @@ export default function PlayerIframe({
     resolveStartTime()
   }, [iframeKey, resolveStartTime])
 
+  // Mark this title as actively playing so a periodic background sync never
+  // overwrites a live session (see progressTracker's activePlaybackId). Scoped
+  // to `id` rather than season/episode so it stays marked across an in-show
+  // episode change, not just the initial mount.
+  useEffect(() => {
+    progressTracker.setActivePlayback(id)
+    return () => progressTracker.clearActivePlayback(id)
+  }, [id])
+
   // Render
 
   if (hasError) {

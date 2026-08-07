@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -13,6 +13,7 @@ import {
   setWatched,
   removeFromWishlist,
   setFolder,
+  WISHLIST_SYNC_EVENT,
 } from '@/lib/wishlistTracker'
 import Modal from '@/components/Modal'
 import styles from './WishlistClient.module.css'
@@ -55,8 +56,6 @@ export default function WishlistClient() {
   const [folderToDelete, setFolderToDelete] = useState<string | null>(null)
   const [itemToRemove, setItemToRemove] = useState<SavedWishlistItem | null>(null)
 
-  const isSyncingRef = useRef(false)
-
   // 1. Initial local load
   useEffect(() => {
     setMounted(true)
@@ -94,52 +93,26 @@ export default function WishlistClient() {
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
 
-  // 3. Silent cross-device background sync
-  const pullRemoteWishlist = useCallback(async () => {
-    if (!isAuthenticated || isSyncingRef.current) return
-    isSyncingRef.current = true
-    try {
-      const res = await fetch('/api/get-watchlist')
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data)) {
-          const merged = mergeRemoteWishlist(data)
-          setItems(merged)
+  // 3. Cross-device sync — initial pull on page open; periodic catch-up while
+  // any page is open (not just this one) is handled globally by SyncManager,
+  // which fires WISHLIST_SYNC_EVENT after merging so this page picks it up too.
+  useEffect(() => {
+    if (!isAuthenticated) return
+    fetch('/api/get-watchlist')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setItems(mergeRemoteWishlist(data))
         }
-      }
-    } catch (err) {
-      console.error('[WishlistClient] Silent background sync error:', err)
-    } finally {
-      isSyncingRef.current = false
-    }
+      })
+      .catch(err => console.error('[WishlistClient] Silent background sync error:', err))
   }, [isAuthenticated])
 
   useEffect(() => {
-    if (!isAuthenticated) return
-
-    // Initial pull on login / page open
-    pullRemoteWishlist()
-
-    // Background interval sync every 60s
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        pullRemoteWishlist()
-      }
-    }, 60_000)
-
-    // Re-sync immediately on tab focus
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        pullRemoteWishlist()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      clearInterval(interval)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [isAuthenticated, pullRemoteWishlist])
+    const handleSync = () => setItems(getWishlist())
+    window.addEventListener(WISHLIST_SYNC_EVENT, handleSync)
+    return () => window.removeEventListener(WISHLIST_SYNC_EVENT, handleSync)
+  }, [])
 
   // Handlers
   const handleToggleWatched = useCallback(

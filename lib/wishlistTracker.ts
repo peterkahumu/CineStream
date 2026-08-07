@@ -17,6 +17,14 @@ export const WISHLIST_KEY = 'cinemaphora-wishlist'
 const WISHLIST_TOMBSTONES_KEY = 'cinemaphora-deleted-watchlist'
 const SYNC_DEBOUNCE_MS = 10_000
 
+/**
+ * Fired after mergeRemoteWishlist actually changes localStorage. Components
+ * that only read the wishlist on mount (or on a native `storage` event, which
+ * doesn't fire in the tab that made the write) listen for this so a periodic
+ * background poll in the same tab still refreshes their UI.
+ */
+export const WISHLIST_SYNC_EVENT = 'cinemaphora:wishlist-sync'
+
 export interface WishlistItem {
   id: string // TMDB id, as a string
   mediaType: 'movie' | 'tv'
@@ -210,6 +218,7 @@ export function mergeRemoteWishlist(remoteItems: WishlistItem[]): WishlistItem[]
   if (typeof localStorage === 'undefined') return []
   const local = readWishlist()
   const tombstones = getWishlistTombstones()
+  let changed = false
 
   for (const remote of remoteItems) {
     const key = `${remote.mediaType}-${remote.id}`
@@ -230,12 +239,17 @@ export function mergeRemoteWishlist(remoteItems: WishlistItem[]): WishlistItem[]
     const idx = findIndex(local, remote.id, remote.mediaType)
     if (idx === -1) {
       local.push(remote)
+      changed = true
     } else if (remote.updatedAt > local[idx].updatedAt) {
       local[idx] = remote
+      changed = true
     }
   }
 
-  writeWishlist(local)
+  if (changed) {
+    writeWishlist(local)
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event(WISHLIST_SYNC_EVENT))
+  }
   return local
 }
 

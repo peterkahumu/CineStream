@@ -10,9 +10,12 @@
  * - Writes go to localStorage immediately (no latency, offline-safe)
  * - A debounced background sync pushes to /api/sync-progress after 10s of inactivity
  * - flushProgress() sends all items immediately via sendBeacon (reliable on unload)
- * - mergeRemoteProgress() merges DB items into localStorage, preferring whichever
- *   side has the more advanced watch position (later season/episode beats a merely
- *   more recent updatedAt — see isProgressAtLeastAsAdvanced)
+ * - mergeRemoteProgress() merges DB items into localStorage using latest-updatedAt-wins
+ *   (same rule wishlistTracker uses), except for whatever title is currently open in
+ *   the player (see setActivePlayback) — a periodic poll has no business arbitrating
+ *   against a live session, so that title is left untouched until playback closes
+ * - SyncManager polls and calls mergeRemoteProgress periodically while a tab is
+ *   visible, so progress made on one device shows up on another without a reload
  *
  * DB sync is opt-in per call via `isAuthenticated` (callers read this from
  * `useSession()`, since the session cookie is httpOnly and can't be sniffed from a
@@ -442,41 +445,57 @@ export function flushProgress(): void {
 }
 
 /**
- * True when `a`'s watch position is at least as advanced as `b`'s.
+ * TMDB id of whatever title is currently open in the player, or null. Set by
+ * PlayerIframe on mount, cleared on unmount.
  *
- * For TV, a later season/episode always wins regardless of raw timestamps —
- * two devices can drift out of clock sync, but "further into the show" is
- * never wrong as a source of truth. Ties (same episode) fall back to watched
- * seconds, then updatedAt. Movies, and any TV item missing season/episode,
- * skip straight to the watched/updatedAt comparison.
+ * mergeRemoteProgress skips this id entirely. Comparing timestamps can't
+ * safely settle a conflict against a live session — an intentional rewind
+ * writes its own fresh, later timestamp, so plain last-write-wins would
+ * usually protect it anyway, but two devices actively playing the same title
+ * at once can each keep producing genuinely later timestamps back and forth.
+ * Rather than let a periodic poll referee that, we just don't let inbound
+ * data touch the active title until playback closes.
  */
-function isProgressAtLeastAsAdvanced(a: WatchProgress, b: WatchProgress): boolean {
-  if (
-    a.mediaType === 'tv' && b.mediaType === 'tv' &&
-    a.season != null && a.episode != null &&
-    b.season != null && b.episode != null
-  ) {
-    if (a.season !== b.season) return a.season > b.season
-    if (a.episode !== b.episode) return a.episode > b.episode
-  }
-  if (a.watched !== b.watched) return a.watched > b.watched
-  return a.updatedAt >= b.updatedAt
+let activePlaybackId: string | null = null
+
+/** Marks a title as actively open in the player. See `activePlaybackId`. */
+export function setActivePlayback(tmdbId: string): void {
+  activePlaybackId = String(tmdbId).trim()
 }
 
 /**
- * Merge remote DB items into localStorage. The item with the more advanced
- * watch position (see `isProgressAtLeastAsAdvanced`) becomes the source of
- * truth for the top-level pointer (season/episode/watched/title/etc.), while
- * per-episode `show_progress` is unioned from both — same higher-watched-wins
- * rule `saveProgress` uses — so neither device's episode progress is lost.
- * Call this after fetching history from the server on login.
+ * Clears active-playback tracking, but only if `tmdbId` is still the one
+ * marked active — guards a stale unmount from clobbering a newer mount's mark.
+ */
+export function clearActivePlayback(tmdbId: string): void {
+  if (activePlaybackId === String(tmdbId).trim()) activePlaybackId = null
+}
+
+/**
+ * Fired after mergeRemoteProgress actually changes localStorage. Components
+ * that only read progress on mount (or on a native `storage` event, which
+ * doesn't fire in the tab that made the write) listen for this so a periodic
+ * background poll in the same tab still refreshes their UI.
+ */
+export const PROGRESS_SYNC_EVENT = 'cinemaphora:progress-sync'
+
+/**
+ * Merge remote DB items into localStorage using latest-updatedAt-wins per
+ * item — same rule `mergeRemoteWishlist` uses — skipping whatever title is
+ * currently open in the player (see `activePlaybackId`). Per-episode
+ * `show_progress` is still unioned from both sides, higher-watched-per-episode
+ * wins, so neither device's episode progress is lost. Call this after
+ * fetching progress from the server on login, or from a periodic poll.
  */
 export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
   if (typeof localStorage === 'undefined') return
   const tombstones = getProgressTombstones()
+  let changed = false
 
   for (const remote of remoteItems) {
     const remoteId = String(remote.id).trim()
+    if (remoteId === activePlaybackId) continue
+
     const deletedAt = tombstones[remoteId]
 
     // If item was deleted locally and remote item hasn't been updated since deletion:
@@ -495,26 +514,30 @@ export function mergeRemoteProgress(remoteItems: WatchProgress[]): void {
     if (!local) {
       try {
         localStorage.setItem(storageKey(remoteId), JSON.stringify(remote))
+        changed = true
       } catch (err) {
         console.error('[progressTracker] Failed to merge remote item:', err)
       }
       continue
     }
 
-    const remoteWins = isProgressAtLeastAsAdvanced(remote, local)
-    const winner = remoteWins ? remote : local
-    const loser = remoteWins ? local : remote
+    if (remote.updatedAt <= local.updatedAt) continue
 
     const merged: WatchProgress = {
-      ...winner,
-      show_progress: mergeShowProgress(loser.show_progress, winner.show_progress),
+      ...remote,
+      show_progress: mergeShowProgress(local.show_progress, remote.show_progress),
     }
 
     try {
       localStorage.setItem(storageKey(remoteId), JSON.stringify(merged))
+      changed = true
     } catch (err) {
       console.error('[progressTracker] Failed to merge remote item:', err)
     }
+  }
+
+  if (changed && typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(PROGRESS_SYNC_EVENT))
   }
 }
 
