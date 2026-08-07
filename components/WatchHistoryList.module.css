@@ -80,6 +80,12 @@
   -webkit-overflow-scrolling: touch;
   padding: 2px 0;
   max-width: 100%;
+  min-width: 0;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
 }
 
 .filterBtn {
@@ -337,6 +343,9 @@
   gap: 6px;
   font-size: 0.75rem;
   color: var(--text-muted);
+  flex-wrap: wrap;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .timeIcon {
@@ -379,6 +388,9 @@
 }
 
 .detailsBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 9px 16px;
   border-radius: var(--radius-full);
   background: var(--bg-hover);
@@ -459,14 +471,22 @@
 
   .cardActions {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
     width: 100%;
+    min-width: 0;
     padding-top: var(--space-sm);
     border-top: 1px solid var(--border);
   }
 
   .resumeBtn {
     justify-content: center;
+    padding: 8px 12px;
+  }
+
+  .detailsBtn {
+    justify-content: center;
+    padding: 8px 12px;
   }
 
   .controlsBar {
@@ -476,5 +496,16 @@
 
   .searchBox {
     max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleLink {
+    font-size: 0.95rem;
+  }
+
+  .card {
+    padding: 12px;
   }
 }

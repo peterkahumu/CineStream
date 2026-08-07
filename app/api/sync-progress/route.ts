@@ -153,3 +153,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const body = await request.json();
+    const tmdbId = body?.tmdbId ? String(body.tmdbId).trim() : null;
+
+    if (!tmdbId) {
+      return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
+    }
+
+    await dbQuery((db) =>
+      db
+        .delete(watchProgress)
+        .where(
+          and(
+            eq(watchProgress.userId, userId),
+            eq(watchProgress.tmdbId, tmdbId)
+          )
+        )
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete watch progress error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}

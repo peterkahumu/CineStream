@@ -287,7 +287,7 @@ export default function ActivityLineChart({ activitySeries }: Props) {
               <div
                 className={styles.tooltip}
                 style={{
-                  left: `${(activePoint.x / width) * 100}%`,
+                  left: `${Math.max(18, Math.min(82, (activePoint.x / width) * 100))}%`,
                 }}
               >
                 <span className={styles.tooltipDate}>{formatFullDate(activePoint.data.date)}</span>

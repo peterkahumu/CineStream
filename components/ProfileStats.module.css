@@ -5,25 +5,42 @@
   width: 100%;
 }
 
-/* Metric Cards Grid */
 .metricsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: var(--space-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .metricsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-md);
+  }
+}
+
+@media (min-width: 960px) {
+  .metricsGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 .tile {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--space-md);
+  padding: 12px 14px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
   position: relative;
   overflow: hidden;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -38,41 +55,57 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
+  min-width: 0;
+  width: 100%;
+  gap: 4px;
 }
 
 .tileLabel {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
 
 .tileIcon {
-  font-size: 1.125rem;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .tileValue {
-  font-size: 1.625rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1.2;
   font-family: var(--font-display);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .tileSplit {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-muted);
 }
 
 .tileSubtitle {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--text-secondary);
   margin-top: 4px;
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .tileProgressTrack {
@@ -82,6 +115,8 @@
   border-radius: var(--radius-full);
   overflow: hidden;
   display: flex;
+  min-width: 0;
+  width: 100%;
 }
 
 .tileProgressFill {
@@ -112,14 +147,14 @@
   font-weight: 700;
   cursor: help;
   position: relative;
+  flex-shrink: 0;
 }
 
 .infoBadge:hover::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  right: -8px;
   background: var(--nav-bg);
   border: 1px solid var(--border-strong);
   color: var(--text-primary);
@@ -128,7 +163,8 @@
   font-size: 0.75rem;
   font-weight: 500;
   white-space: normal;
-  width: 200px;
+  width: 180px;
+  max-width: calc(100vw - 40px);
   text-align: center;
   box-shadow: var(--shadow-md);
   z-index: 50;
@@ -139,14 +175,15 @@
 /* Visualisations Grid */
 .visualsGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-lg);
   width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 900px) {
   .visualsGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
   }
 }
@@ -159,13 +196,20 @@
   box-shadow: var(--shadow-xs);
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Insights Banner */
 .insightsRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: var(--space-md);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .insightCard {
@@ -176,6 +220,8 @@
   background: var(--bg-hover);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .insightIcon {
@@ -187,6 +233,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .insightTitle {
@@ -194,12 +241,16 @@
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .insightDesc {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin: 0;
+  line-height: 1.35;
 }
 
 /* Skeletons */
@@ -214,26 +265,25 @@
 }
 
 @media (max-width: 768px) {
-  .metricsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-sm);
-  }
-
-  .tile {
-    padding: var(--space-sm) var(--space-md);
-  }
-
-  .tileValue {
-    font-size: 1.375rem;
-  }
-
   .visualCard {
     padding: var(--space-md);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 380px) {
   .metricsGrid {
-    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .tile {
+    padding: 10px 8px;
+  }
+
+  .tileValue {
+    font-size: 1.125rem;
+  }
+
+  .tileIcon {
+    font-size: 0.875rem;
   }
 }
