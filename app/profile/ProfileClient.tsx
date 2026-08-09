@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, type ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { updateDisplayName } from '@/app/actions/auth'
@@ -8,6 +8,8 @@ import ProfileStats from '@/components/ProfileStats'
 import WatchHistoryList from '@/components/WatchHistoryList'
 import AccountSettings from '@/components/AccountSettings'
 import styles from './Profile.module.css'
+
+export type ProfileTab = 'stats' | 'history' | 'account'
 
 interface Props {
   name: string | null
@@ -34,7 +36,39 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(name ?? '')
   const [saving, setSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState<ProfileTab>('stats')
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Synchronize active tab with URL hash or search params on mount & popstate
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#', '')
+      if (hash === 'history' || hash === 'account' || hash === 'stats') {
+        setActiveTab(hash as ProfileTab)
+      } else {
+        const params = new URLSearchParams(window.location.search)
+        const tabParam = params.get('tab')
+        if (tabParam === 'history' || tabParam === 'account' || tabParam === 'stats') {
+          setActiveTab(tabParam as ProfileTab)
+        }
+      }
+    }
+
+    handleHash()
+    window.addEventListener('hashchange', handleHash)
+    window.addEventListener('popstate', handleHash)
+    return () => {
+      window.removeEventListener('hashchange', handleHash)
+      window.removeEventListener('popstate', handleHash)
+    }
+  }, [])
+
+  const handleTabSwitch = (tab: ProfileTab) => {
+    setActiveTab(tab)
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#${tab}`)
+    }
+  }
 
   const startEditing = useCallback(() => {
     setDraft(displayName ?? '')
@@ -120,59 +154,106 @@ export default function ProfileClient({ name, email, memberSince, children }: Pr
         </div>
       </div>
 
-      {/* Quick Navigation Tabs */}
-      <nav className={styles.quickNav} aria-label="Profile sections">
-        <a href="#stats" className={styles.navTab}>
-          <span>📊</span> Overview &amp; Stats
-        </a>
-        <a href="#history" className={styles.navTab}>
-          <span>🕘</span> Watch History
-        </a>
-        <a href="#account" className={styles.navTab}>
-          <span>⚙️</span> Account Management
-        </a>
+      {/* Interactive Navigation Tabs */}
+      <nav className={styles.quickNav} aria-label="Profile sections" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          id="tab-stats"
+          aria-selected={activeTab === 'stats'}
+          aria-controls="panel-stats"
+          className={`${styles.navTab} ${activeTab === 'stats' ? styles.navTabActive : ''}`}
+          onClick={() => handleTabSwitch('stats')}
+        >
+          <span className={styles.tabIcon}>📊</span>
+          <span>Overview &amp; Stats</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-history"
+          aria-selected={activeTab === 'history'}
+          aria-controls="panel-history"
+          className={`${styles.navTab} ${activeTab === 'history' ? styles.navTabActive : ''}`}
+          onClick={() => handleTabSwitch('history')}
+        >
+          <span className={styles.tabIcon}>🕘</span>
+          <span>Watch History</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-account"
+          aria-selected={activeTab === 'account'}
+          aria-controls="panel-account"
+          className={`${styles.navTab} ${activeTab === 'account' ? styles.navTabActive : ''}`}
+          onClick={() => handleTabSwitch('account')}
+        >
+          <span className={styles.tabIcon}>⚙️</span>
+          <span>Account Management</span>
+        </button>
       </nav>
 
-      {/* Stacked Layout: Stats Top -> History Middle -> Account Bottom */}
-      <div className={styles.sectionsWrapper}>
-        {/* Top: Stats & Visualisations */}
-        <section id="stats" className={styles.sectionCard}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <span>📊</span> Your Viewing Stats &amp; Insights
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              Comprehensive breakdown of your watching habits, momentum, and favorite genres.
-            </p>
-          </div>
-          <ProfileStats />
-        </section>
+      {/* Active Tab Panel Content */}
+      <div className={styles.tabPanelsWrapper}>
+        {activeTab === 'stats' && (
+          <section
+            id="panel-stats"
+            role="tabpanel"
+            aria-labelledby="tab-stats"
+            className={`${styles.sectionCard} ${styles.activePanel}`}
+          >
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <span>📊</span> Viewing Stats &amp; Insights
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Comprehensive breakdown of your watching habits, momentum, and favorite genres.
+              </p>
+            </div>
+            <ProfileStats />
+          </section>
+        )}
 
-        {/* Middle: Watch History */}
-        <section id="history" className={styles.sectionCard}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <span>🕘</span> Watch History
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              Everything you&apos;ve started or finished watching, synced across your devices.
-            </p>
-          </div>
-          <WatchHistoryList />
-        </section>
+        {activeTab === 'history' && (
+          <section
+            id="panel-history"
+            role="tabpanel"
+            aria-labelledby="tab-history"
+            className={`${styles.sectionCard} ${styles.activePanel}`}
+          >
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <span>🕘</span> Watch History
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Everything you&apos;ve started or finished watching, synced across your devices.
+              </p>
+            </div>
+            <WatchHistoryList />
+          </section>
+        )}
 
-        {/* Bottom: Account Management */}
-        <section id="account" className={styles.sectionCard}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <span>⚙️</span> Account Management
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              Update your password or manage account settings.
-            </p>
-          </div>
-          <AccountSettings />
-        </section>
+        {activeTab === 'account' && (
+          <section
+            id="panel-account"
+            role="tabpanel"
+            aria-labelledby="tab-account"
+            className={`${styles.sectionCard} ${styles.activePanel}`}
+          >
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <span>⚙️</span> Account Management
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Update your password or manage account settings.
+              </p>
+            </div>
+            <AccountSettings />
+          </section>
+        )}
       </div>
     </div>
   )

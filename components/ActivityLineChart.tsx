@@ -173,6 +173,10 @@ export default function ActivityLineChart({ activitySeries }: Props) {
         )}
       </div>
 
+      <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+        ↑ Titles / Episodes Watched (Y-Axis)
+      </div>
+
       <div className={styles.chartContainer} ref={containerRef}>
         {totalWatched === 0 && filteredData.length === 0 ? (
           <div className={styles.emptyNotice}>

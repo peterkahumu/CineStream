@@ -4,12 +4,17 @@ import { dbQuery } from "@/lib/db";
 import { watchHistory, watchProgress } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 const MONTH_MS = 30 * DAY_MS;
 const THREE_MONTHS_MS = 90 * DAY_MS;
 const TOP_GENRES_LIMIT = 8;
 const MAX_ACTIVITY_DAYS = 90;
+
+export type TimeRangeKey = "7d" | "30d" | "mtd" | "90d" | "all";
 
 export interface GenreTally {
   id: number;
@@ -24,20 +29,53 @@ export interface ActivityPoint {
   tvShows: number;
 }
 
+export interface TopTitleStat {
+  tmdbId: string;
+  mediaType: "movie" | "tv";
+  title: string;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+  genres?: { id: number; name: string }[] | null;
+  watchSeconds: number;
+  episodesCount: number;
+  percentageOfTotal: number;
+  lastWatchedAt: number;
+}
+
+export interface BingeMetrics {
+  topBingeTitle: {
+    title: string;
+    mediaType: "movie" | "tv";
+    episodesCount: number;
+    watchSeconds: number;
+    poster_path?: string | null;
+  } | null;
+  avgEpisodeMinutes: number;
+  completedEpisodesCount: number;
+  completedMoviesCount: number;
+}
+
 interface HistoryRow {
   mediaType: string;
   tmdbId: string;
+  title?: string | null;
+  season?: number | null;
+  episode?: number | null;
   event: string;
   genres: unknown;
   occurredAt: number;
+  episodeKey?: string | null;
 }
 
-function tallyGenres(rows: HistoryRow[]): GenreTally[] {
+function tallyGenres(rows: { mediaType: string; tmdbId: string; genres: unknown }[]): GenreTally[] {
   const genresByTitle = new Map<string, { id: number; name: string }[]>();
   for (const row of rows) {
     const titleKey = `${row.mediaType}-${row.tmdbId}`;
     if (genresByTitle.has(titleKey)) continue;
-    genresByTitle.set(titleKey, Array.isArray(row.genres) ? (row.genres as { id: number; name: string }[]) : []);
+    genresByTitle.set(
+      titleKey,
+      Array.isArray(row.genres) ? (row.genres as { id: number; name: string }[]) : []
+    );
   }
 
   const counts = new Map<number, GenreTally>();
@@ -69,7 +107,8 @@ function buildActivitySeries(rows: HistoryRow[], now: number, daysCount = MAX_AC
       if (row.mediaType === "movie") {
         dayEntry.movies.add(row.tmdbId);
       } else {
-        dayEntry.tv.add(row.tmdbId);
+        const epKey = `${row.tmdbId}-s${row.season ?? "x"}e${row.episode ?? "x"}`;
+        dayEntry.tv.add(epKey);
       }
     }
   }
@@ -96,23 +135,6 @@ function calculateStreak(activitySeries: ActivityPoint[]): number {
   return streak;
 }
 
-function calculatePeakDay(rows: HistoryRow[]): { day: string; count: number } {
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const counts = [0, 0, 0, 0, 0, 0, 0];
-
-  for (const row of rows) {
-    const d = new Date(row.occurredAt);
-    counts[d.getDay()]++;
-  }
-
-  let maxIdx = 0;
-  for (let i = 1; i < 7; i++) {
-    if (counts[i] > counts[maxIdx]) maxIdx = i;
-  }
-
-  return { day: days[maxIdx], count: counts[maxIdx] };
-}
-
 export async function GET() {
   try {
     const session = await auth();
@@ -131,10 +153,10 @@ export async function GET() {
     const now = Date.now();
     const currentMonthStr = new Date(now).toISOString().slice(0, 7);
 
+    // Title Tracking & Categorisation
     const titleKeys = new Set<string>();
     const movieKeys = new Set<string>();
     const tvKeys = new Set<string>();
-    const titlesCompleted = new Set<string>();
     const titlesThisWeek = new Set<string>();
     const titlesThisMonth = new Set<string>();
 
@@ -143,19 +165,37 @@ export async function GET() {
     const rowsMtd: HistoryRow[] = [];
     const rows90d: HistoryRow[] = [];
 
-    for (const row of historyRows) {
-      const key = `${row.mediaType}-${row.tmdbId}`;
-      titleKeys.add(key);
-      if (row.mediaType === "movie") movieKeys.add(key);
-      else tvKeys.add(key);
+    // History Event Deduplication & Categorisation
+    const completedEpisodesSet = new Set<string>();
+    const startedEpisodesSet = new Set<string>();
+    const completedMoviesSet = new Set<string>();
+    const startedMoviesSet = new Set<string>();
 
-      if (row.event === "completed") titlesCompleted.add(key);
+    for (const row of historyRows) {
+      const titleKey = `${row.mediaType}-${row.tmdbId}`;
+      titleKeys.add(titleKey);
+
+      if (row.mediaType === "movie") {
+        movieKeys.add(titleKey);
+        startedMoviesSet.add(titleKey);
+        if (row.event === "completed") {
+          completedMoviesSet.add(titleKey);
+        }
+      } else {
+        tvKeys.add(titleKey);
+        const epIdentifier = `${row.tmdbId}-s${row.season ?? 0}e${row.episode ?? 0}`;
+        startedEpisodesSet.add(epIdentifier);
+        if (row.event === "completed") {
+          completedEpisodesSet.add(epIdentifier);
+        }
+      }
+
       if (now - row.occurredAt <= WEEK_MS) {
-        titlesThisWeek.add(key);
+        titlesThisWeek.add(titleKey);
         rows7d.push(row);
       }
       if (now - row.occurredAt <= MONTH_MS) {
-        titlesThisMonth.add(key);
+        titlesThisMonth.add(titleKey);
         rows30d.push(row);
       }
       if (new Date(row.occurredAt).toISOString().slice(0, 7) === currentMonthStr) {
@@ -166,36 +206,199 @@ export async function GET() {
       }
     }
 
+    // Process watchProgress for exact watch seconds per title
     let movieWatchSeconds = 0;
     let tvWatchSeconds = 0;
+    let totalEpisodesLogged = completedEpisodesSet.size;
 
-    const totalWatchSeconds = progressRows.reduce((sum, row) => {
-      const watched = row.watched ?? 0;
-      const duration = row.duration ?? 0;
-      const validSeconds = duration > 0 ? Math.min(watched, duration) : watched;
-      if (row.mediaType === "movie") movieWatchSeconds += validSeconds;
-      else tvWatchSeconds += validSeconds;
-      return sum + validSeconds;
-    }, 0);
+    const titleStatsMap = new Map<
+      string,
+      {
+        tmdbId: string;
+        mediaType: "movie" | "tv";
+        title: string;
+        poster_path?: string | null;
+        backdrop_path?: string | null;
+        genres?: { id: number; name: string }[] | null;
+        watchSeconds: number;
+        episodesCount: number;
+        lastWatchedAt: number;
+      }
+    >();
 
+    for (const row of progressRows) {
+      const titleKey = `${row.mediaType}-${row.tmdbId}`;
+      titleKeys.add(titleKey);
+
+      const parsedGenres = Array.isArray(row.genres)
+        ? (row.genres as { id: number; name: string }[])
+        : null;
+
+      if (row.mediaType === "movie") {
+        movieKeys.add(titleKey);
+        startedMoviesSet.add(titleKey);
+        const watched = Math.round(Number(row.watched) || 0);
+        const duration = Math.round(Number(row.duration) || 0);
+        const valid = duration > 0 ? Math.min(watched, duration) : watched;
+        movieWatchSeconds += valid;
+
+        if (duration > 0 && valid / duration >= 0.9) {
+          completedMoviesSet.add(titleKey);
+        }
+
+        titleStatsMap.set(titleKey, {
+          tmdbId: row.tmdbId,
+          mediaType: "movie",
+          title: row.title,
+          poster_path: row.poster_path,
+          backdrop_path: row.backdrop_path,
+          genres: parsedGenres,
+          watchSeconds: valid,
+          episodesCount: valid > 0 ? 1 : 0,
+          lastWatchedAt: row.updatedAt || now,
+        });
+      } else {
+        // TV series
+        tvKeys.add(titleKey);
+        let showEpisodesWatchSeconds = 0;
+        let episodesCountInShow = 0;
+
+        if (row.show_progress && typeof row.show_progress === "object") {
+          const showObj = row.show_progress as Record<
+            string,
+            { watched?: number; duration?: number; updatedAt?: number }
+          >;
+          for (const [epKey, ep] of Object.entries(showObj)) {
+            if (!ep) continue;
+            const epWatched = Math.round(Number(ep.watched) || 0);
+            const epDuration = Math.round(Number(ep.duration) || 0);
+            const epValid = epDuration > 0 ? Math.min(epWatched, epDuration) : epWatched;
+            showEpisodesWatchSeconds += epValid;
+            episodesCountInShow++;
+
+            if (epDuration > 0 && epWatched / epDuration >= 0.9) {
+              completedEpisodesSet.add(`${row.tmdbId}-${epKey}`);
+            }
+          }
+        }
+
+        if (episodesCountInShow > 0) {
+          tvWatchSeconds += showEpisodesWatchSeconds;
+          totalEpisodesLogged = Math.max(totalEpisodesLogged, episodesCountInShow);
+
+          titleStatsMap.set(titleKey, {
+            tmdbId: row.tmdbId,
+            mediaType: "tv",
+            title: row.title,
+            poster_path: row.poster_path,
+            backdrop_path: row.backdrop_path,
+            genres: parsedGenres,
+            watchSeconds: showEpisodesWatchSeconds,
+            episodesCount: episodesCountInShow,
+            lastWatchedAt: row.updatedAt || now,
+          });
+        } else {
+          const watched = Math.round(Number(row.watched) || 0);
+          const duration = Math.round(Number(row.duration) || 0);
+          const valid = duration > 0 ? Math.min(watched, duration) : watched;
+          tvWatchSeconds += valid;
+          if (valid > 0) totalEpisodesLogged++;
+
+          titleStatsMap.set(titleKey, {
+            tmdbId: row.tmdbId,
+            mediaType: "tv",
+            title: row.title,
+            poster_path: row.poster_path,
+            backdrop_path: row.backdrop_path,
+            genres: parsedGenres,
+            watchSeconds: valid,
+            episodesCount: valid > 0 ? 1 : 0,
+            lastWatchedAt: row.updatedAt || now,
+          });
+        }
+      }
+    }
+
+    const totalWatchSeconds = movieWatchSeconds + tvWatchSeconds;
+    const safeTotal = totalWatchSeconds || 1;
+
+    // Generate Top Titles leaderboard
+    const topTitles: TopTitleStat[] = Array.from(titleStatsMap.values())
+      .filter((t) => t.watchSeconds > 0)
+      .sort((a, b) => b.watchSeconds - a.watchSeconds)
+      .slice(0, 5)
+      .map((t) => ({
+        ...t,
+        percentageOfTotal: Math.round((t.watchSeconds / safeTotal) * 100),
+      }));
+
+    // Binge Metrics
+    const topTvShow = Array.from(titleStatsMap.values())
+      .filter((t) => t.mediaType === "tv" && t.episodesCount > 0)
+      .sort((a, b) => b.episodesCount - a.episodesCount || b.watchSeconds - a.watchSeconds)[0];
+
+    const totalTvEpisodes = Array.from(titleStatsMap.values())
+      .filter((t) => t.mediaType === "tv")
+      .reduce((acc, t) => acc + t.episodesCount, 0);
+
+    const avgEpisodeMinutes =
+      totalTvEpisodes > 0 ? Math.round(tvWatchSeconds / totalTvEpisodes / 60) : 0;
+
+    const bingeMetrics: BingeMetrics = {
+      topBingeTitle: topTvShow
+        ? {
+            title: topTvShow.title,
+            mediaType: "tv",
+            episodesCount: topTvShow.episodesCount,
+            watchSeconds: topTvShow.watchSeconds,
+            poster_path: topTvShow.poster_path,
+          }
+        : null,
+      avgEpisodeMinutes,
+      completedEpisodesCount: completedEpisodesSet.size,
+      completedMoviesCount: completedMoviesSet.size,
+    };
+
+    // Build Activity Timeline & Streaks
     const activitySeries = buildActivitySeries(historyRows, now, MAX_ACTIVITY_DAYS);
     const activeStreak = calculateStreak(activitySeries);
-    const peakDay = calculatePeakDay(historyRows);
+
+    // Calculate Completion Rate across all distinct started items
+    const totalCompletedMovies = completedMoviesSet.size;
+    const totalCompletedEpisodes = completedEpisodesSet.size;
+    const totalCompletedItems = totalCompletedMovies + totalCompletedEpisodes;
+
+    const totalStartedMovies = startedMoviesSet.size;
+    const totalStartedEpisodes = Math.max(startedEpisodesSet.size, totalEpisodesLogged);
+    const totalStartedItems = totalStartedMovies + totalStartedEpisodes;
+
+    const completionRate =
+      totalStartedItems > 0 ? Math.round((totalCompletedItems / totalStartedItems) * 100) : 0;
+
+    // Genres by Time Range
+    const allGenreRows = [
+      ...historyRows.map((r) => ({ mediaType: r.mediaType, tmdbId: r.tmdbId, genres: r.genres })),
+      ...progressRows.map((r) => ({ mediaType: r.mediaType, tmdbId: r.tmdbId, genres: r.genres })),
+    ];
 
     const genresByRange = {
       "7d": tallyGenres(rows7d),
       "30d": tallyGenres(rows30d),
       mtd: tallyGenres(rowsMtd),
       "90d": tallyGenres(rows90d),
-      all: tallyGenres(historyRows),
+      all: tallyGenres(allGenreRows),
     };
 
-    return NextResponse.json({
+    const responsePayload = {
       titlesWatched: titleKeys.size,
-      titlesCompleted: titlesCompleted.size,
+      titlesCompleted: totalCompletedItems,
+      completedMoviesCount: totalCompletedMovies,
+      completedEpisodesCount: totalCompletedEpisodes,
+      totalStartedItems,
       moviesWatched: movieKeys.size,
       tvShowsWatched: tvKeys.size,
-      completionRate: titleKeys.size > 0 ? Math.round((titlesCompleted.size / titleKeys.size) * 100) : 0,
+      episodesWatched: totalEpisodesLogged,
+      completionRate,
       totalWatchSeconds,
       movieWatchSeconds,
       tvWatchSeconds,
@@ -203,11 +406,21 @@ export async function GET() {
       thisMonth: titlesThisMonth.size,
       totalWatchEvents: historyRows.length,
       activeStreak,
-      peakDay,
+      topTitles,
+      bingeMetrics,
       topGenres: genresByRange["all"],
       genresByRange,
       activity: activitySeries.slice(-7),
       activitySeries,
+      updatedAt: now,
+    };
+
+    return NextResponse.json(responsePayload, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
+      },
     });
   } catch (error) {
     console.error("Get stats error:", error);

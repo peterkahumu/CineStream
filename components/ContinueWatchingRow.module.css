@@ -20,6 +20,7 @@
 
 .cardWrap {
   flex: 0 0 100px;
+  min-width: 0;
   scroll-snap-align: start;
   text-decoration: none;
   color: inherit;
