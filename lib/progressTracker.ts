@@ -208,31 +208,76 @@ function detectHistoryEvents(
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null
 let historySyncTimer: ReturnType<typeof setTimeout> | null = null
+let pendingSyncItems = new Map<string, WatchProgress>()
+let pendingHistoryItems = new Map<string, HistoryEvent>()
+let lastSyncTime = 0
+let lastHistorySyncTime = 0
+
+function executeProgressSync() {
+  if (syncTimer) {
+    clearTimeout(syncTimer)
+    syncTimer = null
+  }
+  if (pendingSyncItems.size === 0) return
+
+  const items = Array.from(pendingSyncItems.values())
+  pendingSyncItems.clear()
+  lastSyncTime = Date.now()
+
+  fetch('/api/sync-progress', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(items),
+  }).catch(err => console.error('[progressTracker] Background sync failed:', err))
+}
 
 function scheduleDebouncedSync(item: WatchProgress): void {
   if (typeof window === 'undefined') return
-  if (syncTimer) clearTimeout(syncTimer)
-  syncTimer = setTimeout(() => {
-    syncTimer = null
-    fetch('/api/sync-progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify([item]),
-    }).catch(err => console.error('[progressTracker] Background sync failed:', err))
-  }, SYNC_DEBOUNCE_MS)
+  
+  pendingSyncItems.set(item.id, item)
+  const now = Date.now()
+  const timeSinceLastSync = now - lastSyncTime
+
+  if (timeSinceLastSync >= SYNC_DEBOUNCE_MS) {
+    executeProgressSync()
+  } else if (!syncTimer) {
+    syncTimer = setTimeout(executeProgressSync, SYNC_DEBOUNCE_MS - timeSinceLastSync)
+  }
+}
+
+function executeHistorySync() {
+  if (historySyncTimer) {
+    clearTimeout(historySyncTimer)
+    historySyncTimer = null
+  }
+  if (pendingHistoryItems.size === 0) return
+
+  const items = Array.from(pendingHistoryItems.values())
+  pendingHistoryItems.clear()
+  lastHistorySyncTime = Date.now()
+
+  fetch('/api/sync-history', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(items),
+  }).catch(err => console.error('[progressTracker] History sync failed:', err))
 }
 
 function scheduleHistorySync(items: HistoryEvent[]): void {
   if (typeof window === 'undefined' || items.length === 0) return
-  if (historySyncTimer) clearTimeout(historySyncTimer)
-  historySyncTimer = setTimeout(() => {
-    historySyncTimer = null
-    fetch('/api/sync-history', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(items),
-    }).catch(err => console.error('[progressTracker] History sync failed:', err))
-  }, SYNC_DEBOUNCE_MS)
+
+  for (const item of items) {
+    pendingHistoryItems.set(item.id, item)
+  }
+
+  const now = Date.now()
+  const timeSinceLastSync = now - lastHistorySyncTime
+
+  if (timeSinceLastSync >= SYNC_DEBOUNCE_MS) {
+    executeHistorySync()
+  } else if (!historySyncTimer) {
+    historySyncTimer = setTimeout(executeHistorySync, SYNC_DEBOUNCE_MS - timeSinceLastSync)
+  }
 }
 
 // Public API — progress
@@ -427,6 +472,9 @@ export function flushProgress(): void {
   if (syncTimer) {
     clearTimeout(syncTimer)
     syncTimer = null
+  }
+  if (typeof pendingSyncItems !== 'undefined') {
+    pendingSyncItems.clear()
   }
 
   const payload = JSON.stringify(items)
@@ -686,6 +734,9 @@ export function flushHistoryEvents(): void {
   if (historySyncTimer) {
     clearTimeout(historySyncTimer)
     historySyncTimer = null
+  }
+  if (typeof pendingHistoryItems !== 'undefined') {
+    pendingHistoryItems.clear()
   }
 
   const payload = JSON.stringify(events)
