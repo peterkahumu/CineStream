@@ -41,10 +41,62 @@ import type { Genre, Season, ShowAiringInfo } from '@/lib/tmdb'
 const STORAGE_PREFIX = 'progress-'
 const HISTORY_STORAGE_KEY = 'cinemaphora-history-events'
 const PROGRESS_TOMBSTONES_KEY = 'cinemaphora-deleted-progress'
-const HISTORY_MAX_ITEMS = 500
+const HISTORY_DIRTY_KEY = 'cinemaphora-history-dirty'
+// History is the durable stats ledger now, so it keeps far more than the row of
+// recent activity it used to. Rows are small and flushes only send changed ones.
+const HISTORY_MAX_ITEMS = 2000
 const SYNC_DEBOUNCE_MS = 10_000
 const STARTED_THRESHOLD_SECONDS = 30
 const COMPLETED_RATIO = 0.9
+/**
+ * sendBeacon rejects payloads over ~64KB and reports it only through a `false`
+ * return — a whole flush disappearing silently. Chunk well under that.
+ */
+const BEACON_CHUNK_BYTES = 48_000
+
+/**
+ * Sends `items` as one or more JSON POSTs, chunked so no single request trips the
+ * beacon size limit. Uses sendBeacon (survives tab close) and falls back to
+ * keepalive fetch. Returns false if any chunk failed to queue.
+ */
+function sendInChunks(url: string, items: unknown[]): boolean {
+  if (items.length === 0) return true
+
+  const chunks: unknown[][] = []
+  let current: unknown[] = []
+  let currentBytes = 2
+
+  for (const item of items) {
+    const size = JSON.stringify(item).length + 1
+    if (current.length > 0 && currentBytes + size > BEACON_CHUNK_BYTES) {
+      chunks.push(current)
+      current = []
+      currentBytes = 2
+    }
+    current.push(item)
+    currentBytes += size
+  }
+  if (current.length > 0) chunks.push(current)
+
+  let allQueued = true
+  for (const chunk of chunks) {
+    const payload = JSON.stringify(chunk)
+    if (navigator.sendBeacon) {
+      const queued = navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))
+      if (!queued) allQueued = false
+    } else {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+        keepalive: true,
+      }).catch(err => {
+        console.error('[progressTracker] Flush failed:', err)
+      })
+    }
+  }
+  return allQueued
+}
 
 function getProgressTombstones(): Record<string, number> {
   if (typeof localStorage === 'undefined') return {}
@@ -158,7 +210,14 @@ export interface HistoryEvent {
   episode?: number
   event: 'started' | 'completed'
   genres?: Genre[] | null
+  /** Furthest position reached, in seconds. Only ever increases (see `recordWatchSeconds`). */
+  watchedSeconds?: number
+  /** Runtime of this episode/movie in seconds, as reported by the player. */
+  runtimeSeconds?: number
+  /** When this row reached its current `event` — not touched by seconds-only updates. */
   occurredAt: number
+  /** Last change of any kind. Used for conflict resolution and dirty tracking. */
+  updatedAt?: number
 }
 
 // Internal helpers
@@ -365,7 +424,16 @@ function executeHistorySync() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(items),
-  }).catch(err => console.error('[progressTracker] History sync failed:', err))
+  })
+    .then(res => {
+      if (!res.ok) return
+      // Safely synced — drop them from the dirty set so the next unload flush
+      // only carries what has actually changed since.
+      const ids = getDirtyHistoryIds()
+      for (const item of items) ids.delete(item.id)
+      writeDirtyHistoryIds(ids)
+    })
+    .catch(err => console.error('[progressTracker] History sync failed:', err))
 }
 
 function scheduleHistorySync(items: HistoryEvent[]): void {
@@ -493,8 +561,21 @@ export function saveProgress(
         season: seasonNum,
         episode: episodeNum,
         genres,
+        watchedSeconds: watchedNum,
+        runtimeSeconds: durationNum,
       }, isAuthenticated)
     }
+
+    // Keep the ledger's clock current even between threshold crossings.
+    recordWatchSeconds(
+      String(tmdbId),
+      mediaType,
+      mediaType === 'tv' ? seasonNum : undefined,
+      mediaType === 'tv' ? episodeNum : undefined,
+      watchedNum,
+      durationNum,
+      isAuthenticated
+    )
   } catch (err) {
     console.error('[progressTracker] Failed to save:', err)
   }
@@ -680,19 +761,9 @@ export function flushProgress(): void {
     pendingSyncItems.clear()
   }
 
-  const payload = JSON.stringify(items)
-  const url = '/api/sync-progress'
-
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))
-  } else {
-    fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload,
-      keepalive: true,
-    }).catch(err => console.error('[progressTracker] Flush sync failed:', err))
-  }
+  // Chunked: a heavy watcher's show_progress maps add up fast, and one oversized
+  // beacon is dropped whole rather than truncated.
+  sendInChunks('/api/sync-progress', items)
 }
 
 /**
@@ -816,6 +887,38 @@ function writeHistoryEvents(events: HistoryEvent[]): void {
   }
 }
 
+/**
+ * Ids of history rows changed since the last successful flush. A flush used to
+ * post every row it had, which quietly exceeded sendBeacon's size limit once the
+ * log grew — now only what actually changed goes out.
+ */
+function getDirtyHistoryIds(): Set<string> {
+  if (typeof localStorage === 'undefined') return new Set()
+  try {
+    const raw = localStorage.getItem(HISTORY_DIRTY_KEY)
+    return new Set(raw ? (JSON.parse(raw) as string[]) : [])
+  } catch {
+    return new Set()
+  }
+}
+
+function writeDirtyHistoryIds(ids: Set<string>): void {
+  try {
+    if (ids.size === 0) localStorage.removeItem(HISTORY_DIRTY_KEY)
+    else localStorage.setItem(HISTORY_DIRTY_KEY, JSON.stringify(Array.from(ids)))
+  } catch (err) {
+    console.error('[progressTracker] Failed to track dirty history:', err)
+  }
+}
+
+function markHistoryDirty(id: string): void {
+  if (typeof localStorage === 'undefined') return
+  const ids = getDirtyHistoryIds()
+  if (ids.has(id)) return
+  ids.add(id)
+  writeDirtyHistoryIds(ids)
+}
+
 /** Stable per-episode/movie identity, used to upsert a single history row instead of appending. */
 function historyEpisodeKey(mediaType: 'movie' | 'tv', tmdbId: string, season?: number, episode?: number): string {
   return `${mediaType}-${tmdbId}-${season ?? 'x'}-${episode ?? 'x'}`
@@ -838,6 +941,8 @@ export function logHistoryEvent(
     season?: number
     episode?: number
     genres?: Genre[] | null
+    watchedSeconds?: number
+    runtimeSeconds?: number
   },
   isAuthenticated = false
 ): void {
@@ -856,17 +961,24 @@ export function logHistoryEvent(
     e => historyEpisodeKey(e.mediaType, e.tmdbId, e.season, e.episode) === key
   )
 
+  const now = Date.now()
   let entry: HistoryEvent
   if (existingIdx !== -1) {
+    const prev = events[existingIdx]
     // Same episode/movie — update its row in place, keeping the same id so a DB
     // sync updates the existing record instead of inserting a duplicate.
     entry = {
-      ...events[existingIdx],
-      title: data.title || events[existingIdx].title,
-      poster_path: data.poster_path ?? events[existingIdx].poster_path,
-      genres: data.genres ?? events[existingIdx].genres,
+      ...prev,
+      title: data.title || prev.title,
+      poster_path: data.poster_path ?? prev.poster_path,
+      genres: data.genres ?? prev.genres,
       event,
-      occurredAt: Date.now(),
+      watchedSeconds: Math.max(prev.watchedSeconds ?? 0, data.watchedSeconds ?? 0),
+      runtimeSeconds: data.runtimeSeconds || prev.runtimeSeconds || 0,
+      // Only moves when the state actually changes — otherwise resuming an episode
+      // days later would drag its original entry forward on the activity timeline.
+      occurredAt: prev.event === event ? prev.occurredAt : now,
+      updatedAt: now,
     }
     events[existingIdx] = entry
   } else {
@@ -880,18 +992,164 @@ export function logHistoryEvent(
       episode: episodeNum,
       event,
       genres: data.genres ?? null,
-      occurredAt: Date.now(),
+      watchedSeconds: data.watchedSeconds ?? 0,
+      runtimeSeconds: data.runtimeSeconds ?? 0,
+      occurredAt: now,
+      updatedAt: now,
     }
     events.unshift(entry)
   }
 
   writeHistoryEvents(events.slice(0, HISTORY_MAX_ITEMS))
+  markHistoryDirty(entry.id)
+  if (isAuthenticated) scheduleHistorySync([entry])
+}
+
+/**
+ * Update how much of an episode/movie has been watched on its existing history row.
+ * Called on every progress write, which is what makes history — not the deletable
+ * progress row — the thing Profile stats can be computed from.
+ *
+ * Deliberately does not create a row: `logHistoryEvent` owns creation once the
+ * 30-second "started" threshold is crossed, so a title someone opened and closed
+ * immediately still doesn't earn a permanent entry.
+ */
+function recordWatchSeconds(
+  tmdbId: string,
+  mediaType: 'movie' | 'tv',
+  season: number | undefined,
+  episode: number | undefined,
+  watched: number,
+  duration: number,
+  isAuthenticated: boolean
+): void {
+  if (typeof localStorage === 'undefined') return
+  if (watched <= 0) return
+
+  const key = historyEpisodeKey(mediaType, String(tmdbId), season, episode)
+  const events = readHistoryEvents()
+  const idx = events.findIndex(
+    e => historyEpisodeKey(e.mediaType, e.tmdbId, e.season, e.episode) === key
+  )
+  if (idx === -1) return
+
+  const prev = events[idx]
+  // Furthest-position semantics: a rewatch that stops early must not shrink it.
+  const capped = duration > 0 ? Math.min(watched, duration) : watched
+  const seconds = Math.max(prev.watchedSeconds ?? 0, capped)
+  const runtime = duration || prev.runtimeSeconds || 0
+  if (seconds === (prev.watchedSeconds ?? 0) && runtime === (prev.runtimeSeconds ?? 0)) return
+
+  const entry: HistoryEvent = {
+    ...prev,
+    watchedSeconds: seconds,
+    runtimeSeconds: runtime,
+    updatedAt: Date.now(),
+  }
+  events[idx] = entry
+  writeHistoryEvents(events)
+  markHistoryDirty(entry.id)
   if (isAuthenticated) scheduleHistorySync([entry])
 }
 
 /** All locally-logged history events, most recent first. */
 export function getAllHistoryEvents(): HistoryEvent[] {
   return readHistoryEvents()
+}
+
+/**
+ * Copy watch seconds out of `show_progress` and into the history ledger, for
+ * everything watched before history carried them. Without this, the hours for an
+ * old title live only in its progress row, which is exactly the coupling this is
+ * meant to break.
+ *
+ * Writes localStorage once for the whole pass (a per-row write would re-serialise
+ * the entire log thousands of times), and syncs nothing directly — rows are marked
+ * dirty and go out with the next chunked flush.
+ */
+export function backfillHistorySeconds(): void {
+  if (typeof localStorage === 'undefined') return
+
+  const events = readHistoryEvents()
+  const byKey = new Map<string, HistoryEvent>()
+  for (const e of events) {
+    byKey.set(historyEpisodeKey(e.mediaType, e.tmdbId, e.season, e.episode), e)
+  }
+
+  const dirty = getDirtyHistoryIds()
+  const added: HistoryEvent[] = []
+  let changed = false
+
+  const apply = (
+    item: WatchProgress,
+    season: number | undefined,
+    episode: number | undefined,
+    watched: number,
+    duration: number,
+    at: number
+  ) => {
+    if (watched <= 0) return
+    const capped = duration > 0 ? Math.min(watched, duration) : watched
+    const key = historyEpisodeKey(item.mediaType, item.id, season, episode)
+    const existing = byKey.get(key)
+
+    if (existing) {
+      if ((existing.watchedSeconds ?? 0) >= capped && (existing.runtimeSeconds ?? 0) >= duration) return
+      existing.watchedSeconds = Math.max(existing.watchedSeconds ?? 0, capped)
+      existing.runtimeSeconds = Math.max(existing.runtimeSeconds ?? 0, duration)
+      existing.updatedAt = Date.now()
+      dirty.add(existing.id)
+      changed = true
+      return
+    }
+
+    // No row yet — the episode predates the history log entirely. Date it from the
+    // progress entry rather than now, or the activity timeline gains a fake spike.
+    const entry: HistoryEvent = {
+      id: crypto.randomUUID(),
+      tmdbId: item.id,
+      mediaType: item.mediaType,
+      title: item.title || '',
+      poster_path: item.poster_path ?? null,
+      season,
+      episode,
+      event: duration > 0 && capped / duration >= COMPLETED_RATIO ? 'completed' : 'started',
+      genres: item.genres ?? null,
+      watchedSeconds: capped,
+      runtimeSeconds: duration,
+      occurredAt: at,
+      updatedAt: Date.now(),
+    }
+    byKey.set(key, entry)
+    added.push(entry)
+    dirty.add(entry.id)
+    changed = true
+  }
+
+  for (const item of getAllProgress()) {
+    const at = item.updatedAt || Date.now()
+
+    if (item.mediaType === 'movie') {
+      apply(item, undefined, undefined, item.watched, item.duration, at)
+      continue
+    }
+
+    const entries = Object.values(item.show_progress ?? {})
+    for (const ep of entries) {
+      if (!ep) continue
+      apply(item, ep.season, ep.episode, ep.watched, ep.duration, ep.updatedAt || at)
+    }
+    if (entries.length === 0) {
+      apply(item, item.season, item.episode, item.watched, item.duration, at)
+    }
+  }
+
+  if (!changed) return
+
+  const merged = [...events, ...added]
+  merged.sort((a, b) => b.occurredAt - a.occurredAt)
+  writeHistoryEvents(merged.slice(0, HISTORY_MAX_ITEMS))
+  writeDirtyHistoryIds(dirty)
 }
 
 /** Remove all history events (used by "Clear All Data" in Settings). */
@@ -901,11 +1159,14 @@ export function clearHistoryEvents(): void {
 }
 
 /**
- * Merge remote DB history events into localStorage, one row per episode/movie
- * (latest-occurredAt-wins). Merges by episode identity rather than `id` — two
- * devices can independently generate different ids for the same episode before
- * ever syncing with each other, so id-only matching would leave duplicates.
- * Call this after fetching history from the server on login.
+ * Merge remote DB history events into localStorage, one row per episode/movie.
+ * Merges by episode identity rather than `id` — two devices can independently
+ * generate different ids for the same episode before ever syncing with each
+ * other, so id-only matching would leave duplicates.
+ *
+ * The event/metadata side is latest-occurredAt-wins; `watchedSeconds` is merged
+ * with max instead, matching the server's GREATEST upsert. Furthest-position is
+ * monotonic, so two devices can never talk each other's watch time down.
  */
 export function mergeRemoteHistory(remoteItems: HistoryEvent[]): void {
   if (typeof localStorage === 'undefined') return
@@ -919,9 +1180,17 @@ export function mergeRemoteHistory(remoteItems: HistoryEvent[]): void {
   for (const remote of remoteItems) {
     const key = historyEpisodeKey(remote.mediaType, remote.tmdbId, remote.season, remote.episode)
     const existing = byKey.get(key)
-    if (!existing || remote.occurredAt > existing.occurredAt) {
+    if (!existing) {
       byKey.set(key, remote)
+      continue
     }
+
+    const winner = remote.occurredAt > existing.occurredAt ? remote : existing
+    byKey.set(key, {
+      ...winner,
+      watchedSeconds: Math.max(existing.watchedSeconds ?? 0, remote.watchedSeconds ?? 0),
+      runtimeSeconds: Math.max(existing.runtimeSeconds ?? 0, remote.runtimeSeconds ?? 0),
+    })
   }
 
   const merged = Array.from(byKey.values())
@@ -930,33 +1199,28 @@ export function mergeRemoteHistory(remoteItems: HistoryEvent[]): void {
 }
 
 /**
- * Flush all localStorage history events to the server immediately (tab close/hidden).
- * Callers are expected to only invoke this for authenticated sessions (see SyncManager).
+ * Flush history rows changed since the last flush (tab close/hidden), chunked so
+ * nothing is lost to the beacon size limit. Callers are expected to only invoke
+ * this for authenticated sessions (see SyncManager).
  */
 export function flushHistoryEvents(): void {
   if (typeof window === 'undefined') return
-  const events = getAllHistoryEvents()
-  if (events.length === 0) return
 
   if (historySyncTimer) {
     clearTimeout(historySyncTimer)
     historySyncTimer = null
   }
-  if (typeof pendingHistoryItems !== 'undefined') {
-    pendingHistoryItems.clear()
+
+  const dirtyIds = getDirtyHistoryIds()
+  for (const id of pendingHistoryItems.keys()) dirtyIds.add(id)
+  pendingHistoryItems.clear()
+  if (dirtyIds.size === 0) return
+
+  const events = getAllHistoryEvents().filter(e => dirtyIds.has(e.id))
+  if (events.length === 0) {
+    writeDirtyHistoryIds(new Set())
+    return
   }
 
-  const payload = JSON.stringify(events)
-  const url = '/api/sync-history'
-
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))
-  } else {
-    fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload,
-      keepalive: true,
-    }).catch(err => console.error('[progressTracker] History flush failed:', err))
-  }
+  if (sendInChunks('/api/sync-history', events)) writeDirtyHistoryIds(new Set())
 }

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { flushProgress, flushHistoryEvents, mergeRemoteProgress } from '@/lib/progressTracker'
+import { flushProgress, flushHistoryEvents, mergeRemoteProgress, backfillHistorySeconds } from '@/lib/progressTracker'
 import { flushWishlist, mergeRemoteWishlist } from '@/lib/wishlistTracker'
 
 /**
@@ -19,6 +19,7 @@ import { flushWishlist, mergeRemoteWishlist } from '@/lib/wishlistTracker'
 const POLL_INTERVAL_MS = 30_000
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
+let didBackfillHistory = false
 
 function pollRemoteUpdates() {
   Promise.all([
@@ -27,6 +28,13 @@ function pollRemoteUpdates() {
   ]).then(([progress, watchlist]) => {
     if (Array.isArray(progress) && progress.length > 0) mergeRemoteProgress(progress)
     if (Array.isArray(watchlist) && watchlist.length > 0) mergeRemoteWishlist(watchlist)
+
+    // Once per session, after the merge: lift watch seconds out of progress rows
+    // and into the history ledger for anything watched before it tracked them.
+    if (!didBackfillHistory) {
+      didBackfillHistory = true
+      backfillHistorySeconds()
+    }
   })
 }
 
