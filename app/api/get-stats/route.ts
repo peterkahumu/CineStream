@@ -209,7 +209,10 @@ export async function GET() {
     // Process watchProgress for exact watch seconds per title
     let movieWatchSeconds = 0;
     let tvWatchSeconds = 0;
-    let totalEpisodesLogged = completedEpisodesSet.size;
+    // Every distinct episode with time on it, from both sources — history rows and
+    // per-episode show_progress use the same `${tmdbId}-s{n}e{n}` identity, so an
+    // episode known to both is counted once.
+    const watchedEpisodesSet = new Set<string>(startedEpisodesSet);
 
     const titleStatsMap = new Map<
       string,
@@ -273,8 +276,11 @@ export async function GET() {
             const epWatched = Math.round(Number(ep.watched) || 0);
             const epDuration = Math.round(Number(ep.duration) || 0);
             const epValid = epDuration > 0 ? Math.min(epWatched, epDuration) : epWatched;
-            showEpisodesWatchSeconds += epValid;
-            episodesCountInShow++;
+            if (epValid > 0) {
+              showEpisodesWatchSeconds += epValid;
+              episodesCountInShow++;
+              watchedEpisodesSet.add(`${row.tmdbId}-${epKey}`);
+            }
 
             if (epDuration > 0 && epWatched / epDuration >= 0.9) {
               completedEpisodesSet.add(`${row.tmdbId}-${epKey}`);
@@ -284,7 +290,6 @@ export async function GET() {
 
         if (episodesCountInShow > 0) {
           tvWatchSeconds += showEpisodesWatchSeconds;
-          totalEpisodesLogged = Math.max(totalEpisodesLogged, episodesCountInShow);
 
           titleStatsMap.set(titleKey, {
             tmdbId: row.tmdbId,
@@ -302,7 +307,9 @@ export async function GET() {
           const duration = Math.round(Number(row.duration) || 0);
           const valid = duration > 0 ? Math.min(watched, duration) : watched;
           tvWatchSeconds += valid;
-          if (valid > 0) totalEpisodesLogged++;
+          if (valid > 0) {
+            watchedEpisodesSet.add(`${row.tmdbId}-s${row.season ?? 0}e${row.episode ?? 0}`);
+          }
 
           titleStatsMap.set(titleKey, {
             tmdbId: row.tmdbId,
@@ -369,7 +376,7 @@ export async function GET() {
     const totalCompletedItems = totalCompletedMovies + totalCompletedEpisodes;
 
     const totalStartedMovies = startedMoviesSet.size;
-    const totalStartedEpisodes = Math.max(startedEpisodesSet.size, totalEpisodesLogged);
+    const totalStartedEpisodes = watchedEpisodesSet.size;
     const totalStartedItems = totalStartedMovies + totalStartedEpisodes;
 
     const completionRate =
@@ -397,7 +404,7 @@ export async function GET() {
       totalStartedItems,
       moviesWatched: movieKeys.size,
       tvShowsWatched: tvKeys.size,
-      episodesWatched: totalEpisodesLogged,
+      episodesWatched: watchedEpisodesSet.size,
       completionRate,
       totalWatchSeconds,
       movieWatchSeconds,

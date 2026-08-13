@@ -38,6 +38,12 @@ export const watchProgress = pgTable("watch_progress", {
   show_progress: json("show_progress"), // Record<string, EpisodeProgress>
   genres: json("genres"), // { id: number, name: string }[] | null — captured at watch time
   lastProvider: text("lastProvider"),
+  // What Continue Watching should point at once season/episode finishes:
+  // `s{n}e{n}`, or 'end' when it was the series finale. Null = not resolved yet.
+  nextEpisodeKey: text("nextEpisodeKey"),
+  // Set when the user removes the title from Continue Watching. The row is kept
+  // (stats are computed from it) — only the Continue Watching row filters on this.
+  dismissedAt: bigint("dismissedAt", { mode: "number" }),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 })
 

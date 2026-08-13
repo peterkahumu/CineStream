@@ -35,6 +35,8 @@ export async function GET() {
       show_progress: p.show_progress,
       genres: p.genres,
       lastProvider: p.lastProvider,
+      nextEpisodeKey: p.nextEpisodeKey,
+      dismissedAt: p.dismissedAt,
       updatedAt: p.updatedAt,
     }));
 

@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       show_progress: unknown;
       genres: unknown;
       lastProvider: string | null;
+      nextEpisodeKey: string | null;
+      dismissedAt: number | null;
       updatedAt: number;
     }>();
 
@@ -56,6 +58,10 @@ export async function POST(request: Request) {
       const show_progress = item.show_progress && typeof item.show_progress === "object" ? item.show_progress : null;
       const genres = Array.isArray(item.genres) ? item.genres : null;
       const lastProvider = item.lastProvider ? String(item.lastProvider) : null;
+      const nextEpisodeKey = item.nextEpisodeKey ? String(item.nextEpisodeKey) : null;
+      const dismissedAt = typeof item.dismissedAt === "number" && !isNaN(item.dismissedAt)
+        ? item.dismissedAt
+        : null;
       const updatedAt = typeof item.updatedAt === "number" && !isNaN(item.updatedAt)
         ? item.updatedAt
         : Date.now();
@@ -75,6 +81,8 @@ export async function POST(request: Request) {
           show_progress,
           genres,
           lastProvider,
+          nextEpisodeKey,
+          dismissedAt,
           updatedAt,
         });
       }
@@ -121,6 +129,9 @@ export async function POST(request: Request) {
                 show_progress: item.show_progress ?? latestExisting.show_progress,
                 genres: item.genres ?? latestExisting.genres,
                 lastProvider: item.lastProvider ?? latestExisting.lastProvider,
+                nextEpisodeKey: item.nextEpisodeKey ?? latestExisting.nextEpisodeKey,
+                // Overwritten, not coalesced — clearing it (a rewatch) has to win.
+                dismissedAt: item.dismissedAt,
                 updatedAt: item.updatedAt,
               })
               .where(eq(watchProgress.id, latestExisting.id));
@@ -141,6 +152,8 @@ export async function POST(request: Request) {
             show_progress: item.show_progress,
             genres: item.genres,
             lastProvider: item.lastProvider,
+            nextEpisodeKey: item.nextEpisodeKey,
+            dismissedAt: item.dismissedAt,
             updatedAt: item.updatedAt,
           });
         }

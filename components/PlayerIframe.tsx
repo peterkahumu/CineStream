@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import type { ProviderConfig, PlayerCallbacks, PlayerContext, ProviderProgressData } from '@/lib/providers/types'
-import type { EpisodeProgress } from '@/lib/progressTracker'
+import type { EpisodeProgress, WatchProgress } from '@/lib/progressTracker'
 import * as progressTracker from '@/lib/progressTracker'
 import type { Genre } from '@/lib/tmdb'
 import OfflineTrailerWrapper from './OfflineTrailerWrapper'
@@ -21,6 +21,8 @@ interface PlayerIframeProps {
   backdrop?: string | null
   poster?: string | null
   genres?: Genre[]
+  /** See WatchProgress.nextEpisodeKey — resolved by WatchClient from TMDB season data. */
+  nextEpisodeKey?: string
   iframeKey: number
   transformUrl?: (url: string) => string
   onNextEpisode?: (season: number, episode: number) => void
@@ -38,6 +40,7 @@ export default function PlayerIframe({
   backdrop,
   poster,
   genres,
+  nextEpisodeKey,
   iframeKey,
   transformUrl,
   onNextEpisode,
@@ -62,11 +65,37 @@ export default function PlayerIframe({
   // re-attached. This ref ensures we only navigate once per episode.
   const nextEpisodeTriggeredForRef = useRef<string | null>(null)
 
-  // Resume time — runs on mount, explicit server switch, or episode change
+  // Resume time — runs on mount, explicit server switch, or episode change.
+  // localStorage is the source of truth; when this device has never stored
+  // anything for the title (new device, cleared storage, private window) a
+  // signed-in user's server copy is consulted before giving up and starting
+  // from zero. Merging isn't an option here — setActivePlayback has already
+  // walled this title off from inbound syncs — so the remote row is only read.
   const resolveStartTime = useCallback(() => {
-    const resumeTime = progressTracker.getResumeTime(id, season, episode)
-    setStartTime(resumeTime)
-  }, [id, season, episode])
+    const local = progressTracker.getResumeTime(id, season, episode)
+    if (local > 0 || progressTracker.hasLocalProgress(id) || !isAuthenticated) {
+      setStartTime(local)
+      return
+    }
+
+    let cancelled = false
+    fetch('/api/get-progress')
+      .then(res => (res.ok ? res.json() : null))
+      .then((remote: WatchProgress[] | null) => {
+        if (cancelled) return
+        const match = Array.isArray(remote)
+          ? remote.find(item => String(item.id).trim() === String(id).trim())
+          : undefined
+        setStartTime(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
+      })
+      .catch(() => {
+        if (!cancelled) setStartTime(0)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [id, season, episode, isAuthenticated])
 
   // Progress persistence
   const handleProgress = useCallback(
@@ -78,31 +107,44 @@ export default function PlayerIframe({
       const watched = Math.round(Number(data.watched) || 0)
       const duration = Math.round(Number(data.duration) || 0)
 
-      // Normalise provider-specific show_progress into our EpisodeProgress shape
+      // Normalise provider-specific show_progress into our EpisodeProgress shape.
+      // Keys are always rebuilt as sXeY: providers have sent "S1E2" and other
+      // spellings, and a key that doesn't match the one getResumeTime looks up
+      // is the same as having no progress at all.
       let show_progress: Record<string, EpisodeProgress> | undefined
-      if (data.show_progress) {
+      if (mediaType === 'tv') {
+        const currentS = typeof season === 'number' && !isNaN(season) ? Math.round(season) : 1
+        const currentE = typeof episode === 'number' && !isNaN(episode) ? Math.round(episode) : 1
         show_progress = {}
-        for (const [rawKey, v] of Object.entries(data.show_progress)) {
-          const s = Math.round(Number(v.season) || 1)
-          const e = Math.round(Number(v.episode) || 1)
+
+        for (const [rawKey, v] of Object.entries(data.show_progress ?? {})) {
+          const parsed = progressTracker.parseEpisodeKey(rawKey)
+          const s = Math.round(Number(v.season) || parsed?.season || 1)
+          const e = Math.round(Number(v.episode) || parsed?.episode || 1)
           const epWatched = Math.round(Number(v.progress?.watched ?? v.watched ?? 0))
           const epDuration = Math.round(Number(v.progress?.duration ?? v.duration ?? 0))
-          // Normalise key to sXeY format
-          const epKey = rawKey.toLowerCase().startsWith('s') ? rawKey : `s${s}e${e}`
-          show_progress[epKey] = { season: s, episode: e, watched: epWatched, duration: epDuration, updatedAt: Date.now() }
-        }
-      } else if (mediaType === 'tv') {
-        // Synthesise from current episode position (for EmbedMaster / CineSRC)
-        const s = typeof season === 'number' && !isNaN(season) ? Math.round(season) : 1
-        const e = typeof episode === 'number' && !isNaN(episode) ? Math.round(episode) : 1
-        show_progress = {
-          [`s${s}e${e}`]: {
+          show_progress[progressTracker.episodeKey(s, e)] = {
             season: s,
             episode: e,
+            watched: epWatched,
+            duration: epDuration,
+            updatedAt: Date.now(),
+          }
+        }
+
+        // Always carry an entry for the episode actually playing. Providers that
+        // send no map at all (EmbedMaster / CineSRC) need it, and so do the ones
+        // whose map happens to omit the current episode — without it the resume
+        // point for this episode is lost the moment it's needed.
+        const currentKey = progressTracker.episodeKey(currentS, currentE)
+        if (!show_progress[currentKey]) {
+          show_progress[currentKey] = {
+            season: currentS,
+            episode: currentE,
             watched,
             duration,
             updatedAt: Date.now(),
-          },
+          }
         }
       }
 
@@ -116,10 +158,11 @@ export default function PlayerIframe({
         episode: mediaType === 'tv' ? episode : undefined,
         show_progress,
         genres,
+        nextEpisodeKey,
         isRealTimeEvent: data.isRealTimeEvent,
       }, isAuthenticated)
     },
-    [id, mediaType, provider.id, season, episode, title, backdrop, poster, genres, isAuthenticated]
+    [id, mediaType, provider.id, season, episode, title, backdrop, poster, genres, nextEpisodeKey, isAuthenticated]
   )
 
   // Navigation callbacks
@@ -205,7 +248,7 @@ export default function PlayerIframe({
   // or when the episode changes (resolveStartTime is recreated), look up the resume time fresh.
   useEffect(() => {
     setStartTime(null)
-    resolveStartTime()
+    return resolveStartTime()
   }, [iframeKey, resolveStartTime])
 
   // Mark this title as actively playing so a periodic background sync never
