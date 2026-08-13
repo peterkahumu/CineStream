@@ -2,6 +2,7 @@ import HomeHero from '@/components/HomeHero'
 import MediaRow from '@/components/MediaRow'
 import Top10Row from '@/components/Top10Row'
 import ContinueWatchingRow from '@/components/ContinueWatchingRow'
+import UpcomingEpisodesRow from '@/components/UpcomingEpisodesRow'
 import {
   getTrending, getPopular, getTopRated, getNowPlaying, getOnAir,
   getUpcomingMovies, getUpcomingTV, getProviderContent,
@@ -112,6 +113,7 @@ export default async function HomePage() {
       />
       <div className={`page-container ${styles.sections}`}>
         <ContinueWatchingRow />
+        <UpcomingEpisodesRow />
         <MediaRow
           title="Trending This Week"
           emoji="🔥"

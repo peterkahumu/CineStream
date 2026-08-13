@@ -265,6 +265,14 @@ export const getMovieDetails = (id: number) =>
 export const getTVDetails = (id: number) =>
   tmdbFetch<ShowDetails>(`/tv/${id}`, { append_to_response: 'aggregate_credits,similar,videos,reviews,recommendations' })
 
+/**
+ * A show's airing signals, without the credits/similar/videos payload getTVDetails
+ * pulls in — this one is fanned out across every show a viewer follows, so it stays
+ * lean. Cached server-side for an hour like every other tmdbFetch call.
+ */
+export const getTVAiringInfo = (id: number) =>
+  tmdbFetch<ShowDetails & ShowAiringInfo>(`/tv/${id}`)
+
 export const getSeasonDetails = (tvId: number, season: number) =>
   tmdbFetch<{ episodes: Episode[]; videos?: { results: Video[] } }>(`/tv/${tvId}/season/${season}`, { append_to_response: 'videos' })
 

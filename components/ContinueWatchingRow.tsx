@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Link from 'next/link'
 import Modal from './Modal'
 import MediaCard from './MediaCard'
+import CardRow, { cardRowStyles as styles } from './CardRow'
 import type { MediaItem } from '@/lib/tmdb'
 import {
   getContinueWatching,
@@ -14,11 +14,11 @@ import {
   setNextEpisodeKey,
   PROGRESS_SYNC_EVENT,
   SERIES_FINISHED,
+  CAUGHT_UP,
   type WatchProgress,
 } from '@/lib/progressTracker'
 import type { ShowAiringInfo } from '@/lib/tmdb'
 import { useSession } from 'next-auth/react'
-import styles from './ContinueWatchingRow.module.css'
 
 /** Under a minute left counts as finished — the card should move on from that episode. */
 const FINISHED_REMAINING_SECONDS = 60
@@ -26,7 +26,6 @@ const FINISHED_REMAINING_SECONDS = 60
 export default function ContinueWatchingRow() {
   const [items, setItems] = useState<WatchProgress[]>([])
   const [itemToRemove, setItemToRemove] = useState<WatchProgress | null>(null)
-  const scrollerRef = useRef<HTMLDivElement>(null)
   // TMDB lookups already in flight, keyed by `${id}-s{n}e{n}` so a re-render
   // (or a second row mount) doesn't fire the same request again.
   const resolvingRef = useRef<Set<string>>(new Set())
@@ -82,9 +81,16 @@ export default function ContinueWatchingRow() {
         continue
       }
 
-      // Caught up (more coming, not out yet) or never resolved: keep the card on
-      // the episode we know exists — never a guessed episode + 1 — and re-ask
-      // TMDB, since "caught up" expires the moment the next episode airs.
+      // Caught up: nothing to press play on, so this row lets go of it and
+      // UpcomingEpisodesRow picks it up. Not dismissed — the progress row still
+      // holds the resume point for when the show comes back.
+      if (item.nextEpisodeKey === CAUGHT_UP) {
+        unresolved.push(item)
+        continue
+      }
+
+      // Never resolved: keep the card on the episode we know exists — never a
+      // guessed episode + 1 — and go ask TMDB what follows it.
       visible.push(item)
       unresolved.push(item)
     }
@@ -143,13 +149,6 @@ export default function ContinueWatchingRow() {
     setItemToRemove(null)
   }, [])
 
-  const scroll = useCallback((direction: 'left' | 'right') => {
-    if (!scrollerRef.current) return
-    const { clientWidth } = scrollerRef.current
-    const amount = direction === 'left' ? -clientWidth * 0.75 : clientWidth * 0.75
-    scrollerRef.current.scrollBy({ left: amount, behavior: 'smooth' })
-  }, [])
-
   // Utilities
   function formatTimeLeft(watched: number, duration: number): string {
     if (duration > watched + 10) {
@@ -187,64 +186,39 @@ export default function ContinueWatchingRow() {
   if (items.length === 0) return null
 
   return (
-    <section className={styles.section}>
-      <div className="section-header">
-        <h2 className="section-title">
-          <span style={{ marginRight: 4 }}>⏱️</span>
-          Continue Watching
-        </h2>
-      </div>
+    <>
+      <CardRow title="Continue Watching" emoji="⏱️">
+        {items.map((item) => {
+          const progress = item.duration
+            ? Math.min(100, Math.max(0, (item.watched / item.duration) * 100))
+            : 0
+          const url = buildWatchUrl(item)
+          const mediaItem = buildMediaItem(item)
 
-      <div className={styles.rowContainer}>
-        <button
-          className={`${styles.scrollBtn} ${styles.scrollLeft}`}
-          onClick={() => scroll('left')}
-          aria-label="Scroll left"
-        >
-          ‹
-        </button>
+          const bottomSubtitle = (
+            <>
+              {item.mediaType === 'tv' && (
+                <span>S{item.season ?? 1} E{item.episode ?? 1} • </span>
+              )}
+              <span>{formatTimeLeft(item.watched, item.duration)}</span>
+            </>
+          )
 
-        <div className={styles.scroller} ref={scrollerRef}>
-          {items.map((item) => {
-            const progress = item.duration
-              ? Math.min(100, Math.max(0, (item.watched / item.duration) * 100))
-              : 0
-            const url = buildWatchUrl(item)
-            const mediaItem = buildMediaItem(item)
-
-            const bottomSubtitle = (
-              <>
-                {item.mediaType === 'tv' && (
-                  <span>S{item.season ?? 1} E{item.episode ?? 1} • </span>
-                )}
-                <span>{formatTimeLeft(item.watched, item.duration)}</span>
-              </>
-            )
-
-            return (
-              <div key={item.id} className={styles.cardWrap}>
-                <MediaCard
-                  item={mediaItem}
-                  forcedType={item.mediaType}
-                  progress={item.watched === 0 ? undefined : progress}
-                  bottomSubtitle={bottomSubtitle}
-                  onRemove={(e) => requestRemove(item, e)}
-                  customHref={url}
-                  singleLineTitle={true}
-                />
-              </div>
-            )
-          })}
-        </div>
-
-        <button
-          className={`${styles.scrollBtn} ${styles.scrollRight}`}
-          onClick={() => scroll('right')}
-          aria-label="Scroll right"
-        >
-          ›
-        </button>
-      </div>
+          return (
+            <div key={item.id} className={styles.cardWrap}>
+              <MediaCard
+                item={mediaItem}
+                forcedType={item.mediaType}
+                progress={item.watched === 0 ? undefined : progress}
+                bottomSubtitle={bottomSubtitle}
+                onRemove={(e) => requestRemove(item, e)}
+                customHref={url}
+                singleLineTitle={true}
+              />
+            </div>
+          )
+        })}
+      </CardRow>
 
       <Modal
         isOpen={!!itemToRemove}
@@ -254,6 +228,6 @@ export default function ContinueWatchingRow() {
         onConfirm={confirmRemove}
         onCancel={cancelRemove}
       />
-    </section>
+    </>
   )
 }
