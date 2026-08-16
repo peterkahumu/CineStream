@@ -52,26 +52,39 @@ export default function EpisodeDrawer({ id, season, episode, airing, prevHref, n
 
   const hasPicker = seasons.length > 0
 
+  // Spelled out on the toggle so the drawer advertises what opening it gets you,
+  // rather than leaving a bare chevron to be noticed.
+  const totalEpisodes = useMemo(
+    () => seasons.reduce((sum, s) => sum + airedEpisodeCount(airing, s.season_number), 0),
+    [seasons, airing]
+  )
+  const hint = isOpen
+    ? 'Hide episode list'
+    : `Browse ${totalEpisodes} episodes${seasons.length > 1 ? ` · ${seasons.length} seasons` : ''}`
+
   return (
     <div className={styles.drawer}>
       <div className={styles.bar}>
         {hasPicker ? (
           <button
             type="button"
-            className={styles.toggle}
+            className={`${styles.toggle} ${isOpen ? styles.toggleOpen : ''}`}
             onClick={toggleOpen}
             aria-expanded={isOpen}
             aria-controls={`episode-drawer-${id}`}
           >
-            <span className={styles.toggleLabel}>
-              📺 Season {season} · Episode {episode}
-            </span>
             <span className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`} aria-hidden="true">
               ▾
             </span>
+            <span className={styles.toggleText}>
+              <span className={styles.toggleTitle}>
+                Season {season} · Episode {episode}
+              </span>
+              <span className={styles.toggleHint}>{hint}</span>
+            </span>
           </button>
         ) : (
-          <span className={styles.toggleLabel}>
+          <span className={styles.toggleTitle}>
             📺 Season {season} · Episode {episode}
           </span>
         )}

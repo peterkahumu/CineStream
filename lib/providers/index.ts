@@ -299,7 +299,7 @@ const PROVIDERS: ProviderConfig[] = [
       if (type === 'movie') return `${base}/movie/${id}`
       return `${base}/tv/${id}/${s}/${e}`
     },
-    onMessage(event, callbacks) {
+    onMessage(event, callbacks, context) {
       const data = event.data
       if (!data || data.source !== 'embedmaster_player') return
       const validEvents = ['play', 'pause', 'seeked', 'ended', 'timeupdate'] as const
@@ -323,6 +323,14 @@ const PROVIDERS: ProviderConfig[] = [
           duration: (data.info.duration as number) ?? 0,
           isRealTimeEvent: true,
         })
+      }
+
+      // EmbedMaster has no in-player next-episode button, so finishing an episode
+      // is the only signal it gives us. `episode + 1` is a request, not a
+      // destination — WatchClient overrides it with the episode TMDB says actually
+      // follows, and drops it entirely when there is none.
+      if (eventType === 'ended' && context.mediaType === 'tv') {
+        callbacks.onNextEpisode(context.season, context.episode + 1)
       }
     },
   },

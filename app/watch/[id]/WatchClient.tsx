@@ -53,6 +53,10 @@ function getCapabilityNotice(providerId: string, tier: 'advanced' | 'basic'): st
       return '✨ Auto-resume active · Next episode detection enabled'
     case 'vidfast':
       return '⚡ Progress tracking active · Auto-next episode enabled'
+    // EmbedMaster's embed URL takes no start-time parameter, so it tracks and
+    // advances but can't be told where to resume from.
+    case 'embedmaster':
+      return '⚡ Progress tracking active · Auto-next episode enabled'
     default:
       return '⚡ Progress tracking & auto-resume active'
   }

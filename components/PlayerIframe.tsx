@@ -97,12 +97,26 @@ export default function PlayerIframe({
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Start time is resolved once per mount (or explicit server switch via iframeKey).
-  // Since episode changes trigger a full page reload, a fresh mount always picks up
-  // the correct resume time without needing to reset this manually. `null` doubles
-  // as "not resolved yet" (gates the skeleton below) — plain state rather than a
-  // ref, since reading a ref's value during render isn't safe (react-hooks/refs).
-  const [startTime, setStartTime] = useState<number | null>(null)
+  // Identity of the resume point currently being resolved. Anything that changes
+  // which episode-on-which-device we're asking about — an explicit server switch,
+  // a new episode, signing in — invalidates the previous answer.
+  const resolutionKey = `${iframeKey}:${id}:${season}:${episode}:${isAuthenticated}`
+
+  // Start time is stored alongside the key it was resolved for. `null` doubles as
+  // "not resolved yet" and gates the skeleton below.
+  const [resolution, setResolution] = useState<{ key: string; startTime: number | null }>({
+    key: resolutionKey,
+    startTime: null,
+  })
+
+  // Reset during render rather than from an effect. This is derived state
+  // following its key, and an effect would both commit one frame still carrying
+  // the previous episode's resume time and trip react-hooks/set-state-in-effect.
+  if (resolution.key !== resolutionKey) {
+    setResolution({ key: resolutionKey, startTime: null })
+  }
+
+  const startTime = resolution.key === resolutionKey ? resolution.startTime : null
 
   // Guard against the same episode triggering onNextEpisode more than once.
   // Providers like VidLink can fire multiple 'ended' events in quick succession,
@@ -117,9 +131,13 @@ export default function PlayerIframe({
   // from zero. Merging isn't an option here — setActivePlayback has already
   // walled this title off from inbound syncs — so the remote row is only read.
   const resolveStartTime = useCallback(() => {
+    // Committed against the key it was resolved for, so a late fetch belonging to
+    // a previous episode can never be mistaken for the current one's answer.
+    const commit = (value: number) => setResolution({ key: resolutionKey, startTime: value })
+
     const local = progressTracker.getResumeTime(id, season, episode)
     if (local > 0 || progressTracker.hasLocalProgress(id) || !isAuthenticated) {
-      setStartTime(local)
+      commit(local)
       return
     }
 
@@ -131,16 +149,16 @@ export default function PlayerIframe({
         const match = Array.isArray(remote)
           ? remote.find(item => String(item.id).trim() === String(id).trim())
           : undefined
-        setStartTime(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
+        commit(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
       })
       .catch(() => {
-        if (!cancelled) setStartTime(0)
+        if (!cancelled) commit(0)
       })
 
     return () => {
       cancelled = true
     }
-  }, [id, season, episode, isAuthenticated])
+  }, [id, season, episode, isAuthenticated, resolutionKey])
 
   // Progress persistence
   const handleProgress = useCallback(
@@ -289,12 +307,11 @@ export default function PlayerIframe({
     return () => window.removeEventListener('message', handleMessage)
   }, [handleMessage, provider.onMessage])
 
-  // When the component mounts, when the user explicitly switches server (iframeKey increments),
-  // or when the episode changes (resolveStartTime is recreated), look up the resume time fresh.
+  // Look up the resume time fresh whenever the resolution key changes — mount, an
+  // explicit server switch, or an episode change all recreate resolveStartTime.
   useEffect(() => {
-    setStartTime(null)
     return resolveStartTime()
-  }, [iframeKey, resolveStartTime])
+  }, [resolveStartTime])
 
   // Mark this title as actively playing so a periodic background sync never
   // overwrites a live session (see progressTracker's activePlaybackId). Scoped

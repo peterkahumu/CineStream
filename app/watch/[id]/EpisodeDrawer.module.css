@@ -10,43 +10,87 @@
 
 .bar {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-sm);
 }
 
+/*
+ * Deliberately built to read as a control rather than a label: it fills the row,
+ * carries its own surface and border, and states what opening it does. The first
+ * pass was a bare caption with a small chevron and was easy to scan straight past.
+ */
 .toggle {
-  display: inline-flex;
+  flex: 1 1 260px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  margin: -6px -10px;
-  background: none;
-  border: none;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 14px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-md);
   color: inherit;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
-.toggle:hover { background: rgba(255, 255, 255, 0.06); }
+.toggle:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.toggleOpen {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: var(--accent);
+}
 
-.toggleLabel {
-  font-size: 0.875rem;
+.toggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toggleTitle {
+  font-size: 0.9375rem;
   font-weight: 600;
   color: white;
+  line-height: 1.25;
 }
 
-.chevron {
-  font-size: 0.75rem;
+.toggleHint {
+  font-size: 0.78rem;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
-  transition: transform var(--transition-fast);
+  line-height: 1.25;
 }
-.chevronOpen { transform: rotate(180deg); }
+
+/* A filled circle rather than a loose glyph — the affordance has to survive being
+   glanced at on a phone. */
+.chevron {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+.toggle:hover .chevron { background: rgba(255, 255, 255, 0.22); }
+.chevronOpen {
+  transform: rotate(180deg);
+  background: var(--accent);
+}
 
 .nav {
   display: flex;
-  gap: var(--space-md);
+  align-items: stretch;
+  gap: var(--space-sm);
   flex-wrap: wrap;
 }
 
