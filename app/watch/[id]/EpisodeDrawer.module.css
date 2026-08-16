@@ -1,11 +1,18 @@
+/*
+ * Every colour here is a theme token, not a hardcoded white or rgba(255,255,255,…).
+ * This block sits on .controlsPanel, whose background is var(--nav-bg) — which is
+ * #ffffff on the light theme and #fbf9f5 on warm. White-on-white made the toggle's
+ * surface, border, chevron and title all invisible on those themes, leaving only
+ * the faint hint text behind and hiding the fact that the row expands at all.
+ */
 .drawer {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--nav-overlay);
+  border: 1px solid var(--nav-border);
 }
 
 .bar {
@@ -17,9 +24,8 @@
 }
 
 /*
- * Deliberately built to read as a control rather than a label: it fills the row,
- * carries its own surface and border, and states what opening it does. The first
- * pass was a bare caption with a small chevron and was easy to scan straight past.
+ * Built to read as a control rather than a label: it fills the row, carries its
+ * own surface and border, and states what opening it does.
  */
 .toggle {
   flex: 1 1 260px;
@@ -29,19 +35,19 @@
   min-height: 52px;
   padding: 8px 14px;
   text-align: left;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--nav-overlay-strong);
+  border: 1px solid var(--nav-border-strong);
   border-radius: var(--radius-md);
   color: inherit;
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 .toggle:hover {
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--nav-active);
+  border-color: var(--accent-border);
 }
 .toggleOpen {
-  background: rgba(255, 255, 255, 0.11);
+  background: var(--nav-active);
   border-color: var(--accent);
 }
 
@@ -55,14 +61,14 @@
 .toggleTitle {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: white;
+  color: var(--nav-text);
   line-height: 1.25;
 }
 
 .toggleHint {
   font-size: 0.78rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--nav-muted);
   line-height: 1.25;
 }
 
@@ -76,14 +82,21 @@
   width: 28px;
   height: 28px;
   font-size: 0.8rem;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.14);
+  color: var(--nav-text);
+  background: var(--nav-overlay-strong);
   border-radius: 50%;
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  transition: transform var(--transition-fast), background var(--transition-fast),
+    color var(--transition-fast);
 }
-.toggle:hover .chevron { background: rgba(255, 255, 255, 0.22); }
+.toggle:hover .chevron {
+  background: var(--accent-subtle);
+}
 .chevronOpen {
   transform: rotate(180deg);
+  color: var(--text-inverse);
+  background: var(--accent);
+}
+.toggle:hover .chevronOpen {
   background: var(--accent);
 }
 
@@ -117,7 +130,7 @@
   flex-direction: column;
   gap: var(--space-sm);
   padding-top: var(--space-sm);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--nav-border);
 }
 
 .seasonRow {
@@ -132,21 +145,25 @@
   padding: 5px 12px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--nav-muted);
+  background: var(--nav-overlay-strong);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 .seasonBtn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
+  color: var(--nav-text);
+  background: var(--nav-active);
 }
 .seasonBtnActive {
-  color: #fff;
+  color: var(--text-inverse);
   background: var(--accent);
   border-color: var(--accent);
+}
+.seasonBtnActive:hover {
+  color: var(--text-inverse);
+  background: var(--accent-hover);
 }
 
 /*
@@ -168,19 +185,24 @@
   min-height: 40px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--nav-text);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--nav-overlay-strong);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
 }
 .episodeBtn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.14);
+  color: var(--nav-text);
+  background: var(--nav-active);
+  border-color: var(--accent-border);
 }
 .episodeBtnActive {
-  color: #fff;
+  color: var(--text-inverse);
   background: var(--accent);
   border-color: var(--accent);
+}
+.episodeBtnActive:hover {
+  color: var(--text-inverse);
+  background: var(--accent-hover);
 }
