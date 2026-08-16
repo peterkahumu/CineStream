@@ -1,0 +1,142 @@
+.drawer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  margin: -6px -10px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.toggle:hover { background: rgba(255, 255, 255, 0.06); }
+
+.toggleLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.chevron {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform var(--transition-fast);
+}
+.chevronOpen { transform: rotate(180deg); }
+
+.nav {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.navBtn {
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-strong);
+  transition: all var(--transition-fast);
+}
+.navBtn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ── EXPANDED PANEL ──────────────────────────────────────────────────────── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.seasonRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.seasonBtn {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.seasonBtn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+.seasonBtnActive {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/*
+ * Auto-fill rather than a fixed column count: episode numbers are uniform, so the
+ * grid stays dense on a phone and doesn't stretch into a sparse row on desktop.
+ */
+.episodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.episodeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+.episodeBtn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+.episodeBtnActive {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}

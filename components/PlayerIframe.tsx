@@ -10,6 +10,51 @@ import OfflineTrailerWrapper from './OfflineTrailerWrapper'
 import pageStyles from '@/app/watch/[id]/page.module.css'
 import styles from './PlayerIframe.module.css'
 
+/**
+ * Permissions delegated to the provider iframe.
+ *
+ * Every feature is granted with an explicit `*` allowlist rather than the bare
+ * feature name. A bare name delegates only to the origin in the iframe's `src`,
+ * and most providers immediately redirect somewhere else — vidfast.pro lands on
+ * vidfast.vc, embedmaster.link on embdmstrplayer.com, multiembed.mov on
+ * streamingnow.mov. Once the frame is on the redirect target it is no longer in
+ * the allowlist, so the player's own fullscreen button dies with
+ * "Permissions policy violation: fullscreen is not allowed in this document".
+ * `*` also survives the extra nesting those players use internally.
+ */
+const IFRAME_ALLOW = 'autoplay *; fullscreen *; picture-in-picture *; encrypted-media *'
+
+/**
+ * True when `source` is our iframe's window, or any window nested inside it.
+ *
+ * A plain `event.source === iframe.contentWindow` only holds for providers that
+ * post from the frame we loaded directly. Providers that redirect into a player
+ * on another domain post from a frame nested one or more levels deeper, and
+ * those messages were being dropped before their handler ever ran.
+ *
+ * `window.parent` stays readable across origins, so walking up from the sender
+ * enforces the same boundary as before — only frames we actually embed can pass
+ * — without caring how deeply a provider nests its player. The depth cap stops
+ * a malformed or self-referential parent chain from spinning.
+ */
+function isFromFrameTree(source: MessageEventSource | null, frame: Window | null | undefined): boolean {
+  if (!source || !frame) return false
+  try {
+    let current = source as Window
+    for (let depth = 0; depth < 10; depth++) {
+      if (current === frame) return true
+      const parent = current.parent as Window | null
+      if (!parent || parent === current) return false
+      current = parent
+    }
+  } catch {
+    // Cross-origin access to `parent` is spec-allowed, but a detached or
+    // otherwise exotic sender can still throw. Treat it as untrusted.
+    return false
+  }
+  return false
+}
+
 interface PlayerIframeProps {
   provider: ProviderConfig
   serverUrl: string
@@ -212,8 +257,8 @@ export default function PlayerIframe({
         if (!trusted) return
       }
 
-      // Ignore messages from old/stale iframes
-      if (iframeRef.current && event.source !== iframeRef.current.contentWindow) {
+      // Ignore messages from old/stale iframes, and from any frame we don't embed.
+      if (!isFromFrameTree(event.source, iframeRef.current?.contentWindow)) {
         return
       }
 
@@ -299,7 +344,7 @@ export default function PlayerIframe({
         className={pageStyles.player}
         loading="eager"
         title={`${title} player`}
-        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        allow={IFRAME_ALLOW}
         allowFullScreen
       />
     </OfflineTrailerWrapper>

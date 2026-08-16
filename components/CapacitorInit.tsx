@@ -6,6 +6,7 @@ import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar } from '@capacitor/status-bar'
 import { App } from '@capacitor/app'
 import { useRouter } from 'next/navigation'
+import { lockLandscape, unlockOrientation } from '@/lib/playerOrientation'
 
 // Shared orientation helper
 // window.screen.orientation.lock/unlock are non-standard on the web and typed
@@ -41,9 +42,7 @@ async function handleFullscreenEnter(immersiveRef: { interval: NodeJS.Timeout | 
   try {
     await new Promise(resolve => setTimeout(resolve, 300))
     if (Capacitor.isNativePlatform()) {
-      await import('@capacitor/screen-orientation')
-        .then(m => m.ScreenOrientation.lock({ orientation: 'landscape' }))
-        .catch(() => {})
+      await lockLandscape()
       await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {})
       await StatusBar.hide().catch(() => {})
 
@@ -64,9 +63,7 @@ async function handleFullscreenExit(immersiveRef: { interval: NodeJS.Timeout | n
   try {
     await new Promise(resolve => setTimeout(resolve, 300))
     if (Capacitor.isNativePlatform()) {
-      await import('@capacitor/screen-orientation')
-        .then(m => m.ScreenOrientation.unlock())
-        .catch(() => {})
+      await unlockOrientation()
       await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
       await StatusBar.show().catch(() => {})
       if (immersiveRef.interval) {
@@ -112,7 +109,7 @@ function setupListeners(router: ReturnType<typeof useRouter>) {
     if (immersiveRef.interval) clearInterval(immersiveRef.interval)
 
     if (Capacitor.isNativePlatform()) {
-      import('@capacitor/screen-orientation').then(m => m.ScreenOrientation.unlock()).catch(() => {})
+      unlockOrientation()
       StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
       StatusBar.show().catch(() => {})
     } else {

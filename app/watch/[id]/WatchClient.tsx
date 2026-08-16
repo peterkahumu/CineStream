@@ -3,12 +3,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Capacitor } from '@capacitor/core'
-import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
+import { unlockOrientation } from '@/lib/playerOrientation'
 import PROVIDERS from '@/lib/providers'
 import type { StreamingServer } from '@/lib/streamingProvider'
 import type { Genre, ShowAiringInfo } from '@/lib/tmdb'
 import PlayerIframe from '@/components/PlayerIframe'
+import EpisodeDrawer from './EpisodeDrawer'
 import { buildNextEpisodeKey, parseEpisodeKey } from '@/lib/progressTracker'
 import styles from './page.module.css'
 
@@ -34,7 +35,7 @@ interface Props {
 
 function restorePortraitOrientation() {
   if (Capacitor.isNativePlatform()) {
-    ScreenOrientation.unlock().catch(console.error)
+    unlockOrientation().catch(console.error)
     StatusBar.setOverlaysWebView({ overlay: false }).catch(console.error)
     StatusBar.show().catch(console.error)
   }
@@ -227,29 +228,18 @@ export default function WatchClient({
 
         <div className={styles.controlsPanel}>
           {mediaType === 'tv' && (
-            <div className={styles.quickEp}>
-              <span className={styles.quickLabel}>
-                📺 Season {season}, Episode {episode}
-              </span>
-              <div className={styles.epNav}>
-                {prevS !== null && prevE !== null && (
-                  <Link
-                    href={`/watch/${id}?type=tv&s=${prevS}&e=${prevE}`}
-                    className={`btn btn-secondary ${styles.epNavBtn}`}
-                  >
-                    ← Prev
-                  </Link>
-                )}
-                {nextS !== null && nextE !== null && (
-                  <Link
-                    href={`/watch/${id}?type=tv&s=${nextS}&e=${nextE}`}
-                    className={`btn btn-secondary ${styles.epNavBtn}`}
-                  >
-                    Next →
-                  </Link>
-                )}
-              </div>
-            </div>
+            <EpisodeDrawer
+              /* Episode changes are a soft navigation, so this remounts the
+                 drawer when the season moves and its picker would otherwise
+                 stay parked on the season you just left. */
+              key={season}
+              id={id}
+              season={season}
+              episode={episode}
+              airing={airing}
+              prevHref={prevS !== null && prevE !== null ? `/watch/${id}?type=tv&s=${prevS}&e=${prevE}` : null}
+              nextHref={nextS !== null && nextE !== null ? `/watch/${id}?type=tv&s=${nextS}&e=${nextE}` : null}
+            />
           )}
 
           {children}

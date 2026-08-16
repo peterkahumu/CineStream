@@ -55,8 +55,14 @@ export interface ProviderConfig {
   /** advanced = postMessage events supported; basic = URL params only */
   tier: 'advanced' | 'basic'
   /**
-   * Trusted postMessage origin(s). Undefined means no event support.
-   * Pass a string array for providers that send from multiple domains (e.g. VidFast).
+   * Trusted postMessage origin(s), checked before `onMessage` runs. Pass a string
+   * array for providers that send from multiple domains (e.g. VidFast).
+   *
+   * Optional even when `onMessage` is set: providers that redirect the frame to a
+   * rotating domain can't be pinned to a fixed origin without their events being
+   * dropped. Leaving it undefined falls back to PlayerIframe's frame-tree check,
+   * which already limits senders to frames we embed. `onMessage` alone decides
+   * whether a provider supports events.
    */
   origin?: string | string[]
   buildUrl(
@@ -68,8 +74,8 @@ export interface ProviderConfig {
     opts?: BuildUrlOpts
   ): string
   /**
-   * Handle a raw MessageEvent from the iframe.
-   * Only called when event.origin matches this provider's origin.
+   * Handle a raw MessageEvent from the iframe. Only called for senders inside our
+   * own iframe tree, and — when `origin` is set — from a matching origin.
    */
   onMessage?(event: MessageEvent, callbacks: PlayerCallbacks, context: PlayerContext): void
 }
