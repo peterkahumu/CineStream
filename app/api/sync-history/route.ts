@@ -36,7 +36,10 @@ export async function POST(request: Request) {
       episode: number | null;
       event: "started" | "completed";
       genres: unknown;
+      watchedSeconds: number;
+      runtimeSeconds: number;
       occurredAt: number;
+      updatedAt: number;
       episodeKey: string;
     }>();
 
@@ -60,10 +63,15 @@ export async function POST(request: Request) {
       const occurredAt = typeof item.occurredAt === "number" && !isNaN(item.occurredAt)
         ? item.occurredAt
         : Date.now();
+      const updatedAt = typeof item.updatedAt === "number" && !isNaN(item.updatedAt)
+        ? item.updatedAt
+        : occurredAt;
+      const watchedSeconds = Math.max(0, Math.round(Number(item.watchedSeconds) || 0));
+      const runtimeSeconds = Math.max(0, Math.round(Number(item.runtimeSeconds) || 0));
 
       const episodeKey = `${mediaType}-${tmdbId}-${season ?? "x"}-${episode ?? "x"}`;
       const existing = byEpisode.get(episodeKey);
-      if (!existing || occurredAt >= existing.occurredAt) {
+      if (!existing || updatedAt >= existing.updatedAt) {
         byEpisode.set(episodeKey, {
           id: eventId,
           userId,
@@ -75,9 +83,16 @@ export async function POST(request: Request) {
           episode,
           event,
           genres,
+          // Seconds never regress, even when an older row wins the metadata.
+          watchedSeconds: Math.max(watchedSeconds, existing?.watchedSeconds ?? 0),
+          runtimeSeconds: Math.max(runtimeSeconds, existing?.runtimeSeconds ?? 0),
           occurredAt,
+          updatedAt,
           episodeKey,
         });
+      } else if (watchedSeconds > existing.watchedSeconds || runtimeSeconds > existing.runtimeSeconds) {
+        existing.watchedSeconds = Math.max(watchedSeconds, existing.watchedSeconds);
+        existing.runtimeSeconds = Math.max(runtimeSeconds, existing.runtimeSeconds);
       }
     }
 
@@ -85,6 +100,11 @@ export async function POST(request: Request) {
     if (validItems.length === 0) {
       return NextResponse.json({ success: true, count: 0 });
     }
+
+    // Metadata is last-write-wins by updatedAt (sync requests arrive out of order),
+    // but watch seconds merge with GREATEST regardless: furthest-position is
+    // monotonic, so a stale device must never talk another one's watch time down.
+    const isNewer = sql`COALESCE(${watchHistory.updatedAt}, ${watchHistory.occurredAt}) <= excluded."updatedAt"`;
 
     await dbQuery(async (db) => {
       for (const item of validItems) {
@@ -94,15 +114,15 @@ export async function POST(request: Request) {
           .onConflictDoUpdate({
             target: [watchHistory.userId, watchHistory.episodeKey],
             set: {
-              title: item.title,
-              poster_path: item.poster_path,
-              event: item.event,
-              genres: item.genres,
-              occurredAt: item.occurredAt,
+              title: sql`CASE WHEN ${isNewer} THEN excluded."title" ELSE ${watchHistory.title} END`,
+              poster_path: sql`CASE WHEN ${isNewer} THEN excluded."poster_path" ELSE ${watchHistory.poster_path} END`,
+              event: sql`CASE WHEN ${isNewer} THEN excluded."event" ELSE ${watchHistory.event} END`,
+              genres: sql`CASE WHEN ${isNewer} AND excluded."genres" IS NOT NULL THEN excluded."genres" ELSE ${watchHistory.genres} END`,
+              watchedSeconds: sql`GREATEST(COALESCE(${watchHistory.watchedSeconds}, 0), COALESCE(excluded."watchedSeconds", 0))`,
+              runtimeSeconds: sql`GREATEST(COALESCE(${watchHistory.runtimeSeconds}, 0), COALESCE(excluded."runtimeSeconds", 0))`,
+              occurredAt: sql`CASE WHEN ${isNewer} THEN excluded."occurredAt" ELSE ${watchHistory.occurredAt} END`,
+              updatedAt: sql`GREATEST(COALESCE(${watchHistory.updatedAt}, 0), COALESCE(excluded."updatedAt", 0))`,
             },
-            // Only apply if this update is at least as new as what's already stored —
-            // sync requests can arrive out of order.
-            setWhere: sql`${watchHistory.occurredAt} <= ${item.occurredAt}`,
           });
       }
     });

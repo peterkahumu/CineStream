@@ -38,6 +38,12 @@ export const watchProgress = pgTable("watch_progress", {
   show_progress: json("show_progress"), // Record<string, EpisodeProgress>
   genres: json("genres"), // { id: number, name: string }[] | null — captured at watch time
   lastProvider: text("lastProvider"),
+  // What Continue Watching should point at once season/episode finishes:
+  // `s{n}e{n}`, or 'end' when it was the series finale. Null = not resolved yet.
+  nextEpisodeKey: text("nextEpisodeKey"),
+  // Set when the user removes the title from Continue Watching. The row is kept
+  // (stats are computed from it) — only the Continue Watching row filters on this.
+  dismissedAt: bigint("dismissedAt", { mode: "number" }),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 })
 
@@ -69,6 +75,10 @@ export const watchlist = pgTable("watchlist", {
  * `episodeKey` is `${mediaType}-${tmdbId}-${season ?? 'x'}-${episode ?? 'x'}`
  * (see lib/progressTracker.ts), giving each episode/movie a stable identity to
  * upsert against.
+ *
+ * This is also the durable ledger Profile stats are computed from: `watchedSeconds`
+ * lives here rather than only inside `watchProgress.show_progress`, so removing a
+ * title from Continue Watching costs you a resume point and nothing else.
  */
 export const watchHistory = pgTable("watch_history", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -81,7 +91,16 @@ export const watchHistory = pgTable("watch_history", {
   episode: integer("episode"),
   event: text("event").notNull(), // 'started' | 'completed'
   genres: json("genres"), // { id: number, name: string }[] | null
+  // Furthest position reached in this episode/movie, and its runtime. Merged with
+  // GREATEST on conflict — monotonic, so devices can't undo each other's progress.
+  watchedSeconds: integer("watchedSeconds").default(0),
+  runtimeSeconds: integer("runtimeSeconds").default(0),
+  // When the current "started"/"completed" state was reached — drives the activity
+  // timeline, so it deliberately does NOT move when only the seconds change.
   occurredAt: bigint("occurredAt", { mode: "number" }).notNull(),
+  // Any change at all, including seconds-only ones. Conflict resolution for the
+  // mutable fields uses this rather than occurredAt.
+  updatedAt: bigint("updatedAt", { mode: "number" }),
   episodeKey: text("episodeKey").notNull(),
 }, (t) => [
   uniqueIndex("watch_history_user_episode_idx").on(t.userId, t.episodeKey),

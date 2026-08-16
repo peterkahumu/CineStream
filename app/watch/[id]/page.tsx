@@ -90,7 +90,13 @@ export default async function WatchPage(props: {
               poster={poster}
               genres={details.genres}
               servers={getStreamingServers()}
-              seasons={details.seasons}
+              airing={mediaType === 'tv' ? {
+                seasons: details.seasons,
+                last_episode_to_air: details.last_episode_to_air,
+                next_episode_to_air: details.next_episode_to_air,
+                status: details.status,
+                in_production: details.in_production,
+              } : undefined}
             />
           </div>
         </div>

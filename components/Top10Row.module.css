@@ -3,6 +3,7 @@
   align-items: flex-end;
   position: relative;
   flex: 0 0 32vw;
+  min-width: 0;
   scroll-snap-align: start;
 }
 @media (min-width: 420px)  { .top10CardWrap { flex: 0 0 134px; } }

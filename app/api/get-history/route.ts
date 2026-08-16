@@ -19,7 +19,10 @@ function formatRow(r: typeof watchHistory.$inferSelect) {
     episode: r.episode,
     event: r.event,
     genres: r.genres,
+    watchedSeconds: r.watchedSeconds,
+    runtimeSeconds: r.runtimeSeconds,
     occurredAt: r.occurredAt,
+    updatedAt: r.updatedAt,
   };
 }
 

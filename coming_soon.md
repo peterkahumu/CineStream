@@ -1,77 +1,142 @@
 # 🚀 CinemaPhora — Roadmap
 
-What's been shipped and what's planned next.
+What's shipped and what's planned next. Design decisions and known gaps live in
+[planning.md](./planning.md).
 
 ---
 
 ## ✅ Shipped
 
 ### Discovery & Navigation
-- ✅ **Homepage Hero Carousel:** Auto-rotating banner cycling through top trending content with smooth fade transitions and indicator dots.
-- ✅ **Trending This Week page** (`/trending`): Dedicated route hitting the TMDB trending endpoint — filterable by All / Movies / TV, with infinite scroll.
-- ✅ **Coming Soon page** (`/upcoming`): Movies and TV shows releasing in the next 3 months. Matches the homepage row exactly.
-- ✅ **Provider pages** (`/provider/[id]`): Dedicated routes for streaming providers showing releases from the last 6 months.
-- ✅ **Correct "See All →" links:** Every homepage row links to its own purpose-built route (not a generic discover fallback).
-- ✅ **Discover page deep-linking:** Supports `with_watch_providers`, date range, and all other TMDB filter params via URL.
+- ✅ **Homepage hero carousel** — auto-rotating backdrops with fade transitions and
+  indicator dots.
+- ✅ **Seasonal themed strip** — the strip under the hero changes with the calendar
+  (🎃 October, 🎄 December, 💖 February) and the day of the week (💥 weekends,
+  😂 Sundays), falling back to 🌟 Editor's Picks.
+- ✅ **🎭 Mood picker** — twelve moods that route to a pre-filtered Discover page.
+- ✅ **Category pages** — `/trending`, `/popular`, `/top-rated`, `/now-playing`,
+  `/upcoming`, all with Movies/TV toggles and infinite scroll.
+- ✅ **Provider hub** (`/providers`) — Netflix, Prime Video, Disney+, Apple TV+, Hulu and
+  Peacock, showing each platform's last 6 months.
+- ✅ **Correct "See All →" links** — every homepage row points at a purpose-built route
+  showing exactly that row's content, not a generic fallback. *(Three params still get
+  dropped by `/discover` — see [planning.md](./planning.md).)*
+- ✅ **Discover deep-linking** — genre, country, language, year, rating, sort, watch
+  providers and date ranges all round-trip through the URL.
+- ✅ **Saved filter presets** — name a filter combination and recall it later.
+- ✅ **Multi-select filters** for genre, country and language.
 
 ### Content Sections
-- ✅ **Top 10 in Your Country:** Two rows (Movies + TV) built from geo-IP detection. Toast notification on detection. Hidden gracefully on failure.
-- ✅ **Now Playing / Currently On Air:** Dedicated rows for theatrical releases and actively airing shows.
-- ✅ **Netflix / Prime Video / Disney+ rows:** Six rows (movie + TV per provider), linked to correct provider pages. *(Note: Other providers are available in the Discover page, and we plan to accommodate them on the homepage in the future).*
-- ✅ **Upcoming Movies & TV Shows:** Date-bounded to the next 3 months, sorted by popularity.
-- ✅ **Popular Movies / TV Shows & Top Rated:** Standard discovery rows.
+- ✅ **Top 10 in your country** — two geo-IP-derived rows with a location toast, hidden
+  gracefully when the lookup fails.
+- ✅ **Now Playing / Currently On Air.**
+- ✅ **Hidden Gems, Binge-Worthy TV, Returning Soon.**
+- ✅ **Netflix / Prime Video / Disney+ rows** — six rows total, movie + TV per provider.
+- ✅ **Coming Soon** — date-bounded to the next 3 months, sorted by popularity.
+- ✅ **Popular & Top Rated** rows for movies and TV.
 
 ### Details Page
-- ✅ **"Coming on [date]" label:** For movies with a future `release_date`, and for TV shows with a future `next_episode_to_air.air_date`, the Watch button is replaced with a non-clickable date label.
-- ✅ **Watch tab hidden for upcoming TV shows:** No episodes to stream yet — the tab is suppressed automatically.
-- ✅ **Breadcrumb navigation:** Home → Media Type → Title.
-- ✅ **Tabs:** Trailers, Cast, Reviews, **Where to Watch** (Watch tab for TV when available).
-- ✅ **Recommendations & Similar:** Scrollable rows below the player.
+- ✅ **"Coming on [date]"** — replaces the Watch button for unreleased movies and
+  unpremiered shows.
+- ✅ **Watch tab suppressed** for upcoming TV — nothing to stream yet.
+- ✅ **Breadcrumbs**, collection badge, certification/age-rating chip, status badge.
+- ✅ **Tabs** — Watch (TV), Trailers, Cast, Reviews, Where to Watch.
+- ✅ **Per-season trailers** for multi-season shows, falling back to the series trailer.
+- ✅ **More from the Director / Creator**, plus Recommendations and Similar rows.
+- ✅ **Autoplay Trailers setting** honoured server-side, so the embed renders with the
+  right `?autoplay=` and there's no hydration mismatch.
 
 ### Player & Watch
-- ✅ **Multi-server support:** Up to 9 streaming servers configured in `.env.local`; user can switch if one fails.
-- ✅ **🎬 Lights Out mode:** Dims surrounding UI for focused viewing.
-- ✅ **TV Episode Selector:** Season/episode picker sidebar on the watch page.
-- ✅ **URL cleanup:** Season/episode params stripped from the URL bar after load.
+- ✅ **Multi-server support** — up to 9 servers, switchable mid-session, each badged
+  ⚡ advanced or basic with an explicit capability line.
+- ✅ **Ad-filtering proxy** — an optional Cloudflare Worker that strips ad networks, blocks
+  pop-unders and neutralises redirects, with a per-server **🛡️ Filter / ⚡ Direct** toggle.
+- ✅ **Auto-resume** from the furthest position reached, locally or from the server.
+- ✅ **Correct episode navigation** — Prev/Next derived from TMDB airing data, so Next
+  disappears rather than offering an episode that hasn't aired.
+- ✅ **Provider event normalisation** — origin-validated `postMessage`, stale-iframe
+  rejection, and per-episode progress keys rebuilt into one canonical format.
 
 ### Search
-- ✅ **Realtime search:** Debounced — results update as you type.
-- ✅ **Type filter tabs:** All / Movies / TV Shows.
-- ✅ **Infinite scroll:** Loads more pages automatically.
+- ✅ **Realtime search** with a 300 ms debounce and inline poster previews.
+- ✅ <kbd>/</kbd> **keyboard shortcut** to focus search, <kbd>Esc</kbd> to close.
+- ✅ **Recent searches**, type filter tabs, infinite scroll.
 
 ### Personalisation & State
-- ✅ **User Accounts:** Email/password accounts (`next-auth` + Postgres via Drizzle). Guests keep the full local-storage experience; signed-in users additionally get everything below synced across devices.
-- ✅ **"Continue Watching" Row:** Tracks viewing progress locally first, then syncs to the DB for signed-in users — resume on any device, Netflix-style. *(Note: This feature depends on the active streaming server emitting progress events. Other servers just serve streaming functionality).*
-- ✅ **Watch History & Stats:** A durable "started"/"completed" event log (`/profile`), separate from Continue Watching's resume pointer — survives rewatches and removal from Continue Watching. Powers a stats strip (titles watched, total watch time, movies/TV split, weekly activity, top genres).
-- ✅ **Cross-Device Settings Sync:** Signed-in users' preferences (`/settings`) sync to the DB, latest-change-wins. Guests keep the cookie-only experience — Settings is available to everyone, signed in or not.
-- ✅ **Legal & Compliance:** Mandatory Terms of Use / Privacy Policy modal agreement. Settings page to manage agreement.
-- 🚧 **Watchlists / Favourites (Partially Shipped):** Users can save titles for later using local storage. (Database integration planned for future scale — the `watchlist` table exists but isn't wired up yet).
+- ✅ **User accounts** — email/password via `next-auth` + Postgres. Optional; guests keep
+  every feature, just device-local.
+- ✅ **Continue Watching** — advances on episode completion, retires on a finale, and hands
+  a caught-up show over to the Upcoming rail.
+- ✅ **New & Upcoming Episodes rail** — surfaces shows that moved on without you, including
+  a series you finished months ago quietly returning.
+- ✅ **Watch history & stats** — a durable per-episode ledger, separate from the resume
+  pointer, that survives rewatches and Continue Watching removals. Powers the full profile
+  dashboard: watch time, completion rate, streaks, 90-day activity timeline, top genres,
+  top streamed titles.
+- ✅ **My List** — folders, watched state, search, sort, per-item actions, and full DB sync.
+- ✅ **Wishlist export/import** as JSON.
+- ✅ **Cross-device settings sync**, latest-change-wins; Settings is open to guests too.
+- ✅ **Account management** — display name, change password, delete account (cascades every
+  synced row).
+- ✅ **Legal & compliance** — mandatory Terms/Privacy agreement, revocable from Settings.
 
 ### Technical
-- ✅ **True OLED Dark Mode:** "True Black" theme (`#000000`) implemented (`data-theme="amoled"`).
-- ✅ **API key never exposed:** All TMDB calls from the client go through a server-side proxy route (`/api/tmdb/...`).
-- ✅ **`Promise.allSettled` on homepage:** A single failing row never breaks the page.
-- ✅ **Conditional sentinel:** IntersectionObserver sentinel is removed from the DOM when exhausted, preventing footer flash.
-- ✅ **No function definitions inside `useEffect`:** Enforced across all components.
-- ✅ **Installable PWA:** Offline image caching, service worker, manifest.
-- ✅ **Native mobile support (Capacitor):** Back-button handling, fullscreen orientation, status bar management.
-- ✅ **SEO metadata:** Dynamic `<title>` and Open Graph tags on all pages.
+- ✅ **API key never exposed** — server-side proxy plus stdout/stderr redaction as defence
+  in depth.
+- ✅ **Server-side terms gate** in middleware, with crawler passthrough for SEO.
+- ✅ **Seven themes** including true-black AMOLED, plus reduce-motion and data-saver modes.
+- ✅ **Age-rating ceiling** applied server-side on discovery endpoints.
+- ✅ **`Promise.allSettled` on the homepage** — one failing row never breaks the page.
+- ✅ **Conditional IntersectionObserver sentinel** — removed from the DOM when exhausted.
+- ✅ **No function definitions inside `useEffect`** — enforced across all components.
+- ✅ **Installable PWA** — service worker, offline fallback page, TMDB image caching,
+  manifest.
+- ✅ **Native Android via Capacitor** — back-button handling, splash, status bar, fullscreen
+  landscape lock, plus a CI workflow that builds the APK.
+- ✅ **Cloudflare Workers deployment** via OpenNext, with Supabase reached through
+  Hyperdrive and automatic retry/back-off on transient connection errors.
+- ✅ **SEO metadata** — dynamic titles, Open Graph and Twitter cards on every page.
+- ✅ **Logic verification scripts** (`npm test`) covering next-episode resolution, the
+  two-rail hand-off, and stats durability.
 
 ---
 
 ## 🔜 Planned
 
 ### Immersive UX
-- [ ] **Auto-playing Trailers:** Silent auto-play on the details page hero.
-- [ ] **Skeleton Loaders:** Replace spinners with animated skeleton cards.
+- [ ] **Auto-playing trailers on the details hero** — silent, muted background playback.
+  (The setting and the server-side plumbing already exist; the hero treatment doesn't.)
+- [ ] **Skeleton loaders** — replace the remaining spinners with animated skeleton cards.
+- [ ] **High contrast mode & UI scaling.**
+- [ ] **Hide "Watched" items** from discovery grids.
+
+### Discovery
+- [ ] **Collections route** — a real `/collection/[id]` page, so the details-page collection
+  badge stops linking at a filter TMDB's discover endpoint can't express.
+- [ ] **More provider rows on the homepage** — the hub already covers six platforms; the
+  homepage still only surfaces three.
+- [ ] **Honour `preferredProviders`** — let the setting bias the provider rows and the
+  default `/providers` tab.
 
 ### Technical
-- [ ] **Offline Downloads (Capacitor/Android):** Cache media for offline viewing on native builds.
-- [ ] **Watchlist DB Sync:** Wire the existing `watchlist` table up to the same local-first/DB-synced pattern used by watch progress, history, and settings.
+- [ ] **Run `npm test` and ESLint in CI** alongside typecheck and build.
+- [ ] **Offline downloads (Capacitor/Android)** — cache media for offline viewing on native
+  builds. Design not started.
+- [ ] **R2 incremental cache** for the Cloudflare deployment (the OpenNext override is
+  already stubbed in `open-next.config.ts`).
 
 ---
 
-## ℹ️ Notes on Features Dependent on Third-Party Servers
-*Certain features are highly dependent on whether the third-party iframe streaming provider emits the necessary postMessage events:*
-- **Watch History & Continue Watching:** Relies on progress updates from the active server.
-- **Next Episode Auto-Play:** Some servers support auto-playing the next episode natively within their iframe, but it cannot be universally enforced on our end without standard event emitters.
+## ℹ️ Features That Depend on Third-Party Servers
+
+Some behaviour is only as good as the streaming provider's iframe:
+
+- **Watch history & Continue Watching** need the active server to emit progress events.
+  Servers badged **Basic** in the player emit nothing, so nothing is tracked on them — the
+  UI says so explicitly rather than failing silently.
+- **Next-episode auto-play** is supported natively by some servers (VidFast's `autoNext`,
+  CineSRC's `cinesrc:nextepisode`) but can't be enforced universally. Where a provider does
+  fire it, CinemaPhora overrides the target with its own TMDB-derived answer, because
+  players routinely report "next" as current + 1.
+- **Cross-device resume** requires a server that accepts a start-time URL param
+  (`resumeAt` / `startAt` / `t` / `progress`, depending on the provider).

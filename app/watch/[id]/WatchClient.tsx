@@ -7,8 +7,9 @@ import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { StatusBar } from '@capacitor/status-bar'
 import PROVIDERS from '@/lib/providers'
 import type { StreamingServer } from '@/lib/streamingProvider'
-import type { Season, Genre } from '@/lib/tmdb'
+import type { Genre, ShowAiringInfo } from '@/lib/tmdb'
 import PlayerIframe from '@/components/PlayerIframe'
+import { buildNextEpisodeKey, parseEpisodeKey } from '@/lib/progressTracker'
 import styles from './page.module.css'
 
 // Route all server embeds through the ad-stripping proxy when configured.
@@ -24,7 +25,8 @@ interface Props {
   poster?: string | null
   genres?: Genre[]
   servers: StreamingServer[]
-  seasons?: Season[]
+  /** TV only — season list plus the airing signals that say which episodes exist yet. */
+  airing?: ShowAiringInfo
   children?: React.ReactNode
 }
 
@@ -67,13 +69,23 @@ export default function WatchClient({
   poster,
   genres,
   servers,
-  seasons,
+  airing,
   children,
 }: Props) {
   const router = useRouter()
   const [serverId, setServerId] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
+
+  const seasons = airing?.seasons
+
+  // What Continue Watching should point at once this episode finishes, and what
+  // an auto-next is allowed to navigate to. Never `episode + 1` on faith — see
+  // buildNextEpisodeKey. Undefined for movies and when TMDB can't tell us.
+  const nextEpisodeKey = mediaType === 'tv'
+    ? buildNextEpisodeKey(airing, season, episode) ?? undefined
+    : undefined
+  const resolvedNext = parseEpisodeKey(nextEpisodeKey)
 
   // Effects
 
@@ -105,26 +117,21 @@ export default function WatchClient({
   }, [useDirectEmbed])
 
   // Full navigation — page reloads with new episode, all UI updates from fresh server props.
+  // Our own resolution wins over whatever the provider asks for: players routinely
+  // fire "next" as current + 1, which walks off the end of a season or into an
+  // episode that hasn't aired. Only when TMDB tells us nothing do we follow them.
   const handleNextEpisode = useCallback((newSeason: number, newEpisode: number) => {
     let targetS = newSeason
     let targetE = newEpisode
 
-    if (seasons) {
-      const sData = seasons.find(s => s.season_number === season)
-      if (sData && newSeason === season && newEpisode > sData.episode_count) {
-        const nextSData = seasons.find(s => s.season_number === season + 1)
-        if (nextSData && nextSData.episode_count > 0) {
-          targetS = season + 1
-          targetE = 1
-        } else {
-          // No next season available — do not navigate
-          return
-        }
-      }
+    if (nextEpisodeKey) {
+      if (!resolvedNext) return // caught up or finished — nothing to navigate to
+      targetS = resolvedNext.season
+      targetE = resolvedNext.episode
     }
 
     router.replace(`/watch/${id}?type=${mediaType}&s=${targetS}&e=${targetE}`)
-  }, [router, id, mediaType, seasons, season])
+  }, [router, id, mediaType, nextEpisodeKey, resolvedNext])
 
   // Early returns
 
@@ -151,8 +158,6 @@ export default function WatchClient({
 
   if (mediaType === 'tv') {
     if (seasons) {
-      const currentSeasonData = seasons.find(s => s.season_number === season)
-
       // PREV
       if (episode > 1) {
         prevS = season
@@ -165,18 +170,11 @@ export default function WatchClient({
         }
       }
 
-      // NEXT
-      if (currentSeasonData) {
-        if (episode < currentSeasonData.episode_count) {
-          nextS = season
-          nextE = episode + 1
-        } else {
-          const nextSeasonData = seasons.find(s => s.season_number === season + 1)
-          if (nextSeasonData && nextSeasonData.episode_count > 0) {
-            nextS = season + 1
-            nextE = 1
-          }
-        }
+      // NEXT — absent when you're caught up or the show is over, so the button
+      // disappears instead of offering an episode that can't play.
+      if (resolvedNext) {
+        nextS = resolvedNext.season
+        nextE = resolvedNext.episode
       }
     } else {
       // Fallback if no season data
@@ -220,6 +218,7 @@ export default function WatchClient({
             backdrop={backdrop}
             poster={poster}
             genres={genres}
+            nextEpisodeKey={nextEpisodeKey}
             iframeKey={iframeKey}
             transformUrl={PROXY_BASE ? buildTransformUrl : undefined}
             onNextEpisode={mediaType === 'tv' ? handleNextEpisode : undefined}

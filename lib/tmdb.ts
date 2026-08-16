@@ -83,6 +83,27 @@ export interface Video {
   name: string
 }
 
+/** A specific episode, as TMDB reports it on `last_episode_to_air` / `next_episode_to_air`. */
+export interface EpisodeRef {
+  air_date: string | null
+  episode_number: number
+  season_number: number
+}
+
+/**
+ * The subset of a show's details needed to tell "there is another episode" from
+ * "there is another episode, but it hasn't aired" from "that was the last one".
+ * `seasons[].episode_count` alone can't do it — it counts episodes TMDB has
+ * records for, including unaired ones.
+ */
+export interface ShowAiringInfo {
+  seasons?: Season[]
+  last_episode_to_air?: EpisodeRef | null
+  next_episode_to_air?: EpisodeRef | null
+  status?: string
+  in_production?: boolean
+}
+
 export interface ShowDetails extends MediaItem {
   genres: Genre[]
   seasons?: Season[]
@@ -98,7 +119,9 @@ export interface ShowDetails extends MediaItem {
   aggregate_credits?: { cast: CastMember[] }
   reviews?: { results: Review[] }
   recommendations?: { results: MediaItem[] }
-  next_episode_to_air?: { air_date: string; episode_number: number; season_number: number } | null
+  next_episode_to_air?: EpisodeRef | null
+  last_episode_to_air?: EpisodeRef | null
+  in_production?: boolean
   belongs_to_collection?: { id: number; name: string; poster_path: string | null } | null
   created_by?: { id: number; name: string; profile_path: string | null }[]
 }
@@ -241,6 +264,14 @@ export const getMovieDetails = (id: number) =>
 
 export const getTVDetails = (id: number) =>
   tmdbFetch<ShowDetails>(`/tv/${id}`, { append_to_response: 'aggregate_credits,similar,videos,reviews,recommendations' })
+
+/**
+ * A show's airing signals, without the credits/similar/videos payload getTVDetails
+ * pulls in — this one is fanned out across every show a viewer follows, so it stays
+ * lean. Cached server-side for an hour like every other tmdbFetch call.
+ */
+export const getTVAiringInfo = (id: number) =>
+  tmdbFetch<ShowDetails & ShowAiringInfo>(`/tv/${id}`)
 
 export const getSeasonDetails = (tvId: number, season: number) =>
   tmdbFetch<{ episodes: Episode[]; videos?: { results: Video[] } }>(`/tv/${tvId}/season/${season}`, { append_to_response: 'videos' })

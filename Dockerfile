@@ -29,6 +29,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN if [ -f package-lock.json ]; then \
+    npm run cf-typegen && \
     npm run build; \
     else \
     echo "Lockfile missing" && exit 1; \

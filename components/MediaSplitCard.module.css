@@ -1,0 +1,149 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.splitGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+.splitCard {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.splitCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.cardAccentMovie {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent);
+}
+
+.cardAccentTv {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--green);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardType {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.cardIcon {
+  font-size: 1.35rem;
+}
+
+.cardValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  line-height: 1.2;
+}
+
+.cardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.comparisonBarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.comparisonLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.labelMovie {
+  color: var(--accent);
+}
+
+.labelTv {
+  color: var(--green-text);
+}
+
+.comparisonTrack {
+  height: 8px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  display: flex;
+  overflow: hidden;
+}
+
+.fillMovie {
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.fillTv {
+  background: var(--green);
+  transition: width 0.4s ease;
+}
