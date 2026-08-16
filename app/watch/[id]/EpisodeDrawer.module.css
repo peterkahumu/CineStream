@@ -72,8 +72,12 @@
   line-height: 1.25;
 }
 
-/* A filled circle rather than a loose glyph — the affordance has to survive being
-   glanced at on a phone. */
+/*
+ * Accent-filled in every state, not just when open. A tinted surface and border
+ * alone are too quiet on the dark themes — `--nav-overlay-strong` is only
+ * rgba(255,255,255,0.12) over #111827 — so the one element that has to be
+ * noticed carries a solid colour of its own.
+ */
 .chevron {
   flex: 0 0 auto;
   display: flex;
@@ -82,22 +86,16 @@
   width: 28px;
   height: 28px;
   font-size: 0.8rem;
-  color: var(--nav-text);
-  background: var(--nav-overlay-strong);
+  color: #fff;
+  background: var(--accent);
   border-radius: 50%;
-  transition: transform var(--transition-fast), background var(--transition-fast),
-    color var(--transition-fast);
+  transition: transform var(--transition-fast), background var(--transition-fast);
 }
 .toggle:hover .chevron {
-  background: var(--accent-subtle);
+  background: var(--accent-hover);
 }
 .chevronOpen {
   transform: rotate(180deg);
-  color: var(--text-inverse);
-  background: var(--accent);
-}
-.toggle:hover .chevronOpen {
-  background: var(--accent);
 }
 
 .nav {
@@ -157,12 +155,12 @@
   background: var(--nav-active);
 }
 .seasonBtnActive {
-  color: var(--text-inverse);
+  color: #fff;
   background: var(--accent);
   border-color: var(--accent);
 }
 .seasonBtnActive:hover {
-  color: var(--text-inverse);
+  color: #fff;
   background: var(--accent-hover);
 }
 
@@ -198,11 +196,11 @@
   border-color: var(--accent-border);
 }
 .episodeBtnActive {
-  color: var(--text-inverse);
+  color: #fff;
   background: var(--accent);
   border-color: var(--accent);
 }
 .episodeBtnActive:hover {
-  color: var(--text-inverse);
+  color: #fff;
   background: var(--accent-hover);
 }
