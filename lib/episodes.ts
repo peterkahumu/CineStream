@@ -99,6 +99,27 @@ export function buildNextEpisodeKey(
 }
 
 /**
+ * How many episodes of `season` have actually aired, i.e. how many a server can
+ * be expected to play.
+ *
+ * `seasons[].episode_count` catalogues the whole season including episodes that
+ * haven't aired, so listing that many is the same trap `buildNextEpisodeKey`
+ * avoids — it offers episodes that resolve to a dead player.
+ */
+export function airedEpisodeCount(info: ShowAiringInfo | undefined, season: number): number {
+  const entry = info?.seasons?.find(s => s.season_number === season)
+  if (!entry?.episode_count) return 0
+
+  const lastAired = info?.last_episode_to_air
+  // Without an airing anchor the season list is all we have — trust it.
+  if (!lastAired) return entry.episode_count
+
+  if (season < lastAired.season_number) return entry.episode_count
+  if (season > lastAired.season_number) return 0
+  return Math.min(entry.episode_count, lastAired.episode_number)
+}
+
+/**
  * Aired episodes that come after `season`/`episode`, in order, capped at `limit`.
  * Specials (season 0) are skipped — they are not what "a new episode is out" means.
  *

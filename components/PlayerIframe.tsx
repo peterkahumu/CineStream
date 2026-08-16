@@ -10,6 +10,51 @@ import OfflineTrailerWrapper from './OfflineTrailerWrapper'
 import pageStyles from '@/app/watch/[id]/page.module.css'
 import styles from './PlayerIframe.module.css'
 
+/**
+ * Permissions delegated to the provider iframe.
+ *
+ * Every feature is granted with an explicit `*` allowlist rather than the bare
+ * feature name. A bare name delegates only to the origin in the iframe's `src`,
+ * and most providers immediately redirect somewhere else — vidfast.pro lands on
+ * vidfast.vc, embedmaster.link on embdmstrplayer.com, multiembed.mov on
+ * streamingnow.mov. Once the frame is on the redirect target it is no longer in
+ * the allowlist, so the player's own fullscreen button dies with
+ * "Permissions policy violation: fullscreen is not allowed in this document".
+ * `*` also survives the extra nesting those players use internally.
+ */
+const IFRAME_ALLOW = 'autoplay *; fullscreen *; picture-in-picture *; encrypted-media *'
+
+/**
+ * True when `source` is our iframe's window, or any window nested inside it.
+ *
+ * A plain `event.source === iframe.contentWindow` only holds for providers that
+ * post from the frame we loaded directly. Providers that redirect into a player
+ * on another domain post from a frame nested one or more levels deeper, and
+ * those messages were being dropped before their handler ever ran.
+ *
+ * `window.parent` stays readable across origins, so walking up from the sender
+ * enforces the same boundary as before — only frames we actually embed can pass
+ * — without caring how deeply a provider nests its player. The depth cap stops
+ * a malformed or self-referential parent chain from spinning.
+ */
+function isFromFrameTree(source: MessageEventSource | null, frame: Window | null | undefined): boolean {
+  if (!source || !frame) return false
+  try {
+    let current = source as Window
+    for (let depth = 0; depth < 10; depth++) {
+      if (current === frame) return true
+      const parent = current.parent as Window | null
+      if (!parent || parent === current) return false
+      current = parent
+    }
+  } catch {
+    // Cross-origin access to `parent` is spec-allowed, but a detached or
+    // otherwise exotic sender can still throw. Treat it as untrusted.
+    return false
+  }
+  return false
+}
+
 interface PlayerIframeProps {
   provider: ProviderConfig
   serverUrl: string
@@ -52,12 +97,26 @@ export default function PlayerIframe({
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Start time is resolved once per mount (or explicit server switch via iframeKey).
-  // Since episode changes trigger a full page reload, a fresh mount always picks up
-  // the correct resume time without needing to reset this manually. `null` doubles
-  // as "not resolved yet" (gates the skeleton below) — plain state rather than a
-  // ref, since reading a ref's value during render isn't safe (react-hooks/refs).
-  const [startTime, setStartTime] = useState<number | null>(null)
+  // Identity of the resume point currently being resolved. Anything that changes
+  // which episode-on-which-device we're asking about — an explicit server switch,
+  // a new episode, signing in — invalidates the previous answer.
+  const resolutionKey = `${iframeKey}:${id}:${season}:${episode}:${isAuthenticated}`
+
+  // Start time is stored alongside the key it was resolved for. `null` doubles as
+  // "not resolved yet" and gates the skeleton below.
+  const [resolution, setResolution] = useState<{ key: string; startTime: number | null }>({
+    key: resolutionKey,
+    startTime: null,
+  })
+
+  // Reset during render rather than from an effect. This is derived state
+  // following its key, and an effect would both commit one frame still carrying
+  // the previous episode's resume time and trip react-hooks/set-state-in-effect.
+  if (resolution.key !== resolutionKey) {
+    setResolution({ key: resolutionKey, startTime: null })
+  }
+
+  const startTime = resolution.key === resolutionKey ? resolution.startTime : null
 
   // Guard against the same episode triggering onNextEpisode more than once.
   // Providers like VidLink can fire multiple 'ended' events in quick succession,
@@ -72,9 +131,13 @@ export default function PlayerIframe({
   // from zero. Merging isn't an option here — setActivePlayback has already
   // walled this title off from inbound syncs — so the remote row is only read.
   const resolveStartTime = useCallback(() => {
+    // Committed against the key it was resolved for, so a late fetch belonging to
+    // a previous episode can never be mistaken for the current one's answer.
+    const commit = (value: number) => setResolution({ key: resolutionKey, startTime: value })
+
     const local = progressTracker.getResumeTime(id, season, episode)
     if (local > 0 || progressTracker.hasLocalProgress(id) || !isAuthenticated) {
-      setStartTime(local)
+      commit(local)
       return
     }
 
@@ -86,16 +149,16 @@ export default function PlayerIframe({
         const match = Array.isArray(remote)
           ? remote.find(item => String(item.id).trim() === String(id).trim())
           : undefined
-        setStartTime(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
+        commit(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
       })
       .catch(() => {
-        if (!cancelled) setStartTime(0)
+        if (!cancelled) commit(0)
       })
 
     return () => {
       cancelled = true
     }
-  }, [id, season, episode, isAuthenticated])
+  }, [id, season, episode, isAuthenticated, resolutionKey])
 
   // Progress persistence
   const handleProgress = useCallback(
@@ -212,8 +275,8 @@ export default function PlayerIframe({
         if (!trusted) return
       }
 
-      // Ignore messages from old/stale iframes
-      if (iframeRef.current && event.source !== iframeRef.current.contentWindow) {
+      // Ignore messages from old/stale iframes, and from any frame we don't embed.
+      if (!isFromFrameTree(event.source, iframeRef.current?.contentWindow)) {
         return
       }
 
@@ -244,12 +307,11 @@ export default function PlayerIframe({
     return () => window.removeEventListener('message', handleMessage)
   }, [handleMessage, provider.onMessage])
 
-  // When the component mounts, when the user explicitly switches server (iframeKey increments),
-  // or when the episode changes (resolveStartTime is recreated), look up the resume time fresh.
+  // Look up the resume time fresh whenever the resolution key changes — mount, an
+  // explicit server switch, or an episode change all recreate resolveStartTime.
   useEffect(() => {
-    setStartTime(null)
     return resolveStartTime()
-  }, [iframeKey, resolveStartTime])
+  }, [resolveStartTime])
 
   // Mark this title as actively playing so a periodic background sync never
   // overwrites a live session (see progressTracker's activePlaybackId). Scoped
@@ -299,7 +361,7 @@ export default function PlayerIframe({
         className={pageStyles.player}
         loading="eager"
         title={`${title} player`}
-        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        allow={IFRAME_ALLOW}
         allowFullScreen
       />
     </OfflineTrailerWrapper>

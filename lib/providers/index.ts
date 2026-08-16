@@ -282,17 +282,24 @@ const PROVIDERS: ProviderConfig[] = [
   // No MEDIA_DATA; progress is synthesised from player events.
   // pause and seeked are used in addition to timeupdate because EmbedMaster
   // does not explicitly document timeupdate but always fires pause/seeked.
+  //
+  // Deliberately no `origin`: embedmaster.link immediately redirects the frame to
+  // a tokenised URL on embdmstrplayer.com, so pinning the origin to the embed
+  // domain silently discarded every event and progress was never tracked here.
+  // The domain is rotated by the provider, so enumerating it would break again.
+  // PlayerIframe still requires the sender to live inside our own iframe tree,
+  // and the `embedmaster_player` envelope below has to match, so the only thing
+  // given up is which of *our* player's frames may report progress.
   {
     id: 'embedmaster',
     name: 'EmbedMaster',
     envKey: 'NEXT_PUBLIC_EMBEDMASTER_URL',
     tier: 'advanced',
-    origin: 'https://embedmaster.link',
     buildUrl(base, type, id, s, e) {
       if (type === 'movie') return `${base}/movie/${id}`
       return `${base}/tv/${id}/${s}/${e}`
     },
-    onMessage(event, callbacks) {
+    onMessage(event, callbacks, context) {
       const data = event.data
       if (!data || data.source !== 'embedmaster_player') return
       const validEvents = ['play', 'pause', 'seeked', 'ended', 'timeupdate'] as const
@@ -316,6 +323,14 @@ const PROVIDERS: ProviderConfig[] = [
           duration: (data.info.duration as number) ?? 0,
           isRealTimeEvent: true,
         })
+      }
+
+      // EmbedMaster has no in-player next-episode button, so finishing an episode
+      // is the only signal it gives us. `episode + 1` is a request, not a
+      // destination — WatchClient overrides it with the episode TMDB says actually
+      // follows, and drops it entirely when there is none.
+      if (eventType === 'ended' && context.mediaType === 'tv') {
+        callbacks.onNextEpisode(context.season, context.episode + 1)
       }
     },
   },

@@ -77,28 +77,30 @@ export default async function WatchPage(props: {
     <main className={styles.main}>
       <ScrollToTop />
       <div className={styles.container}>
-        
+        {/*
+          WatchClient renders its own .playerWrapper around the stage and the
+          controls panel. Wrapping it in a second one put the page header inside
+          a centring flex container it was never meant to be in.
+        */}
         <div className={styles.layout}>
-          <div className={styles.playerWrapper}>
-            <WatchClient
-              mediaType={mediaType}
-              id={id}
-              season={season}
-              episode={episode}
-              title={title}
-              backdrop={backdrop}
-              poster={poster}
-              genres={details.genres}
-              servers={getStreamingServers()}
-              airing={mediaType === 'tv' ? {
-                seasons: details.seasons,
-                last_episode_to_air: details.last_episode_to_air,
-                next_episode_to_air: details.next_episode_to_air,
-                status: details.status,
-                in_production: details.in_production,
-              } : undefined}
-            />
-          </div>
+          <WatchClient
+            mediaType={mediaType}
+            id={id}
+            season={season}
+            episode={episode}
+            title={title}
+            backdrop={backdrop}
+            poster={poster}
+            genres={details.genres}
+            servers={getStreamingServers()}
+            airing={mediaType === 'tv' ? {
+              seasons: details.seasons,
+              last_episode_to_air: details.last_episode_to_air,
+              next_episode_to_air: details.next_episode_to_air,
+              status: details.status,
+              in_production: details.in_production,
+            } : undefined}
+          />
         </div>
       </div>
     </main>

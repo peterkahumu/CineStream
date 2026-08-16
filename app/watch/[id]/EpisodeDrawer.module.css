@@ -1,0 +1,206 @@
+/*
+ * Every colour here is a theme token, not a hardcoded white or rgba(255,255,255,…).
+ * This block sits on .controlsPanel, whose background is var(--nav-bg) — which is
+ * #ffffff on the light theme and #fbf9f5 on warm. White-on-white made the toggle's
+ * surface, border, chevron and title all invisible on those themes, leaving only
+ * the faint hint text behind and hiding the fact that the row expands at all.
+ */
+.drawer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--nav-overlay);
+  border: 1px solid var(--nav-border);
+}
+
+.bar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/*
+ * Built to read as a control rather than a label: it fills the row, carries its
+ * own surface and border, and states what opening it does.
+ */
+.toggle {
+  flex: 1 1 260px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 14px;
+  text-align: left;
+  background: var(--nav-overlay-strong);
+  border: 1px solid var(--nav-border-strong);
+  border-radius: var(--radius-md);
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.toggle:hover {
+  background: var(--nav-active);
+  border-color: var(--accent-border);
+}
+.toggleOpen {
+  background: var(--nav-active);
+  border-color: var(--accent);
+}
+
+.toggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toggleTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--nav-text);
+  line-height: 1.25;
+}
+
+.toggleHint {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--nav-muted);
+  line-height: 1.25;
+}
+
+/*
+ * Accent-filled in every state, not just when open. A tinted surface and border
+ * alone are too quiet on the dark themes — `--nav-overlay-strong` is only
+ * rgba(255,255,255,0.12) over #111827 — so the one element that has to be
+ * noticed carries a solid colour of its own.
+ */
+.chevron {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 50%;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+.toggle:hover .chevron {
+  background: var(--accent-hover);
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.nav {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.navBtn {
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-strong);
+  transition: all var(--transition-fast);
+}
+.navBtn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ── EXPANDED PANEL ──────────────────────────────────────────────────────── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--nav-border);
+}
+
+.seasonRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.seasonBtn {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--nav-muted);
+  background: var(--nav-overlay-strong);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.seasonBtn:hover {
+  color: var(--nav-text);
+  background: var(--nav-active);
+}
+.seasonBtnActive {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.seasonBtnActive:hover {
+  color: #fff;
+  background: var(--accent-hover);
+}
+
+/*
+ * Auto-fill rather than a fixed column count: episode numbers are uniform, so the
+ * grid stays dense on a phone and doesn't stretch into a sparse row on desktop.
+ */
+.episodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.episodeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--nav-text);
+  text-decoration: none;
+  background: var(--nav-overlay-strong);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+.episodeBtn:hover {
+  color: var(--nav-text);
+  background: var(--nav-active);
+  border-color: var(--accent-border);
+}
+.episodeBtnActive {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.episodeBtnActive:hover {
+  color: #fff;
+  background: var(--accent-hover);
+}

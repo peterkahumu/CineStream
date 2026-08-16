@@ -38,6 +38,14 @@ RUN if [ -f package-lock.json ]; then \
 # run the application.
 FROM ${NODE_VERSION_RUNNER} AS runner
 
+# Links the GHCR package back to this repository. The image name (cinemaphora)
+# doesn't match the repo name (CineStream), so GHCR never auto-linked them and
+# the Actions GITHUB_TOKEN had no claim on the package — every push failed with
+# "denied: permission_denied: write_package". The package also has to grant this
+# repo Write under Package settings → Manage Actions access, which is a one-time
+# change in the GitHub UI that this label can't make on its own.
+LABEL org.opencontainers.image.source="https://github.com/peterkahumu/CineStream"
+
 WORKDIR /app
 
 ENV NODE_ENV=production
