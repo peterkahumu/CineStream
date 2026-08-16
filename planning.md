@@ -1,75 +1,162 @@
-# Future Improvements & Planning 🚀
+# Planning — Open Work & Design Decisions 🧭
 
-## ✅ Shipped: Server-Side Route Protection & Deep-Link Memory
-Items #1 and #2 below (as originally planned) are now live in `middleware.ts`:
-- The `cinemaphora_terms` flag is a **cookie**, not `localStorage`, so it's readable server-side.
-- **Next.js Middleware** intercepts every request before the page renders — unaccepted users never receive protected HTML/data, with zero flash-of-content, and `Googlebot`/other crawler user-agents pass through untouched for SEO.
-- Unaccepted users on a protected route are redirected to `/declined?redirect=<original-path>`, and accepting terms sends them back to exactly where they were headed.
+This file tracks **design decisions and open work**. For the shipped-feature log and the
+forward-looking roadmap, see [coming_soon.md](./coming_soon.md).
+
+---
+
+## ✅ Shipped (kept here for the reasoning)
 
 <details>
-<summary>Original plan (for reference)</summary>
+<summary><strong>Server-side route protection & deep-link memory</strong></summary>
 
-### 1. Server-Side Route Protection (Next.js Middleware)
-Currently, our `RouteProtector` uses Client-Side validation (`localStorage`). This means the server renders and sends protected content before the client hides it and redirects. 
+Originally two separate items: move the terms flag off `localStorage`, and stop losing the
+user's intended destination.
 
-**The Plan:**
-- Migrate from `localStorage` to **Cookies** for storing the `termsAccepted` flag.
-- Implement **Next.js Middleware** (`middleware.ts`) to intercept requests before they even reach the page renderer.
-- **Benefits:** 
-  - Absolute security: Protected HTML/Data is never sent to unaccepted users.
-  - Zero "flash of content" or layout shifts.
-  - We can configure the Middleware to allow `Googlebot` user-agents through, preserving SEO rankings for movie details and discover pages while still blocking real human users who haven't agreed.
-
-### 2. Deep Linking & Redirection Memory
-Currently, if a user opens a direct link (e.g., `/details/1234`) without having accepted the terms, they are kicked to the `/declined` page and lose their original destination. 
-
-**The Plan:**
-- When the Middleware intercepts an unaccepted user on a protected route, it will append their intended destination as a query parameter (e.g., `/declined?redirect=/details/1234`).
-- When the user clicks "I Agree", the system will read the `redirect` parameter and send them exactly where they originally intended to go, instead of blindly sending them to the Home page.
-- **Benefits:** Massive improvement in User Experience, especially for users arriving from shared links or search engines.
+Both are live in `middleware.ts`:
+- `cinemaphora_terms` is a **cookie**, so it's readable server-side.
+- **Middleware** intercepts every request before render — unaccepted users never receive
+  protected HTML, with zero flash-of-content, and `Googlebot`/other crawler user-agents pass
+  through untouched for SEO.
+- Unaccepted users are redirected to `/declined?redirect=<original-path+query>`, and
+  accepting sends them back exactly where they were headed.
 
 </details>
 
-## ✅ Shipped (partially): Settings Sync
-Item #3 below originally proposed a *cookie-based* store so Server Components could read preferences pre-render. We now have the sync half of that story: signed-in users' settings sync to Postgres (latest-change-wins, same pattern as watch progress) so preferences carry across devices — see `lib/settings.ts` and `/api/get-settings` · `/api/sync-settings`. Guests remain cookie-only, unchanged. **Still open:** Server Components don't yet read the settings cookies to pre-render theme/layout server-side (see item 3's original benefits below) — the `theme-init` inline script in `app/layout.tsx` still applies theme client-side just before paint to avoid flashing.
+<details>
+<summary><strong>Cross-device sync (progress, history, wishlist, settings)</strong></summary>
 
-## 3. Universal Cookie-Based Settings Store
-As the application grows, more settings will be introduced (e.g., Default Streaming Provider, Subtitle Preferences, Theme). 
+All four now follow one pattern — local-first write, debounced DB push, explicit conflict
+rule, tombstones for deletions, `sendBeacon` flush on unload. See
+[DEVELOPER.md → Local-First Sync](./DEVELOPER.md#local-first-sync).
 
-**The Plan:**
-- We will store all core user preferences in Cookies rather than `localStorage`.
-- **Benefits:** 
-  - Because Cookies are sent to the server with every request, Next.js Server Components can read the user's preferences *before* rendering the HTML.
-  - This prevents UI issues like "theme flashing" (where a page loads in light mode and suddenly snaps to dark mode when the client reads `localStorage`).
-  - Provides a unified, server-accessible state management strategy that works perfectly with Next.js App Router architectures.
+The decision worth recording: **guests were never treated as second-class.** DB sync is an
+opt-in argument (`isAuthenticated`) on every write path rather than an assumption, so a
+signed-out user makes zero sync requests and loses no features.
 
-## 4 & 5. Settings Page Features & UX Vision — ✅ mostly shipped
-Everything below except **Hide "Watched" Items** and **High Contrast Mode / UI Scaling**
-now ships in `/settings` (`app/settings/SettingsClient.tsx`), available to guests and
-signed-in users alike, with signed-in users additionally getting it synced across
-devices (see the Settings Sync note above). The "guest-only" framing this section
-originally had is stale — accounts exist now; guests just don't get the DB sync.
+</details>
 
-### Content & Personalization
-- ✅ **Preferred Streaming Providers**, **Region & Language**, **Safe Search** (plus an
-  **Age Rating Ceiling** control that wasn't in the original scope).
+<details>
+<summary><strong>Watch history as the durable ledger</strong></summary>
 
-### UI & User Experience
-- ✅ **Theme Engine:** Light / Dark / System, plus three extra themes (Cinema, AMOLED, Dim).
-- ✅ **View Layouts:** Grid / List toggle.
-- [ ] **High Contrast Mode / UI Scaling** — still not implemented.
+Stats used to be computed from `watch_progress`, which meant removing something from
+Continue Watching silently deleted the hours you'd watched. `watch_history` now carries its
+own `watchedSeconds`/`runtimeSeconds`, `computeStats` merges both tables per episode taking
+the larger value, and the Continue Watching × is a **soft dismiss** (`dismissedAt`) rather
+than a delete. `scripts/verify-stats.ts` pins this down.
 
-### Data Management & Privacy
-- ✅ **Wishlist Export/Import**, **Clear All Data**.
+</details>
 
-### Accessibility & Visuals (A11y)
-- ✅ **Reduce Motion**.
+<details>
+<summary><strong>Never guess the next episode</strong></summary>
 
-### Media & Playback Defaults
-- ✅ **Autoplay Trailers**, **Data Saver Mode**.
+`seasons[].episode_count` includes unaired episodes, so `episode + 1` regularly pointed at
+something no server could play. `lib/episodes.ts` now resolves against
+`last_episode_to_air` and returns one of four explicit answers
+(`s{n}e{n}` / `CAUGHT_UP` / `SERIES_FINISHED` / `null`), and the two personal rails hand
+titles between each other based on it. `scripts/verify-next-episode.ts` and
+`scripts/verify-rails.ts` pin both halves.
 
-### Search & Feed Management
-- ✅ **Search History Control**, **Default Sort Orders**.
-- [ ] **Hide "Watched" Items** — still not implemented.
+</details>
 
+---
 
+## 🔧 Open — settings that exist but do nothing
+
+Four keys are declared in `UserSettings` (`lib/settings.ts`) and stored/synced correctly,
+but nothing reads them. Each is a small, self-contained fix.
+
+- [ ] **`preferredProviders`** (`number[]`) — no UI control and no consumer. Either add a
+  provider multi-select in Settings → Content & Discovery that biases the provider rows and
+  `/providers` default tab, or drop the key.
+- [ ] **`saveSearchHistory`** — the toggle renders, but `Navbar.tsx` and `MobileHeader.tsx`
+  write to the `searchHistory` localStorage key unconditionally. Both `submit()` handlers
+  need to check the setting before persisting.
+- [ ] **`defaultSortWishlist`** — `WishlistClient` keeps its own `sortBy` state initialised
+  to `'date-desc'` and never reads the setting. Should seed from it.
+- [ ] **Age-rating ceiling coverage** — `cp_maxCertification` is applied on `/`, `/discover`
+  and the `/api/tmdb` proxy's discover endpoints, but *not* to `/trending`, `/popular`,
+  `/top-rated`, `/now-playing` or search, because those TMDB endpoints don't accept
+  certification params. Worth deciding whether to filter those client-side or document the
+  limitation in the UI.
+
+---
+
+## 🔧 Open — `/discover` ignores params we link to
+
+`app/discover/page.tsx` builds `apiParams` from an explicit allow-list. Three params are
+linked to from elsewhere in the app and silently dropped:
+
+- [ ] **`maxPopularity`** — home page "Hidden Gems → See All" links to
+  `/discover?sort=vote_average.desc&minRating=7.5&maxPopularity=30`. Needs mapping to
+  `popularity.lte`.
+- [ ] **`status`** — home page "Returning Soon → See All" links to
+  `/discover?media=tv&status=returning`. Needs mapping to `with_status`.
+- [ ] **`collection`** — the details-page collection badge links to
+  `/discover?media=movie&collection=<id>`. TMDB discover has no collection filter; this
+  probably wants a dedicated `/collection/[id]` route hitting `/collection/{id}` instead.
+
+Until these land, those three "See All" links quietly return an unfiltered grid.
+
+---
+
+## 🔧 Open — settings on the server
+
+`app/layout.tsx` still applies theme, reduce-motion, data-saver and layout via a
+`beforeInteractive` inline script reading `document.cookie`, rather than having a Server
+Component read the cookie and stamp `<html data-theme>` during SSR.
+
+The pieces are already in place — `app/page.tsx` and `app/discover/page.tsx` both read
+`cp_maxCertification` server-side via `cookies()` — so this is mechanical. The reason it
+hasn't been done: reading cookies in the root layout opts the whole tree out of static
+rendering, which would cost the home page its `revalidate = 300`. **Decision needed:**
+accept fully dynamic rendering, or keep the inline script.
+
+Not blocking anything — the script runs before first paint, so there's no visible flash today.
+
+---
+
+## 🔧 Open — quality & tooling
+
+- [ ] **CI doesn't run `npm test` or ESLint.** `.github/workflows/ci.yml` does
+  `cf-typegen → typecheck → build` only. Adding the two is a three-line change and the
+  verify scripts already exit non-zero on failure.
+- [ ] **Dead Tailwind classes.** `components/Navbar.tsx:283` styles the Sign In link with
+  `px-3 py-1 bg-blue-600 …`. There is no Tailwind in this project, so the link is unstyled.
+  Should move to `Navbar.module.css`.
+- [ ] **Inline styles in `FeaturedStrip.tsx`** violate the CSS-Modules-only rule
+  (`DEVELOPER.md` code quality rule 6). Move them into `FeaturedStrip.module.css`.
+- [ ] **Stale doc comment** in `app/api/get-history/route.ts` describes history events as
+  "append-only". They've been upsert-per-episode since the ledger rewrite; the comment
+  contradicts both the schema and `logHistoryEvent`.
+- [ ] **`any` in the grid pages.** `/discover` and `/providers` cast `discover({...} as any)`
+  and hold `initialItems: any[]`. `DiscoverParams` already has an index signature — these
+  can be typed properly.
+
+---
+
+## 🔧 Open — accessibility & UX (from the original settings vision)
+
+- [ ] **High Contrast Mode / UI Scaling** — never implemented. Would slot in beside the
+  existing seven themes as another `[data-theme]` block plus a root font-size variable.
+- [ ] **Hide "Watched" Items** — filter titles you've completed out of discovery grids.
+  The data exists (`watch_history` completion state); the filter doesn't.
+- [ ] **Skeleton loaders** — several grids still show a spinner where an animated skeleton
+  card would read better. `globals.css` already has a `.skeleton` utility, and
+  `PlayerIframe` uses it while resolving resume time.
+
+---
+
+## 💭 Larger, undecided
+
+- **Offline downloads (Capacitor/Android).** Genuinely useful for the native build, but it
+  means caching third-party stream segments, which has both technical and legal weight.
+  No design yet.
+- **Auto-playing trailers on the details hero.** The `autoplayTrailers` setting is already
+  wired through to `TrailerIframe`; what's missing is the muted hero autoplay itself.
+- **Watch-party / shared sessions.** Frequently requested, would need a realtime transport
+  (Durable Objects would fit the existing Cloudflare deployment). Not scoped.
+- **Retiring the `activePlaybackId` guard.** It exists because timestamp comparison can't
+  referee two devices playing the same title simultaneously. A per-device sequence number or
+  CRDT-ish merge would be more principled than "don't touch the active title" — but the
+  current rule is simple and has held up.
