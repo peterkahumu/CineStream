@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar } from '@capacitor/status-bar'
@@ -15,6 +16,17 @@ import styles from './page.module.css'
 
 // Route all server embeds through the ad-stripping proxy when configured.
 const PROXY_BASE = process.env.NEXT_PUBLIC_STREAM_PROXY_URL
+
+// The proxy serves the embed from its own origin, so that — not the provider's
+// domain — is where postMessage events come from once filtering is on.
+const PROXY_ORIGIN = (() => {
+  if (!PROXY_BASE) return undefined
+  try {
+    return new URL(PROXY_BASE).origin
+  } catch {
+    return undefined
+  }
+})()
 
 interface Props {
   mediaType: 'movie' | 'tv'
@@ -78,6 +90,10 @@ export default function WatchClient({
   children,
 }: Props) {
   const router = useRouter()
+  // Read here rather than inside PlayerIframe so it can go in that component's key:
+  // the resume lookup takes a different path once the session resolves.
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const [serverId, setServerId] = useState(servers[0]?.id || '')
   const [iframeKey, setIframeKey] = useState(0)
   const [useDirectEmbed, setUseDirectEmbed] = useState(false)
@@ -121,21 +137,27 @@ export default function WatchClient({
     return useDirectEmbed ? url : applyProxy(url)
   }, [useDirectEmbed])
 
-  // Full navigation — page reloads with new episode, all UI updates from fresh server props.
-  // Our own resolution wins over whatever the provider asks for: players routinely
-  // fire "next" as current + 1, which walks off the end of a season or into an
-  // episode that hasn't aired. Only when TMDB tells us nothing do we follow them.
-  const handleNextEpisode = useCallback((newSeason: number, newEpisode: number) => {
+  // Soft navigation — the route re-renders with the new episode and all UI updates
+  // from fresh server props. Our own resolution wins over whatever the provider asks
+  // for: players routinely fire "next" as current + 1, which walks off the end of a
+  // season or into an episode that hasn't aired. Only when TMDB tells us nothing do
+  // we follow them.
+  //
+  // Returns whether it navigated. Declining is normal — a show you're caught up on
+  // has nowhere to go — and the player needs to know, because it must not write this
+  // episode off while it is still the one playing.
+  const handleNextEpisode = useCallback((newSeason: number, newEpisode: number): boolean => {
     let targetS = newSeason
     let targetE = newEpisode
 
     if (nextEpisodeKey) {
-      if (!resolvedNext) return // caught up or finished — nothing to navigate to
+      if (!resolvedNext) return false // caught up or finished — nothing to navigate to
       targetS = resolvedNext.season
       targetE = resolvedNext.episode
     }
 
     router.replace(`/watch/${id}?type=${mediaType}&s=${targetS}&e=${targetE}`)
+    return true
   }, [router, id, mediaType, nextEpisodeKey, resolvedNext])
 
   // Early returns
@@ -212,7 +234,15 @@ export default function WatchClient({
 
       <div className={styles.playerWrapper}>
         <div className={styles.playerSection}>
+          {/*
+            Keyed by everything the player's internal state is scoped to. Episode
+            changes here are soft navigations, so without this the component is
+            re-rendered rather than remounted and its refs leak from one episode
+            into the next — which is how progress tracking used to die mid-session.
+            One mount, one episode, one server, one session state.
+          */}
           <PlayerIframe
+            key={`${id}-${season}-${episode}-${iframeKey}-${isAuthenticated}`}
             provider={activeProvider}
             serverUrl={activeServer.url}
             mediaType={mediaType}
@@ -224,7 +254,8 @@ export default function WatchClient({
             poster={poster}
             genres={genres}
             nextEpisodeKey={nextEpisodeKey}
-            iframeKey={iframeKey}
+            isAuthenticated={isAuthenticated}
+            proxyOrigin={useDirectEmbed ? undefined : PROXY_ORIGIN}
             transformUrl={PROXY_BASE ? buildTransformUrl : undefined}
             onNextEpisode={mediaType === 'tv' ? handleNextEpisode : undefined}
           />

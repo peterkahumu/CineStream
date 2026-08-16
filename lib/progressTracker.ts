@@ -299,6 +299,30 @@ let pendingSyncItems = new Map<string, WatchProgress>()
 let pendingHistoryItems = new Map<string, HistoryEvent>()
 let lastSyncTime = 0
 let lastHistorySyncTime = 0
+let syncFailureCount = 0
+const MAX_SYNC_RETRIES = 3
+
+/**
+ * Puts a failed batch back on the queue so the next scheduled sync retries it,
+ * rather than losing the write until something else happens to cover it. An item
+ * already superseded by a newer save is skipped — re-adding it would push a stale
+ * position back over a fresh one.
+ *
+ * Retries are capped: past that the items stay queued but stop scheduling timers,
+ * so a server that is simply down doesn't turn into a request every 10s. They still
+ * reach the DB, because flushProgress() sends everything in localStorage on tab
+ * hide and unload.
+ */
+function requeueProgressSync(items: WatchProgress[]): void {
+  for (const item of items) {
+    const pending = pendingSyncItems.get(item.id)
+    if (!pending || pending.updatedAt < item.updatedAt) pendingSyncItems.set(item.id, item)
+  }
+
+  syncFailureCount += 1
+  if (syncFailureCount > MAX_SYNC_RETRIES) return
+  if (!syncTimer) syncTimer = setTimeout(executeProgressSync, SYNC_DEBOUNCE_MS)
+}
 
 function executeProgressSync() {
   if (syncTimer) {
@@ -315,7 +339,19 @@ function executeProgressSync() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(items),
-  }).catch(err => console.error('[progressTracker] Background sync failed:', err))
+  })
+    .then(res => {
+      if (res.ok) {
+        syncFailureCount = 0
+        return
+      }
+      console.error('[progressTracker] Background sync rejected:', res.status)
+      requeueProgressSync(items)
+    })
+    .catch(err => {
+      console.error('[progressTracker] Background sync failed:', err)
+      requeueProgressSync(items)
+    })
 }
 
 function scheduleDebouncedSync(item: WatchProgress): void {
@@ -410,6 +446,14 @@ export function saveProgress(
   const rawDuration = data.duration ?? 0
   const watchedNum = Math.round(Number(rawWatched) || 0)
   const durationNum = Math.round(Number(rawDuration) || 0)
+
+  // A player reporting neither a position nor a duration hasn't loaded its metadata
+  // yet — that is not the user sitting at zero. Real-time events overwrite the active
+  // episode unconditionally (see mergeShowProgress) and may lower `watched` below, so
+  // letting one through erases the resume point on every load. VidAPI, the default
+  // server, emits exactly this before it seeks. A genuine rewind carries a duration.
+  if (data.isRealTimeEvent && watchedNum <= 0 && durationNum <= 0) return
+
   const seasonNum = typeof data.season === 'number' && !isNaN(data.season)
     ? Math.round(data.season)
     : (data.season ? parseInt(String(data.season), 10) || undefined : undefined)
