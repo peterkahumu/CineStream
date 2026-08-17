@@ -206,9 +206,13 @@ export default function PlayerIframe({
       progressTracker.saveProgress(id, mediaType, provider.id, {
         watched,
         duration,
-        title: data.title || title,
-        poster_path: data.poster_path !== undefined ? data.poster_path : (poster ?? null),
-        backdrop_path: data.backdrop_path !== undefined ? data.backdrop_path : (backdrop ?? null),
+        // TMDB wins over anything the provider says this is. These props are
+        // resolved server-side from the id in the URL, so they cannot describe a
+        // different title; a provider payload can, and has. The provider's own
+        // strings are kept only as a fallback for whatever TMDB left blank.
+        title: title || data.title || '',
+        poster_path: poster ?? data.poster_path ?? null,
+        backdrop_path: backdrop ?? data.backdrop_path ?? null,
         season: mediaType === 'tv' ? season : undefined,
         episode: mediaType === 'tv' ? episode : undefined,
         show_progress,

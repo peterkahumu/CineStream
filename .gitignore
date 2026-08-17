@@ -51,6 +51,10 @@ next-env.d.ts
 
 .vscode/
 
+# database level manipulation scripts
+repair-watch-history.sql
+
+
 # OpenNext
 .open-next
 public/sw.js

@@ -91,8 +91,10 @@ export const watchHistory = pgTable("watch_history", {
   episode: integer("episode"),
   event: text("event").notNull(), // 'started' | 'completed'
   genres: json("genres"), // { id: number, name: string }[] | null
-  // Furthest position reached in this episode/movie, and its runtime. Merged with
-  // GREATEST on conflict — monotonic, so devices can't undo each other's progress.
+  // Furthest position reached in this episode/movie, and its runtime. Position is
+  // merged with GREATEST on conflict — monotonic, so devices can't undo each
+  // other's progress. Runtime is not monotonic and is last-write-wins; together
+  // they are what determines whether the episode counts as completed.
   watchedSeconds: integer("watchedSeconds").default(0),
   runtimeSeconds: integer("runtimeSeconds").default(0),
   // When the current "started"/"completed" state was reached — drives the activity

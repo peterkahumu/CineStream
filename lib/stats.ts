@@ -7,6 +7,11 @@
  * sources heal towards each other and a title removed from Continue Watching
  * keeps its hours, its place in Top Titles and its genres.
  *
+ * A history row is the evidence that something was watched — they are only
+ * written once the 30-second "started" threshold is crossed. Its seconds column
+ * is a later addition, so rows predating it read 0; those episodes still count,
+ * and a completed one is credited its title's median episode length.
+ *
  * Pure and side-effect free so it can be exercised without a database; the route
  * handler only supplies rows.
  */
@@ -95,9 +100,18 @@ interface EpisodeStat {
   titleKey: string;
   tmdbId: string;
   mediaType: "movie" | "tv";
+  /** Seconds actually recorded. 0 for rows logged before history carried a duration. */
   seconds: number;
+  /** Stand-in seconds for a completed episode whose real figure was never recorded. */
+  estimatedSeconds: number;
   runtime: number;
   completed: boolean;
+  /**
+   * A durable watch_history row exists for this episode. History rows are only
+   * written past the 30-second "started" threshold, so the row itself is the
+   * evidence of a watch — even when its seconds column is 0.
+   */
+  logged: boolean;
   lastWatchedAt: number;
 }
 
@@ -116,6 +130,16 @@ interface ShowProgressEntry {
   episode?: number;
   watched?: number;
   duration?: number;
+}
+
+/** Middle value of a sorted copy — robust against a stray runtime from another title. */
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? Math.round((sorted[mid - 1] + sorted[mid]) / 2)
+    : sorted[mid];
 }
 
 /** Parses a `s{n}e{n}` show_progress key. */
@@ -230,7 +254,8 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
     seconds: number,
     runtime: number,
     completed: boolean,
-    at: number
+    at: number,
+    logged: boolean
   ) {
     const identity = `${mediaType}-${tmdbId}-${season ?? "x"}-${episode ?? "x"}`;
     const prev = episodeStats.get(identity);
@@ -240,26 +265,40 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
       tmdbId,
       mediaType,
       seconds: Math.max(prev?.seconds ?? 0, Math.max(0, capped)),
+      estimatedSeconds: 0,
       runtime: Math.max(prev?.runtime ?? 0, Math.max(0, runtime)),
       completed: (prev?.completed ?? false) || completed,
+      logged: (prev?.logged ?? false) || logged,
       lastWatchedAt: Math.max(prev?.lastWatchedAt ?? 0, at || 0),
     });
   }
 
+  /**
+   * Newest-row-wins, rather than last-row-processed-wins. A row occasionally
+   * carries another title's name (a stale player payload written against the
+   * wrong tmdbId), and without an explicit clock which one survives depends on
+   * the order the database happened to return — the same data would name a show
+   * differently between two requests.
+   */
+  const titleMetaAt = new Map<string, number>();
   function recordTitle(
     mediaType: "movie" | "tv",
     tmdbId: string,
-    meta: Partial<TitleMeta>
+    meta: Partial<TitleMeta>,
+    at: number
   ) {
     const titleKey = `${mediaType}-${tmdbId}`;
     const prev = titleMeta.get(titleKey);
+    const prevAt = titleMetaAt.get(titleKey) ?? -1;
+    const wins = !prev || at >= prevAt;
+    titleMetaAt.set(titleKey, Math.max(prevAt, at));
     titleMeta.set(titleKey, {
       tmdbId,
       mediaType,
-      title: meta.title || prev?.title || "Untitled",
-      poster_path: meta.poster_path ?? prev?.poster_path ?? null,
-      backdrop_path: meta.backdrop_path ?? prev?.backdrop_path ?? null,
-      genres: (meta.genres?.length ? meta.genres : prev?.genres) ?? null,
+      title: (wins ? meta.title : prev?.title) || prev?.title || meta.title || "Untitled",
+      poster_path: (wins ? meta.poster_path : prev?.poster_path) ?? prev?.poster_path ?? null,
+      backdrop_path: (wins ? meta.backdrop_path : prev?.backdrop_path) ?? prev?.backdrop_path ?? null,
+      genres: ((wins && meta.genres?.length ? meta.genres : prev?.genres) ?? meta.genres) ?? null,
     });
   }
 
@@ -269,12 +308,13 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
     const runtime = Math.round(Number(row.runtimeSeconds) || 0);
     const completed =
       row.event === "completed" || (runtime > 0 && seconds / runtime >= 0.9);
+    const at = Number(row.updatedAt) || row.occurredAt;
 
     recordTitle(mediaType, row.tmdbId, {
       title: row.title ?? undefined,
       poster_path: row.poster_path,
       genres: Array.isArray(row.genres) ? (row.genres as GenreTally[]) : null,
-    });
+    }, at);
     recordEpisode(
       mediaType,
       row.tmdbId,
@@ -283,7 +323,8 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
       seconds,
       runtime,
       completed,
-      Number(row.updatedAt) || row.occurredAt
+      at,
+      true
     );
 
     const titleKey = `${mediaType}-${row.tmdbId}`;
@@ -315,7 +356,7 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
       poster_path: row.poster_path,
       backdrop_path: row.backdrop_path,
       genres: parsedGenres,
-    });
+    }, at);
 
     const watched = Math.round(Number(row.watched) || 0);
     const duration = Math.round(Number(row.duration) || 0);
@@ -323,7 +364,7 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
     if (mediaType === "movie") {
       recordEpisode(
         "movie", row.tmdbId, null, null,
-        watched, duration, duration > 0 && watched / duration >= 0.9, at
+        watched, duration, duration > 0 && watched / duration >= 0.9, at, watched > 0
       );
       continue;
     }
@@ -345,7 +386,7 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
       episodesFromMap++;
       recordEpisode(
         "tv", row.tmdbId, season, episode,
-        epWatched, epDuration, epDuration > 0 && epWatched / epDuration >= 0.9, at
+        epWatched, epDuration, epDuration > 0 && epWatched / epDuration >= 0.9, at, true
       );
     }
 
@@ -353,9 +394,41 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
     if (episodesFromMap === 0 && watched > 0) {
       recordEpisode(
         "tv", row.tmdbId, row.season, row.episode,
-        watched, duration, duration > 0 && watched / duration >= 0.9, at
+        watched, duration, duration > 0 && watched / duration >= 0.9, at, true
       );
     }
+  }
+
+  /**
+   * Episodes logged before watch_history carried a seconds column, and any whose
+   * progress entry was trimmed before it could be backfilled, sit in the ledger
+   * with event = "completed" and 0 seconds. A completed episode was watched to at
+   * least 90% of its runtime, so crediting it the title's median recorded episode
+   * length is far closer to the truth than crediting it nothing. Only completed
+   * episodes are imputed — a bare "started" row says nothing about how far it got.
+   */
+  const recordedByTitle = new Map<string, number[]>();
+  for (const stat of episodeStats.values()) {
+    if (stat.seconds <= 0) continue;
+    const seen = recordedByTitle.get(stat.titleKey);
+    if (seen) seen.push(stat.seconds);
+    else recordedByTitle.set(stat.titleKey, [stat.seconds]);
+  }
+
+  const medianByTitle = new Map<string, number>();
+  for (const [titleKey, values] of recordedByTitle) {
+    medianByTitle.set(titleKey, median(values));
+  }
+
+  let estimatedWatchSeconds = 0;
+  let estimatedEpisodesCount = 0;
+  for (const stat of episodeStats.values()) {
+    if (stat.seconds > 0 || !stat.completed) continue;
+    const typical = medianByTitle.get(stat.titleKey) ?? 0;
+    if (typical <= 0) continue;
+    stat.estimatedSeconds = typical;
+    estimatedWatchSeconds += typical;
+    estimatedEpisodesCount += 1;
   }
 
   // Roll episodes up into per-title and per-media totals
@@ -368,25 +441,35 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
   const titleTotals = new Map<string, { watchSeconds: number; episodesCount: number; lastWatchedAt: number }>();
 
   for (const [identity, stat] of episodeStats) {
+    const seconds = stat.seconds || stat.estimatedSeconds;
+    /**
+     * The ledger row — not the seconds column — is what makes something watched.
+     * Counting only seconds > 0 dropped every episode logged before history
+     * carried a duration, while the completed sets kept them, which is how the
+     * completion rate climbed past 100%: the numerator held rows the denominator
+     * had thrown away. Completed always implies started now, by construction.
+     */
+    const watched = stat.logged || seconds > 0 || stat.completed;
+
     if (stat.mediaType === "movie") {
-      movieWatchSeconds += stat.seconds;
-      if (stat.seconds > 0) startedMoviesSet.add(stat.titleKey);
+      movieWatchSeconds += seconds;
+      if (watched) startedMoviesSet.add(stat.titleKey);
       if (stat.completed) completedMoviesSet.add(stat.titleKey);
     } else {
-      tvWatchSeconds += stat.seconds;
-      if (stat.seconds > 0) watchedEpisodesSet.add(identity);
+      tvWatchSeconds += seconds;
+      if (watched) watchedEpisodesSet.add(identity);
       if (stat.completed) completedEpisodesSet.add(identity);
     }
 
     const totals = titleTotals.get(stat.titleKey);
     if (totals) {
-      totals.watchSeconds += stat.seconds;
-      if (stat.seconds > 0) totals.episodesCount += 1;
+      totals.watchSeconds += seconds;
+      if (watched) totals.episodesCount += 1;
       totals.lastWatchedAt = Math.max(totals.lastWatchedAt, stat.lastWatchedAt);
     } else {
       titleTotals.set(stat.titleKey, {
-        watchSeconds: stat.seconds,
-        episodesCount: stat.seconds > 0 ? 1 : 0,
+        watchSeconds: seconds,
+        episodesCount: watched ? 1 : 0,
         lastWatchedAt: stat.lastWatchedAt,
       });
     }
@@ -433,7 +516,7 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
 
   // Generate Top Titles leaderboard
   const topTitles: TopTitleStat[] = Array.from(titleStatsMap.values())
-    .filter((t) => t.watchSeconds > 0)
+    .filter((t) => t.watchSeconds > 0 || t.episodesCount > 0)
     .sort((a, b) => b.watchSeconds - a.watchSeconds)
     .slice(0, 5)
     .map((t) => ({
@@ -481,8 +564,13 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
   const totalStartedEpisodes = watchedEpisodesSet.size;
   const totalStartedItems = totalStartedMovies + totalStartedEpisodes;
 
+  // Every completed item is in the started set by construction, so the ratio cannot
+  // exceed 1. Clamped anyway: a percentage over 100 on the profile is the kind of
+  // wrong that costs trust in every other number on the page.
   const completionRate =
-    totalStartedItems > 0 ? Math.round((totalCompletedItems / totalStartedItems) * 100) : 0;
+    totalStartedItems > 0
+      ? Math.min(100, Math.round((totalCompletedItems / totalStartedItems) * 100))
+      : 0;
 
   // Genres by Time Range
   const allGenreRows = [
@@ -511,6 +599,10 @@ export function computeStats({ historyRows, progressRows, now = Date.now() }: St
     totalWatchSeconds,
     movieWatchSeconds,
     tvWatchSeconds,
+    // How much of totalWatchSeconds is imputed from a title's median episode
+    // rather than measured, so the figure stays auditable.
+    estimatedWatchSeconds,
+    estimatedEpisodesCount,
     thisWeek: titlesThisWeek.size,
     thisMonth: titlesThisMonth.size,
     totalWatchEvents: historyRows.length,

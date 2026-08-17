@@ -11,15 +11,26 @@ import type {
  * Resolves the correct media entry from a MEDIA_DATA payload.
  * VidLink / VidNest / VidFast send the entire history keyed by TMDB id.
  * VidFast prefixes movies with "m" and TV with "t" (e.g. "m533535", "t63174").
- * We try an exact match first, then prefixed variants, then fall back to first entry.
+ *
+ * Only ever returns the entry keyed by the id we asked the provider to play.
+ * It used to fall back to `Object.values(data)[0]` when no key matched — but the
+ * payload is the provider's whole library, so the first key is an unrelated title,
+ * and its name, poster, duration and show_progress were then written against the
+ * id actually playing. That is how a Mr. Robot episode ended up recorded as
+ * "The Odyssey" with a 9871-second runtime. No match means no data: the
+ * PLAYER_EVENT timeupdate path below still reports real progress.
  */
 function extractMediaEntry(data: Record<string, unknown>, id: string): Record<string, unknown> | null {
-  const entry =
-    data[id] ??
-    data[`m${id}`] ??
-    data[`t${id}`] ??
-    (Object.values(data)[0] as Record<string, unknown> | undefined)
-  return (entry as Record<string, unknown>) ?? null
+  const entry = data[id] ?? data[`m${id}`] ?? data[`t${id}`]
+  if (!entry || typeof entry !== 'object') return null
+
+  // Some providers repeat the id inside the entry. When they do and it disagrees,
+  // the payload is keyed by something we've mis-read — drop it rather than guess.
+  const record = entry as Record<string, unknown>
+  const ownId = record.id ?? record.tmdbId ?? record.tmdb_id
+  if (ownId != null && String(ownId).replace(/^[mt]/, '') !== id) return null
+
+  return record
 }
 
 /**

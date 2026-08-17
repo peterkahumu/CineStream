@@ -119,7 +119,14 @@ export async function POST(request: Request) {
               event: sql`CASE WHEN ${isNewer} THEN excluded."event" ELSE ${watchHistory.event} END`,
               genres: sql`CASE WHEN ${isNewer} AND excluded."genres" IS NOT NULL THEN excluded."genres" ELSE ${watchHistory.genres} END`,
               watchedSeconds: sql`GREATEST(COALESCE(${watchHistory.watchedSeconds}, 0), COALESCE(excluded."watchedSeconds", 0))`,
-              runtimeSeconds: sql`GREATEST(COALESCE(${watchHistory.runtimeSeconds}, 0), COALESCE(excluded."runtimeSeconds", 0))`,
+              // Runtime is a fixed property of the asset, not a high-water mark, so
+              // it is last-write-wins like the other metadata. GREATEST was wrong and
+              // unrecoverable: one bad duration from a mis-keyed provider payload
+              // pinned the row's runtime high forever, and since completion is
+              // watchedSeconds/runtimeSeconds >= 0.9, that episode could never be
+              // recorded as finished again. A zero still never overwrites a known
+              // runtime — that is a client with nothing to say, not a correction.
+              runtimeSeconds: sql`CASE WHEN ${isNewer} AND COALESCE(excluded."runtimeSeconds", 0) > 0 THEN excluded."runtimeSeconds" ELSE COALESCE(${watchHistory.runtimeSeconds}, 0) END`,
               occurredAt: sql`CASE WHEN ${isNewer} THEN excluded."occurredAt" ELSE ${watchHistory.occurredAt} END`,
               updatedAt: sql`GREATEST(COALESCE(${watchHistory.updatedAt}, 0), COALESCE(excluded."updatedAt", 0))`,
             },
