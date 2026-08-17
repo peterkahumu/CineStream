@@ -256,7 +256,9 @@ The rules, in one place:
   `useSession()`, because the session cookie is `httpOnly` and a plain module can't sniff
   it. **Guests never touch the sync endpoints** — zero wasted requests.
 - **Debounced batching** — progress and history debounce 10 s, settings 3 s, wishlist 10 s.
-  Rapid edits cost one round trip, not one per click.
+  Rapid edits cost one round trip, not one per click. A progress batch that fails or is
+  rejected is put back on the queue and retried (capped at 3 attempts, so a server that is
+  down doesn't become a request every 10 s); `flushProgress()` on tab hide is the backstop.
 - **Conflict resolution is latest-`updatedAt`-wins** for progress, wishlist and settings.
   History is merged by *episode identity* with `watchedSeconds` taking the **max** on both
   sides (the server upsert uses `GREATEST`), so monotonic furthest-position semantics hold
@@ -295,6 +297,13 @@ row rather than piling up duplicates. `occurredAt` only moves when the event *st
 
 Thresholds in `lib/progressTracker.ts`: `started` at **30 s** watched, `completed` at
 **≥ 90 %**. Each fires once per movie, or once per episode for TV.
+
+`saveProgress` drops a real-time event carrying **neither a position nor a duration** — a
+player that hasn't loaded its metadata yet reports `0/0`, and since real-time events overwrite
+the active episode unconditionally (`mergeShowProgress`) that would erase the resume point on
+every load. VidAPI, first in the registry and so the default server, is the only provider with
+no `> 5 s` floor of its own and emits exactly this before it seeks. A genuine rewind carries a
+duration, so it still writes.
 
 **Removal is a soft dismiss.** The Continue Watching × calls `dismissProgress()`, which sets
 `dismissedAt` and keeps the row. `removeProgress()` (a genuine purge, with a tombstone and a
@@ -400,8 +409,9 @@ tiers:
 `components/PlayerIframe.tsx` orchestrates them:
 
 - Validates `event.origin` against the provider's declared `origin` (string or array —
-  VidFast sends from any of nine domains) **and** checks `event.source` matches the current
-  iframe, so a stale iframe's buffered events are ignored.
+  VidFast sends from any of nine domains) plus the proxy's own origin when the embed was
+  routed through it, **and** checks `event.source` is inside our iframe tree, so a stale
+  iframe's buffered events are ignored.
 - Normalises every provider's `show_progress` into our `EpisodeProgress` shape, always
   rebuilding keys as `s{n}e{n}` (providers have sent `S1E2` and other spellings, and a key
   that doesn't match what `getResumeTime` looks up is the same as no progress at all).
@@ -412,7 +422,15 @@ tiers:
   merged — the title is already walled off by `setActivePlayback`).
 - Guards `onNextEpisode` to fire once per episode; `WatchClient` then overrides whatever the
   provider asked for with our own TMDB-derived answer, because players routinely fire "next"
-  as current + 1.
+  as current + 1, and **returns whether it actually navigated**. A show you're caught up on
+  has nowhere to go, and the episode must not be written off while it's still playing.
+
+> ⚠️ **`PlayerIframe` is keyed per episode** — `key={id-season-episode-server-auth}` in
+> `WatchClient`. Episode changes on `/watch` are *soft* navigations, so without that key the
+> component is re-rendered, never remounted, and its refs leak into the next episode. That is
+> how progress tracking used to die mid-session: the once-per-episode next-episode guard was
+> never reset, and every later `saveProgress` was skipped. Keep per-episode state per-episode
+> by keeping the mount per-episode — don't hand-roll a reset.
 
 Three shared shapes live in `lib/providers/types.ts`: `ProviderConfig`, `PlayerCallbacks`,
 `PlayerContext`.
@@ -742,6 +760,7 @@ failure — deliberately narrow, covering the logic that's hardest to eyeball:
 | `scripts/verify-next-episode.ts` | `buildNextEpisodeKey` / `airedEpisodesAfter` across mid-season, unaired-next, finale-returning, finale-ended, canceled and season-rollover cases |
 | `scripts/verify-rails.ts` | The Continue Watching ↔ Upcoming Episodes hand-off: every watched show lands in exactly one rail, never both |
 | `scripts/verify-stats.ts` | `computeStats` survives a title being removed from Continue Watching — the hours stay on the board |
+| `scripts/verify-progress-lifecycle.ts` | A resume point survives a still-loading player's `0/0` events, a new episode records without disturbing the last one, and an `S1E2`-cased key still resolves |
 
 ```bash
 npm test

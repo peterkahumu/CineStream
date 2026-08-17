@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "build:worker": "npx @opennextjs/cloudflare build",
     "typecheck": "tsc --noEmit",
-    "test": "tsx scripts/verify-next-episode.ts && tsx scripts/verify-rails.ts && tsx scripts/verify-stats.ts",
+    "test": "tsx scripts/verify-next-episode.ts && tsx scripts/verify-rails.ts && tsx scripts/verify-stats.ts && tsx scripts/verify-progress-lifecycle.ts && tsx scripts/verify-provider-messages.ts",
+    "audit:watch-data": "tsx scripts/audit-watch-data.ts",
     "db:push": "drizzle-kit push",
     "cf-typegen": "wrangler types --include-runtime=false --env-interface=CloudflareEnv",
     "deploy": "npm run build && npm run build:worker && node --env-file-if-exists=.dev.vars --env-file-if-exists=.env.local node_modules/wrangler/bin/wrangler.js deploy"

@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import type { ProviderConfig, PlayerCallbacks, PlayerContext, ProviderProgressData } from '@/lib/providers/types'
 import type { EpisodeProgress, WatchProgress } from '@/lib/progressTracker'
 import * as progressTracker from '@/lib/progressTracker'
@@ -68,9 +67,17 @@ interface PlayerIframeProps {
   genres?: Genre[]
   /** See WatchProgress.nextEpisodeKey — resolved by WatchClient from TMDB season data. */
   nextEpisodeKey?: string
-  iframeKey: number
+  /** Session state, lifted to WatchClient so it can key this component by it. */
+  isAuthenticated: boolean
+  /**
+   * Origin the embed is actually served from when the ad-filtering proxy is on.
+   * Provider events then arrive from the worker, not from the provider's own
+   * domain, and pinning to the latter would discard every one of them.
+   */
+  proxyOrigin?: string
   transformUrl?: (url: string) => string
-  onNextEpisode?: (season: number, episode: number) => void
+  /** Returns whether it actually navigated — see handleNextEpisode. */
+  onNextEpisode?: (season: number, episode: number) => boolean
   onClose?: () => void
 }
 
@@ -86,58 +93,41 @@ export default function PlayerIframe({
   poster,
   genres,
   nextEpisodeKey,
-  iframeKey,
+  isAuthenticated,
+  proxyOrigin,
   transformUrl,
   onNextEpisode,
   onClose,
 }: PlayerIframeProps) {
   const router = useRouter()
-  const { status } = useSession()
-  const isAuthenticated = status === 'authenticated'
   const [hasError, setHasError] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Identity of the resume point currently being resolved. Anything that changes
-  // which episode-on-which-device we're asking about — an explicit server switch,
-  // a new episode, signing in — invalidates the previous answer.
-  const resolutionKey = `${iframeKey}:${id}:${season}:${episode}:${isAuthenticated}`
+  // Resume position for this mount. `null` doubles as "not resolved yet" and gates
+  // the skeleton below.
+  //
+  // WatchClient keys this component by id/season/episode/server/auth, so one mount
+  // only ever plays one episode on one server. That is what makes every ref and
+  // piece of state here safe: each is per-episode, and so is the mount. Anything
+  // added below inherits that guarantee — don't reach for a manual reset.
+  const [startTime, setStartTime] = useState<number | null>(null)
 
-  // Start time is stored alongside the key it was resolved for. `null` doubles as
-  // "not resolved yet" and gates the skeleton below.
-  const [resolution, setResolution] = useState<{ key: string; startTime: number | null }>({
-    key: resolutionKey,
-    startTime: null,
-  })
-
-  // Reset during render rather than from an effect. This is derived state
-  // following its key, and an effect would both commit one frame still carrying
-  // the previous episode's resume time and trip react-hooks/set-state-in-effect.
-  if (resolution.key !== resolutionKey) {
-    setResolution({ key: resolutionKey, startTime: null })
-  }
-
-  const startTime = resolution.key === resolutionKey ? resolution.startTime : null
-
-  // Guard against the same episode triggering onNextEpisode more than once.
-  // Providers like VidLink can fire multiple 'ended' events in quick succession,
-  // or buffered events from the previous iframe can arrive after the listener is
-  // re-attached. This ref ensures we only navigate once per episode.
+  // The episode we have already handed off to the next-episode flow. Providers
+  // like VidLink fire several 'ended' events in quick succession, and a stale
+  // frame's buffered events can arrive after the listener is re-attached, so both
+  // the hand-off and the progress writer check against it.
   const nextEpisodeTriggeredForRef = useRef<string | null>(null)
 
-  // Resume time — runs on mount, explicit server switch, or episode change.
+  // Resume time — resolved once per mount, which is once per episode and server.
   // localStorage is the source of truth; when this device has never stored
   // anything for the title (new device, cleared storage, private window) a
   // signed-in user's server copy is consulted before giving up and starting
   // from zero. Merging isn't an option here — setActivePlayback has already
   // walled this title off from inbound syncs — so the remote row is only read.
   const resolveStartTime = useCallback(() => {
-    // Committed against the key it was resolved for, so a late fetch belonging to
-    // a previous episode can never be mistaken for the current one's answer.
-    const commit = (value: number) => setResolution({ key: resolutionKey, startTime: value })
-
     const local = progressTracker.getResumeTime(id, season, episode)
     if (local > 0 || progressTracker.hasLocalProgress(id) || !isAuthenticated) {
-      commit(local)
+      setStartTime(local)
       return
     }
 
@@ -149,23 +139,25 @@ export default function PlayerIframe({
         const match = Array.isArray(remote)
           ? remote.find(item => String(item.id).trim() === String(id).trim())
           : undefined
-        commit(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
+        setStartTime(match ? progressTracker.getResumeTimeFrom(match, season, episode) : 0)
       })
       .catch(() => {
-        if (!cancelled) commit(0)
+        if (!cancelled) setStartTime(0)
       })
 
     return () => {
       cancelled = true
     }
-  }, [id, season, episode, isAuthenticated, resolutionKey])
+  }, [id, season, episode, isAuthenticated])
 
   // Progress persistence
   const handleProgress = useCallback(
     (data: ProviderProgressData) => {
-      // Guard: if we are already navigating to the next episode, ignore further 
-      // progress updates for the current episode to prevent stale state overwrites.
-      if (nextEpisodeTriggeredForRef.current) return
+      // Ignore late progress for an episode we have already handed off, so a stale
+      // frame's buffered events can't overwrite the episode now playing. Scoped to
+      // that episode: a bare truthiness check here silently killed progress for the
+      // whole rest of the session once any hand-off had happened.
+      if (nextEpisodeTriggeredForRef.current === progressTracker.episodeKey(season, episode)) return
 
       const watched = Math.round(Number(data.watched) || 0)
       const duration = Math.round(Number(data.duration) || 0)
@@ -214,9 +206,13 @@ export default function PlayerIframe({
       progressTracker.saveProgress(id, mediaType, provider.id, {
         watched,
         duration,
-        title: data.title || title,
-        poster_path: data.poster_path !== undefined ? data.poster_path : (poster ?? null),
-        backdrop_path: data.backdrop_path !== undefined ? data.backdrop_path : (backdrop ?? null),
+        // TMDB wins over anything the provider says this is. These props are
+        // resolved server-side from the id in the URL, so they cannot describe a
+        // different title; a provider payload can, and has. The provider's own
+        // strings are kept only as a fallback for whatever TMDB left blank.
+        title: title || data.title || '',
+        poster_path: poster ?? data.poster_path ?? null,
+        backdrop_path: backdrop ?? data.backdrop_path ?? null,
         season: mediaType === 'tv' ? season : undefined,
         episode: mediaType === 'tv' ? episode : undefined,
         show_progress,
@@ -231,17 +227,22 @@ export default function PlayerIframe({
   // Navigation callbacks
   const handleNextEpisode = useCallback(
     (newSeason: number, newEpisode: number) => {
-      // Guard: only trigger once per episode to prevent rapid-fire 'ended' events
-      // from the same or a stale iframe from cascading through multiple episodes.
-      const currentEpKey = `s${season}e${episode}`
+      // Only hand off once per episode, so rapid-fire 'ended' events from the same
+      // or a stale iframe can't cascade through several episodes.
+      const currentEpKey = progressTracker.episodeKey(season, episode)
       if (nextEpisodeTriggeredForRef.current === currentEpKey) return
-      nextEpisodeTriggeredForRef.current = currentEpKey
 
+      let navigated = true
       if (onNextEpisode) {
-        onNextEpisode(newSeason, newEpisode)
+        navigated = onNextEpisode(newSeason, newEpisode)
       } else {
         router.replace(`/watch/${id}?type=${mediaType}&s=${newSeason}&e=${newEpisode}`)
       }
+
+      // Mark the episode departed only once something actually navigated. When the
+      // show is caught up or finished WatchClient declines and we stay right here,
+      // still playing this episode — marking it then would stop it recording.
+      if (navigated) nextEpisodeTriggeredForRef.current = currentEpKey
     },
     [id, mediaType, season, episode, onNextEpisode, router]
   )
@@ -267,11 +268,13 @@ export default function PlayerIframe({
     (event: MessageEvent) => {
       if (!provider.onMessage) return
 
-      // Guard: validate origin against single string or array of trusted domains
+      // Guard: validate origin against the provider's declared domain(s), plus the
+      // ad-filtering proxy's own origin when the embed was routed through it — the
+      // frame is then served by the worker, so pinning to the provider alone would
+      // discard every event. isFromFrameTree below still holds the real boundary.
       if (provider.origin) {
-        const trusted = Array.isArray(provider.origin)
-          ? provider.origin.includes(event.origin)
-          : event.origin === provider.origin
+        const declared = Array.isArray(provider.origin) ? provider.origin : [provider.origin]
+        const trusted = declared.includes(event.origin) || event.origin === proxyOrigin
         if (!trusted) return
       }
 
@@ -293,7 +296,7 @@ export default function PlayerIframe({
 
       provider.onMessage(event, callbacks, context)
     },
-    [provider, id, mediaType, season, episode, title, handleProgress, handleNextEpisode, handleClose, handleError]
+    [provider, proxyOrigin, id, mediaType, season, episode, title, handleProgress, handleNextEpisode, handleClose, handleError]
   )
 
   const handleRetry = useCallback(() => {
@@ -307,16 +310,23 @@ export default function PlayerIframe({
     return () => window.removeEventListener('message', handleMessage)
   }, [handleMessage, provider.onMessage])
 
-  // Look up the resume time fresh whenever the resolution key changes — mount, an
-  // explicit server switch, or an episode change all recreate resolveStartTime.
+  // Look up the resume time once for this mount. The component is keyed per episode
+  // and server, so a remount is the only thing that can invalidate the answer.
+  //
+  // The localStorage branch of resolveStartTime commits synchronously, which the
+  // set-state-in-effect rule flags. It is one render on mount, behind the skeleton
+  // below, and it can't move: a lazy useState initialiser would read localStorage
+  // during hydration and render the iframe where the server rendered a skeleton.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     return resolveStartTime()
   }, [resolveStartTime])
 
   // Mark this title as actively playing so a periodic background sync never
-  // overwrites a live session (see progressTracker's activePlaybackId). Scoped
-  // to `id` rather than season/episode so it stays marked across an in-show
-  // episode change, not just the initial mount.
+  // overwrites a live session (see progressTracker's activePlaybackId). An episode
+  // change remounts this component, so the pair runs clear-then-set within a single
+  // commit; clearActivePlayback is id-guarded and mergeRemoteProgress only ever runs
+  // from a fetch callback, so no poll can slip through the gap.
   useEffect(() => {
     progressTracker.setActivePlayback(id)
     return () => progressTracker.clearActivePlayback(id)
@@ -356,7 +366,6 @@ export default function PlayerIframe({
     <OfflineTrailerWrapper>
       <iframe
         ref={iframeRef}
-        key={`${iframeKey}-${season}-${episode}`}
         src={embedUrl}
         className={pageStyles.player}
         loading="eager"

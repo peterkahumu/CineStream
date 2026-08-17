@@ -14,7 +14,9 @@ import MediaSplitCard from './MediaSplitCard'
 import TopStreamedCard from './TopStreamedCard'
 import styles from './ProfileStats.module.css'
 
-const STATS_CACHE_KEY = 'cinemaphora_cached_profile_stats_v5'
+// Bumped whenever computeStats changes what a number means — the cached copy is
+// painted before the fetch resolves, so a stale one flashes the old figures.
+const STATS_CACHE_KEY = 'cinemaphora_cached_profile_stats_v6'
 
 interface Stats {
   titlesWatched: number
@@ -29,6 +31,8 @@ interface Stats {
   totalWatchSeconds: number
   movieWatchSeconds?: number
   tvWatchSeconds?: number
+  estimatedWatchSeconds?: number
+  estimatedEpisodesCount?: number
   thisWeek: number
   thisMonth: number
   totalWatchEvents?: number
@@ -207,6 +211,7 @@ export default function ProfileStats() {
     }
   }
 
+  const estimatedEpisodes = stats.estimatedEpisodesCount ?? 0
   const activitySeries = stats.activitySeries || stats.activity || []
   const episodesCount = stats.episodesWatched ?? 0
   const topBinge = stats.bingeMetrics?.topBingeTitle
@@ -253,7 +258,17 @@ export default function ProfileStats() {
         {/* Total Watch Time */}
         <div className={styles.tile}>
           <div className={styles.tileHeader}>
-            <span className={styles.tileLabel}>Total Watch Time</span>
+            <span className={styles.tileLabel}>
+              Total Watch Time{' '}
+              {estimatedEpisodes > 0 && (
+                <span
+                  className={styles.infoBadge}
+                  data-tooltip={`${estimatedEpisodes} finished ${estimatedEpisodes === 1 ? 'episode was' : 'episodes were'} logged before playback duration was recorded. ${estimatedEpisodes === 1 ? 'It counts' : 'They count'} at the show's typical episode length.`}
+                >
+                  ?
+                </span>
+              )}
+            </span>
             <span className={styles.tileIcon}>⏱️</span>
           </div>
           <div className={styles.tileValue}>{watchTimeText}</div>
